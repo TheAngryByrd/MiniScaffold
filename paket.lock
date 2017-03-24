@@ -1,0 +1,6 @@
+
+
+GROUP Build
+NUGET
+  remote: https://www.nuget.org/api/v2
+    FAKE (4.56)
