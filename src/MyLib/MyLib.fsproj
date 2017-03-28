@@ -12,8 +12,6 @@
     <PackageReference Include="FSharp.Core" Version="4.1.*" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Hopac" Version="*" />
-    <PackageReference Include="Chessie" Version="*" />
     <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
   </ItemGroup>
 </Project>
