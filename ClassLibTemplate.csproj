@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Simple elmish application using React as a renderer</Description>
-    <Authors>Maxime Mangel</Authors>
-    <PackageProjectUrl>https://github.com/fable-compiler/fable-elmish</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/fable-compiler/fable-elmish/blob/master/LICENSE.md</PackageLicenseUrl>
-    <RepositoryUrl>https://github.com/fable-compiler/fable-elmish.git</RepositoryUrl>
-    <PackageTags>fable;template;fsharp</PackageTags>
+    <Description>Simple F# Class Lib Project</Description>
+    <Authors>Jimmy Byrd</Authors>
+    <PackageProjectUrl>https://github.com/TheAngryByrd/dotnetCoreClassLibTemplate</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/TheAngryByrd/dotnetCoreClassLibTemplate/blob/master/LICENSE.md</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/TheAngryByrd/dotnetCoreClassLibTemplate.git</RepositoryUrl>
+    <PackageTags>class;library;template;fsharp</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageType>Template</PackageType>
 
