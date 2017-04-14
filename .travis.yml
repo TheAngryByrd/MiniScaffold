@@ -12,10 +12,8 @@ addons:
     - libssl-dev
     - libunwind8
     - zlib1g
-matrix:
-  include:
-    - dotnet: 1.0.1
-      mono: latest
+dotnet: 1.0.1
+mono: latest
 os:  
   - linux
   - osx
