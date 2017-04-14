@@ -1,6 +1,7 @@
 # MiniScaffold
 A template for f# class libraries that target NETFramework (net45) and NETCore (netstandard1.6)
 
+[![NuGet Badge](https://img.shields.io/nuget/vpre/MiniScaffold.svg)](https://www.nuget.org/packages/MiniScaffold/)
 
 ### Getting started
 
