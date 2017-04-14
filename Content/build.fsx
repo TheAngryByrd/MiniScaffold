@@ -7,26 +7,27 @@ open Fake.UserInputHelper
 open System
 
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
-let srcGlob = "*.csproj"
-// let testsGlob = "tests/**/*.fsproj"
-
+let srcGlob = "src/**/*.fsproj"
+let testsGlob = "tests/**/*.fsproj"
 
 Target "Clean" (fun _ ->
-    [ "obj" ;"dist"]
+    ["bin"; "temp" ;"dist"]
     |> CleanDirs
 
-    // !! srcGlob
-    // |> Seq.collect(fun p -> 
-    //     ["bin";"obj"] 
-    //     |> Seq.map(fun sp ->
-    //          IO.Path.GetDirectoryName p @@ sp)
-    //     )
-    // |> CleanDirs
+    !! srcGlob
+    ++ testsGlob
+    |> Seq.collect(fun p -> 
+        ["bin";"obj"] 
+        |> Seq.map(fun sp ->
+             IO.Path.GetDirectoryName p @@ sp)
+        )
+    |> CleanDirs
 
     )
 
 Target "DotnetRestore" (fun _ ->
     !! srcGlob
+    ++ testsGlob
     |> Seq.iter (fun proj ->
         DotNetCli.Restore (fun c ->
             { c with
@@ -36,7 +37,26 @@ Target "DotnetRestore" (fun _ ->
             }) 
 ))
 
+Target "DotnetBuild" (fun _ ->
+    !! srcGlob
+    |> Seq.iter (fun proj ->
+        DotNetCli.Build (fun c ->
+            { c with
+                Project = proj
+                //This makes sure that Proj2 references the correct version of Proj1
+                AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
+            }) 
+))
 
+Target "DotnetTest" (fun _ ->
+    !! testsGlob
+    |> Seq.iter (fun proj ->
+        DotNetCli.Test (fun c ->
+            { c with
+                Project = proj
+                WorkingDir = IO.Path.GetDirectoryName proj
+            }) 
+))
 
 Target "DotnetPack" (fun _ ->
     !! srcGlob
@@ -62,6 +82,8 @@ Target "Publish" (fun _ ->
 
 "Clean"
   ==> "DotnetRestore"
+  ==> "DotnetBuild"
+  ==> "DotnetTest"
   ==> "DotnetPack"
   ==> "Publish"
 
