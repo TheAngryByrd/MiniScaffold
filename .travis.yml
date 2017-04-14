@@ -1,9 +1,13 @@
 language: csharp  
+sudo: required  
+dist: jessie  
+
 dotnet: 1.0.1
 mono: latest
 os:  
   - linux
   - osx # times out too often, enable at own risk
+
 
 script:  
   - ./build.sh
