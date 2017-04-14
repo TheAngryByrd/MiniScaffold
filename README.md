@@ -27,7 +27,8 @@ Build!
 build.sh
 ```
 
-THe bin of you lib should then look like
+The bin of your new lib should look like
+
 ```
 tree src/MyCoolNewLib/bin/
 src/MyCoolNewLib/bin/
@@ -42,8 +43,10 @@ src/MyCoolNewLib/bin/
         └── MyCoolNewLib.pdb
 
 ```
-
-Release! 
+Release!
+* Start a git repo with a remote
+* Then update the `RELEASE_NOTES.md` with a new version 
+* You can then publish to nuget and push a git tag!   
 
 ```
 ./build.sh Release
