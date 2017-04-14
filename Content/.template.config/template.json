@@ -1,14 +1,13 @@
 {
   "author": "Jimmy Byrd",
-  "classifications": [ "Fable" ],
-  "name": "FSharpClassLib",
+  "classifications": [ "Scaffold" ],
+  "name": "MiniScaffold",
   "tags": {
     "language": "F#"
   },
-  "identity": "FSharpClassLib",
-  "groupIdentity": "FSharpClassLib",
-  "shortName": "FSharpClassLib",
-  "sourceName": "FSharpClassLib",
+  "identity": "MiniScaffold",
+  "shortName": "mini-scaffold",
+  "sourceName": "MyLib",
   // This allows using the `-n` option to create a new directory
   "preferNameDirectory": true
 }

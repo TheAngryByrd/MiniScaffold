@@ -1,2 +1,2 @@
-# dotnetCoreClassLibTemplate
-A WIP template for f# class libs that target dotnet full and core
+# MiniScaffold
+A template for f# class libraries that target NETFramework (net45) and NETCore (netstandard1.6)

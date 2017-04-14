@@ -60,9 +60,22 @@ Target "Publish" (fun _ ->
         )
 )
 
+Target "Release" (fun _ ->
+
+    if Git.Information.getBranchName "" <> "master" then failwith "Not on master"
+
+    StageAll ""
+    Git.Commit.Commit "" (sprintf "Bump version to %s" release.NugetVersion)
+    Branches.push ""
+
+    Branches.tag "" release.NugetVersion
+    Branches.pushTag "" "origin" release.NugetVersion
+)
+
 "Clean"
   ==> "DotnetRestore"
   ==> "DotnetPack"
   ==> "Publish"
+  ==> "Release"
 
 RunTargetOrDefault "DotnetPack"
