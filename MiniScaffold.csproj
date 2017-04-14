@@ -2,9 +2,9 @@
   <PropertyGroup>
     <Description>Simple F# Class Lib Project</Description>
     <Authors>Jimmy Byrd</Authors>
-    <PackageProjectUrl>https://github.com/TheAngryByrd/dotnetCoreClassLibTemplate</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/TheAngryByrd/dotnetCoreClassLibTemplate/blob/master/LICENSE.md</PackageLicenseUrl>
-    <RepositoryUrl>https://github.com/TheAngryByrd/dotnetCoreClassLibTemplate.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/TheAngryByrd/MiniScaffold</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/TheAngryByrd/MiniScaffold/blob/master/LICENSE.md</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/TheAngryByrd/MiniScaffold.git</RepositoryUrl>
     <PackageTags>class;library;template;fsharp</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageType>Template</PackageType>
