@@ -1,0 +1,14 @@
+{
+  "author": "Jimmy Byrd",
+  "classifications": [ "Fable" ],
+  "name": "FSharpClassLib",
+  "tags": {
+    "language": "F#"
+  },
+  "identity": "FSharpClassLib",
+  "groupIdentity": "FSharpClassLib",
+  "shortName": "FSharpClassLib",
+  "sourceName": "FSharpClassLib",
+  // This allows using the `-n` option to create a new directory
+  "preferNameDirectory": true
+}
