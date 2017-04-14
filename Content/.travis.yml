@@ -12,12 +12,10 @@ addons:
     - libssl-dev
     - libunwind8
     - zlib1g
-matrix:
-  include:
-    - dotnet: 1.0.1
-      mono: none
-      env: DOTNETCORE=1  # optional, can be used to take different code paths in your script
-    - mono: latest
+mono: 
+  - latest
+dotnet: 
+  - 1.0.1
 os:  
   - linux
   - osx
