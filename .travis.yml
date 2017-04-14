@@ -1,6 +1,6 @@
 language: csharp  
 sudo: required  
-dist: jessie  
+dist: trusty  
 
 dotnet: 1.0.1
 mono: latest

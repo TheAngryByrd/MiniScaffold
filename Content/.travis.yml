@@ -1,23 +1,13 @@
 language: csharp  
 sudo: required  
 dist: trusty  
-env:  
-  - CLI_VERSION=latest
-addons:  
-  apt:
-    packages:
-    - gettext
-    - libcurl4-openssl-dev
-    - libicu-dev
-    - libssl-dev
-    - libunwind8
-    - zlib1g
+
 dotnet: 1.0.1
 mono: latest
 os:  
   - linux
-  # - osx # times out too often, enable at own risk
-osx_image: xcode7.1  
+  - osx # times out too often, enable at own risk
+
 
 script:  
   - ./build.sh
