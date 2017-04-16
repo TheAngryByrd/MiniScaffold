@@ -21,16 +21,39 @@ dotnet new mini-scaffold -n MyCoolNewLib
 cd MyCoolNewLib
 ```
 
+It will scaffold out something similar to:
+
+```
+$ tree
+.
+├── LICENSE.md
+├── README.md
+├── RELEASE_NOTES.md
+├── build.cmd
+├── build.fsx
+├── build.sh
+├── paket.dependencies
+├── paket.lock
+├── src
+│   └── MyCoolNewLib
+│       ├── Library.fs
+│       └── MyCoolNewLib.fsproj
+└── tests
+    └── MyCoolNewLib.Tests
+        ├── MyCoolNewLib.Tests.fsproj
+        └── Tests.fs
+```
+
 Build!
 
 ```
 build.sh
 ```
 
-The bin of your new lib should look like
+The bin of your new lib should look similar to:
 
 ```
-tree src/MyCoolNewLib/bin/
+$ tree src/MyCoolNewLib/bin/
 src/MyCoolNewLib/bin/
 └── Release
     ├── net45
