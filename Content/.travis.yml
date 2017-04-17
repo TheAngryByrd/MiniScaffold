@@ -3,11 +3,24 @@ sudo: required
 dist: trusty  
 
 dotnet: 1.0.1
-mono: latest
+mono:
+  - 4.6.1
+  - 4.8.1
+  - latest # => "stable release"
+  - alpha
+  - beta
+  - weekly # => "latest commits"
 os:  
   - linux
-  - osx # times out too often, enable at own risk
-
+  - osx 
 
 script:  
   - ./build.sh
+
+matrix:
+  allow_failures:
+    - mono: latest
+    - mono: alpha
+    - mono: beta
+    - mono: weekly
+    - os: osx # times out too often, disable at own risk
