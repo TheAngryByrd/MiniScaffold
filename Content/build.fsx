@@ -51,12 +51,19 @@ Target "DotnetBuild" (fun _ ->
 Target "DotnetTest" (fun _ ->
     !! testsGlob
     |> Seq.iter (fun proj ->
-        DotNetCli.Test (fun c ->
+        DotNetCli.RunCommand (fun c ->
             { c with
-                Project = proj
+                // Project = proj
                 WorkingDir = IO.Path.GetDirectoryName proj
-            }) 
-))
+            }) "run -f netcoreapp1.1 -c Release" )
+    !! testsGlob
+    |> Seq.iter (fun proj ->
+        DotNetCli.RunCommand (fun c ->
+            { c with
+                // Project = proj
+                WorkingDir = IO.Path.GetDirectoryName proj
+            }) "mono -f net45 --restore -c Release")
+)
 
 Target "DotnetPack" (fun _ ->
     !! srcGlob
