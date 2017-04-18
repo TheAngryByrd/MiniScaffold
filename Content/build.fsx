@@ -48,15 +48,51 @@ Target "DotnetBuild" (fun _ ->
             }) 
 ))
 
+let invoke f = f ()
+
+type TargetFramework =
+| Full of string
+| Core of string
+
+let getTargetFramework tf =
+    match tf with
+    | "net45" | "net451" | "net452" 
+    | "net46" | "net461" | "net462" -> 
+        Full tf
+    | "netcoreapp1.0" | "netcoreapp1.1" -> 
+        Core tf
+    | _ -> failwithf "Unknown TargetFramework %s" tf
+
+let getTargetFrameworksFromProjectFile (projFile : string)=
+    let doc = Xml.XmlDocument()
+    doc.Load(projFile)
+    doc.GetElementsByTagName("TargetFrameworks").[0].InnerText.Split(';')
+    |> Seq.map getTargetFramework
+    |> Seq.toList
+
+let selectRunnerForFramework tf =
+    let runMono = sprintf "mono -f %s --restore -c Release" 
+    let runCore = sprintf "run -f %s -c Release"
+    match tf with
+    | Full t when isMono-> runMono t
+    | Full t -> runCore t
+    | Core t -> runCore t
+        
+
 Target "DotnetTest" (fun _ ->
     !! testsGlob
-    |> Seq.iter (fun proj ->
-        DotNetCli.Test (fun c ->
+    |> Seq.map(fun proj -> proj, getTargetFrameworksFromProjectFile proj)
+    |> Seq.collect(fun (proj, targetFrameworks) ->
+        targetFrameworks
+        |> Seq.map selectRunnerForFramework
+        |> Seq.map(fun args -> fun () ->
+            DotNetCli.RunCommand (fun c ->
             { c with
-                Project = proj
                 WorkingDir = IO.Path.GetDirectoryName proj
-            }) 
-))
+            }) args)
+    )
+    |> Seq.iter (invoke)
+)
 
 Target "DotnetPack" (fun _ ->
     !! srcGlob
