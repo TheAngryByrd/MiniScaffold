@@ -49,6 +49,7 @@ Target "DotnetBuild" (fun _ ->
 ))
 
 let invoke f = f ()
+let invokeAsync f = async { f () }
 
 type TargetFramework =
 | Full of string
@@ -79,7 +80,7 @@ let selectRunnerForFramework tf =
     | Core t -> runCore t
         
 
-Target "DotnetTest" (fun _ ->
+let runTests modifyArgs =
     !! testsGlob
     |> Seq.map(fun proj -> proj, getTargetFrameworksFromProjectFile proj)
     |> Seq.collect(fun (proj, targetFrameworks) ->
@@ -89,9 +90,42 @@ Target "DotnetTest" (fun _ ->
             DotNetCli.RunCommand (fun c ->
             { c with
                 WorkingDir = IO.Path.GetDirectoryName proj
-            }) args)
+            }) (modifyArgs args))
     )
+
+
+Target "DotnetTest" (fun _ ->
+    runTests id
     |> Seq.iter (invoke)
+)
+let execProcAndReturnMessages filename args =
+    let args' = args |> String.concat " "
+    ProcessHelper.ExecProcessAndReturnMessages 
+                (fun psi ->
+                    psi.FileName <- filename
+                    psi.Arguments <-args'
+                ) (TimeSpan.FromMinutes(1.))
+
+let pkill args =
+    execProcAndReturnMessages "pkill" args
+
+let killParentsAndChildren processId=
+    pkill [sprintf "-P %d" processId]
+
+
+Target "WatchTests" (fun _ ->
+    runTests (sprintf "watch %s")
+    |> Seq.iter (invokeAsync >> Async.Catch >> Async.Ignore >> Async.Start)
+
+    printfn "Press enter to stop..."
+    Console.ReadLine() |> ignore
+
+    if isWindows |> not then
+        startedProcesses
+        |> Seq.iter(fst >> killParentsAndChildren >> ignore )
+    else
+        //Hope windows handles this right?
+        ()
 )
 
 Target "DotnetPack" (fun _ ->
@@ -135,5 +169,8 @@ Target "Release" (fun _ ->
   ==> "DotnetPack"
   ==> "Publish"
   ==> "Release"
+
+"DotnetRestore"
+ ==> "WatchTests"
 
 RunTargetOrDefault "DotnetPack"
