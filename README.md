@@ -79,7 +79,7 @@ git add .
 git commit -m "Scaffold"
 git remote add origin origin https://github.com/user/MyCoolNewLib.git
 git push -u origin master
-``
+```
 
 * Then update the `RELEASE_NOTES.md` with a new version, date, and release notes
 
