@@ -105,3 +105,8 @@ paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9
 ./build.sh Release
 ```
 
+
+
+#### Example Projects using this template: 
+* [Chessie.Hopac](https://github.com/TheAngryByrd/Chessie.Hopac)
+* [Marten.FSharp](https://github.com/TheAngryByrd/Marten.FSharp)
