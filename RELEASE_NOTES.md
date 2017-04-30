@@ -1,3 +1,6 @@
+### 0.3.1 - 30.04.2017
+* MINOR: Add Nuget Config Defaults (https://github.com/TheAngryByrd/MiniScaffold/pull/13)
+
 ### 0.3.0 - 30.04.2017
 * FEATURE: Added WatchTests Target (https://github.com/TheAngryByrd/MiniScaffold/pull/8)
 * MINOR: Updated FAKE to run on Mono 5.0 (https://github.com/TheAngryByrd/MiniScaffold/pull/11)
