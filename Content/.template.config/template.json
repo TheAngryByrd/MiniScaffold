@@ -9,5 +9,11 @@
   "shortName": "mini-scaffold",
   "sourceName": "MyLib",
   // This allows using the `-n` option to create a new directory
-  "preferNameDirectory": true
+  "preferNameDirectory": true,
+  "symbols":{
+      "githubUsername": {
+          "type": "parameter",
+          "replaces":"MyGithubUsername"
+      }
+  }
 }

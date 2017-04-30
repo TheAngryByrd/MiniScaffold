@@ -17,7 +17,7 @@ dotnet new -i MiniScaffold::*
 ### Use the new template:
 
 ```
-dotnet new mini-scaffold -n MyCoolNewLib
+dotnet new mini-scaffold -n MyCoolNewLib --githubUsername MyGithubUsername 
 cd MyCoolNewLib
 ```
 
