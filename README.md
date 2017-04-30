@@ -6,15 +6,15 @@ F# Template for creating and publishing libraries targeting .NET Full (net45) an
 [![Travis Badge](https://travis-ci.org/TheAngryByrd/MiniScaffold.svg?branch=master)](https://travis-ci.org/TheAngryByrd/MiniScaffold)
 
 
-### Getting started
+## Getting started
 
-Grab the template from nuget:
+### Grab the template from nuget:
 
 ```
 dotnet new -i MiniScaffold::*
 ```
 
-Use the new template:
+### Use the new template:
 
 ```
 dotnet new mini-scaffold -n MyCoolNewLib
@@ -44,7 +44,7 @@ $ tree
         └── Tests.fs
 ```
 
-Build!
+### Build!
 
 ```
 build.sh
@@ -66,10 +66,30 @@ src/MyCoolNewLib/bin/
         └── MyCoolNewLib.pdb
 
 ```
+
+### Watch Tests
+
+The `WatchTests` target will use [dotnet-watch](https://github.com/aspnet/Docs/blob/master/aspnetcore/tutorials/dotnet-watch.md) to watch for changes in your lib or tests and re-run your tests on all `TargetFrameworks`
+
 Release!
 * Start a git repo with a remote
-* Then update the `RELEASE_NOTES.md` with a new version 
-* You can then publish to nuget and push a git tag!   
+
+```
+git add .
+git commit -m "Scaffold"
+git remote add origin origin https://github.com/user/MyCoolNewLib.git
+git push -u origin master
+``
+
+* Then update the `RELEASE_NOTES.md` with a new version, date, and release notes
+
+```
+#### 0.2.0 - 30.04.2017
+* FEATURE: Does cool stuff!
+* BUGFIX: Fixes that silly oversight
+```
+
+* You can then use the `Release` target to publish to nuget and push a git tag!   
 
 ```
 ./build.sh Release
