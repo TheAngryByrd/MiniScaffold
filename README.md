@@ -71,7 +71,7 @@ src/MyCoolNewLib/bin/
 
 The `WatchTests` target will use [dotnet-watch](https://github.com/aspnet/Docs/blob/master/aspnetcore/tutorials/dotnet-watch.md) to watch for changes in your lib or tests and re-run your tests on all `TargetFrameworks`
 
-Release!
+### Release!
 * Start a git repo with a remote
 
 ```
@@ -81,7 +81,10 @@ git remote add origin origin https://github.com/user/MyCoolNewLib.git
 git push -u origin master
 ```
 
-* Then update the `RELEASE_NOTES.md` with a new version, date, and release notes
+* [Add your nuget key to paket](https://fsprojects.github.io/Paket/paket-config.html#Adding-a-NuGet-API-key)
+
+
+* Then update the `RELEASE_NOTES.md` with a new version, date, and release notes [ReleaseNotesHelper](https://fsharp.github.io/FAKE/apidocs/fake-releasenoteshelper.html)
 
 ```
 #### 0.2.0 - 30.04.2017
@@ -89,7 +92,7 @@ git push -u origin master
 * BUGFIX: Fixes that silly oversight
 ```
 
-* You can then use the `Release` target This will:
+* You can then use the `Release` target.  This will:
     * make a commit bumping the version:  `Bump version to 0.2.0`
     * publish the pacakge to nuget
     * push a git tag  
