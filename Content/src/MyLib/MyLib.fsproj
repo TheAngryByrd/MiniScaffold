@@ -2,6 +2,20 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <Title>MyLib</Title>
+    <Description>MyLib does the thing!</Description>
+    <!-- summary is not migrated from project.json, but you can use the <Description> property for that if needed. -->
+    <PackageTags>f#, fsharp</PackageTags>
+    <PackageProjectUrl>https://github.com/MyGithubUsername/MyLib</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/MyGithubUsername/MyLib/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <RepositoryType>git</RepositoryType>
+    <Authors>MyUsername</Authors>
+    <RepositoryUrl>https://github.com/MyGithubUsername/MyLib</RepositoryUrl>
+    <!-- owners is not supported in MSBuild -->
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
