@@ -46,7 +46,11 @@ Target "DotnetPack" (fun _ ->
                 Project = proj
                 Configuration = "Release"
                 OutputPath = IO.Directory.GetCurrentDirectory() @@ "dist"
-                AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
+                AdditionalArgs = 
+                    [
+                        sprintf "/p:PackageVersion=%s" release.NugetVersion
+                        sprintf "/p:PackageReleaseNotes=\"%s\"" (String.Join("\n",release.Notes))
+                    ]
             }) 
     )
 )
