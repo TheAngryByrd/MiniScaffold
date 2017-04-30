@@ -81,7 +81,11 @@ git remote add origin origin https://github.com/user/MyCoolNewLib.git
 git push -u origin master
 ```
 
-* [Add your nuget key to paket](https://fsprojects.github.io/Paket/paket-config.html#Adding-a-NuGet-API-key)
+* [Add your nuget API key to paket](https://fsprojects.github.io/Paket/paket-config.html#Adding-a-NuGet-API-key)
+
+```
+paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9b3a
+```
 
 
 * Then update the `RELEASE_NOTES.md` with a new version, date, and release notes [ReleaseNotesHelper](https://fsharp.github.io/FAKE/apidocs/fake-releasenoteshelper.html)
