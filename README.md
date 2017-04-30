@@ -89,7 +89,7 @@ git push -u origin master
 * BUGFIX: Fixes that silly oversight
 ```
 
-* You can then use the `Release` target to publish to nuget and push a git tag!   
+* You can then use the `Release` target to make a commit bumping the version, publish the pacakge to nuget and push a git tag!   
 
 ```
 ./build.sh Release
