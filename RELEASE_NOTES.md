@@ -1,3 +1,7 @@
+### 0.3.0-alpha001 - 30.04.2017
+* FEATURE: Added WatchTests Target (https://github.com/TheAngryByrd/MiniScaffold/pull/8)
+* MINOR: Updated FAKE to run on Mono 5.0 (https://github.com/TheAngryByrd/MiniScaffold/pull/11)
+
 #### 0.2.0 - 17.04.2017
 * FEATURE: Use Expecto for tests (https://github.com/TheAngryByrd/MiniScaffold/pull/4)
 * MINOR: Better travis ci defaults (https://github.com/TheAngryByrd/MiniScaffold/pull/2)
