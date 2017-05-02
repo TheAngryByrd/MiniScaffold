@@ -132,3 +132,4 @@ paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9
 * [FAKE](https://fsharp.github.io/FAKE/)
 * [Expecto](https://github.com/haf/expecto)
 * Heavily inspired by [Project Scaffold](https://github.com/fsprojects/ProjectScaffold)
+* [Buildstats.info](https://github.com/dustinmoris/CI-BuildStats)
