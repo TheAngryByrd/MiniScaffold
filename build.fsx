@@ -14,15 +14,6 @@ let srcGlob = "*.csproj"
 Target "Clean" (fun _ ->
     [ "obj" ;"dist"]
     |> CleanDirs
-
-    // !! srcGlob
-    // |> Seq.collect(fun p -> 
-    //     ["bin";"obj"] 
-    //     |> Seq.map(fun sp ->
-    //          IO.Path.GetDirectoryName p @@ sp)
-    //     )
-    // |> CleanDirs
-
     )
 
 Target "DotnetRestore" (fun _ ->
