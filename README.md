@@ -1,9 +1,24 @@
 # MiniScaffold
 F# Template for creating and publishing libraries targeting .NET Full (net45) and Core (netstandard1.6)
 
-[![NuGet Badge](https://img.shields.io/nuget/vpre/MiniScaffold.svg)](https://www.nuget.org/packages/MiniScaffold/)
+## Builds
 
-[![Travis Badge](https://travis-ci.org/TheAngryByrd/MiniScaffold.svg?branch=master)](https://travis-ci.org/TheAngryByrd/MiniScaffold)
+MacOS/Linux | Windows
+:---: | :---:
+[![Travis Badge](https://travis-ci.org/TheAngryByrd/MiniScaffold.svg?branch=master)](https://travis-ci.org/TheAngryByrd/MiniScaffold) | TODO
+[![Build History](https://buildstats.info/travisci/chart/TheAngryByrd/MiniScaffold)](https://travis-ci.org/TheAngryByrd/MiniScaffold/builds) | TODO 
+
+
+## Nuget 
+
+
+Stable | Prerelease
+:---: | :---:
+[![NuGet Badge](https://buildstats.info/nuget/MiniScaffold)](https://www.nuget.org/packages/MiniScaffold/) | [![NuGet Badge](https://buildstats.info/nuget/MiniScaffold?includePreReleases=true)](https://www.nuget.org/packages/MiniScaffold/)
+
+
+
+
 
 
 ## Getting started
