@@ -127,7 +127,7 @@ paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9
 * [Marten.FSharp](https://github.com/TheAngryByrd/Marten.FSharp)
 
 
-#### This project uses the follow F# projects
+#### This project uses the following F# projects
 * [Paket](https://fsprojects.github.io/Paket/)
 * [FAKE](https://fsharp.github.io/FAKE/)
 * [Expecto](https://github.com/haf/expecto)
