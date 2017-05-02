@@ -1,3 +1,7 @@
+### 0.3.2-alpha001 - 01.05.2017
+* MINOR: Appveyor template and badges (https://github.com/TheAngryByrd/MiniScaffold/pull/17)
+* MONOR: Using buildstats.info for badges (https://github.com/TheAngryByrd/MiniScaffold/pull/15)
+
 ### 0.3.1 - 30.04.2017
 * MINOR: Add Nuget Config Defaults (https://github.com/TheAngryByrd/MiniScaffold/pull/13)
 
