@@ -2,8 +2,8 @@
 
 MacOS/Linux | Windows
 --- | ---
-[![Travis Badge](https://travis-ci.org/MyGithubUsername/MyLib.svg?branch=master)](https://travis-ci.org/MyGithubUsername/MyLib) | TODO
-[![Build History](https://buildstats.info/travisci/chart/MyGithubUsername/MyLib)](https://travis-ci.org/MyGithubUsername/MyLib/builds) | TODO 
+[![Travis Badge](https://travis-ci.org/MyGithubUsername/MyLib.svg?branch=master)](https://travis-ci.org/MyGithubUsername/MyLib) | [![Build status](https://ci.appveyor.com/api/projects/status/github/MyGithubUsername/MyLib?svg=true)](https://ci.appveyor.com/project/MyGithubUsername/MyLib)
+[![Build History](https://buildstats.info/travisci/chart/MyGithubUsername/MyLib)](https://travis-ci.org/MyGithubUsername/MyLib/builds) | [![Build History](https://buildstats.info/appveyor/chart/MyGithubUsername/MyLib)](https://ci.appveyor.com/project/MyGithubUsername/MyLib)  
 
 
 ## Nuget 
