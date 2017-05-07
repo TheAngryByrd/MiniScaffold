@@ -1,4 +1,4 @@
-### 0.3.2-alpha001 - 01.05.2017
+### 0.3.2 - 01.05.2017
 * MINOR: Appveyor template and badges (https://github.com/TheAngryByrd/MiniScaffold/pull/17)
 * MONOR: Using buildstats.info for badges (https://github.com/TheAngryByrd/MiniScaffold/pull/15)
 
