@@ -26,7 +26,7 @@ Stable | Prerelease
 ### Grab the template from nuget:
 
 ```
-dotnet new -i MiniScaffold::*
+dotnet new -i "MiniScaffold::*"
 ```
 
 ### Use the new template:
