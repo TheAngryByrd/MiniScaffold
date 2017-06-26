@@ -1,3 +1,6 @@
+### 0.3.3 - 25.06.2016
+* MINOR: Correct and expand targets (https://github.com/TheAngryByrd/MiniScaffold/pull/18)
+
 ### 0.3.2 - 01.05.2017
 * MINOR: Appveyor template and badges (https://github.com/TheAngryByrd/MiniScaffold/pull/17)
 * MONOR: Using buildstats.info for badges (https://github.com/TheAngryByrd/MiniScaffold/pull/15)
