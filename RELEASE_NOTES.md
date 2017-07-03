@@ -1,3 +1,6 @@
+### 0.3.4 - 03.07.2016
+* MINOR: Smplify framework matching(https://github.com/TheAngryByrd/MiniScaffold/pull/20)
+
 ### 0.3.3 - 25.06.2016
 * MINOR: Correct and expand targets (https://github.com/TheAngryByrd/MiniScaffold/pull/18)
 
