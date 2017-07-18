@@ -61,7 +61,8 @@ $ tree
 ### Build!
 
 ```
-build.sh
+> build.cmd // on windows    
+$ ./build.sh  // on unix
 ```
 
 The bin of your new lib should look similar to:
@@ -84,6 +85,10 @@ src/MyCoolNewLib/bin/
 ### Watch Tests
 
 The `WatchTests` target will use [dotnet-watch](https://github.com/aspnet/Docs/blob/master/aspnetcore/tutorials/dotnet-watch.md) to watch for changes in your lib or tests and re-run your tests on all `TargetFrameworks`
+
+```
+./build.sh WatchTests
+```
 
 ### Release!
 * [Start a git repo with a remote](https://help.github.com/articles/adding-an-existing-project-to-github-using-the-command-line/)
