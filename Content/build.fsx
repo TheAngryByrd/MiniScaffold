@@ -72,7 +72,7 @@ let getTargetFrameworksFromProjectFile (projFile : string)=
     |> Seq.toList
 
 let selectRunnerForFramework tf =
-    let runMono = sprintf "mono -f %s --restore -c Release"
+    let runMono = sprintf "mono -f %s -c Release"
     let runCore = sprintf "run -f %s -c Release"
     match tf with
     | Full t when isMono-> runMono t
