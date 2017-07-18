@@ -1,6 +1,6 @@
-language: csharp  
-sudo: required  
-dist: trusty  
+language: csharp
+sudo: required
+dist: trusty
 
 dotnet: 1.0.1
 mono:
@@ -10,11 +10,11 @@ mono:
   - alpha
   - beta
   - weekly # => "latest commits"
-os:  
+os:
   - linux
-  - osx 
+  - osx
 
-script:  
+script:
   - ./build.sh
 
 matrix:

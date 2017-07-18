@@ -24,7 +24,7 @@ Target "DotnetRestore" (fun _ ->
                 Project = proj
                 //This makes sure that Proj2 references the correct version of Proj1
                 AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
-            }) 
+            })
 ))
 
 
@@ -37,18 +37,18 @@ Target "DotnetPack" (fun _ ->
                 Project = proj
                 Configuration = "Release"
                 OutputPath = IO.Directory.GetCurrentDirectory() @@ "dist"
-                AdditionalArgs = 
+                AdditionalArgs =
                     [
                         sprintf "/p:PackageVersion=%s" release.NugetVersion
                         sprintf "/p:PackageReleaseNotes=\"%s\"" (String.Join("\n",release.Notes))
                     ]
-            }) 
+            })
     )
 )
 
 Target "Publish" (fun _ ->
     Paket.Push(fun c ->
-            { c with 
+            { c with
                 PublishUrl = "https://www.nuget.org"
                 WorkingDir = "dist"
             }
