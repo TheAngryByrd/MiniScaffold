@@ -8,7 +8,6 @@ MacOS/Linux | Windows
 [![Travis Badge](https://travis-ci.org/TheAngryByrd/MiniScaffold.svg?branch=master)](https://travis-ci.org/TheAngryByrd/MiniScaffold) | [![Build status](https://ci.appveyor.com/api/projects/status/github/TheAngryByrd/MiniScaffold?svg=true)](https://ci.appveyor.com/project/TheAngryByrd/MiniScaffold)
 [![Build History](https://buildstats.info/travisci/chart/TheAngryByrd/MiniScaffold)](https://travis-ci.org/TheAngryByrd/MiniScaffold/builds) | [![Build History](https://buildstats.info/appveyor/chart/TheAngryByrd/MiniScaffold)](https://ci.appveyor.com/project/TheAngryByrd/MiniScaffold) 
 
-: 
 ## Nuget 
 
 
@@ -113,7 +112,7 @@ paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9
 
 * You can then use the `Release` target.  This will:
     * make a commit bumping the version:  `Bump version to 0.2.0`
-    * publish the pacakge to nuget
+    * publish the package to nuget
     * push a git tag  
 
 ```
