@@ -1,5 +1,13 @@
 source https://www.nuget.org/api/v2
+nuget FSharp.NET.Sdk
+nuget FSharp.Core
+clitool dotnet-mono
+clitool Microsoft.DotNet.Watcher.Tools
 
 group Build
     source https://www.nuget.org/api/v2
     nuget FAKE
+
+group Test
+    source https://www.nuget.org/api/v2
+    nuget Expecto
