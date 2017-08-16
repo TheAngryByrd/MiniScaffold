@@ -4,7 +4,6 @@ set -eu
 
 cd "$(dirname "$0")"
 
-PAKET_BOOTSTRAPPER_EXE=.paket/paket.bootstrapper.exe
 PAKET_EXE=.paket/paket.exe
 FAKE_EXE=packages/build/FAKE/tools/FAKE.exe
 
@@ -19,7 +18,6 @@ then
   # (Can't use arrays since dash can't handle them)
   FSIARGS="--fsiargs"
   FSIARGS2="-d:MONO"
-
   # Allows NETFramework like net45 to be built using dotnet core tooling with mono
   export FrameworkPathOverride=$(dirname $(which mono))/../lib/mono/4.5/
 
@@ -44,12 +42,12 @@ yesno() {
 }
 
 set +e
-run $PAKET_BOOTSTRAPPER_EXE
-bootstrapper_exitcode=$?
+run $PAKET_EXE restore
+paket_exitcode=$?
 set -e
 
 if [ "$OS" != "Windows_NT" ] &&
-       [ $bootstrapper_exitcode -ne 0 ] &&
+       [ $paket_exitcode -ne 0 ] &&
        [ $(certmgr -list -c Trust | grep X.509 | wc -l) -le 1 ] &&
        [ $(certmgr -list -c -m Trust | grep X.509 | wc -l) -le 1 ]
 then
@@ -72,18 +70,10 @@ then
   fi
   # Re-run bootstrapper whether or not the user ran mozroots, because maybe
   # they fixed the problem in a separate terminal window.
-  run $PAKET_BOOTSTRAPPER_EXE
+  run $PAKET_EXE restore
 fi
-
-run $PAKET_EXE restore
 
 [ ! -e build.fsx ] && run $PAKET_EXE update
 [ ! -e build.fsx ] && run $FAKE_EXE init.fsx
-
-# build template
-pushd Content/
-./build.sh
-./build.sh Clean
-popd
-
 run $FAKE_EXE "$@" $FSIARGS $FSIARGS2 build.fsx
+
