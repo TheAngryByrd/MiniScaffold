@@ -6,18 +6,14 @@ F# Template for creating and publishing libraries targeting .NET Full (net45) an
 MacOS/Linux | Windows
 :---: | :---:
 [![Travis Badge](https://travis-ci.org/TheAngryByrd/MiniScaffold.svg?branch=master)](https://travis-ci.org/TheAngryByrd/MiniScaffold) | [![Build status](https://ci.appveyor.com/api/projects/status/github/TheAngryByrd/MiniScaffold?svg=true)](https://ci.appveyor.com/project/TheAngryByrd/MiniScaffold)
-[![Build History](https://buildstats.info/travisci/chart/TheAngryByrd/MiniScaffold)](https://travis-ci.org/TheAngryByrd/MiniScaffold/builds) | [![Build History](https://buildstats.info/appveyor/chart/TheAngryByrd/MiniScaffold)](https://ci.appveyor.com/project/TheAngryByrd/MiniScaffold) 
+[![Build History](https://buildstats.info/travisci/chart/TheAngryByrd/MiniScaffold)](https://travis-ci.org/TheAngryByrd/MiniScaffold/builds) | [![Build History](https://buildstats.info/appveyor/chart/TheAngryByrd/MiniScaffold)](https://ci.appveyor.com/project/TheAngryByrd/MiniScaffold)
 
-: 
-## Nuget 
+## Nuget
 
 
 Stable | Prerelease
 :---: | :---:
 [![NuGet Badge](https://buildstats.info/nuget/MiniScaffold)](https://www.nuget.org/packages/MiniScaffold/) | [![NuGet Badge](https://buildstats.info/nuget/MiniScaffold?includePreReleases=true)](https://www.nuget.org/packages/MiniScaffold/)
-
-
-
 
 
 
@@ -32,7 +28,7 @@ dotnet new -i "MiniScaffold::*"
 ### Use the new template:
 
 ```
-dotnet new mini-scaffold -n MyCoolNewLib --githubUsername MyGithubUsername 
+dotnet new mini-scaffold -n MyCoolNewLib --githubUsername MyGithubUsername
 cd MyCoolNewLib
 ```
 
@@ -62,7 +58,8 @@ $ tree
 ### Build!
 
 ```
-build.sh
+> build.cmd // on windows
+$ ./build.sh  // on unix
 ```
 
 The bin of your new lib should look similar to:
@@ -85,6 +82,10 @@ src/MyCoolNewLib/bin/
 ### Watch Tests
 
 The `WatchTests` target will use [dotnet-watch](https://github.com/aspnet/Docs/blob/master/aspnetcore/tutorials/dotnet-watch.md) to watch for changes in your lib or tests and re-run your tests on all `TargetFrameworks`
+
+```
+./build.sh WatchTests
+```
 
 ### Release!
 * [Start a git repo with a remote](https://help.github.com/articles/adding-an-existing-project-to-github-using-the-command-line/)
@@ -113,8 +114,8 @@ paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9
 
 * You can then use the `Release` target.  This will:
     * make a commit bumping the version:  `Bump version to 0.2.0`
-    * publish the pacakge to nuget
-    * push a git tag  
+    * publish the package to nuget
+    * push a git tag
 
 ```
 ./build.sh Release
@@ -122,7 +123,7 @@ paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9
 
 
 
-#### Example Projects using this template: 
+#### Example Projects using this template:
 * [Chessie.Hopac](https://github.com/TheAngryByrd/Chessie.Hopac)
 * [Marten.FSharp](https://github.com/TheAngryByrd/Marten.FSharp)
 

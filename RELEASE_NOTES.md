@@ -1,4 +1,11 @@
-### 0.3.3 - 25.06.2016
+### 0.3.5 - 18.07.2017
+* MINOR: Added .editorconfig (https://github.com/TheAngryByrd/MiniScaffold/commit/f24293735dd04df6094d2e6f1bdd2b8771f15597)
+* MINOR: Removed unneeded --restore from dotnet-mono call (https://github.com/TheAngryByrd/MiniScaffold/pull/23)
+
+### 0.3.4 - 03.07.2017
+* MINOR: Smplify framework matching(https://github.com/TheAngryByrd/MiniScaffold/pull/20)
+
+### 0.3.3 - 25.06.2017
 * MINOR: Correct and expand targets (https://github.com/TheAngryByrd/MiniScaffold/pull/18)
 
 ### 0.3.2 - 01.05.2017
