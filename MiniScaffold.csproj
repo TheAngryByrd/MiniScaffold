@@ -12,7 +12,7 @@
     <NoBuild>true</NoBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
 
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Content/**/*" Exclude="Content/packages/**/*;Content/.fake/**;Content/bin/**/**/*;Content/dist/*;Content/temp/*;Content/**/bin/**/**/*;Content/**/obj/**/**/*" >
