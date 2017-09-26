@@ -11,7 +11,8 @@
 
     <NoBuild>true</NoBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+
+    <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Content/**/*" Exclude="Content/packages/**/*;Content/.fake/**;Content/bin/**/**/*;Content/dist/*;Content/temp/*;Content/**/bin/**/**/*;Content/**/obj/**/**/*" >
