@@ -1,8 +1,7 @@
 <Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.6;net45;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6;net461</TargetFrameworks>
   </PropertyGroup>
-
   <PropertyGroup>
     <Title>MyLib</Title>
     <Description>MyLib does the thing!</Description>
@@ -23,18 +22,5 @@
   <ItemGroup>
     <Compile Include="Library.fs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net45'">
-    <PackageReference Include="FSharp.Core" Version="4.0.0.*" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net461'">
-    <PackageReference Include="FSharp.Core" Version="4.2.*" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
-    <PackageReference Include="FSharp.Core" Version="4.2.*" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
-  </ItemGroup>
-
-
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

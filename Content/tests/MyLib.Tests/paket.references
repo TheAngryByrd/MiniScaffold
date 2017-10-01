@@ -1,0 +1,7 @@
+FSharp.NET.Sdk
+FSharp.Core
+dotnet-mono
+Microsoft.DotNet.Watcher.Tools
+
+group Test
+    Expecto
