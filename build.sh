@@ -75,5 +75,12 @@ fi
 
 [ ! -e build.fsx ] && run $PAKET_EXE update
 [ ! -e build.fsx ] && run $FAKE_EXE init.fsx
+
+# build template
+pushd Content/
+./build.sh
+./build.sh Clean
+popd
+
 run $FAKE_EXE "$@" $FSIARGS $FSIARGS2 build.fsx
 
