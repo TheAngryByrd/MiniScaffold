@@ -7,6 +7,7 @@ open Fake.UserInputHelper
 open System
 
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
+let sln = "MyLib.sln"
 let srcGlob = "src/**/*.fsproj"
 let testsGlob = "tests/**/*.fsproj"
 
@@ -38,15 +39,12 @@ Target "DotnetRestore" (fun _ ->
 ))
 
 Target "DotnetBuild" (fun _ ->
-    !! srcGlob
-    |> Seq.iter (fun proj ->
-        DotNetCli.Build (fun c ->
-            { c with
-                Project = proj
-                //This makes sure that Proj2 references the correct version of Proj1
-                AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
-            })
-))
+    DotNetCli.Build (fun c ->
+        { c with
+            Project = sln
+            //This makes sure that Proj2 references the correct version of Proj1
+            AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
+        }))
 
 let invoke f = f ()
 let invokeAsync f = async { f () }
@@ -95,7 +93,7 @@ let runTests modifyArgs =
 
 
 Target "DotnetTest" (fun _ ->
-    runTests id
+    runTests (sprintf "%s --no-build")
     |> Seq.iter (invoke)
 )
 let execProcAndReturnMessages filename args =
@@ -170,7 +168,7 @@ Target "Release" (fun _ ->
 )
 
 "Clean"
-  ==> "DotnetRestore"
+//   ==> "DotnetRestore"
   ==> "DotnetBuild"
   ==> "DotnetTest"
   ==> "DotnetPack"

@@ -1,4 +1,10 @@
 source https://www.nuget.org/api/v2
+storage: none
+clitool dotnet-mono
+clitool Microsoft.DotNet.Watcher.Tools 1.0.0
+nuget Argu 3.7
+nuget FSharp.Core >= 4.2.0
+nuget Expecto >= 5.0.0
 
 group Build
     source https://www.nuget.org/api/v2
