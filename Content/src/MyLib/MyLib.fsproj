@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <PackageReference Include="FSharp.Core" Version="4.2.*" />
+    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.7.3" PrivateAssets="All" /> 
   </ItemGroup>
 
 

@@ -140,6 +140,7 @@ Target "DotnetPack" (fun _ ->
                     [
                         sprintf "/p:PackageVersion=%s" release.NugetVersion
                         sprintf "/p:PackageReleaseNotes=\"%s\"" (String.Join("\n",release.Notes))
+                        "/p:SourceLinkCreate=true"
                     ]
             })
     )
