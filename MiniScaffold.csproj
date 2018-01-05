@@ -8,10 +8,10 @@
     <PackageTags>class;library;template;fsharp</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageType>Template</PackageType>
-
     <NoBuild>true</NoBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <TargetFramework>netstandard0.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Content/**/*" Exclude="Content/packages/**/*;Content/.fake/**;Content/bin/**/**/*;Content/dist/*;Content/temp/*;Content/**/bin/**/**/*;Content/**/obj/**/**/*" >
