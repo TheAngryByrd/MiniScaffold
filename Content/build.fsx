@@ -27,23 +27,23 @@ Target "Clean" (fun _ ->
     )
 
 Target "DotnetRestore" (fun _ ->
-    !! srcGlob
-    ++ testsGlob
-    |> Seq.iter (fun proj ->
-        DotNetCli.Restore (fun c ->
-            { c with
-                Project = proj
-                //This makes sure that Proj2 references the correct version of Proj1
-                AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
-            })
-))
+    DotNetCli.Restore (fun c ->
+        { c with
+            Project = sln
+            //This makes sure that Proj2 references the correct version of Proj1
+            AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
+        }))
 
 Target "DotnetBuild" (fun _ ->
     DotNetCli.Build (fun c ->
         { c with
             Project = sln
             //This makes sure that Proj2 references the correct version of Proj1
-            AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
+            AdditionalArgs =
+                [
+                    sprintf "/p:PackageVersion=%s" release.NugetVersion
+                    "--no-restore"
+                ]
         }))
 
 let invoke f = f ()
@@ -168,7 +168,7 @@ Target "Release" (fun _ ->
 )
 
 "Clean"
-//   ==> "DotnetRestore"
+  ==> "DotnetRestore"
   ==> "DotnetBuild"
   ==> "DotnetTest"
   ==> "DotnetPack"
