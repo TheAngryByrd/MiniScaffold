@@ -4,7 +4,7 @@ dist: trusty
 
 dotnet: 2.0.3
 mono:
-  - 4.8.1
+  - 5.4.1
   - latest # => "stable release"
   - alpha
   - beta
