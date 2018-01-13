@@ -17,7 +17,7 @@
 
   <ItemGroup>
    <ProjectReference Include="../../src/MyLib/MyLib.fsproj" />
-    <DotNetCliToolReference Include="dotnet-mono" Version="*" />
     <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0" />
+    <DotNetCliToolReference Include="dotnet-mono" Version="[0.3.4]" />
   </ItemGroup>
 </Project>
