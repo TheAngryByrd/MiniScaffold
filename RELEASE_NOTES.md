@@ -1,3 +1,7 @@
+### 0.4.0 - 12.01.2017
+* FEATURE: Added SourceLink (https://github.com/TheAngryByrd/MiniScaffold/pull/34)
+* MINOR: Fix CI Builds and convert to dotnet core 2 fsproj style (https://github.com/TheAngryByrd/MiniScaffold/pull/33)
+
 ### 0.3.5 - 18.07.2017
 * MINOR: Added .editorconfig (https://github.com/TheAngryByrd/MiniScaffold/commit/f24293735dd04df6094d2e6f1bdd2b8771f15597)
 * MINOR: Removed unneeded --restore from dotnet-mono call (https://github.com/TheAngryByrd/MiniScaffold/pull/23)
