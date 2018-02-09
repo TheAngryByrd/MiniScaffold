@@ -1,3 +1,6 @@
+### 0.4.1-beta001 - 02.09.2019
+* BUGFIX: Make build.sh executable via post-action (https://github.com/TheAngryByrd/MiniScaffold/pull/37)
+
 ### 0.4.0 - 12.01.2017
 * FEATURE: Added SourceLink (https://github.com/TheAngryByrd/MiniScaffold/pull/34)
 * MINOR: Fix CI Builds and convert to dotnet core 2 fsproj style (https://github.com/TheAngryByrd/MiniScaffold/pull/33)
