@@ -1,5 +1,6 @@
-### 0.4.1-beta001 - 02.09.2019
+### 0.4.1-beta002 - 02.09.2019
 * BUGFIX: Make build.sh executable via post-action (https://github.com/TheAngryByrd/MiniScaffold/pull/37)
+* MINOR: Add Release notes to git release commits (https://github.com/TheAngryByrd/MiniScaffold/pull/39)
 
 ### 0.4.0 - 12.01.2017
 * FEATURE: Added SourceLink (https://github.com/TheAngryByrd/MiniScaffold/pull/34)
