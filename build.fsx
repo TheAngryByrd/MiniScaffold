@@ -59,8 +59,10 @@ Target "Release" (fun _ ->
 
     if Git.Information.getBranchName "" <> "master" then failwith "Not on master"
 
+    let releaseNotesGitCommitFormat = ("",release.Notes |> Seq.map(sprintf "* %s\n")) |> String.Join
+
     StageAll ""
-    Git.Commit.Commit "" (sprintf "Bump version to %s" release.NugetVersion)
+    Git.Commit.Commit "" (sprintf "Bump version to %s \n%s" release.NugetVersion releaseNotesGitCommitFormat)
     Branches.push ""
 
     Branches.tag "" release.NugetVersion
