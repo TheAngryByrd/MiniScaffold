@@ -1,3 +1,6 @@
+### 0.5.0-beta001 - 02.10.2019
+* FEATURE: Use paket and sln files (https://github.com/TheAngryByrd/MiniScaffold/pull/35)
+
 ### 0.4.1 - 02.10.2019
 * BUGFIX: Make build.sh executable via post-action (https://github.com/TheAngryByrd/MiniScaffold/pull/37)
 * BUGFIX: FAKE not restoring on initial build. Exclude paket-files directory from template (https://github.com/TheAngryByrd/MiniScaffold/pull/42)
