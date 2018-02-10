@@ -14,7 +14,7 @@
     <TargetFramework>netstandard0.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="Content/**/*" Exclude="Content/packages/**/*;Content/.fake/**;Content/bin/**/**/*;Content/dist/*;Content/temp/*;Content/**/bin/**/**/*;Content/**/obj/**/**/*" >
+    <Content Include="Content/**/*" Exclude="Content/packages/**/*;Content/.fake/**;Content/bin/**/**/*;Content/dist/*;Content/temp/*;Content/**/bin/**/**/*;Content/**/obj/**/**/*;Content/paket-files/**" >
         <PackagePath>Content\</PackagePath>
     </Content>
   </ItemGroup>
