@@ -94,7 +94,8 @@ let runTests modifyArgs =
 
 Target "DotnetTest" (fun _ ->
     runTests (sprintf "%s --no-build")
-    |> Seq.iter (invoke)
+    |> Seq.iter invoke
+
 )
 let execProcAndReturnMessages filename args =
     let args' = args |> String.concat " "
@@ -167,8 +168,10 @@ Target "Release" (fun _ ->
     Branches.pushTag "" "origin" release.NugetVersion
 )
 
-"Clean"
-  ==> "DotnetRestore"
+"Clean" ?=> "DotnetRestore"
+"Clean" ==> "DotnetPack"
+
+"DotnetRestore"
   ==> "DotnetBuild"
   ==> "DotnetTest"
   ==> "DotnetPack"
