@@ -122,6 +122,14 @@ paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9
 ```
 
 
+## Known issues
+
+```
+-bash: ./build.sh: Permission denied
+```
+
+This is because dotnet template loses permissions of files. (https://github.com/TheAngryByrd/MiniScaffold/pull/37) added a post hook to address this but this only fixes it for dotnet sdk 2.x users.  dotnet sdk 1.x will need to run `chmod +x ./build.sh`
+
 
 #### Example Projects using this template:
 * [Chessie.Hopac](https://github.com/TheAngryByrd/Chessie.Hopac)
