@@ -7,6 +7,7 @@ open Fake.UserInputHelper
 open System
 
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
+let sln = "MyLib.sln"
 let srcGlob = "src/**/*.fsproj"
 let testsGlob = "tests/**/*.fsproj"
 
@@ -26,27 +27,24 @@ Target "Clean" (fun _ ->
     )
 
 Target "DotnetRestore" (fun _ ->
-    !! srcGlob
-    ++ testsGlob
-    |> Seq.iter (fun proj ->
-        DotNetCli.Restore (fun c ->
-            { c with
-                Project = proj
-                //This makes sure that Proj2 references the correct version of Proj1
-                AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
-            })
-))
+    DotNetCli.Restore (fun c ->
+        { c with
+            Project = sln
+            //This makes sure that Proj2 references the correct version of Proj1
+            AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
+        }))
 
 Target "DotnetBuild" (fun _ ->
-    !! srcGlob
-    |> Seq.iter (fun proj ->
-        DotNetCli.Build (fun c ->
-            { c with
-                Project = proj
-                //This makes sure that Proj2 references the correct version of Proj1
-                AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
-            })
-))
+    DotNetCli.Build (fun c ->
+        { c with
+            Project = sln
+            //This makes sure that Proj2 references the correct version of Proj1
+            AdditionalArgs =
+                [
+                    sprintf "/p:PackageVersion=%s" release.NugetVersion
+                    "--no-restore"
+                ]
+        }))
 
 let invoke f = f ()
 let invokeAsync f = async { f () }
@@ -95,8 +93,9 @@ let runTests modifyArgs =
 
 
 Target "DotnetTest" (fun _ ->
-    runTests id
-    |> Seq.iter (invoke)
+    runTests (sprintf "%s --no-build")
+    |> Seq.iter invoke
+
 )
 let execProcAndReturnMessages filename args =
     let args' = args |> String.concat " "
@@ -169,8 +168,10 @@ Target "Release" (fun _ ->
     Branches.pushTag "" "origin" release.NugetVersion
 )
 
-"Clean"
-  ==> "DotnetRestore"
+"Clean" ?=> "DotnetRestore"
+"Clean" ==> "DotnetPack"
+
+"DotnetRestore"
   ==> "DotnetBuild"
   ==> "DotnetTest"
   ==> "DotnetPack"

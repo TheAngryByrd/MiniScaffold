@@ -1,8 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard1.6;net461</TargetFrameworks>
   </PropertyGroup>
-
   <PropertyGroup>
     <Title>MyLib</Title>
     <Description>MyLib does the thing!</Description>
@@ -23,12 +23,5 @@
   <ItemGroup>
     <Compile Include="Library.fs" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FSharp.Core" Version="4.2.*" />
-    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.7.3" PrivateAssets="All" /> 
-  </ItemGroup>
-
-
-
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
