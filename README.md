@@ -136,9 +136,10 @@ This is because dotnet template loses permissions of files. (https://github.com/
 * [Marten.FSharp](https://github.com/TheAngryByrd/Marten.FSharp)
 
 
-#### This project uses the following F# projects
+#### This project uses the following projects:
 * [Paket](https://fsprojects.github.io/Paket/)
 * [FAKE](https://fsharp.github.io/FAKE/)
 * [Expecto](https://github.com/haf/expecto)
 * Heavily inspired by [Project Scaffold](https://github.com/fsprojects/ProjectScaffold)
 * [Buildstats.info](https://github.com/dustinmoris/CI-BuildStats)
+* [SourceLink](https://github.com/ctaggart/SourceLink)
