@@ -1,6 +1,6 @@
 ### 0.5.0-beta002 - 2018-02-11
 * FEATURE: Use paket and sln files (https://github.com/TheAngryByrd/MiniScaffold/pull/35)
-* MINOR: Normalize RELEASE_NOTES dates (https://github.com/TheAngryByrd/MiniScaffold/pull/45)
+* MINOR: RELEASE_NOTES should be ISO 8601 format (https://github.com/TheAngryByrd/MiniScaffold/pull/45)
 
 ### 0.4.1 - 2018-02-10
 * BUGFIX: Make build.sh executable via post-action (https://github.com/TheAngryByrd/MiniScaffold/pull/37)
