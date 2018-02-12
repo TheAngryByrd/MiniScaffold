@@ -107,7 +107,7 @@ paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9
 * Then update the `RELEASE_NOTES.md` with a new version, date, and release notes [ReleaseNotesHelper](https://fsharp.github.io/FAKE/apidocs/fake-releasenoteshelper.html)
 
 ```
-#### 0.2.0 - 30.04.2017
+#### 0.2.0 - 2017-04-20
 * FEATURE: Does cool stuff!
 * BUGFIX: Fixes that silly oversight
 ```
