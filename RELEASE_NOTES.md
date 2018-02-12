@@ -1,6 +1,8 @@
-### 0.5.0-beta002 - 2018-02-11
+### 0.5.0-beta003 - 2018-02-12
 * FEATURE: Use paket and sln files (https://github.com/TheAngryByrd/MiniScaffold/pull/35)
+* FEATURE: Added Github ISSUE_TEMPLATE and PULL_REQUEST_TEMPLATE (https://github.com/TheAngryByrd/MiniScaffold/pull/46)
 * MINOR: RELEASE_NOTES should be ISO 8601 format (https://github.com/TheAngryByrd/MiniScaffold/pull/45)
+* MINOR: Put paket in magic mode (https://github.com/TheAngryByrd/MiniScaffold/pull/47)
 
 ### 0.4.1 - 2018-02-10
 * BUGFIX: Make build.sh executable via post-action (https://github.com/TheAngryByrd/MiniScaffold/pull/37)
