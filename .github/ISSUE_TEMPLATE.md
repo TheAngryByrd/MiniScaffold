@@ -22,7 +22,7 @@ Please provide a description of any known workarounds.
 
 * Operating System:
     - [ ] windows [insert version here]
-    - [ ] macOs [inserr version]
+    - [ ] macOs [insert version]
     - [ ] linux [insert flavor/version here]
 * Platform
     - [ ] dotnet core
