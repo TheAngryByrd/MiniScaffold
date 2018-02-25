@@ -65,17 +65,20 @@ $ ./build.sh  // on unix
 The bin of your new lib should look similar to:
 
 ```
-$ tree src/MyCoolNewLib/bin/
-src/MyCoolNewLib/bin/
-└── Release
-    ├── net45
-    │   ├── FSharp.Core.dll
-    │   ├── MyCoolNewLib.dll
-    │   └── MyCoolNewLib.pdb
-    └── netstandard1.6
-        ├── MyCoolNewLib.deps.json
-        ├── MyCoolNewLib.dll
-        └── MyCoolNewLib.pdb
+$ tree src/MyCoolNewLib/bin/Release
+src/MyCoolNewLib/bin/Release/
+├── net461
+│   ├── FSharp.Core.dll
+│   ├── MyLib.dll
+│   ├── MyLib.pdb
+├── netstandard1.6
+│   ├── MyLib.deps.json
+│   ├── MyLib.dll
+│   └── MyLib.pdb
+└── netstandard2.0
+    ├── MyLib.deps.json
+    ├── MyLib.dll
+    └── MyLib.pdb
 
 ```
 
@@ -113,7 +116,7 @@ paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9
 ```
 
 * You can then use the `Release` target.  This will:
-    * make a commit bumping the version:  `Bump version to 0.2.0`
+    * make a commit bumping the version:  `Bump version to 0.2.0` and add the release notes to the commit
     * publish the package to nuget
     * push a git tag
 
