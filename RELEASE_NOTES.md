@@ -1,4 +1,4 @@
-### 0.5.1-beta001 - 2018-02-25
+### 0.5.1 - 2018-02-25
 * BUGFIX: Fixed unwanted cosnole.clear (https://github.com/TheAngryByrd/MiniScaffold/pull/54)
 * BUGFIX: paket bootstrapper TLS issues (https://github.com/TheAngryByrd/MiniScaffold/pull/55)
 
