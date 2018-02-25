@@ -1,3 +1,7 @@
+### 0.5.2-beta001 - 2018-02-25
+* BUGFUX: AssemblyVersion not showing (https://github.com/TheAngryByrd/MiniScaffold/pull/57)
+* MINOR:  Added documentation to template's README/md (https://github.com/TheAngryByrd/MiniScaffold/pull/56)
+
 ### 0.5.1 - 2018-02-25
 * BUGFIX: Fixed unwanted cosnole.clear (https://github.com/TheAngryByrd/MiniScaffold/pull/54)
 * BUGFIX: paket bootstrapper TLS issues (https://github.com/TheAngryByrd/MiniScaffold/pull/55)
