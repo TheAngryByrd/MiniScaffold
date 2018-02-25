@@ -7,6 +7,7 @@ open Fake.UserInputHelper
 open System
 
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
+let productName = "MyLib"
 let sln = "MyLib.sln"
 let srcGlob = "src/**/*.fsproj"
 let testsGlob = "tests/**/*.fsproj"
@@ -128,6 +129,43 @@ Target "WatchTests" (fun _ ->
         ()
 )
 
+Target "AssemblyInfo" (fun _ ->
+    let releaseChannel =
+        match release.SemVer.PreRelease with
+        | Some pr -> pr.Name
+        | _ -> "release"
+    let getAssemblyInfoAttributes projectName =
+        [ Attribute.Title (projectName)
+          Attribute.Product productName
+        //   Attribute.Description summary
+          Attribute.Version release.AssemblyVersion
+          Attribute.Metadata("ReleaseDate", release.Date.Value.ToString("o"))
+          Attribute.FileVersion release.AssemblyVersion
+          Attribute.InformationalVersion release.AssemblyVersion
+          Attribute.Metadata("ReleaseChannel", releaseChannel)
+          Attribute.Metadata("GitHash", Information.getCurrentSHA1(null))
+        ]
+
+    let getProjectDetails projectPath =
+        let projectName = System.IO.Path.GetFileNameWithoutExtension(projectPath)
+        ( projectPath,
+          projectName,
+          System.IO.Path.GetDirectoryName(projectPath),
+          (getAssemblyInfoAttributes projectName)
+        )
+
+    !! "src/**/*.??proj"
+    ++ "tests/**/*.??proj"
+    |> Seq.map getProjectDetails
+    |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
+        match projFileName with
+        | Fsproj -> CreateFSharpAssemblyInfo (folderName @@ "AssemblyInfo.fs") attributes
+        | Csproj -> CreateCSharpAssemblyInfo ((folderName @@ "Properties") @@ "AssemblyInfo.cs") attributes
+        | Vbproj -> CreateVisualBasicAssemblyInfo ((folderName @@ "My Project") @@ "AssemblyInfo.vb") attributes
+        | _ -> ()
+        )
+)
+
 Target "DotnetPack" (fun _ ->
     !! srcGlob
     |> Seq.iter (fun proj ->
@@ -155,6 +193,9 @@ Target "Publish" (fun _ ->
         )
 )
 
+
+
+
 Target "Release" (fun _ ->
 
     if Git.Information.getBranchName "" <> "master" then failwith "Not on master"
@@ -173,6 +214,7 @@ Target "Release" (fun _ ->
 "Clean" ==> "DotnetPack"
 
 "DotnetRestore"
+  ==> "AssemblyInfo"
   ==> "DotnetBuild"
   ==> "DotnetTest"
   ==> "DotnetPack"
