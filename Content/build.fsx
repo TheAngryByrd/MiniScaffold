@@ -70,7 +70,7 @@ let getTargetFrameworksFromProjectFile (projFile : string)=
     |> Seq.toList
 
 let selectRunnerForFramework tf =
-    let runMono = sprintf "mono -f %s -c Release"
+    let runMono = sprintf "mono -f %s -c Release --loggerlevel Warn"
     let runCore = sprintf "run -f %s -c Release"
     match tf with
     | Full t when isMono-> runMono t
@@ -116,8 +116,9 @@ Target "WatchTests" (fun _ ->
     runTests (sprintf "watch %s")
     |> Seq.iter (invokeAsync >> Async.Catch >> Async.Ignore >> Async.Start)
 
-    printfn "Press enter to stop..."
-    Console.ReadLine() |> ignore
+    printfn "Press Ctrl+C (or Ctrl+Break) to stop..."
+    let cancelEvent = Console.CancelKeyPress |> Async.AwaitEvent |> Async.RunSynchronously
+    cancelEvent.Cancel <- true
 
     if isWindows |> not then
         startedProcesses
