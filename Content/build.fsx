@@ -78,18 +78,23 @@ let selectRunnerForFramework tf =
     | Full t -> runCore t
     | Core t -> runCore t
 
+let addLogNameParamToArgs tf args =
+    let frameworkName =
+        match tf with
+        | Full t -> t
+        | Core t -> t
+    sprintf "%s -- --log-name Expecto.%s" args frameworkName
 
 let runTests modifyArgs =
     !! testsGlob
     |> Seq.map(fun proj -> proj, getTargetFrameworksFromProjectFile proj)
     |> Seq.collect(fun (proj, targetFrameworks) ->
         targetFrameworks
-        |> Seq.map selectRunnerForFramework
-        |> Seq.map(fun args -> fun () ->
+        |> Seq.map (fun tf -> fun () ->
             DotNetCli.RunCommand (fun c ->
             { c with
                 WorkingDir = IO.Path.GetDirectoryName proj
-            }) (modifyArgs args))
+            }) (tf |> selectRunnerForFramework |> modifyArgs |> addLogNameParamToArgs tf))
     )
 
 
