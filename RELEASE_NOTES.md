@@ -1,3 +1,6 @@
+### 0.6.0-beta001 - 2018-03-06
+* FEATURE: Use expecto's --log-name to specify targetframework when running tests.  Bumps Expecto to 6.0.0 and dotnet-mono to 0.5.1. (https://github.com/TheAngryByrd/MiniScaffold/pull/60)
+
 ### 0.5.2 - 2018-03-01
 * BUGFUX: AssemblyVersion not showing (https://github.com/TheAngryByrd/MiniScaffold/pull/57)
 * MINOR:  Added documentation to template's README/md (https://github.com/TheAngryByrd/MiniScaffold/pull/56)
