@@ -175,6 +175,14 @@ Target "AssemblyInfo" (fun _ ->
 )
 
 Target "DotnetPack" (fun _ ->
+    // https://github.com/ctaggart/SourceLink relies on a some git depedencies.
+    // Checks if there's a remote.origin.url and the last git hash.
+    let remoteOriginOk, remoteMessages, _ = Git.CommandHelper.runGitCommand "." "config --get remote.origin.url"
+    let sha1Ok, sha1Message, _ = Git.CommandHelper.runGitCommand "." "rev-parse HEAD"
+    let canSourceLink =
+        remoteOriginOk && (remoteMessages |> Seq.length > 0)
+        && sha1Ok &&  (sha1Message |> Seq.length > 0)
+
     !! srcGlob
     |> Seq.iter (fun proj ->
         DotNetCli.Pack (fun c ->
@@ -186,7 +194,7 @@ Target "DotnetPack" (fun _ ->
                     [
                         sprintf "/p:PackageVersion=%s" release.NugetVersion
                         sprintf "/p:PackageReleaseNotes=\"%s\"" (String.Join("\n",release.Notes))
-                        "/p:SourceLinkCreate=true"
+                        sprintf "/p:SourceLinkCreate=%b" canSourceLink
                     ]
             })
     )
