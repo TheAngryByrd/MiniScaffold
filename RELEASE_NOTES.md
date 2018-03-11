@@ -1,3 +1,7 @@
+### 0.6.1 - 2018-03-11
+* BUGFIX: Only use sourcelink if git dependencies are met (https://github.com/TheAngryByrd/MiniScaffold/pull/67)
+* MINOR: Only generate AssemblyInfo on Publish (https://github.com/TheAngryByrd/MiniScaffold/pull/66)
+
 ### 0.6.0 - 2018-03-07
 * FEATURE: Use expecto's --log-name to specify targetframework when running tests.  Bumps Expecto to 6.0.0 and dotnet-mono to 0.5.1. (https://github.com/TheAngryByrd/MiniScaffold/pull/60)
 
