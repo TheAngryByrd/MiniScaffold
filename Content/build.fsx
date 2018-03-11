@@ -6,6 +6,9 @@ open Fake.ReleaseNotesHelper
 open Fake.UserInputHelper
 open System
 
+
+
+
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
 let productName = "MyLib"
 let sln = "MyLib.sln"
@@ -198,11 +201,7 @@ Target "Publish" (fun _ ->
         )
 )
 
-
-
-
 Target "Release" (fun _ ->
-
     if Git.Information.getBranchName "" <> "master" then failwith "Not on master"
 
     let releaseNotesGitCommitFormat = ("",release.Notes |> Seq.map(sprintf "* %s\n")) |> String.Join
@@ -215,11 +214,20 @@ Target "Release" (fun _ ->
     Branches.pushTag "" "origin" release.NugetVersion
 )
 
+
+
+// Only call Clean if DotnetPack was in the call chain
+// Ensure Clean is called before DotnetRestore
 "Clean" ?=> "DotnetRestore"
 "Clean" ==> "DotnetPack"
 
+// Only call AssemblyInfo if Publish was in the call chain
+// Ensure AssemblyInfo is called after DotnetRestore and before DotnetBuild
+"DotnetRestore" ?=> "AssemblyInfo"
+"AssemblyInfo" ?=> "DotnetBuild"
+"AssemblyInfo" ==> "Publish"
+
 "DotnetRestore"
-  ==> "AssemblyInfo"
   ==> "DotnetBuild"
   ==> "DotnetTest"
   ==> "DotnetPack"
