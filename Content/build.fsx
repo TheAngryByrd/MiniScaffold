@@ -6,14 +6,18 @@ open Fake.ReleaseNotesHelper
 open Fake.UserInputHelper
 open System
 
-
-
-
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
 let productName = "MyLib"
 let sln = "MyLib.sln"
 let srcGlob = "src/**/*.fsproj"
 let testsGlob = "tests/**/*.fsproj"
+let distGlob = "dist/*.nupkg"
+let tools = "./tools"
+
+let isRelease () =
+    Fake.TargetHelper.CurrentTargetOrder
+    |> Seq.collect id
+    |> Seq.exists ((=)"Release")
 
 Target "Clean" (fun _ ->
     ["bin"; "temp" ;"dist"]
@@ -31,12 +35,15 @@ Target "Clean" (fun _ ->
     )
 
 Target "DotnetRestore" (fun _ ->
-    DotNetCli.Restore (fun c ->
-        { c with
-            Project = sln
-            //This makes sure that Proj2 references the correct version of Proj1
-            AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
-        }))
+    [sln;tools]
+    |> Seq.iter(fun dir ->
+        DotNetCli.Restore (fun c ->
+            { c with
+                Project = dir
+                //This makes sure that Proj2 references the correct version of Proj1
+                AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
+            }))
+)
 
 Target "DotnetBuild" (fun _ ->
     DotNetCli.Build (fun c ->
@@ -46,6 +53,7 @@ Target "DotnetBuild" (fun _ ->
             AdditionalArgs =
                 [
                     sprintf "/p:PackageVersion=%s" release.NugetVersion
+                    sprintf "/p:SourceLinkCreate=%b" (isRelease ())
                     "--no-restore"
                 ]
         }))
@@ -175,14 +183,6 @@ Target "AssemblyInfo" (fun _ ->
 )
 
 Target "DotnetPack" (fun _ ->
-    // https://github.com/ctaggart/SourceLink relies on a some git depedencies.
-    // Checks if there's a remote.origin.url and the last git hash.
-    let remoteOriginOk, remoteMessages, _ = Git.CommandHelper.runGitCommand "." "config --get remote.origin.url"
-    let sha1Ok, sha1Message, _ = Git.CommandHelper.runGitCommand "." "rev-parse HEAD"
-    let canSourceLink =
-        remoteOriginOk && (remoteMessages |> Seq.length > 0)
-        && sha1Ok &&  (sha1Message |> Seq.length > 0)
-
     !! srcGlob
     |> Seq.iter (fun proj ->
         DotNetCli.Pack (fun c ->
@@ -194,9 +194,18 @@ Target "DotnetPack" (fun _ ->
                     [
                         sprintf "/p:PackageVersion=%s" release.NugetVersion
                         sprintf "/p:PackageReleaseNotes=\"%s\"" (String.Join("\n",release.Notes))
-                        sprintf "/p:SourceLinkCreate=%b" canSourceLink
+                        sprintf "/p:SourceLinkCreate=%b" (isRelease ())
                     ]
             })
+    )
+)
+
+Target "SourcelinkTest" (fun _ ->
+    !! distGlob
+    |> Seq.iter (fun nupkg ->
+        DotNetCli.RunCommand
+            (fun p -> { p with WorkingDir = __SOURCE_DIRECTORY__ @@ "tools" } )
+            (sprintf "sourcelink test %s" nupkg)
     )
 )
 
@@ -239,6 +248,7 @@ Target "Release" (fun _ ->
   ==> "DotnetBuild"
   ==> "DotnetTest"
   ==> "DotnetPack"
+  ==> "SourcelinkTest"
   ==> "Publish"
   ==> "Release"
 

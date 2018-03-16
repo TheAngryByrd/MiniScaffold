@@ -2,10 +2,12 @@ source https://www.nuget.org/api/v2
 storage: none
 clitool dotnet-mono 0.5.1
 clitool Microsoft.DotNet.Watcher.Tools 1.0.0
+clitool dotnet-sourcelink 2.8.0
 nuget Argu 3.7
 nuget FSharp.Core 4.3.3
 nuget Expecto 6.0.0
-nuget SourceLink.Create.CommandLine 2.7.2 copy_local: true
+nuget SourceLink.Create.CommandLine 2.8.0 copy_local: true
+
 
 group Build
     source https://www.nuget.org/api/v2
