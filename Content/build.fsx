@@ -6,17 +6,26 @@ open Fake.ReleaseNotesHelper
 open Fake.UserInputHelper
 open System
 
-
-
-
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
 let productName = "MyLib"
 let sln = "MyLib.sln"
-let srcGlob = "src/**/*.fsproj"
-let testsGlob = "tests/**/*.fsproj"
+let srcGlob =__SOURCE_DIRECTORY__  @@ "src/**/*.??proj"
+let testsGlob = __SOURCE_DIRECTORY__  @@ "tests/**/*.??proj"
+let distDir = __SOURCE_DIRECTORY__  @@ "dist"
+let distGlob = distDir @@ "*.nupkg"
+let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
+
+let configuration =
+    EnvironmentHelper.environVarOrDefault "CONFIGURATION" "Release"
+
+
+let isRelease () =
+    Fake.TargetHelper.CurrentTargetOrder
+    |> Seq.collect id
+    |> Seq.exists ((=)"Release")
 
 Target "Clean" (fun _ ->
-    ["bin"; "temp" ;"dist"]
+    ["bin"; "temp" ; distDir]
     |> CleanDirs
 
     !! srcGlob
@@ -31,21 +40,26 @@ Target "Clean" (fun _ ->
     )
 
 Target "DotnetRestore" (fun _ ->
-    DotNetCli.Restore (fun c ->
-        { c with
-            Project = sln
-            //This makes sure that Proj2 references the correct version of Proj1
-            AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
-        }))
+    [sln ; toolsDir]
+    |> Seq.iter(fun dir ->
+        DotNetCli.Restore (fun c ->
+            { c with
+                Project = dir
+                //This makes sure that Proj2 references the correct version of Proj1
+                AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
+            }))
+)
 
 Target "DotnetBuild" (fun _ ->
     DotNetCli.Build (fun c ->
         { c with
             Project = sln
+            Configuration = configuration
             //This makes sure that Proj2 references the correct version of Proj1
             AdditionalArgs =
                 [
                     sprintf "/p:PackageVersion=%s" release.NugetVersion
+                    sprintf "/p:SourceLinkCreate=%b" (isRelease ())
                     "--no-restore"
                 ]
         }))
@@ -74,12 +88,12 @@ let getTargetFrameworksFromProjectFile (projFile : string)=
     |> Seq.toList
 
 let selectRunnerForFramework tf =
-    let runMono = sprintf "mono -f %s -c Release --loggerlevel Warn"
-    let runCore = sprintf "run -f %s -c Release"
+    let runMono = sprintf "mono -f %s -c %s --loggerlevel Warn"
+    let runCore = sprintf "run -f %s -c %s"
     match tf with
-    | Full t when isMono-> runMono t
-    | Full t -> runCore t
-    | Core t -> runCore t
+    | Full t when isMono-> runMono t configuration
+    | Full t -> runCore t configuration
+    | Core t -> runCore t configuration
 
 let addLogNameParamToArgs tf args =
     let frameworkName =
@@ -145,7 +159,6 @@ Target "AssemblyInfo" (fun _ ->
     let getAssemblyInfoAttributes projectName =
         [ Attribute.Title (projectName)
           Attribute.Product productName
-        //   Attribute.Description summary
           Attribute.Version release.AssemblyVersion
           Attribute.Metadata("ReleaseDate", release.Date.Value.ToString("o"))
           Attribute.FileVersion release.AssemblyVersion
@@ -162,8 +175,8 @@ Target "AssemblyInfo" (fun _ ->
           (getAssemblyInfoAttributes projectName)
         )
 
-    !! "src/**/*.??proj"
-    ++ "tests/**/*.??proj"
+    !! srcGlob
+    ++ testsGlob
     |> Seq.map getProjectDetails
     |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
         match projFileName with
@@ -175,32 +188,39 @@ Target "AssemblyInfo" (fun _ ->
 )
 
 Target "DotnetPack" (fun _ ->
-    // https://github.com/ctaggart/SourceLink relies on a some git depedencies.
-    // Checks if there's a remote.origin.url and the last git hash.
-    let remoteOriginOk, remoteMessages, _ = Git.CommandHelper.runGitCommand "." "config --get remote.origin.url"
-    let sha1Ok, sha1Message, _ = Git.CommandHelper.runGitCommand "." "rev-parse HEAD"
-    let canSourceLink =
-        remoteOriginOk && (remoteMessages |> Seq.length > 0)
-        && sha1Ok &&  (sha1Message |> Seq.length > 0)
-
     !! srcGlob
     |> Seq.iter (fun proj ->
         DotNetCli.Pack (fun c ->
             { c with
                 Project = proj
-                Configuration = "Release"
-                OutputPath = IO.Directory.GetCurrentDirectory() @@ "dist"
+                Configuration = configuration
+                OutputPath = distDir
                 AdditionalArgs =
                     [
                         sprintf "/p:PackageVersion=%s" release.NugetVersion
                         sprintf "/p:PackageReleaseNotes=\"%s\"" (String.Join("\n",release.Notes))
-                        sprintf "/p:SourceLinkCreate=%b" canSourceLink
+                        sprintf "/p:SourceLinkCreate=%b" (isRelease ())
                     ]
             })
     )
 )
 
+Target "SourcelinkTest" (fun _ ->
+    !! distGlob
+    |> Seq.iter (fun nupkg ->
+        DotNetCli.RunCommand
+            (fun p -> { p with WorkingDir = toolsDir} )
+            (sprintf "sourcelink test %s" nupkg)
+    )
+)
+
+let isReleaseBranchCheck () =
+    let releaseBranch = "master"
+    if Git.Information.getBranchName "" <> releaseBranch then failwithf "Not on %s.  If you want to release please switch to this branch." releaseBranch
+
 Target "Publish" (fun _ ->
+    isReleaseBranchCheck ()
+
     Paket.Push(fun c ->
             { c with
                 PublishUrl = "https://www.nuget.org"
@@ -209,8 +229,8 @@ Target "Publish" (fun _ ->
         )
 )
 
-Target "Release" (fun _ ->
-    if Git.Information.getBranchName "" <> "master" then failwith "Not on master"
+Target "GitRelease" (fun _ ->
+    isReleaseBranchCheck ()
 
     let releaseNotesGitCommitFormat = ("",release.Notes |> Seq.map(sprintf "* %s\n")) |> String.Join
 
@@ -222,6 +242,7 @@ Target "Release" (fun _ ->
     Branches.pushTag "" "origin" release.NugetVersion
 )
 
+Target "Release" DoNothing
 
 
 // Only call Clean if DotnetPack was in the call chain
@@ -239,7 +260,9 @@ Target "Release" (fun _ ->
   ==> "DotnetBuild"
   ==> "DotnetTest"
   ==> "DotnetPack"
+  ==> "SourcelinkTest"
   ==> "Publish"
+  ==> "GitRelease"
   ==> "Release"
 
 "DotnetRestore"
