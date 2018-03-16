@@ -1,3 +1,8 @@
+### 0.7.0 - 2018-03-15
+* FEATURE: SourceLink testing (https://github.com/TheAngryByrd/MiniScaffold/pull/69)
+* FEATURE: Integration testing at the FAKE level for different perumutations (https://github.com/TheAngryByrd/MiniScaffold/pull/70)
+* MINOR: Lots of small refactorings/additions (https://github.com/TheAngryByrd/MiniScaffold/pull/69)
+
 ### 0.6.1 - 2018-03-11
 * BUGFIX: Only use sourcelink if git dependencies are met (https://github.com/TheAngryByrd/MiniScaffold/pull/67)
 * MINOR: Only generate AssemblyInfo on Publish (https://github.com/TheAngryByrd/MiniScaffold/pull/66)
