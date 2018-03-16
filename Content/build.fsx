@@ -15,6 +15,9 @@ let distDir = __SOURCE_DIRECTORY__  @@ "dist"
 let distGlob = distDir @@ "*.nupkg"
 let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
 
+let configuration =
+    EnvironmentHelper.environVarOrDefault "CONFIGURATION" "Release"
+
 
 let isRelease () =
     Fake.TargetHelper.CurrentTargetOrder
@@ -51,6 +54,7 @@ Target "DotnetBuild" (fun _ ->
     DotNetCli.Build (fun c ->
         { c with
             Project = sln
+            Configuration = configuration
             //This makes sure that Proj2 references the correct version of Proj1
             AdditionalArgs =
                 [
@@ -84,12 +88,12 @@ let getTargetFrameworksFromProjectFile (projFile : string)=
     |> Seq.toList
 
 let selectRunnerForFramework tf =
-    let runMono = sprintf "mono -f %s -c Release --loggerlevel Warn"
-    let runCore = sprintf "run -f %s -c Release"
+    let runMono = sprintf "mono -f %s -c %s --loggerlevel Warn"
+    let runCore = sprintf "run -f %s -c %s"
     match tf with
-    | Full t when isMono-> runMono t
-    | Full t -> runCore t
-    | Core t -> runCore t
+    | Full t when isMono-> runMono t configuration
+    | Full t -> runCore t configuration
+    | Core t -> runCore t configuration
 
 let addLogNameParamToArgs tf args =
     let frameworkName =
@@ -189,7 +193,7 @@ Target "DotnetPack" (fun _ ->
         DotNetCli.Pack (fun c ->
             { c with
                 Project = proj
-                Configuration = "Release"
+                Configuration = configuration
                 OutputPath = distDir
                 AdditionalArgs =
                     [

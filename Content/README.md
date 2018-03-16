@@ -33,6 +33,12 @@ Make sure the following **requirements** are installed in your system:
 $ ./build.sh  // on unix
 ```
 
+#### Environment Variables
+
+* `CONFIGURATION` will set the [configuration](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build?tabs=netcore2x#options) of the dotnet commands.  If not set it will default to Release.
+
+`CONFIGURATION=Debug ./build.sh` will result in things like `dotnet build -c Debug`
+
 
 ### Watch Tests
 
