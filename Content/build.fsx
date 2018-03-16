@@ -9,8 +9,8 @@ open System
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
 let productName = "MyLib"
 let sln = "MyLib.sln"
-let srcGlob = "src/**/*.fsproj"
-let testsGlob = "tests/**/*.fsproj"
+let srcGlob = "src/**/*.??proj"
+let testsGlob = "tests/**/*.??proj"
 let distGlob = "dist/*.nupkg"
 let tools = "./tools"
 
