@@ -212,6 +212,8 @@ Target "SourcelinkTest" (fun _ ->
 )
 
 Target "Publish" (fun _ ->
+    if Git.Information.getBranchName "" <> "master" then failwith "Not on master"
+
     Paket.Push(fun c ->
             { c with
                 PublishUrl = "https://www.nuget.org"
