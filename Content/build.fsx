@@ -155,7 +155,6 @@ Target "AssemblyInfo" (fun _ ->
     let getAssemblyInfoAttributes projectName =
         [ Attribute.Title (projectName)
           Attribute.Product productName
-        //   Attribute.Description summary
           Attribute.Version release.AssemblyVersion
           Attribute.Metadata("ReleaseDate", release.Date.Value.ToString("o"))
           Attribute.FileVersion release.AssemblyVersion
