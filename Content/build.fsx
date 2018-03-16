@@ -210,8 +210,12 @@ Target "SourcelinkTest" (fun _ ->
     )
 )
 
+let isReleaseBranchCheck () =
+    let releaseBranch = "master"
+    if Git.Information.getBranchName "" <> releaseBranch then failwithf "Not on %s.  If you want to release please switch to this branch." releaseBranch
+
 Target "Publish" (fun _ ->
-    if Git.Information.getBranchName "" <> "master" then failwith "Not on master"
+    isReleaseBranchCheck ()
 
     Paket.Push(fun c ->
             { c with
@@ -221,8 +225,8 @@ Target "Publish" (fun _ ->
         )
 )
 
-Target "Release" (fun _ ->
-    if Git.Information.getBranchName "" <> "master" then failwith "Not on master"
+Target "GitRelease" (fun _ ->
+    isReleaseBranchCheck ()
 
     let releaseNotesGitCommitFormat = ("",release.Notes |> Seq.map(sprintf "* %s\n")) |> String.Join
 
@@ -234,6 +238,7 @@ Target "Release" (fun _ ->
     Branches.pushTag "" "origin" release.NugetVersion
 )
 
+Target "Release" DoNothing
 
 
 // Only call Clean if DotnetPack was in the call chain
@@ -253,6 +258,7 @@ Target "Release" (fun _ ->
   ==> "DotnetPack"
   ==> "SourcelinkTest"
   ==> "Publish"
+  ==> "GitRelease"
   ==> "Release"
 
 "DotnetRestore"
