@@ -9,10 +9,12 @@ open System
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
 let productName = "MyLib"
 let sln = "MyLib.sln"
-let srcGlob = "src/**/*.??proj"
-let testsGlob = "tests/**/*.??proj"
-let distGlob = "dist/*.nupkg"
-let tools = "./tools"
+let srcGlob =__SOURCE_DIRECTORY__  @@ "src/**/*.??proj"
+let testsGlob = __SOURCE_DIRECTORY__  @@ "tests/**/*.??proj"
+let distDir = __SOURCE_DIRECTORY__  @@ "dist"
+let distGlob = distDir @@ "*.nupkg"
+let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
+
 
 let isRelease () =
     Fake.TargetHelper.CurrentTargetOrder
@@ -20,7 +22,7 @@ let isRelease () =
     |> Seq.exists ((=)"Release")
 
 Target "Clean" (fun _ ->
-    ["bin"; "temp" ;"dist"]
+    ["bin"; "temp" ; distDir]
     |> CleanDirs
 
     !! srcGlob
@@ -35,7 +37,7 @@ Target "Clean" (fun _ ->
     )
 
 Target "DotnetRestore" (fun _ ->
-    [sln;tools]
+    [sln ; toolsDir]
     |> Seq.iter(fun dir ->
         DotNetCli.Restore (fun c ->
             { c with
@@ -189,7 +191,7 @@ Target "DotnetPack" (fun _ ->
             { c with
                 Project = proj
                 Configuration = "Release"
-                OutputPath = IO.Directory.GetCurrentDirectory() @@ "dist"
+                OutputPath = distDir
                 AdditionalArgs =
                     [
                         sprintf "/p:PackageVersion=%s" release.NugetVersion
@@ -204,7 +206,7 @@ Target "SourcelinkTest" (fun _ ->
     !! distGlob
     |> Seq.iter (fun nupkg ->
         DotNetCli.RunCommand
-            (fun p -> { p with WorkingDir = __SOURCE_DIRECTORY__ @@ "tools" } )
+            (fun p -> { p with WorkingDir = toolsDir} )
             (sprintf "sourcelink test %s" nupkg)
     )
 )
