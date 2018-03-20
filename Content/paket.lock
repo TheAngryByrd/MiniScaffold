@@ -8,12 +8,12 @@ NUGET
     Chessie (0.6) - restriction: >= netcoreapp1.0
       FSharp.Core (>= 4.0.1.7-alpha) - restriction: >= netstandard1.6
       NETStandard.Library (>= 1.6) - restriction: >= netstandard1.6
-    dotnet-mono (0.5.1) - clitool: true
+    dotnet-mono (0.5.2-alpha001) - clitool: true
       Argu (>= 3.7) - restriction: >= netcoreapp1.0
       Chessie (>= 0.6) - restriction: >= netcoreapp1.0
       FSharp.Core (>= 4.1.17) - restriction: >= netcoreapp1.0
-      Microsoft.Build (>= 15.5.180) - restriction: >= netcoreapp1.0
-      Microsoft.Build.Utilities.Core (>= 15.5.180) - restriction: >= netcoreapp1.0
+      Microsoft.Build (>= 15.6.82) - restriction: >= netcoreapp1.0
+      Microsoft.Build.Utilities.Core (>= 15.6.82) - restriction: >= netcoreapp1.0
       Microsoft.NETCore.App (>= 1.0.5) - restriction: && (>= netcoreapp1.0) (< netcoreapp2.0)
       Microsoft.NETCore.App (>= 2.0) - restriction: >= netcoreapp2.0
       System.Runtime.Loader (>= 4.3) - restriction: && (>= netcoreapp1.0) (< netcoreapp2.0)
@@ -57,8 +57,8 @@ NUGET
       System.Threading.Timer (>= 4.0.1) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
     Libuv (1.10) - restriction: || (&& (>= netcoreapp1.0) (< netcoreapp1.1)) (&& (>= netcoreapp1.1) (< netcoreapp2.0))
       Microsoft.NETCore.Platforms (>= 1.0.1) - restriction: >= netstandard1.0
-    Microsoft.Build (15.5.180) - restriction: >= netcoreapp1.0
-      Microsoft.Build.Framework (15.5.180) - restriction: || (>= net46) (>= netstandard1.5)
+    Microsoft.Build (15.6.82) - restriction: >= netcoreapp1.0
+      Microsoft.Build.Framework (15.6.82) - restriction: || (>= net46) (>= netstandard1.5)
       Microsoft.Win32.Primitives (>= 4.0.1) - restriction: && (< net46) (>= netstandard1.5)
       System.AppContext (>= 4.1) - restriction: && (< net46) (>= netstandard1.5)
       System.Collections (>= 4.0.11) - restriction: && (< net46) (>= netstandard1.5)
@@ -105,19 +105,22 @@ NUGET
       System.Xml.ReaderWriter (>= 4.0.11) - restriction: && (< net46) (>= netstandard1.5)
       System.Xml.XmlDocument (>= 4.0.1) - restriction: && (< net46) (>= netstandard1.5)
       System.Xml.XPath.XmlDocument (>= 4.0.1) - restriction: && (< net46) (>= netstandard1.5)
-    Microsoft.Build.Framework (15.5.180) - restriction: >= netcoreapp1.0
+    Microsoft.Build.Framework (15.6.82) - restriction: >= netcoreapp1.0
       System.Collections (>= 4.0.11) - restriction: >= netstandard1.3
       System.Diagnostics.Debug (>= 4.0.11) - restriction: >= netstandard1.3
+      System.Diagnostics.Process (>= 4.1) - restriction: >= netstandard1.3
       System.Globalization (>= 4.0.11) - restriction: >= netstandard1.3
       System.Linq (>= 4.1) - restriction: >= netstandard1.3
+      System.ObjectModel (>= 4.0.12) - restriction: >= netstandard1.3
       System.Resources.ResourceManager (>= 4.0.1) - restriction: >= netstandard1.3
       System.Runtime (>= 4.1) - restriction: >= netstandard1.3
+      System.Runtime.Extensions (>= 4.1) - restriction: >= netstandard1.3
       System.Runtime.InteropServices (>= 4.1) - restriction: >= netstandard1.3
       System.Threading (>= 4.0.11) - restriction: >= netstandard1.3
       System.Threading.Tasks.Parallel (>= 4.0.1) - restriction: >= netstandard1.3
       System.Threading.Thread (>= 4.0) - restriction: >= netstandard1.3
-    Microsoft.Build.Utilities.Core (15.5.180) - restriction: >= netcoreapp1.0
-      Microsoft.Build.Framework (15.5.180) - restriction: >= netstandard1.3
+    Microsoft.Build.Utilities.Core (15.6.82) - restriction: >= netcoreapp1.0
+      Microsoft.Build.Framework (15.6.82) - restriction: >= netstandard1.3
       Microsoft.Win32.Primitives (>= 4.0.1) - restriction: && (< net46) (>= netstandard1.3)
       System.AppContext (>= 4.1) - restriction: && (< net46) (>= netstandard1.3)
       System.Collections (>= 4.0.11) - restriction: && (< net46) (>= netstandard1.3)
