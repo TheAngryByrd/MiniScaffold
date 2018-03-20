@@ -1,3 +1,6 @@
+### 0.8.0-alpha001 - 2018-03-20
+* FEATURE: Add release notes and nuget packages to GitHub releases (https://github.com/TheAngryByrd/MiniScaffold/pull/75)
+
 ### 0.7.1 - 2018-03-19
 * BUGFIX: Fixes names in github PR templates (https://github.com/TheAngryByrd/MiniScaffold/pull/71)
 * BUGFIX: Fix dotnet sdk 2.1.101 issue with dotnet-mono (https://github.com/TheAngryByrd/MiniScaffold/pull/74)
