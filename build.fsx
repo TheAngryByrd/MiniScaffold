@@ -9,8 +9,12 @@ open System.IO
 
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
 let srcGlob = "*.csproj"
-// let testsGlob = "tests/**/*.fsproj"
 
+let distDir = __SOURCE_DIRECTORY__  @@ "dist"
+let distGlob = distDir @@ "*.nupkg"
+
+let gitOwner = "TheAngryByrd"
+let gitRepoName = "MiniScaffold"
 
 Target "Clean" (fun _ ->
     [ "obj" ;"dist"]
@@ -125,7 +129,7 @@ Target "Publish" (fun _ ->
         )
 )
 
-Target "Release" (fun _ ->
+Target "GitRelease" (fun _ ->
 
     if Git.Information.getBranchName "" <> "master" then failwith "Not on master"
 
@@ -139,11 +143,45 @@ Target "Release" (fun _ ->
     Branches.pushTag "" "origin" release.NugetVersion
 )
 
+#load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
+open Octokit
+
+Target "GitHubRelease" (fun _ ->
+    let client =
+        match Environment.GetEnvironmentVariable "GITHUB_TOKEN" with
+        | null ->
+            let user =
+                match getBuildParam "github-user" with
+                | s when not (String.IsNullOrWhiteSpace s) -> s
+                | _ -> getUserInput "Username: "
+            let pw =
+                match getBuildParam "github-pw" with
+                | s when not (String.IsNullOrWhiteSpace s) -> s
+                | _ -> getUserPassword "Password: "
+
+            createClient user pw
+        | token -> createClientWithToken token
+
+
+    client
+    |> createDraft gitOwner gitRepoName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes
+    |> fun draft ->
+        !! distGlob
+        |> Seq.fold (fun draft pkg -> draft |> uploadFile pkg) draft
+    |> releaseDraft
+    |> Async.RunSynchronously
+
+)
+
+Target "Release" DoNothing
+
 "Clean"
   ==> "DotnetRestore"
   ==> "DotnetPack"
   ==> "IntegrationTests"
   ==> "Publish"
+  ==> "GitRelease"
+  ==> "GithubRelease"
   ==> "Release"
 
 RunTargetOrDefault "IntegrationTests"

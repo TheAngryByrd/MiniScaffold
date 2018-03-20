@@ -1308,6 +1308,12 @@ NUGET
       System.Xml.XPath (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (>= net46)
 
 GROUP Build
+RESTRICTION: >= net45
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.64.4)
+    FAKE (4.64.11)
+    Octokit (0.29)
+GITHUB
+  remote: fsharp/FAKE
+    modules/Octokit/Octokit.fsx (c160d4907360cfd42904008dab2bd22c0a4a9952)
+      Octokit (>= 0.20)

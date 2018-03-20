@@ -36,9 +36,9 @@ $ ./build.sh  // on unix
 #### Environment Variables
 
 * `CONFIGURATION` will set the [configuration](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build?tabs=netcore2x#options) of the dotnet commands.  If not set it will default to Release.
-
-`CONFIGURATION=Debug ./build.sh` will result in things like `dotnet build -c Debug`
-
+  * `CONFIGURATION=Debug ./build.sh` will result in things like `dotnet build -c Debug`
+* `GITHUB_TOKEN` will be used to upload release notes and nuget packages to github.
+  * Be sure to set this before releasing
 
 ### Watch Tests
 
