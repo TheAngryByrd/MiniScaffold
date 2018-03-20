@@ -168,7 +168,6 @@ Target "GitHubRelease" (fun _ ->
     |> fun draft ->
         !! distGlob
         |> Seq.fold (fun draft pkg -> draft |> uploadFile pkg) draft
-
     |> releaseDraft
     |> Async.RunSynchronously
 
