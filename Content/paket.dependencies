@@ -10,5 +10,7 @@ nuget SourceLink.Create.CommandLine 2.8.0 copy_local: true
 
 
 group Build
-    source https://www.nuget.org/api/v2
-    nuget FAKE
+  framework: >= net45
+  source https://www.nuget.org/api/v2
+  nuget FAKE
+  github fsharp/FAKE modules/Octokit/Octokit.fsx

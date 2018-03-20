@@ -36,9 +36,9 @@ $ ./build.sh  // on unix
 #### Environment Variables
 
 * `CONFIGURATION` will set the [configuration](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build?tabs=netcore2x#options) of the dotnet commands.  If not set it will default to Release.
-
-`CONFIGURATION=Debug ./build.sh` will result in things like `dotnet build -c Debug`
-
+  * `CONFIGURATION=Debug ./build.sh` will result in things like `dotnet build -c Debug`
+* `GITHUB_TOKEN` will be used to upload release notes and nuget packages to github.
+  * Be sure to set this before releasing
 
 ### Watch Tests
 
@@ -63,6 +63,10 @@ git push -u origin master
 ```
 paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9b3a
 ```
+
+* [Create a GitHub OAuth Token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
+    * You can then set the `GITHUB_TOKEN` to upload release notes and artifacts to github
+    * Otherwise it will fallback to username/password
 
 
 * Then update the `RELEASE_NOTES.md` with a new version, date, and release notes [ReleaseNotesHelper](https://fsharp.github.io/FAKE/apidocs/fake-releasenoteshelper.html)

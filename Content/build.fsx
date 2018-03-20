@@ -15,6 +15,9 @@ let distDir = __SOURCE_DIRECTORY__  @@ "dist"
 let distGlob = distDir @@ "*.nupkg"
 let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
 
+let gitOwner = "MyGithubUsername"
+let gitRepoName = "MyLib"
+
 let configuration =
     EnvironmentHelper.environVarOrDefault "CONFIGURATION" "Release"
 
@@ -242,6 +245,36 @@ Target "GitRelease" (fun _ ->
     Branches.pushTag "" "origin" release.NugetVersion
 )
 
+#load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
+open Octokit
+
+Target "GitHubRelease" (fun _ ->
+    let client =
+        match Environment.GetEnvironmentVariable "GITHUB_TOKEN" with
+        | null ->
+            let user =
+                match getBuildParam "github-user" with
+                | s when not (String.IsNullOrWhiteSpace s) -> s
+                | _ -> getUserInput "Username: "
+            let pw =
+                match getBuildParam "github-pw" with
+                | s when not (String.IsNullOrWhiteSpace s) -> s
+                | _ -> getUserPassword "Password: "
+
+            createClient user pw
+        | token -> createClientWithToken token
+
+
+    client
+    |> createDraft gitOwner gitRepoName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes
+    |> fun draft ->
+        !! distGlob
+        |> Seq.fold (fun draft pkg -> draft |> uploadFile pkg) draft
+    |> releaseDraft
+    |> Async.RunSynchronously
+
+)
+
 Target "Release" DoNothing
 
 
@@ -263,6 +296,7 @@ Target "Release" DoNothing
   ==> "SourcelinkTest"
   ==> "Publish"
   ==> "GitRelease"
+  ==> "GitHubRelease"
   ==> "Release"
 
 "DotnetRestore"
