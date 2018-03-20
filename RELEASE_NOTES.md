@@ -1,5 +1,5 @@
 ### 0.7.1 - 2018-03-19
-* BUGFIX: Fixes names in gitlab PR templates (https://github.com/TheAngryByrd/MiniScaffold/pull/71)
+* BUGFIX: Fixes names in github PR templates (https://github.com/TheAngryByrd/MiniScaffold/pull/71)
 * BUGFIX: Fix dotnet sdk 2.1.101 issue with dotnet-mono (https://github.com/TheAngryByrd/MiniScaffold/pull/74)
 
 ### 0.7.0 - 2018-03-15
