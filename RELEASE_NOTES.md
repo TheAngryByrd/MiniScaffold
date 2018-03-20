@@ -1,4 +1,4 @@
-### 0.8.0-alpha001 - 2018-03-20
+### 0.8.0-alpha002 - 2018-03-20
 * FEATURE: Add release notes and nuget packages to GitHub releases (https://github.com/TheAngryByrd/MiniScaffold/pull/75)
 
 ### 0.7.1 - 2018-03-19
