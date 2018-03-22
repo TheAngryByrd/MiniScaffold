@@ -1,5 +1,5 @@
 # MiniScaffold
-F# Template for creating and publishing libraries targeting .NET Full (net45) and Core (netstandard1.6)
+F# Template for creating and publishing libraries targeting .NET Full (net45) and Core (netstandard2.0)
 
 ## Builds
 
@@ -71,10 +71,6 @@ src/MyCoolNewLib/bin/Release/
 │   ├── FSharp.Core.dll
 │   ├── MyLib.dll
 │   ├── MyLib.pdb
-├── netstandard1.6
-│   ├── MyLib.deps.json
-│   ├── MyLib.dll
-│   └── MyLib.pdb
 └── netstandard2.0
     ├── MyLib.deps.json
     ├── MyLib.dll
