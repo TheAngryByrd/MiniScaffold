@@ -1,5 +1,5 @@
 # MiniScaffold
-F# Template for creating and publishing libraries targeting .NET Full (net45) and Core (netstandard1.6)
+F# Template for creating and publishing libraries targeting .NET Full (net461) and Core (netstandard1.6,netstandard2.0)
 
 ## Builds
 
