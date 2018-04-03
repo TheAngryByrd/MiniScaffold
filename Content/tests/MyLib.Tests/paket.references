@@ -2,3 +2,5 @@ Expecto
 FSharp.Core
 Microsoft.DotNet.Watcher.Tools
 dotnet-mono
+YoloDev.Expecto.TestSdk
+Microsoft.NET.Test.Sdk

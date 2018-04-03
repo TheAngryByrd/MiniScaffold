@@ -3,11 +3,11 @@ storage: none
 clitool dotnet-mono 0.5.2-alpha001
 clitool Microsoft.DotNet.Watcher.Tools 1.0.0
 clitool dotnet-sourcelink 2.8.0
-nuget Argu 3.7
 nuget FSharp.Core 4.3.3
-nuget Expecto 6.0.0
+nuget Expecto 7.0.0
 nuget SourceLink.Create.CommandLine 2.8.0 copy_local: true
-
+nuget YoloDev.Expecto.TestSdk
+nuget Microsoft.NET.Test.Sdk
 
 group Build
   framework: >= net45
