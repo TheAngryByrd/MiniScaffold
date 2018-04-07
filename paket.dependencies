@@ -3,5 +3,5 @@ source https://www.nuget.org/api/v2
 group Build
   framework: >= net45
   source https://www.nuget.org/api/v2
-  nuget FAKE
+  nuget FAKE ~> 5
   github fsharp/FAKE modules/Octokit/Octokit.fsx

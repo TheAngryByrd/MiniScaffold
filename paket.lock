@@ -4,9 +4,9 @@ GROUP Build
 RESTRICTION: >= net45
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.64.11)
+    FAKE (5.0)
     Octokit (0.29)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (c160d4907360cfd42904008dab2bd22c0a4a9952)
+    modules/Octokit/Octokit.fsx (6ba51f5612a914e161be2a9b642907f75e28780f)
       Octokit (>= 0.20)
