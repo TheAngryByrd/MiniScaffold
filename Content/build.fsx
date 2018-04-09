@@ -83,10 +83,21 @@ let getTargetFramework tf =
     | StartsWith "netcoreapp" -> Core tf
     | _ -> failwithf "Unknown TargetFramework %s" tf
 
+let getTargetFrameworks (doc: Xml.XmlDocument) =
+    let multiFrameworks = doc.GetElementsByTagName("TargetFrameworks")
+    if multiFrameworks.Count = 0 then
+        //  assume that if there is no TargetFrameworks element 
+        //  then there will be a TargetFramework element instead.
+        let tf = doc.GetElementsByTagName("TargetFramework").[0].InnerText
+        [|tf|]
+    else
+        multiFrameworks.[0].InnerText.Split(';')
+
 let getTargetFrameworksFromProjectFile (projFile : string)=
     let doc = Xml.XmlDocument()
     doc.Load(projFile)
-    doc.GetElementsByTagName("TargetFrameworks").[0].InnerText.Split(';')
+    doc
+    |> getTargetFrameworks
     |> Seq.map getTargetFramework
     |> Seq.toList
 
