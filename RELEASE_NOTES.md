@@ -1,3 +1,7 @@
+### 0.8.1 - 2018-04-09
+* BUGFIX: Handle TargetFramework as well as TargetFrameworks in proj files (https://github.com/TheAngryByrd/MiniScaffold/pull/83)
+* DOCUMENTATION: Update Tree output (https://github.com/TheAngryByrd/MiniScaffold/pull/80)
+
 ### 0.8.0 - 2018-03-20
 * FEATURE: Add release notes and nuget packages to GitHub releases (https://github.com/TheAngryByrd/MiniScaffold/pull/75)
 
