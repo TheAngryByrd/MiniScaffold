@@ -35,30 +35,58 @@ cd MyCoolNewLib
 It will scaffold out something similar to:
 
 ```
-$ tree
+$ tree /f
 .
-├── LICENSE.md
-├── README.md
-├── RELEASE_NOTES.md
-├── build.cmd
-├── build.fsx
-├── build.sh
-├── paket.dependencies
-├── paket.lock
-├── src
-│   └── MyCoolNewLib
-│       ├── Library.fs
-│       └── MyCoolNewLib.fsproj
-└── tests
-    └── MyCoolNewLib.Tests
-        ├── MyCoolNewLib.Tests.fsproj
-        └── Tests.fs
+│   .DS_Store
+│   .editorconfig
+│   .gitignore
+│   .travis.yml
+│   appveyor.yml
+│   build.cmd
+│   build.fsx
+│   build.sh
+│   MyCoolNewLib.sln
+│   LICENSE.md
+│   paket.dependencies
+│   paket.lock
+│   README.md
+│   RELEASE_NOTES.md
+│
+├───.github
+│       ISSUE_TEMPLATE.md
+│       PULL_REQUEST_TEMPLATE.md
+│
+├───.paket
+│       paket.exe
+│       paket.exe.config
+│       Paket.Restore.targets
+│       paket.targets
+│
+├───src
+│   └───MyCoolNewLib
+│           AssemblyInfo.fs
+│           MyCoolNewLib.fsproj
+│           Library.fs
+│           paket.references
+│
+├───tests
+│   └───MyCoolNewLib.Tests
+│           AssemblyInfo.fs
+│           MyCoolNewLib.Tests.fsproj
+│           Main.fs
+│           paket.references
+│           Tests.fs
+│
+└───tools
+        paket.references
+        tools.csproj
+
 ```
 
 ### Build!
 
 ```
-> build.cmd // on windows
+> .\build.cmd // on windows
 $ ./build.sh  // on unix
 ```
 
