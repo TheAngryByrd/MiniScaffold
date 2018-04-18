@@ -152,6 +152,17 @@ paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9
 ./build.sh Release
 ```
 
+## Options
+
+### githubUserName
+
+This is uesd to atomatically configure author information in the nuget package, as well as configure push urls for repo locations.
+
+### outputType
+
+Defaults to `Lib`
+
+When set to either `Exe` or `Lib`, this sets the `OutputType` property of the generated `fsproj` file, so that you don't have to.
 
 ## Known issues
 

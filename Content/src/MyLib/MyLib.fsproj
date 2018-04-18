@@ -15,6 +15,7 @@
     <RepositoryType>git</RepositoryType>
     <Authors>MyUsername</Authors>
     <RepositoryUrl>https://github.com/MyGithubUsername/MyLib</RepositoryUrl>
+    <OutputType>MyOutputType</OutputType>
     <!-- owners is not supported in MSBuild -->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
