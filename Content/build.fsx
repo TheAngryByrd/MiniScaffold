@@ -89,6 +89,7 @@ Target "DotnetTest" (fun _ ->
                 AdditionalArgs =
                     [
                         "--no-build"
+                        "-v n"
                     ]
                 })
 )
