@@ -9,8 +9,11 @@ nuget SourceLink.Create.CommandLine 2.8.0 copy_local: true
 nuget YoloDev.Expecto.TestSdk
 nuget Microsoft.NET.Test.Sdk
 
+
 group Build
   framework: >= net45
   source https://www.nuget.org/api/v2
   nuget FAKE
   github fsharp/FAKE modules/Octokit/Octokit.fsx
+  nuget altcover
+  nuget ReportGenerator
