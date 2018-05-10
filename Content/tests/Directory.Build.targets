@@ -11,7 +11,7 @@
     <Target 
         Name="InstrumentModulesNoBuild" 
         BeforeTargets="VSTest" 
-        Condition="'$(BaseOutputPath)/$(Configuration)/' == '$(OutputPath)'">
+        Condition="$([MSBuild]::EnsureTrailingSlash('$([System.IO.Path]::Combine($(BaseOutputPath),$(Configuration)))')) == '$(OutputPath)'">
         <AltCover.Prepare 
             ContinueOnError="WarnAndContinue" 
             Condition="'$(VSTestNoBuild)' == 'true'" 
@@ -25,7 +25,7 @@
     <Target 
         Name="InstrumentModulesAfterBuild" 
         AfterTargets="BuildProject" 
-        Condition="'$(BaseOutputPath)/$(Configuration)/' == '$(OutputPath)'">
+        Condition="$([MSBuild]::EnsureTrailingSlash('$([System.IO.Path]::Combine($(BaseOutputPath),$(Configuration)))')) == '$(OutputPath)'">
         <AltCover.Prepare 
             ContinueOnError="WarnAndContinue" 
             Condition="'$(VSTestNoBuild)' != 'true'" 
@@ -39,7 +39,7 @@
     <Target 
         Name="GenerateCoverageResult" 
         AfterTargets="VSTest" 
-        Condition="'$(BaseOutputPath)/$(Configuration)/' != '$(OutputPath)'">
+        Condition="$([MSBuild]::EnsureTrailingSlash('$([System.IO.Path]::Combine($(BaseOutputPath),$(Configuration)))')) != '$(OutputPath)'">
         <AltCover.Collect 
             ContinueOnError="WarnAndContinue" 
             RecorderDirectory="$(OutputPath)" 
