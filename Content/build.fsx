@@ -24,7 +24,6 @@ let configuration =
     EnvironmentHelper.environVarOrDefault "CONFIGURATION" "Release"
 
 
-
 module dotnet =
     let watch program cmdParam args =
         let argConcat =
@@ -117,8 +116,8 @@ Target "GenerateCoverageReport" (fun _ ->
             ]
     tracefn "%s %s" reportGenerator args
     let exitCode = Shell.Exec(reportGenerator, args = args)
-    ()
-
+    if exitCode <> 0 then
+        failwithf "%s failed with exit code: %d" reportGenerator exitCode
 )
 
 
