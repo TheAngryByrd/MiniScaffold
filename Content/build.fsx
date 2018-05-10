@@ -22,6 +22,14 @@ let configuration =
     EnvironmentHelper.environVarOrDefault "CONFIGURATION" "Release"
 
 
+module dotnet =
+    let watch program cmdParam args =
+        let argConcat =
+            args
+            |> String.concat " "
+        DotNetCli.RunCommand cmdParam (sprintf "watch %s %s" program argConcat)
+
+
 let isRelease () =
     Fake.TargetHelper.CurrentTargetOrder
     |> Seq.collect id
@@ -67,102 +75,38 @@ Target "DotnetBuild" (fun _ ->
                 ]
         }))
 
-let invoke f = f ()
 let invokeAsync f = async { f () }
 
-type TargetFramework =
-| Full of string
-| Core of string
-
-let (|StartsWith|_|) prefix (s: string) =
-    if s.StartsWith prefix then Some () else None
-
-let getTargetFramework tf =
-    match tf with
-    | StartsWith "net4" -> Full tf
-    | StartsWith "netcoreapp" -> Core tf
-    | _ -> failwithf "Unknown TargetFramework %s" tf
-
-let getTargetFrameworks (doc: Xml.XmlDocument) =
-    let multiFrameworks = doc.GetElementsByTagName("TargetFrameworks")
-    if multiFrameworks.Count = 0 then
-        //  assume that if there is no TargetFrameworks element 
-        //  then there will be a TargetFramework element instead.
-        let tf = doc.GetElementsByTagName("TargetFramework").[0].InnerText
-        [|tf|]
-    else
-        multiFrameworks.[0].InnerText.Split(';')
-
-let getTargetFrameworksFromProjectFile (projFile : string)=
-    let doc = Xml.XmlDocument()
-    doc.Load(projFile)
-    doc
-    |> getTargetFrameworks
-    |> Seq.map getTargetFramework
-    |> Seq.toList
-
-let selectRunnerForFramework tf =
-    let runMono = sprintf "mono -f %s -c %s --loggerlevel Warn"
-    let runCore = sprintf "run -f %s -c %s"
-    match tf with
-    | Full t when isMono-> runMono t configuration
-    | Full t -> runCore t configuration
-    | Core t -> runCore t configuration
-
-let addLogNameParamToArgs tf args =
-    let frameworkName =
-        match tf with
-        | Full t -> t
-        | Core t -> t
-    sprintf "%s -- --log-name Expecto.%s" args frameworkName
-
-let runTests modifyArgs =
-    !! testsGlob
-    |> Seq.map(fun proj -> proj, getTargetFrameworksFromProjectFile proj)
-    |> Seq.collect(fun (proj, targetFrameworks) ->
-        targetFrameworks
-        |> Seq.map (fun tf -> fun () ->
-            DotNetCli.RunCommand (fun c ->
-            { c with
-                WorkingDir = IO.Path.GetDirectoryName proj
-            }) (tf |> selectRunnerForFramework |> modifyArgs |> addLogNameParamToArgs tf))
-    )
-
-
 Target "DotnetTest" (fun _ ->
-    runTests (sprintf "%s --no-build")
-    |> Seq.iter invoke
-
+    !! testsGlob
+    |> Seq.iter (fun proj ->
+        DotNetCli.Test <| fun c ->
+            { c with
+                Project = proj
+                Configuration = configuration
+                AdditionalArgs =
+                    [
+                        "--no-build"
+                    ]
+                })
 )
-let execProcAndReturnMessages filename args =
-    let args' = args |> String.concat " "
-    ProcessHelper.ExecProcessAndReturnMessages
-                (fun psi ->
-                    psi.FileName <- filename
-                    psi.Arguments <-args'
-                ) (TimeSpan.FromMinutes(1.))
-
-let pkill args =
-    execProcAndReturnMessages "pkill" args
-
-let killParentsAndChildren processId=
-    pkill [sprintf "-P %d" processId]
 
 
 Target "WatchTests" (fun _ ->
-    runTests (sprintf "watch %s")
+    !! testsGlob
+    |> Seq.map(fun proj -> fun () ->
+        dotnet.watch "test"
+            (fun cmd ->
+                { cmd with
+                     WorkingDir = IO.Path.GetDirectoryName proj
+                })
+            []
+    )
     |> Seq.iter (invokeAsync >> Async.Catch >> Async.Ignore >> Async.Start)
 
     printfn "Press Ctrl+C (or Ctrl+Break) to stop..."
     let cancelEvent = Console.CancelKeyPress |> Async.AwaitEvent |> Async.RunSynchronously
     cancelEvent.Cancel <- true
-
-    if isWindows |> not then
-        startedProcesses
-        |> Seq.iter(fst >> killParentsAndChildren >> ignore )
-    else
-        //Hope windows handles this right?
-        ()
 )
 
 Target "AssemblyInfo" (fun _ ->
