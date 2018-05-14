@@ -1,3 +1,7 @@
+### 0.9.0 - 2018-05-14
+* FEATURE: Convert to using dotnet test for running tests using (https://github.com/TheAngryByrd/MiniScaffold/pull/79)
+* FEATURE: Adding Test Coverage with and Report generation (https://github.com/TheAngryByrd/MiniScaffold/pull/85)
+
 ### 0.8.1 - 2018-04-09
 * BUGFIX: Handle TargetFramework as well as TargetFrameworks in proj files (https://github.com/TheAngryByrd/MiniScaffold/pull/83)
 * DOCUMENTATION: Update Tree output (https://github.com/TheAngryByrd/MiniScaffold/pull/80)
