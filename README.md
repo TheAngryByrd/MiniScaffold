@@ -175,3 +175,4 @@ This is because dotnet template loses permissions of files. (https://github.com/
 * [Buildstats.info](https://github.com/dustinmoris/CI-BuildStats)
 * [SourceLink](https://github.com/ctaggart/SourceLink)
 * [AltCover](https://github.com/SteveGilham/altcover)
+* [ReportGenerator](https://github.com/danielpalme/ReportGenerator)
