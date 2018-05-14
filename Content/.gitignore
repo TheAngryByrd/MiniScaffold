@@ -254,3 +254,4 @@ paket-files/
 TestResults.xml
 
 dist/
+lcov.info

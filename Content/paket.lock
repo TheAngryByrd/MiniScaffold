@@ -1345,9 +1345,11 @@ GROUP Build
 RESTRICTION: >= net45
 NUGET
   remote: https://www.nuget.org/api/v2
+    altcover (3.0.466)
     FAKE (4.64.11)
     Octokit (0.29)
+    ReportGenerator (3.1.2)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (c160d4907360cfd42904008dab2bd22c0a4a9952)
+    modules/Octokit/Octokit.fsx (38b77b8d3ed67f0b9b0402f5c79774cb477c1c8d)
       Octokit (>= 0.20)

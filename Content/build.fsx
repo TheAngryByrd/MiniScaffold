@@ -15,6 +15,8 @@ let distDir = __SOURCE_DIRECTORY__  @@ "dist"
 let distGlob = distDir @@ "*.nupkg"
 let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
 
+let coverageReportDir =  __SOURCE_DIRECTORY__  @@ "docs" @@ "coverage"
+
 let gitOwner = "MyGithubUsername"
 let gitRepoName = "MyLib"
 
@@ -36,7 +38,7 @@ let isRelease () =
     |> Seq.exists ((=)"Release")
 
 Target "Clean" (fun _ ->
-    ["bin"; "temp" ; distDir]
+    ["bin"; "temp" ; distDir; coverageReportDir]
     |> CleanDirs
 
     !! srcGlob
@@ -89,6 +91,33 @@ Target "DotnetTest" (fun _ ->
                         "--no-build"
                     ]
                 })
+)
+
+Target "GenerateCoverageReport" (fun _ ->
+    let reportGenerator = "packages/build/ReportGenerator/tools/ReportGenerator.exe"
+    let coverageReports =
+        !!"tests/**/_Reports/MSBuildTest.xml"
+        |> String.concat ";"
+    let sourceDirs =
+        !! srcGlob
+        |> Seq.map DirectoryName
+        |> String.concat ";"
+
+    let args =
+        String.concat " " <|
+            [
+                sprintf "-reports:%s"  coverageReports
+                sprintf "-targetdir:%s" coverageReportDir
+                // Add source dir
+                sprintf "-sourcedirs:%s" sourceDirs
+                // Ignore Tests and if AltCover.Recorder.g sneaks in
+                sprintf "-assemblyfilters:%s" "-*.Tests;-AltCover.Recorder.g"
+                sprintf "-Reporttypes:%s" "Html"
+            ]
+    tracefn "%s %s" reportGenerator args
+    let exitCode = Shell.Exec(reportGenerator, args = args)
+    if exitCode <> 0 then
+        failwithf "%s failed with exit code: %d" reportGenerator exitCode
 )
 
 
@@ -247,6 +276,7 @@ Target "Release" DoNothing
 "DotnetRestore"
   ==> "DotnetBuild"
   ==> "DotnetTest"
+  ==> "GenerateCoverageReport"
   ==> "DotnetPack"
   ==> "SourcelinkTest"
   ==> "Publish"
