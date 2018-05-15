@@ -1,3 +1,6 @@
+### 0.9.1 - 2018-05-14
+* BUGFIX: Fixes dotnet templating issues with dashes (https://github.com/TheAngryByrd/MiniScaffold/pull/86)
+
 ### 0.9.0 - 2018-05-14
 * FEATURE: Convert to using dotnet test for running tests using (https://github.com/TheAngryByrd/MiniScaffold/pull/79)
 * FEATURE: Adding Test Coverage with and Report generation (https://github.com/TheAngryByrd/MiniScaffold/pull/85)
