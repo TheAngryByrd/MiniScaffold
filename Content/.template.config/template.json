@@ -1,29 +1,31 @@
 {
-  "author": "Jimmy Byrd",
-  "classifications": [ "Scaffold" ],
-  "name": "MiniScaffold",
-  "tags": {
-    "language": "F#"
-  },
-  "identity": "MiniScaffold",
-  "shortName": "mini-scaffold",
-  "sourceName": "MyLib",
-  // This allows using the `-n` option to create a new directory
-  "preferNameDirectory": true,
-  "symbols":{
-      "githubUsername": {
-          "type": "parameter",
-          "replaces":"MyGithubUsername"
-      }
-  },
-  "postActions": [{
-    "condition": "(OS != \"Windows_NT\")",
-    "description": "Make scripts executable",
-    "manualInstructions": [ { "text": "Run 'chmod +x *.sh'" } ],
-    "actionId": "cb9a6cf3-4f5c-4860-b9d2-03a574959774",
-    "args": {
-        "+x": "*.sh"
-      },
-    "continueOnError": true
-  }]
+    "author": "Jimmy Byrd",
+    "classifications": ["Scaffold"],
+    "name": "MiniScaffold",
+    "tags": {
+        "language": "F#"
+    },
+    "identity": "MiniScaffold",
+    "shortName": "mini-scaffold",
+    "sourceName": "MyLib.1",
+    // This allows using the `-n` option to create a new directory
+    "preferNameDirectory": true,
+    "symbols": {
+        "githubUsername": {
+            "type": "parameter",
+            "replaces": "MyGithubUsername"
+        }
+    },
+    "postActions": [{
+        "condition": "(OS != \"Windows_NT\")",
+        "description": "Make scripts executable",
+        "manualInstructions": [{
+            "text": "Run 'chmod +x *.sh'"
+        }],
+        "actionId": "cb9a6cf3-4f5c-4860-b9d2-03a574959774",
+        "args": {
+            "+x": "*.sh"
+        },
+        "continueOnError": true
+    }]
 }
