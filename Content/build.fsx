@@ -7,8 +7,8 @@ open Fake.UserInputHelper
 open System
 
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
-let productName = "MyLib"
-let sln = "MyLib.sln"
+let productName = "MyLib.1"
+let sln = "MyLib.1.sln"
 let srcGlob =__SOURCE_DIRECTORY__  @@ "src/**/*.??proj"
 let testsGlob = __SOURCE_DIRECTORY__  @@ "tests/**/*.??proj"
 let distDir = __SOURCE_DIRECTORY__  @@ "dist"
@@ -18,7 +18,7 @@ let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
 let coverageReportDir =  __SOURCE_DIRECTORY__  @@ "docs" @@ "coverage"
 
 let gitOwner = "MyGithubUsername"
-let gitRepoName = "MyLib"
+let gitRepoName = "MyLib.1"
 
 let configuration =
     EnvironmentHelper.environVarOrDefault "CONFIGURATION" "Release"

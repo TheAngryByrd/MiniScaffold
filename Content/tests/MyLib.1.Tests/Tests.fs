@@ -2,7 +2,7 @@ module Tests
 
 
 open Expecto
-open MyLib
+open MyLib._1
 
 [<Tests>]
 let tests =

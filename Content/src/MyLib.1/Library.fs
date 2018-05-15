@@ -1,4 +1,4 @@
-namespace MyLib
+namespace MyLib._1
 
 module Say =
     let nothing name =

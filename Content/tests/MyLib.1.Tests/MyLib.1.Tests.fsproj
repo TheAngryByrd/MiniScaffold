@@ -10,7 +10,7 @@
         <Compile Include="Main.fs" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="../../src/MyLib/MyLib.fsproj" />
+        <ProjectReference Include="../../src/MyLib.1/MyLib.1.fsproj" />
     </ItemGroup>
     <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
