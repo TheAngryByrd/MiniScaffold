@@ -1,3 +1,6 @@
+### 0.9.2 - 2018-05-31
+* BUGFIX: Fixes missed MyLib conversion from #86 (https://github.com/TheAngryByrd/MiniScaffold/pull/88)
+
 ### 0.9.1 - 2018-05-14
 * BUGFIX: Fixes dotnet templating issues with dashes (https://github.com/TheAngryByrd/MiniScaffold/pull/86)
 
