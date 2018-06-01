@@ -108,8 +108,8 @@ Target "IntegrationTests" (fun _ ->
             ProcessHelper.execProcess (fun psi ->
                 psi.WorkingDirectory <- Environment.CurrentDirectory
                 if isMono then
-                    psi.FileName <- "./build.sh"
-                    psi.Arguments <- sprintf "%s -nc" testTarget
+                    psi.FileName <- "sh"
+                    psi.Arguments <- sprintf "./build.sh %s -nc" testTarget
                 else
                     psi.FileName <- Environment.CurrentDirectory @@ "build.cmd"
                     psi.Arguments <- sprintf "%s -nc" testTarget
