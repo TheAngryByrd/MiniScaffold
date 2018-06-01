@@ -1,3 +1,6 @@
+### 0.9.3 - 2018-05-31
+* MAINTENANCE: Bump most depedencies (https://github.com/TheAngryByrd/MiniScaffold/pull/89)
+
 ### 0.9.2 - 2018-05-31
 * BUGFIX: Fixes missed MyLib conversion from #86 (https://github.com/TheAngryByrd/MiniScaffold/pull/88)
 
