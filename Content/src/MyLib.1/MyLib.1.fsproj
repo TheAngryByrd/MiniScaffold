@@ -20,7 +20,6 @@
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
