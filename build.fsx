@@ -18,7 +18,7 @@ let gitRepoName = "MiniScaffold"
 
 Target.create "Clean" (fun _ ->
     [ "obj" ;"dist"]
-    |> Shell.CleanDirs
+    |> Shell.cleanDirs
     )
 
 Target.create "DotnetRestore" (fun _ ->
@@ -80,13 +80,25 @@ Target.create "IntegrationTests" (fun _ ->
         "-n fsharp-data-sample --githubUsername CoolPersonNo2", "DotnetPack"
     ]
     |> Seq.iter(fun (param, testTarget) ->
-        use directory = DisposableDirectory.Create()
-        use pushd1 = new DisposeablePushd(directory.Directory)
+        let directory = DisposableDirectory.Create()
 
-        DotNet.exec (DotNet.Options.withWorkingDirectory directory.Directory) "new" (sprintf "mini-scaffold -lang F# %s" param)
-        |> ignore
+        // have to invoke dotnet new and override the stdin
+        let dotnet = DotNet.Options.Create().DotNetCliPath
+        let proc =
+            Process.getProc (fun p ->
+                p.WithWorkingDirectory(directory.Directory)
+                 .WithFileName(dotnet)
+                 .WithArguments(sprintf "new mini-scaffold -lang F# %s" param)
+                 .WithRedirectStandardInput(true)
+                 .WithRedirectStandardOutput(true)
+                 .WithRedirectStandardError(true)
+            )
+        proc.Start () |> ignore
+        Async.Sleep 2000 |> Async.RunSynchronously
+        proc.StandardInput.WriteLine("Y") // confirm the chmod
+        proc.WaitForExit ()
 
-        use pushd2 =
+        let pushd2 =
             directory.DirectoryInfo.GetDirectories ()
             |> Seq.head
             |> string
@@ -97,16 +109,16 @@ Target.create "IntegrationTests" (fun _ ->
         Git.CommandHelper.directRunGitCommandAndFail pushd2.Directory (sprintf "remote add origin https://github.com/CoolPersonNo2/%s" gitRepoName)
         Git.Commit.exec pushd2.Directory "demo commit to make sourcelink work"
         let ok =
-
+            let fileName = if Environment.isUnix then Path.combine pushd2.Directory "build.sh" else Path.combine pushd2.Directory "build.cmd"
             Process.execWithResult (fun psi ->
                 { psi with
-                    WorkingDirectory = Environment.CurrentDirectory
-                    FileName = if Environment.isMono then "./build.sh" else Environment.CurrentDirectory @@ "build.cmd"
+                    WorkingDirectory = pushd2.Directory
+                    FileName = fileName
                     Arguments = sprintf "%s -nc" testTarget }
                 ) (TimeSpan.FromMinutes(5.))
 
         if not ok.OK then
-            failwithf "Intregration test failed with params %s. Logs:\n%s" param (ok.Results |> Seq.map (fun r -> r.Message) |> String.concat "\n")
+            failwithf "Integration test failed with params %s. Logs:\n%s" param (ok.Results |> Seq.map (fun r -> r.Message) |> String.concat "\n")
     )
 
 )
@@ -164,7 +176,7 @@ Target.create "GitHubRelease" (fun _ ->
 
 )
 
-Target.create "Release" Target.DoNothing
+Target.create "Release" ignore
 
 open Fake.Core.TargetOperators
 "Clean"

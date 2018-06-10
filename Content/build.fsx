@@ -1,5 +1,7 @@
 #r @"packages/build/FAKE/tools/FakeLib.dll"
 
+open System
+open System.Xml
 open Fake.Core
 open Fake.DotNet
 open Fake.IO
@@ -8,8 +10,8 @@ open Fake.IO.FileSystemOperators
 open Fake.Tools
 
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
-let productName = "MyLib"
-let sln = "MyLib.sln"
+let productName = "MyLib.1"
+let sln =  "MyLib.1" + ".sln"
 let srcGlob =__SOURCE_DIRECTORY__  @@ "src/**/*.??proj"
 let testsGlob = __SOURCE_DIRECTORY__  @@ "tests/**/*.??proj"
 let distDir = __SOURCE_DIRECTORY__  @@ "dist"
@@ -29,7 +31,7 @@ let configuration =
 
 Target.create "Clean" (fun _ ->
     ["bin"; "temp" ; distDir]
-    |> Shell.CleanDirs
+    |> Shell.cleanDirs
 
     !! srcGlob
     ++ testsGlob
@@ -37,12 +39,12 @@ Target.create "Clean" (fun _ ->
         ["bin";"obj"]
         |> Seq.map (fun sp -> System.IO.Path.GetDirectoryName p @@ sp)
     )
-    |> Shell.CleanDirs
+    |> Shell.cleanDirs
 
     )
 
 Target.create "DotnetRestore" (fun _ ->
-    [sln ; toolsDir]
+    [sln; toolsDir]
     |> Seq.iter(fun dir ->
         DotNet.restore (fun c ->
             { c with Common = c.Common |> DotNet.Options.withCustomParams (Some <| sprintf "/p:PackageVersion=%s" release.NugetVersion) }
@@ -74,7 +76,7 @@ let getTargetFramework tf =
     | StartsWith "netcoreapp" -> Core tf
     | _ -> failwithf "Unknown TargetFramework %s" tf
 
-let getTargetFrameworks (doc: Xml.XmlDocument) =
+let getTargetFrameworks (doc: XmlDocument) =
     let multiFrameworks = doc.GetElementsByTagName("TargetFrameworks")
     if multiFrameworks.Count = 0 then
         //  assume that if there is no TargetFrameworks element
@@ -123,8 +125,7 @@ let runTests modifyArgs =
 
 Target.create "DotnetTest" (fun _ ->
     runTests (sprintf "%s --no-build")
-    |> Seq.iter invoke
-
+    |> Seq.iter (fun f -> f ())
 )
 
 let execProcAndReturnMessages filename args =
@@ -132,14 +133,14 @@ let execProcAndReturnMessages filename args =
     Process.execWithResult (fun psi -> { psi with FileName = filename; Arguments = args'}) (System.TimeSpan.FromMinutes(1.))
     |> fun result -> result.Results |> List.map (sprintf "%A")
 
-Target "GenerateCoverageReport" (fun _ ->
+Target.create "GenerateCoverageReport" (fun _ ->
     let reportGenerator = "packages/build/ReportGenerator/tools/ReportGenerator.exe"
     let coverageReports =
         !!"tests/**/_Reports/MSBuildTest.xml"
         |> String.concat ";"
     let sourceDirs =
         !! srcGlob
-        |> Seq.map DirectoryName
+        |> Seq.map Path.getDirectory
         |> String.concat ";"
 
     let args =
@@ -153,12 +154,11 @@ Target "GenerateCoverageReport" (fun _ ->
                 sprintf "-assemblyfilters:%s" "-*.Tests;-AltCover.Recorder.g"
                 sprintf "-Reporttypes:%s" "Html"
             ]
-    tracefn "%s %s" reportGenerator args
+    Trace.tracefn "%s %s" reportGenerator args
     let exitCode = Shell.Exec(reportGenerator, args = args)
     if exitCode <> 0 then
         failwithf "%s failed with exit code: %d" reportGenerator exitCode
 )
-
 
 Target.create "WatchTests" (fun _ ->
     runTests (sprintf "watch %s")
@@ -174,7 +174,6 @@ Target.create "WatchTests" (fun _ ->
         //Hope windows handles this right?
         ()
 )
-
 
 Target.create "AssemblyInfo" (fun _ ->
     let releaseChannel =
@@ -200,14 +199,20 @@ Target.create "AssemblyInfo" (fun _ ->
           (getAssemblyInfoAttributes projectName)
         )
 
+    let (|Suffix|_|) (p:string) (s:string) =
+        if s.EndsWith p then
+            Some()
+        else
+            None
+
     !! srcGlob
     ++ testsGlob
     |> Seq.map getProjectDetails
     |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
         match projFileName with
-        | Fsproj -> AssemblyInfoFile.createFSharp (folderName @@ "AssemblyInfo.fs") attributes
-        | Csproj -> AssemblyInfoFile.createCSharp ((folderName @@ "Properties") @@ "AssemblyInfo.cs") attributes
-        | Vbproj -> AssemblyInfoFile.createVisualBasic ((folderName @@ "My Project") @@ "AssemblyInfo.vb") attributes
+        | Suffix ".fsproj" -> AssemblyInfoFile.createFSharp (folderName @@ "AssemblyInfo.fs") attributes
+        | Suffix ".csproj" -> AssemblyInfoFile.createCSharp ((folderName @@ "Properties") @@ "AssemblyInfo.cs") attributes
+        | Suffix ".vbproj" -> AssemblyInfoFile.createVisualBasic ((folderName @@ "My Project") @@ "AssemblyInfo.vb") attributes
         | _ -> ()
         )
 )
@@ -290,7 +295,7 @@ Target.create "GitHubRelease" (fun _ ->
 
 )
 
-Target.create "Release" Target.DoNothing
+Target.create "Release" ignore
 
 open Fake.Core.TargetOperators
 // Only call Clean if DotnetPack was in the call chain
