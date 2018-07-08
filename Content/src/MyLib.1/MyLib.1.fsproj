@@ -13,7 +13,7 @@
     <PackageLicenseUrl>https://github.com/MyGithubUsername/MyLib.1/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryType>git</RepositoryType>
-    <Authors>MyUsername</Authors>
+    <Authors>MyGithubUsername</Authors>
     <RepositoryUrl>https://github.com/MyGithubUsername/MyLib.1</RepositoryUrl>
     <!-- owners is not supported in MSBuild -->
   </PropertyGroup>
