@@ -1,3 +1,6 @@
+### 0.9.5 - 2018-07-09
+* BUGFIX: fix for values left unset in the fsproj file (https://github.com/TheAngryByrd/MiniScaffold/pull/92)
+
 ### 0.9.4 - 2018-06-22
 * MINOR: fixup report generator invocations on non-windows machines (https://github.com/TheAngryByrd/MiniScaffold/pull/90)
 
