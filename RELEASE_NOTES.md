@@ -1,3 +1,6 @@
+### 0.9.6 - 2018-08-10
+* MAINTENANCE: latest dotnet sdk and targets remove netstandard 1.6 (https://github.com/TheAngryByrd/MiniScaffold/pull/93)
+
 ### 0.9.5 - 2018-07-09
 * BUGFIX: fix for values left unset in the fsproj file (https://github.com/TheAngryByrd/MiniScaffold/pull/92)
 
