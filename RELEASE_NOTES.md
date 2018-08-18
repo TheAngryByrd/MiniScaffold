@@ -1,3 +1,6 @@
+### 0.9.7 - 2018-08-18
+* MAINTENANCE: Update AltCover to 4.0.603 (https://github.com/TheAngryByrd/MiniScaffold/pull/95)
+
 ### 0.9.6 - 2018-08-10
 * MAINTENANCE: latest dotnet sdk and targets remove netstandard 1.6 (https://github.com/TheAngryByrd/MiniScaffold/pull/93)
 
