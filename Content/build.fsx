@@ -89,6 +89,7 @@ Target "DotnetTest" (fun _ ->
                 AdditionalArgs =
                     [
                         "--no-build"
+                        "/p:AltCover=true"
                     ]
                 })
 )
@@ -96,7 +97,7 @@ Target "DotnetTest" (fun _ ->
 Target "GenerateCoverageReport" (fun _ ->
     let reportGenerator = "packages/build/ReportGenerator/tools/ReportGenerator.exe"
     let coverageReports =
-        !!"tests/**/_Reports/MSBuildTest.xml"
+        !!"tests/**/coverage.*.xml"
         |> String.concat ";"
     let sourceDirs =
         !! srcGlob

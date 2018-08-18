@@ -8,12 +8,11 @@ nuget Expecto 8.0.0
 nuget SourceLink.Create.CommandLine 2.8.1 copy_local: true
 nuget YoloDev.Expecto.TestSdk 0.5.0
 nuget Microsoft.NET.Test.Sdk 15.7.2
-
+nuget altcover 4.0.603
 
 group Build
   framework: >= net45
   source https://www.nuget.org/api/v2
   nuget FAKE 4.64.13
   github fsharp/FAKE modules/Octokit/Octokit.fsx
-  nuget altcover 3.0.490
   nuget ReportGenerator 3.1.2
