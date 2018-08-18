@@ -85,3 +85,14 @@ paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9
 ```
 ./build.sh Release
 ```
+
+
+### Code formatting
+
+To format code run the following target
+
+```
+./build.sh FormatCode
+```
+
+This uses [Fantomas](https://github.com/fsprojects/fantomas) to do code formatting.  Please report code formatting bugs to that repository.

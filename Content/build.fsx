@@ -11,6 +11,11 @@ let productName = "MyLib.1"
 let sln = "MyLib.1.sln"
 let srcGlob =__SOURCE_DIRECTORY__  @@ "src/**/*.??proj"
 let testsGlob = __SOURCE_DIRECTORY__  @@ "tests/**/*.??proj"
+
+let srcAndTest =
+    !! srcGlob
+    ++ testsGlob
+
 let distDir = __SOURCE_DIRECTORY__  @@ "dist"
 let distGlob = distDir @@ "*.nupkg"
 let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
@@ -167,8 +172,7 @@ Target "AssemblyInfo" (fun _ ->
           (getAssemblyInfoAttributes projectName)
         )
 
-    !! srcGlob
-    ++ testsGlob
+    srcAndTest
     |> Seq.map getProjectDetails
     |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
         match projFileName with
@@ -262,6 +266,16 @@ Target "GitHubRelease" (fun _ ->
     |> releaseDraft
     |> Async.RunSynchronously
 
+)
+
+Target "FormatCode" (fun _ ->
+    srcAndTest
+    |> Seq.map (IO.Path.GetDirectoryName)
+    |> Seq.iter (fun nupkg ->
+        DotNetCli.RunCommand
+            (fun p -> { p with WorkingDir = toolsDir} )
+            (sprintf "fantomas --recurse %s" nupkg)
+    )
 )
 
 Target "Release" DoNothing
