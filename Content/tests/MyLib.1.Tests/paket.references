@@ -4,3 +4,4 @@ Microsoft.DotNet.Watcher.Tools
 dotnet-mono
 Microsoft.NET.Test.Sdk
 YoloDev.Expecto.TestSdk
+altcover
