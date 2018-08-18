@@ -1,3 +1,7 @@
+### 0.10.0 - 2018-08-18
+* FEATURE: Adding code formatter (https://github.com/TheAngryByrd/MiniScaffold/issues/97)
+* BUGFIX: sh files might have wrong line endings (https://github.com/TheAngryByrd/MiniScaffold/pull/98)
+
 ### 0.9.7 - 2018-08-18
 * MAINTENANCE: Update AltCover to 4.0.603 (https://github.com/TheAngryByrd/MiniScaffold/pull/95)
 
