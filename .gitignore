@@ -253,4 +253,12 @@ paket-files/
 
 TestResults.xml
 
+# Nuget packages distributables
 dist/
+
+# Ionide cache
+.ionide/
+
+# Test coverage files
+coverage.xml
+coverage.*.xml
