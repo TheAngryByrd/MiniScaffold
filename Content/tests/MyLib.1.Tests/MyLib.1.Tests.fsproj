@@ -12,5 +12,7 @@
     <ItemGroup>
         <ProjectReference Include="../../src/MyLib.1/MyLib.1.fsproj" />
     </ItemGroup>
+    <Import Project="..\..\fsc.props" />
+    <Import Project="..\..\netfx.props" />
     <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
