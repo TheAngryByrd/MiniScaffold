@@ -25,8 +25,15 @@ let coverageReportDir =  __SOURCE_DIRECTORY__  @@ "docs" @@ "coverage"
 let gitOwner = "MyGithubUsername"
 let gitRepoName = "MyLib.1"
 
-let configuration =
-    EnvironmentHelper.environVarOrDefault "CONFIGURATION" "Release"
+let isRelease () =
+    Fake.TargetHelper.CurrentTargetOrder
+    |> Seq.collect id
+    |> Seq.exists ((=)"Release")
+
+let configuration () =
+    let defaultVal =
+        if isRelease () then "Release" else "Debug"
+    EnvironmentHelper.environVarOrDefault "CONFIGURATION" defaultVal
 
 
 module dotnet =
@@ -37,10 +44,7 @@ module dotnet =
         DotNetCli.RunCommand cmdParam (sprintf "watch %s %s" program argConcat)
 
 
-let isRelease () =
-    Fake.TargetHelper.CurrentTargetOrder
-    |> Seq.collect id
-    |> Seq.exists ((=)"Release")
+
 
 Target "Clean" (fun _ ->
     ["bin"; "temp" ; distDir; coverageReportDir]
@@ -72,17 +76,20 @@ Target "DotnetBuild" (fun _ ->
     DotNetCli.Build (fun c ->
         { c with
             Project = sln
-            Configuration = configuration
+            Configuration = configuration ()
             //This makes sure that Proj2 references the correct version of Proj1
             AdditionalArgs =
                 [
                     sprintf "/p:PackageVersion=%s" release.NugetVersion
                     sprintf "/p:SourceLinkCreate=%b" (isRelease ())
+
                     "--no-restore"
                 ]
         }))
 
 let invokeAsync f = async { f () }
+
+let coverageThresholdPercent = 80
 
 Target "DotnetTest" (fun _ ->
     !! testsGlob
@@ -90,11 +97,13 @@ Target "DotnetTest" (fun _ ->
         DotNetCli.Test <| fun c ->
             { c with
                 Project = proj
-                Configuration = configuration
+                Configuration = configuration ()
                 AdditionalArgs =
                     [
                         "--no-build"
                         "/p:AltCover=true"
+                        sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
+                        sprintf "/p:AltCoverAssemblyExcludeFilter=%s" (IO.Path.GetFileNameWithoutExtension(proj))
                     ]
                 })
 )
@@ -189,7 +198,7 @@ Target "DotnetPack" (fun _ ->
         DotNetCli.Pack (fun c ->
             { c with
                 Project = proj
-                Configuration = configuration
+                Configuration = configuration ()
                 OutputPath = distDir
                 AdditionalArgs =
                     [
