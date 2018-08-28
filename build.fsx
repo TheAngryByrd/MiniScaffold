@@ -1,13 +1,15 @@
-#r @"packages/build/FAKE/tools/FakeLib.dll"
-open Fake
-open Fake.Git
-open Fake.AssemblyInfoFile
-open Fake.ReleaseNotesHelper
-open Fake.UserInputHelper
-open System
-open System.IO
+#load ".fake/build.fsx/intellisense.fsx"
+open Fake.SystemHelper
+open Fake.Core
+open Fake.DotNet
+open Fake.Tools
+open Fake.IO
+open Fake.IO.FileSystemOperators
+open Fake.IO.Globbing.Operators
+open Fake.Core.TargetOperators
+open Fake.Api
 
-let release = LoadReleaseNotes "RELEASE_NOTES.md"
+let release = ReleaseNotes.load "RELEASE_NOTES.md"
 let srcGlob = "*.csproj"
 
 let distDir = __SOURCE_DIRECTORY__  @@ "dist"
@@ -16,75 +18,90 @@ let distGlob = distDir @@ "*.nupkg"
 let gitOwner = "TheAngryByrd"
 let gitRepoName = "MiniScaffold"
 
-Target "Clean" (fun _ ->
+
+
+let failOnBadExitAndPrint (p : ProcessResult) =
+    if p.ExitCode <> 0 then
+        p.Errors |> Seq.iter Trace.traceError
+        failwithf "failed with exitcode %d" p.ExitCode
+
+Target.create "Clean" <| fun _ ->
     [ "obj" ;"dist"]
-    |> CleanDirs
-    )
+    |> Shell.cleanDirs
 
-Target "DotnetRestore" (fun _ ->
+
+Target.create "DotnetRestore" <| fun _ ->
+    !! srcGlob
+    |> Seq.iter(fun dir ->
+        let args =
+            [
+                sprintf "/p:PackageVersion=%s" release.NugetVersion
+            ] |> String.concat " "
+        DotNet.restore(fun c ->
+            { c with
+                 Common =
+                    c.Common
+                    |> DotNet.Options.withCustomParams
+                        (Some(args))
+            }) dir)
+
+
+Target.create "DotnetPack" <| fun ctx ->
     !! srcGlob
     |> Seq.iter (fun proj ->
-        DotNetCli.Restore (fun c ->
+        let args =
+            [
+                sprintf "/p:PackageVersion=%s" release.NugetVersion
+                sprintf "/p:PackageReleaseNotes=\"%s\"" (release.Notes |> String.concat "\n")
+            ] |> String.concat " "
+        DotNet.pack (fun c ->
             { c with
-                Project = proj
-                //This makes sure that Proj2 references the correct version of Proj1
-                AdditionalArgs = [sprintf "/p:PackageVersion=%s" release.NugetVersion]
-            })
-))
-
-
-Target "DotnetPack" (fun _ ->
-    !! srcGlob
-    |> Seq.iter (fun proj ->
-        DotNetCli.Pack (fun c ->
-            { c with
-                Project = proj
-                Configuration = "Release"
-                OutputPath = IO.Directory.GetCurrentDirectory() @@ "dist"
-                AdditionalArgs =
-                    [
-                        sprintf "/p:PackageVersion=%s" release.NugetVersion
-                        sprintf "/p:PackageReleaseNotes=\"%s\"" (String.Join("\n",release.Notes))
-                    ]
-            })
+                Configuration = DotNet.BuildConfiguration.Release
+                OutputPath = Some distDir
+                Common =
+                    c.Common
+                    |> DotNet.Options.withCustomParams (Some args)
+            }) proj
     )
-)
 
-let dispose (disposable : #IDisposable) = disposable.Dispose()
+let dispose (disposable : #System.IDisposable) = disposable.Dispose()
 [<AllowNullLiteral>]
 type DisposableDirectory (directory : string) =
     do
-        tracefn "Created disposable directory %s" directory
+        Trace.tracefn "Created disposable directory %s" directory
     static member Create() =
-        let tempPath = IO.Path.Combine(IO.Path.GetTempPath(), Guid.NewGuid().ToString("n"))
-        IO.Directory.CreateDirectory tempPath |> ignore
+        let tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), System.Guid.NewGuid().ToString("n"))
+        System.IO.Directory.CreateDirectory tempPath |> ignore
 
         new DisposableDirectory(tempPath)
     member x.Directory = directory
-    member x.DirectoryInfo = IO.DirectoryInfo(directory)
+    member x.DirectoryInfo = System.IO.DirectoryInfo(directory)
 
-    interface IDisposable with
+    interface System.IDisposable with
         member x.Dispose() =
-            tracefn "Deleting directory %s" directory
-            IO.Directory.Delete(x.Directory,true)
+            Trace.tracefn "Deleting directory %s" directory
+            System.IO.Directory.Delete(x.Directory,true)
 
 type DisposeablePushd (directory : string) =
-    do FileUtils.pushd directory
+    do Shell.pushd directory
     member x.Directory = directory
-    member x.DirectoryInfo = IO.DirectoryInfo(directory)
-    interface IDisposable with
+    member x.DirectoryInfo = System.IO.DirectoryInfo(directory)
+    interface System.IDisposable with
         member x.Dispose() =
-            FileUtils.popd()
+            Shell.popd()
 
 
-Target "IntegrationTests" (fun _ ->
+Target.create "IntegrationTests" <| fun _ ->
     // uninstall current MiniScaffold
-    DotNetCli.RunCommand id
-        "new -u MiniScaffold"
+    DotNet.exec  id
+        "new"
+        "-u MiniScaffold"
+    |> failOnBadExitAndPrint
     // install from dist/
-    DotNetCli.RunCommand id
-        <| sprintf "new -i dist/MiniScaffold.%s.nupkg" release.NugetVersion
-
+    DotNet.exec  id
+        "new"
+        (sprintf "-i dist/MiniScaffold.%s.nupkg" release.NugetVersion)
+    |> failOnBadExitAndPrint
     [
         "-n MyCoolLib --githubUsername CoolPersonNo2", "DotnetPack"
         // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
@@ -93,98 +110,89 @@ Target "IntegrationTests" (fun _ ->
     |> Seq.iter(fun (param, testTarget) ->
         use directory = DisposableDirectory.Create()
         use pushd1 = new DisposeablePushd(directory.Directory)
-        DotNetCli.RunCommand (fun commandParams ->
-            { commandParams with WorkingDir = directory.Directory}
-        )
-            <| sprintf "new mini-scaffold -lang F# %s" param
+        let results =
+            DotNet.exec (fun commandParams ->
+                { commandParams with WorkingDirectory = directory.Directory}
+            )
+                "new"
+                (sprintf "mini-scaffold -lang F# %s" param)
         use pushd2 =
             directory.DirectoryInfo.GetDirectories ()
             |> Seq.head
             |> string
             |> fun x -> new DisposeablePushd(x)
 
-        if isMono then
-            ProcessHelper.execProcess(fun psi ->
+        if Environment.isUnix then
+            Process.execSimple(fun psi ->
+                psi
+                    .WithWorkingDirectory(pushd2.Directory)
+                    .WithFileName("chmod")
+                    .WithArguments("+x ./build.sh")
 
-                psi.WorkingDirectory <- pushd2.Directory
-                psi.FileName <- "chmod"
-                psi.Arguments <- "+x ./build.sh"
-            ) (TimeSpan.FromMinutes(5.))
-            |> ignore
+            ) (System.TimeSpan.FromMinutes(5.))
+            |> fun exitCode -> if exitCode <> 0 then failwith "Failed to chmod ./build.sh"
 
-        let ok =
-            ProcessHelper.execProcess (fun psi ->
-                psi.WorkingDirectory <- pushd2.Directory
-                if isMono then
-                    psi.FileName <- "bash"
-                    psi.Arguments <- sprintf "./build.sh %s" testTarget
+        let exitCode =
+            Process.execSimple (fun psi ->
+                let psi = psi.WithWorkingDirectory(pushd2.Directory)
+                if Environment.isUnix then
+                    psi
+                        .WithFileName("bash")
+                        .WithArguments(sprintf "./build.sh %s" testTarget)
                 else
-                    psi.FileName <- Environment.CurrentDirectory @@ "build.cmd"
-                    psi.Arguments <- sprintf "%s" testTarget
+                    psi
+                        .WithFileName(System.IO.Directory.GetCurrentDirectory() @@ "build.cmd")
+                        .WithArguments(sprintf "%s" testTarget)
 
-                ) (TimeSpan.FromMinutes(5.))
+                ) (System.TimeSpan.FromMinutes(5.))
 
-        if not ok then
-
+        if exitCode <> 0 then
             failwithf "Intregration test failed with params %s" param
     )
 
-)
 
-Target "Publish" (fun _ ->
-    Paket.Push(fun c ->
+
+Target.create "Publish" <| fun _ ->
+    Paket.push(fun c ->
             { c with
                 PublishUrl = "https://www.nuget.org"
                 WorkingDir = "dist"
             }
         )
-)
-
-Target "GitRelease" (fun _ ->
-
-    if Git.Information.getBranchName "" <> "master" then failwith "Not on master"
-
-    let releaseNotesGitCommitFormat = ("",release.Notes |> Seq.map(sprintf "* %s\n")) |> String.Join
-
-    StageAll ""
-    Git.Commit.Commit "" (sprintf "Bump version to %s \n%s" release.NugetVersion releaseNotesGitCommitFormat)
-    Branches.push ""
-
-    Branches.tag "" release.NugetVersion
-    Branches.pushTag "" "origin" release.NugetVersion
-)
-
-#load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
-open Octokit
-
-Target "GitHubRelease" (fun _ ->
-    let client =
-        match Environment.GetEnvironmentVariable "GITHUB_TOKEN" with
-        | null ->
-            let user =
-                match getBuildParam "github-user" with
-                | s when not (String.IsNullOrWhiteSpace s) -> s
-                | _ -> getUserInput "Username: "
-            let pw =
-                match getBuildParam "github-pw" with
-                | s when not (String.IsNullOrWhiteSpace s) -> s
-                | _ -> getUserPassword "Password: "
-
-            createClient user pw
-        | token -> createClientWithToken token
 
 
-    client
-    |> createDraft gitOwner gitRepoName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes
-    |> fun draft ->
-        !! distGlob
-        |> Seq.fold (fun draft pkg -> draft |> uploadFile pkg) draft
-    |> releaseDraft
-    |> Async.RunSynchronously
+let isReleaseBranchCheck () =
+    let releaseBranch = "master"
+    if Git.Information.getBranchName "" <> releaseBranch then failwithf "Not on %s.  If you want to release please switch to this branch." releaseBranch
 
-)
 
-Target "Release" DoNothing
+Target.create "GitRelease" <| fun _ ->
+    isReleaseBranchCheck ()
+
+    let releaseNotesGitCommitFormat = release.Notes |> Seq.map(sprintf "* %s\n") |> String.concat ""
+
+    Git.Staging.stageAll ""
+    Git.Commit.exec "" (sprintf "Bump version to %s \n%s" release.NugetVersion releaseNotesGitCommitFormat)
+    Git.Branches.push ""
+
+    Git.Branches.tag "" release.NugetVersion
+    Git.Branches.pushTag "" "origin" release.NugetVersion
+
+Target.create "GitHubRelease" <| fun _ ->
+   let token =
+       match Environment.environVarOrDefault "github_token" "" with
+       | s when not (System.String.IsNullOrWhiteSpace s) -> s
+       | _ -> failwith "please set the github_token environment variable to a github personal access token with repro access."
+
+   let files = !! distGlob
+
+   GitHub.createClientWithToken token
+   |> GitHub.draftNewRelease gitOwner gitRepoName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes
+   |> GitHub.uploadFiles files
+   |> GitHub.publishDraft
+   |> Async.RunSynchronously
+
+Target.create "Release" ignore
 
 "Clean"
   ==> "DotnetRestore"
@@ -195,4 +203,5 @@ Target "Release" DoNothing
   ==> "GithubRelease"
   ==> "Release"
 
-RunTargetOrDefault "IntegrationTests"
+
+Target.runOrDefaultWithArguments "IntegrationTests"

@@ -16,7 +16,6 @@ nuget altcover 4.0.603
 group Build
     source https://www.nuget.org/api/v2
     source https://api.nuget.org/v3/index.json
-    github fsharp/FAKE modules/Octokit/Octokit.fsx
     nuget Fake.IO.FileSystem
     nuget Fake.Core.Target
     nuget Fake.Core.ReleaseNotes

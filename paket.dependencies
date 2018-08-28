@@ -1,7 +1,16 @@
 source https://www.nuget.org/api/v2
 
+
+// [ FAKE GROUP ]
 group Build
-  framework: >= net45
   source https://www.nuget.org/api/v2
-  nuget FAKE
-  github fsharp/FAKE modules/Octokit/Octokit.fsx
+    nuget Fake.IO.FileSystem
+    nuget Fake.Core.Target
+    nuget Fake.Core.ReleaseNotes
+    nuget FAKE.Core.Environment
+    nuget Fake.DotNet.Cli
+    nuget FAKE.Core.Process
+    nuget Fake.DotNet.AssemblyInfoFile
+    nuget Fake.Tools.Git
+    nuget Fake.DotNet.Paket
+    nuget Fake.Api.GitHub

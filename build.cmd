@@ -1,14 +1,7 @@
-@echo off
-cls
+SET TOOL_PATH=.fake
 
-.paket\paket.exe restore
-if errorlevel 1 (
-  exit /b %errorlevel%
+IF NOT EXIST "%TOOL_PATH%\fake.exe" (
+  dotnet tool install fake-cli --tool-path ./%TOOL_PATH%
 )
 
-IF NOT EXIST build.fsx (
-  .paket\paket.exe update
-  packages\build\FAKE\tools\FAKE.exe init.fsx
-)
-
-packages\build\FAKE\tools\FAKE.exe build.fsx %*
+"%TOOL_PATH%/fake.exe" %*
