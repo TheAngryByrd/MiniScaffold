@@ -29,28 +29,38 @@ let coverageReportDir =  __SOURCE_DIRECTORY__  @@ "docs" @@ "coverage"
 let gitOwner = "MyGithubUsername"
 let gitRepoName = "MyLib.1"
 
-let isRelease () =
-    true
-    // Fake.TargetHelper.CurrentTargetOrder
-    // |> Seq.collect id
-    // |> Seq.exists ((=)"Release")
+let isRelease (targets : Target list) =
+    targets
+    |> Seq.map(fun t -> t.Name)
+    |> Seq.exists ((=)"Release")
 
-let configuration () =
-    let defaultVal =if isRelease () then "Release" else "Debug"
+let configuration (targets : Target list) =
+    let defaultVal = if isRelease targets then "Release" else "Debug"
     match Environment.environVarOrDefault "CONFIGURATION" defaultVal with
      | "Debug" -> DotNet.BuildConfiguration.Debug
      | "Release" -> DotNet.BuildConfiguration.Release
      | config -> DotNet.BuildConfiguration.Custom config
 
+let failOnBadExitAndPrint (p : ProcessResult) =
+    if p.ExitCode <> 0 then
+        p.Errors |> Seq.iter Trace.traceError
+        failwithf "failed with exitcode %d" p.ExitCode
 
 module dotnet =
     let watch cmdParam program args =
         DotNet.exec cmdParam (sprintf "watch %s" program) args
 
-let failOnBadExitAndPrint (p : ProcessResult) =
-    if p.ExitCode <> 0 then
-        p.Errors |> Seq.iter Trace.traceError
-        failwithf "failed with exitcode %d" p.ExitCode
+    let tool optionConfig command args =
+        DotNet.exec (fun p -> { p with WorkingDirectory = toolsDir} |> optionConfig ) (sprintf "%s" command) args
+        |> failOnBadExitAndPrint
+
+    let fantomas optionConfig args =
+        tool optionConfig "fantomas" args
+
+    let reportgenerator optionConfig args =
+        tool optionConfig "reportgenerator" args
+
+
 
 Target.create "Clean" <| fun _ ->
     ["bin"; "temp" ; distDir; coverageReportDir]
@@ -80,16 +90,17 @@ Target.create "DotnetRestore" <| fun _ ->
                         (Some(args))
             }) dir)
 
-Target.create "DotnetBuild" <| fun _ ->
+Target.create "DotnetBuild" <| fun ctx ->
+
     let args =
         [
             sprintf "/p:PackageVersion=%s" release.NugetVersion
-            sprintf "/p:SourceLinkCreate=%b" (isRelease ())
+            sprintf "/p:SourceLinkCreate=%b" (isRelease ctx.Context.AllExecutingTargets)
             "--no-restore"
         ] |> String.concat " "
     DotNet.build(fun c ->
         { c with
-            Configuration = configuration ()
+            Configuration = configuration (ctx.Context.AllExecutingTargets)
             Common =
                 c.Common
                 |> DotNet.Options.withCustomParams
@@ -101,7 +112,7 @@ let invokeAsync f = async { f () }
 
 let coverageThresholdPercent = 80
 
-Target.create "DotnetTest" <| fun _ ->
+Target.create "DotnetTest" <| fun ctx ->
     !! testsGlob
     |> Seq.iter (fun proj ->
         DotNet.test(fun c ->
@@ -113,7 +124,7 @@ Target.create "DotnetTest" <| fun _ ->
                     sprintf "/p:AltCoverAssemblyExcludeFilter=%s" (System.IO.Path.GetFileNameWithoutExtension(proj))
                 ] |> String.concat " "
             { c with
-                Configuration = configuration ()
+                Configuration = configuration (ctx.Context.AllExecutingTargets)
                 Common =
                     c.Common
                     |> DotNet.Options.withCustomParams
@@ -122,7 +133,6 @@ Target.create "DotnetTest" <| fun _ ->
 
 
 Target.create "GenerateCoverageReport" <| fun _ ->
-    let reportGenerator = "packages/build/ReportGenerator/tools/ReportGenerator.exe"
     let coverageReports =
         !!"tests/**/coverage.*.xml"
         |> String.concat ";"
@@ -130,7 +140,6 @@ Target.create "GenerateCoverageReport" <| fun _ ->
         !! srcGlob
         |> Seq.map Path.getDirectory
         |> String.concat ";"
-    let executable = if Environment.isWindows then reportGenerator else "mono"
     let independentArgs =
             [
                 sprintf "-reports:%s"  coverageReports
@@ -142,14 +151,10 @@ Target.create "GenerateCoverageReport" <| fun _ ->
                 sprintf "-Reporttypes:%s" "Html"
             ]
     let args =
-        (if Environment.isWindows
-         then independentArgs
-         else reportGenerator :: independentArgs)
+        independentArgs
         |> String.concat " "
-    Trace.tracefn "%s %s" executable args
-    let exitCode = Shell.Exec(executable, args = args)
-    if exitCode <> 0 then
-        failwithf "%s failed with exit code: %d" reportGenerator exitCode
+    dotnet.reportgenerator id args
+
 
 Target.create "WatchTests" <| fun _ ->
     !! testsGlob
@@ -209,18 +214,18 @@ Target.create "AssemblyInfo" <| fun _ ->
         )
 
 
-Target.create "DotnetPack" <| fun _ ->
+Target.create "DotnetPack" <| fun ctx ->
     !! srcGlob
     |> Seq.iter (fun proj ->
         let args =
             [
                 sprintf "/p:PackageVersion=%s" release.NugetVersion
                 sprintf "/p:PackageReleaseNotes=\"%s\"" (release.Notes |> String.concat "\n")
-                sprintf "/p:SourceLinkCreate=%b" (isRelease ())
+                sprintf "/p:SourceLinkCreate=%b" (isRelease (ctx.Context.AllExecutingTargets))
             ] |> String.concat " "
         DotNet.pack (fun c ->
             { c with
-                Configuration = configuration ()
+                Configuration = configuration (ctx.Context.AllExecutingTargets)
                 OutputPath = Some distDir
                 Common =
                     c.Common
@@ -283,12 +288,8 @@ Target.create "GitHubRelease" <| fun _ ->
 Target.create "FormatCode" <| fun _ ->
     srcAndTest
     |> Seq.map (System.IO.Path.GetDirectoryName)
-    |> Seq.iter (fun nupkg ->
-        DotNet.exec
-            (fun p -> { p with WorkingDirectory = toolsDir} )
-            (sprintf "fantomas --recurse %s" nupkg)
-            ""
-        |> failOnBadExitAndPrint
+    |> Seq.iter (fun projDir ->
+        dotnet.fantomas id (sprintf "--recurse %s" projDir)
     )
 
 Target.create "Release" ignore

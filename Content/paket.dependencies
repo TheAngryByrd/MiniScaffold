@@ -4,6 +4,7 @@ storage: none
 clitool dotnet-mono 0.5.2
 clitool dotnet-sourcelink 2.8.1
 clitool dotnet-fantomas 2.8.0
+clitool dotnet-reportgenerator-cli 4.0.0-rc4
 nuget FSharp.Core 4.3.4
 nuget Expecto 8.0.0
 nuget SourceLink.Create.CommandLine 2.8.1 copy_local: true
@@ -16,7 +17,6 @@ group Build
     source https://www.nuget.org/api/v2
     source https://api.nuget.org/v3/index.json
     github fsharp/FAKE modules/Octokit/Octokit.fsx
-    nuget ReportGenerator 3.1.2
     nuget Fake.IO.FileSystem
     nuget Fake.Core.Target
     nuget Fake.Core.ReleaseNotes
@@ -24,8 +24,6 @@ group Build
     nuget Fake.DotNet.Cli
     nuget FAKE.Core.Process
     nuget Fake.DotNet.AssemblyInfoFile
-    nuget Fake.IO.FileSystem
     nuget Fake.Tools.Git
-    nuget Fake.Core.ReleaseNotes
     nuget Fake.DotNet.Paket
     nuget Fake.Api.GitHub
