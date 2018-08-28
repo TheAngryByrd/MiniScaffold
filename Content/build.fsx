@@ -60,6 +60,9 @@ module dotnet =
     let reportgenerator optionConfig args =
         tool optionConfig "reportgenerator" args
 
+    let sourcelink optionConfig args =
+        tool optionConfig "sourcelink" args
+
 
 
 Target.create "Clean" <| fun _ ->
@@ -237,11 +240,7 @@ Target.create "DotnetPack" <| fun ctx ->
 Target.create "SourcelinkTest" <| fun _ ->
     !! distGlob
     |> Seq.iter (fun nupkg ->
-        DotNet.exec
-            (fun p -> { p with WorkingDirectory = toolsDir} )
-            (sprintf "sourcelink test %s" nupkg)
-            ""
-        |> failOnBadExitAndPrint
+        dotnet.sourcelink id (sprintf "test %s" nupkg)
     )
 
 
