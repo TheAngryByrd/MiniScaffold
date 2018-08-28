@@ -1,4 +1,9 @@
 #load ".fake/build.fsx/intellisense.fsx"
+#if !FAKE
+#r "Facades/netstandard"
+#r "netstandard"
+#endif
+open System
 open Fake.SystemHelper
 open Fake.Core
 open Fake.DotNet
@@ -46,7 +51,7 @@ Target.create "DotnetRestore" <| fun _ ->
             }) dir)
 
 
-Target.create "DotnetPack" <| fun ctx ->
+Target.create "DotnetPack" <| fun _ ->
     !! srcGlob
     |> Seq.iter (fun proj ->
         let args =
@@ -64,29 +69,29 @@ Target.create "DotnetPack" <| fun ctx ->
             }) proj
     )
 
-let dispose (disposable : #System.IDisposable) = disposable.Dispose()
+let dispose (disposable : #IDisposable) = disposable.Dispose()
 [<AllowNullLiteral>]
 type DisposableDirectory (directory : string) =
     do
         Trace.tracefn "Created disposable directory %s" directory
     static member Create() =
-        let tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), System.Guid.NewGuid().ToString("n"))
-        System.IO.Directory.CreateDirectory tempPath |> ignore
+        let tempPath = IO.Path.Combine(IO.Path.GetTempPath(), Guid.NewGuid().ToString("n"))
+        IO.Directory.CreateDirectory tempPath |> ignore
 
         new DisposableDirectory(tempPath)
     member x.Directory = directory
-    member x.DirectoryInfo = System.IO.DirectoryInfo(directory)
+    member x.DirectoryInfo = IO.DirectoryInfo(directory)
 
-    interface System.IDisposable with
+    interface IDisposable with
         member x.Dispose() =
             Trace.tracefn "Deleting directory %s" directory
-            System.IO.Directory.Delete(x.Directory,true)
+            IO.Directory.Delete(x.Directory,true)
 
 type DisposeablePushd (directory : string) =
     do Shell.pushd directory
     member x.Directory = directory
-    member x.DirectoryInfo = System.IO.DirectoryInfo(directory)
-    interface System.IDisposable with
+    member x.DirectoryInfo = IO.DirectoryInfo(directory)
+    interface IDisposable with
         member x.Dispose() =
             Shell.popd()
 
@@ -110,12 +115,12 @@ Target.create "IntegrationTests" <| fun _ ->
     |> Seq.iter(fun (param, testTarget) ->
         use directory = DisposableDirectory.Create()
         use pushd1 = new DisposeablePushd(directory.Directory)
-        let results =
-            DotNet.exec (fun commandParams ->
-                { commandParams with WorkingDirectory = directory.Directory}
-            )
-                "new"
-                (sprintf "mini-scaffold -lang F# %s" param)
+        DotNet.exec (fun commandParams ->
+            { commandParams with WorkingDirectory = directory.Directory}
+        )
+            "new"
+            (sprintf "mini-scaffold -lang F# %s" param)
+        |> failOnBadExitAndPrint
         use pushd2 =
             directory.DirectoryInfo.GetDirectories ()
             |> Seq.head
@@ -129,7 +134,7 @@ Target.create "IntegrationTests" <| fun _ ->
                     .WithFileName("chmod")
                     .WithArguments("+x ./build.sh")
 
-            ) (System.TimeSpan.FromMinutes(5.))
+            ) (TimeSpan.FromMinutes(5.))
             |> fun exitCode -> if exitCode <> 0 then failwith "Failed to chmod ./build.sh"
 
         let exitCode =
@@ -141,10 +146,10 @@ Target.create "IntegrationTests" <| fun _ ->
                         .WithArguments(sprintf "./build.sh %s" testTarget)
                 else
                     psi
-                        .WithFileName(System.IO.Directory.GetCurrentDirectory() @@ "build.cmd")
+                        .WithFileName(IO.Directory.GetCurrentDirectory() @@ "build.cmd")
                         .WithArguments(sprintf "%s" testTarget)
 
-                ) (System.TimeSpan.FromMinutes(5.))
+                ) (TimeSpan.FromMinutes(5.))
 
         if exitCode <> 0 then
             failwithf "Intregration test failed with params %s" param
@@ -181,7 +186,7 @@ Target.create "GitRelease" <| fun _ ->
 Target.create "GitHubRelease" <| fun _ ->
    let token =
        match Environment.environVarOrDefault "github_token" "" with
-       | s when not (System.String.IsNullOrWhiteSpace s) -> s
+       | s when not (String.IsNullOrWhiteSpace s) -> s
        | _ -> failwith "please set the github_token environment variable to a github personal access token with repro access."
 
    let files = !! distGlob

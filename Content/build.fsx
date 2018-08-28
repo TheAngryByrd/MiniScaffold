@@ -1,4 +1,9 @@
 #load ".fake/build.fsx/intellisense.fsx"
+#if !FAKE
+#r "Facades/netstandard"
+#r "netstandard"
+#endif
+open System
 open Fake.SystemHelper
 open Fake.Core
 open Fake.DotNet
@@ -74,7 +79,7 @@ Target.create "Clean" <| fun _ ->
     |> Seq.collect(fun p ->
         ["bin";"obj"]
         |> Seq.map(fun sp ->
-             System.IO.Path.GetDirectoryName p @@ sp)
+             IO.Path.GetDirectoryName p @@ sp)
         )
     |> Shell.cleanDirs
 
@@ -124,7 +129,7 @@ Target.create "DotnetTest" <| fun ctx ->
                     "--no-build"
                     "/p:AltCover=true"
                     sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
-                    sprintf "/p:AltCoverAssemblyExcludeFilter=%s" (System.IO.Path.GetFileNameWithoutExtension(proj))
+                    sprintf "/p:AltCoverAssemblyExcludeFilter=%s" (IO.Path.GetFileNameWithoutExtension(proj))
                 ] |> String.concat " "
             { c with
                 Configuration = configuration (ctx.Context.AllExecutingTargets)
@@ -164,7 +169,7 @@ Target.create "WatchTests" <| fun _ ->
     |> Seq.map(fun proj -> fun () ->
         dotnet.watch
             (fun opt ->
-                opt |> DotNet.Options.withWorkingDirectory (System.IO.Path.GetDirectoryName proj))
+                opt |> DotNet.Options.withWorkingDirectory (IO.Path.GetDirectoryName proj))
             "test"
             ""
         |> ignore
@@ -172,7 +177,7 @@ Target.create "WatchTests" <| fun _ ->
     |> Seq.iter (invokeAsync >> Async.Catch >> Async.Ignore >> Async.Start)
 
     printfn "Press Ctrl+C (or Ctrl+Break) to stop..."
-    let cancelEvent = System.Console.CancelKeyPress |> Async.AwaitEvent |> Async.RunSynchronously
+    let cancelEvent = Console.CancelKeyPress |> Async.AwaitEvent |> Async.RunSynchronously
     cancelEvent.Cancel <- true
 
 let (|Fsproj|Csproj|Vbproj|) (projFileName:string) =
@@ -200,10 +205,10 @@ Target.create "AssemblyInfo" <| fun _ ->
         ]
 
     let getProjectDetails projectPath =
-        let projectName = System.IO.Path.GetFileNameWithoutExtension(projectPath)
+        let projectName = IO.Path.GetFileNameWithoutExtension(projectPath)
         ( projectPath,
           projectName,
-          System.IO.Path.GetDirectoryName(projectPath),
+          IO.Path.GetDirectoryName(projectPath),
           (getAssemblyInfoAttributes projectName)
         )
 
@@ -273,7 +278,7 @@ Target.create "GitRelease" <| fun _ ->
 Target.create "GitHubRelease" <| fun _ ->
    let token =
        match Environment.environVarOrDefault "github_token" "" with
-       | s when not (System.String.IsNullOrWhiteSpace s) -> s
+       | s when not (String.IsNullOrWhiteSpace s) -> s
        | _ -> failwith "please set the github_token environment variable to a github personal access token with repro access."
 
    let files = !! distGlob
@@ -286,7 +291,7 @@ Target.create "GitHubRelease" <| fun _ ->
 
 Target.create "FormatCode" <| fun _ ->
     srcAndTest
-    |> Seq.map (System.IO.Path.GetDirectoryName)
+    |> Seq.map (IO.Path.GetDirectoryName)
     |> Seq.iter (fun projDir ->
         dotnet.fantomas id (sprintf "--recurse %s" projDir)
     )
