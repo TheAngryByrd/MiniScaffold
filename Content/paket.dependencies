@@ -1,4 +1,5 @@
 source https://www.nuget.org/api/v2
+source https://api.nuget.org/v3/index.json
 storage: none
 clitool dotnet-mono 0.5.2
 clitool dotnet-sourcelink 2.8.1
@@ -10,9 +11,21 @@ nuget YoloDev.Expecto.TestSdk 0.5.0
 nuget Microsoft.NET.Test.Sdk 15.7.2
 nuget altcover 4.0.603
 
+// [ FAKE GROUP ]
 group Build
-  framework: >= net45
-  source https://www.nuget.org/api/v2
-  nuget FAKE 4.64.13
-  github fsharp/FAKE modules/Octokit/Octokit.fsx
-  nuget ReportGenerator 3.1.2
+    source https://www.nuget.org/api/v2
+    source https://api.nuget.org/v3/index.json
+    github fsharp/FAKE modules/Octokit/Octokit.fsx
+    nuget ReportGenerator 3.1.2
+    nuget Fake.IO.FileSystem
+    nuget Fake.Core.Target
+    nuget Fake.Core.ReleaseNotes
+    nuget FAKE.Core.Environment
+    nuget Fake.DotNet.Cli
+    nuget FAKE.Core.Process
+    nuget Fake.DotNet.AssemblyInfoFile
+    nuget Fake.IO.FileSystem
+    nuget Fake.Tools.Git
+    nuget Fake.Core.ReleaseNotes
+    nuget Fake.DotNet.Paket
+    nuget Fake.Api.GitHub
