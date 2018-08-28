@@ -33,7 +33,6 @@ Target "DotnetRestore" (fun _ ->
 ))
 
 
-
 Target "DotnetPack" (fun _ ->
     !! srcGlob
     |> Seq.iter (fun proj ->
@@ -104,19 +103,29 @@ Target "IntegrationTests" (fun _ ->
             |> string
             |> fun x -> new DisposeablePushd(x)
 
+        if isMono then
+            ProcessHelper.execProcess(fun psi ->
+
+                psi.WorkingDirectory <- pushd2.Directory
+                psi.FileName <- "chmod"
+                psi.Arguments <- "+x ./build.sh"
+            ) (TimeSpan.FromMinutes(5.))
+            |> ignore
+
         let ok =
             ProcessHelper.execProcess (fun psi ->
-                psi.WorkingDirectory <- Environment.CurrentDirectory
+                psi.WorkingDirectory <- pushd2.Directory
                 if isMono then
-                    psi.FileName <- "sh"
-                    psi.Arguments <- sprintf "./build.sh %s -nc" testTarget
+                    psi.FileName <- "bash"
+                    psi.Arguments <- sprintf "./build.sh %s" testTarget
                 else
                     psi.FileName <- Environment.CurrentDirectory @@ "build.cmd"
-                    psi.Arguments <- sprintf "%s -nc" testTarget
+                    psi.Arguments <- sprintf "%s" testTarget
 
                 ) (TimeSpan.FromMinutes(5.))
 
         if not ok then
+
             failwithf "Intregration test failed with params %s" param
     )
 
