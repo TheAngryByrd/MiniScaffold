@@ -13,6 +13,12 @@ open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
 open Fake.Api
+open Fake.BuildServer
+
+BuildServer.install [
+    AppVeyor.Installer
+    Travis.Installer
+]
 
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
 let srcGlob = "*.csproj"

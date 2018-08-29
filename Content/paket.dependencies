@@ -26,3 +26,5 @@ group Build
     nuget Fake.Tools.Git
     nuget Fake.DotNet.Paket
     nuget Fake.Api.GitHub
+    nuget Fake.BuildServer.AppVeyor
+    nuget Fake.BuildServer.Travis
