@@ -1,3 +1,8 @@
+### 0.11.0-beta001 - 2018-08-30
+* FEATURE: FAKE 5 (https://github.com/TheAngryByrd/MiniScaffold/pull/104)
+* FEATURE: Add Code Coverage threshold (https://github.com/TheAngryByrd/MiniScaffold/pull/103)
+* MAINTENANCE: Added fsc and netfx props files (https://github.com/TheAngryByrd/MiniScaffold/pull/102)
+
 ### 0.10.0 - 2018-08-18
 * FEATURE: Adding code formatter (https://github.com/TheAngryByrd/MiniScaffold/issues/97)
 * BUGFIX: sh files might have wrong line endings (https://github.com/TheAngryByrd/MiniScaffold/pull/98)
