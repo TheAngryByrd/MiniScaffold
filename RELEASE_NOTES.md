@@ -1,4 +1,4 @@
-### 0.11.0-beta001 - 2018-08-30
+### 0.11.0-beta002 - 2018-08-30
 * FEATURE: FAKE 5 (https://github.com/TheAngryByrd/MiniScaffold/pull/104)
 * FEATURE: Add Code Coverage threshold (https://github.com/TheAngryByrd/MiniScaffold/pull/103)
 * MAINTENANCE: Added fsc and netfx props files (https://github.com/TheAngryByrd/MiniScaffold/pull/102)

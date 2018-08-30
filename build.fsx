@@ -191,7 +191,7 @@ Target.create "GitRelease" <| fun _ ->
 
 Target.create "GitHubRelease" <| fun _ ->
    let token =
-       match Environment.environVarOrDefault "github_token" "" with
+       match Environment.environVarOrDefault "GITHUB_TOKEN" "" with
        | s when not (String.IsNullOrWhiteSpace s) -> s
        | _ -> failwith "please set the github_token environment variable to a github personal access token with repro access."
 
