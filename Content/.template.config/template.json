@@ -25,6 +25,10 @@
                 {
                     "choice": "library",
                     "description": "Creates a template for library projects"
+                },
+                {
+                    "choice": "console",
+                    "description": "Creates a template for console projects"
                 }
             ]
         }
@@ -34,6 +38,11 @@
             "source": "./Library/",
             "target": "./",
             "condition": "(outputType == \"library\")",
+        },
+        {
+            "source": "./Console/",
+            "target": "./",
+            "condition": "(outputType == \"console\")",
         }
     ],
     "postActions": [
