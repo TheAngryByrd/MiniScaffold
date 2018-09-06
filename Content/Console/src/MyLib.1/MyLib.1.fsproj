@@ -26,7 +26,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="Main.fs" />
   </ItemGroup>
   <Import Project="..\..\fsc.props" />
   <Import Project="..\..\netfx.props" />

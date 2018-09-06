@@ -23,18 +23,18 @@ module AssemblyInfo =
         "AssemblyVersion"
         |> getMetaDataAttribute assembly
         |> metaDataValue
-    let assembly =  Assembly.GetEntryAssembly()
+    let assembly = lazy(Assembly.GetEntryAssembly())
     let printVersion () =
-        let version = assembly.GetName().Version
+        let version = assembly.Force().GetName().Version
         printfn "%A" version
 
     let printInfo () =
+        let assembly = assembly.Force()
         let name = assembly.GetName()
         let version = assembly.GetName().Version
         let releaseDate = getReleaseDate assembly
         let githash  = getGitHash assembly
         printfn "%s - %A - %s - %s" name.Name version releaseDate githash
-
 
 module Say =
     let nothing name =
