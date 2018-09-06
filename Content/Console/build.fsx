@@ -24,8 +24,13 @@ BuildServer.install [
 let release = Fake.Core.ReleaseNotes.load "RELEASE_NOTES.md"
 let productName = "MyLib.1"
 let sln = "MyLib.1.sln"
-let srcGlob =__SOURCE_DIRECTORY__  @@ "src/**/*.??proj"
+
+let src = __SOURCE_DIRECTORY__  @@ "src"
+
+let srcGlob = src @@ "**/*.??proj"
 let testsGlob = __SOURCE_DIRECTORY__  @@ "tests/**/*.??proj"
+
+let mainApp = src @@ productName
 
 let srcAndTest =
     !! srcGlob
@@ -168,6 +173,19 @@ Target.create "GenerateCoverageReport" <| fun _ ->
         independentArgs
         |> String.concat " "
     dotnet.reportgenerator id args
+
+
+Target.create "WatchApp" <| fun _ ->
+    let appArgs =
+        [
+            "World"
+        ]
+        |> String.concat " "
+    dotnet.watch
+        (fun opt -> opt |> DotNet.Options.withWorkingDirectory (mainApp))
+        "run"
+        appArgs
+    |> ignore
 
 
 Target.create "WatchTests" <| fun _ ->
