@@ -117,7 +117,7 @@ Target.create "IntegrationTests" <| fun _ ->
         "-n MyCoolLib --githubUsername CoolPersonNo2", "DotnetPack"
         // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
         "-n fsharp-data-sample --githubUsername CoolPersonNo2", "DotnetPack"
-        "-n MyCoolLib --githubUsername CoolPersonNo2 --outputType Console", "DotnetPack"
+        "-n MyCoolLib --githubUsername CoolPersonNo2 --outputType Console", "CreatePackages"
     ]
     |> Seq.iter(fun (param, testTarget) ->
         use directory = DisposableDirectory.Create()

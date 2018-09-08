@@ -76,10 +76,6 @@ module dotnet =
     let reportgenerator optionConfig args =
         tool optionConfig "reportgenerator" args
 
-    let sourcelink optionConfig args =
-        tool optionConfig "sourcelink" args
-
-
 
 Target.create "Clean" <| fun _ ->
     ["bin"; "temp" ; distDir; coverageReportDir]
@@ -114,7 +110,6 @@ Target.create "DotnetBuild" <| fun ctx ->
     let args =
         [
             sprintf "/p:PackageVersion=%s" release.NugetVersion
-            sprintf "/p:SourceLinkCreate=%b" (isRelease ctx.Context.AllExecutingTargets)
             "--no-restore"
         ] |> String.concat " "
     DotNet.build(fun c ->
@@ -245,31 +240,35 @@ Target.create "AssemblyInfo" <| fun _ ->
         | Vbproj -> AssemblyInfoFile.createVisualBasic ((folderName @@ "My Project") @@ "AssemblyInfo.vb") attributes
         )
 
+let runtimes = [
+    "linux-x64", "CreateTarball"
+    "osx-x64", "CreateTarball"
+    "win-x64", "CreateZip"
+]
 
-Target.create "DotnetPack" <| fun ctx ->
-    !! srcGlob
-    |> Seq.iter (fun proj ->
+Target.create "CreatePackages" <| fun _ ->
+
+    let targetFramework =  "netcoreapp2.1"
+    runtimes
+    |> Seq.iter(fun (runtime, packageType) ->
         let args =
             [
+                sprintf "/t:Restore;%s" packageType
+                sprintf "/p:TargetFramework=%s" targetFramework
+                sprintf "/p:CustomTarget=%s" packageType
+                sprintf "/p:RuntimeIdentifier=%s" runtime
+                sprintf "/p:Configuration=%s" "Release"
                 sprintf "/p:PackageVersion=%s" release.NugetVersion
-                sprintf "/p:PackageReleaseNotes=\"%s\"" (release.Notes |> String.concat "\n")
-                sprintf "/p:SourceLinkCreate=%b" (isRelease (ctx.Context.AllExecutingTargets))
+                sprintf "/p:PackagePath=%s" (distDir @@ (sprintf "%s-%s-%s" productName release.NugetVersion runtime ))
             ] |> String.concat " "
-        DotNet.pack (fun c ->
-            { c with
-                Configuration = configuration (ctx.Context.AllExecutingTargets)
-                OutputPath = Some distDir
-                Common =
-                    c.Common
-                    |> DotNet.Options.withCustomParams (Some args)
-            }) proj
-    )
-
-
-Target.create "SourcelinkTest" <| fun _ ->
-    !! distGlob
-    |> Seq.iter (fun nupkg ->
-        dotnet.sourcelink id (sprintf "test %s" nupkg)
+        let result =
+            DotNet.exec (fun opt ->
+                { opt with
+                    WorkingDirectory = mainApp }
+            ) "msbuild" args
+        if result.OK |> not then
+            result.Errors |> Seq.iter Trace.traceError
+            failwith "package creation failed"
     )
 
 
@@ -277,15 +276,6 @@ let isReleaseBranchCheck () =
     let releaseBranch = "master"
     if Git.Information.getBranchName "" <> releaseBranch then failwithf "Not on %s.  If you want to release please switch to this branch." releaseBranch
 
-Target.create "Publish" <| fun _ ->
-    isReleaseBranchCheck ()
-
-    Paket.push(fun c ->
-            { c with
-                PublishUrl = "https://www.nuget.org"
-                WorkingDir = "dist"
-            }
-        )
 
 Target.create "GitRelease" <| fun _ ->
     isReleaseBranchCheck ()
@@ -325,27 +315,25 @@ Target.create "Release" ignore
 // Only call Clean if DotnetPack was in the call chain
 // Ensure Clean is called before DotnetRestore
 "Clean" ?=> "DotnetRestore"
-"Clean" ==> "DotnetPack"
+"Clean" ==> "CreatePackages"
 
 // // Only call AssemblyInfo if Publish was in the call chain
 // // Ensure AssemblyInfo is called after DotnetRestore and before DotnetBuild
 "DotnetRestore" ?=> "AssemblyInfo"
 "AssemblyInfo" ?=> "DotnetBuild"
-"AssemblyInfo" ==> "Publish"
+"AssemblyInfo" ==> "GitRelease"
 
 "DotnetRestore"
   ==> "DotnetBuild"
   ==> "DotnetTest"
   ==> "GenerateCoverageReport"
-  ==> "DotnetPack"
-  ==> "SourcelinkTest"
-  ==> "Publish"
+  ==> "CreatePackages"
   ==> "GitRelease"
-//   ==> "GitHubRelease"
+  ==> "GitHubRelease"
   ==> "Release"
 
 "DotnetRestore"
  ==> "WatchTests"
 
 
-Target.runOrDefaultWithArguments "DotnetPack"
+Target.runOrDefaultWithArguments "CreatePackages"
