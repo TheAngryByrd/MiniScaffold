@@ -323,7 +323,7 @@ Target.create "Release" ignore
   ==> "SourcelinkTest"
   ==> "Publish"
   ==> "GitRelease"
-//   ==> "GitHubRelease"
+  ==> "GitHubRelease"
   ==> "Release"
 
 "DotnetRestore"
