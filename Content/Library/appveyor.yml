@@ -7,3 +7,5 @@ version: 0.0.1.{build}
 artifacts:
   - path: bin
     name: bin
+  - path: dist
+    name: dist
