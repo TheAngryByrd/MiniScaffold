@@ -1,3 +1,6 @@
+### 0.12.0 - 2018-09-11
+* FEATURE: Console App Scaffold Support (https://github.com/TheAngryByrd/MiniScaffold/pull/105)
+
 ### 0.11.0 - 2018-08-30
 * FEATURE: FAKE 5 (https://github.com/TheAngryByrd/MiniScaffold/pull/104)
 * FEATURE: Add Code Coverage threshold (https://github.com/TheAngryByrd/MiniScaffold/pull/103)
