@@ -26,6 +26,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <None Include="App.config" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   <Import Project="..\..\fsc.props" />

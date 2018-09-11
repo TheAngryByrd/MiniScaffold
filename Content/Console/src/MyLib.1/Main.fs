@@ -37,18 +37,25 @@ module AssemblyInfo =
         printfn "%s - %A - %s - %s" name.Name version releaseDate githash
 
 module Say =
+    open System
     let nothing name =
         name |> ignore
 
     let hello name =
         sprintf "Hello %s" name
 
+    let colorizeIn color str =
+        let oldColor = Console.ForegroundColor
+        Console.ForegroundColor <- (Enum.Parse(typedefof<ConsoleColor>, color) :?> ConsoleColor)
+        printfn "%s" str
+        Console.ForegroundColor <- oldColor
 
 module Main =
     open Argu
     type CLIArguments =
         | Info
         | Version
+        | Favorite_Color of string // Look in App.config
         | [<MainCommand>] Hello of string
     with
         interface IArgParserTemplate with
@@ -56,6 +63,7 @@ module Main =
                 match s with
                 | Info -> "More detailed information"
                 | Version -> "Version of application"
+                | Favorite_Color _ -> "Favorite color"
                 | Hello _-> "Who to say hello to"
 
     [<EntryPoint>]
@@ -68,7 +76,9 @@ module Main =
             AssemblyInfo.printInfo ()
         elif results.Contains Hello then
             match results.TryGetResult Hello with
-            | Some v -> Say.hello v |> printfn "%s"
+            | Some v ->
+                let color = results.GetResult Favorite_Color
+                Say.hello v |> Say.colorizeIn color
             | None ->  parser.PrintUsage() |> printfn "%s"
         else
             parser.PrintUsage() |> printfn "%s"
