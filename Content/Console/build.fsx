@@ -24,8 +24,13 @@ BuildServer.install [
 let release = Fake.Core.ReleaseNotes.load "RELEASE_NOTES.md"
 let productName = "MyLib.1"
 let sln = "MyLib.1.sln"
-let srcGlob =__SOURCE_DIRECTORY__  @@ "src/**/*.??proj"
+
+let src = __SOURCE_DIRECTORY__  @@ "src"
+
+let srcGlob = src @@ "**/*.??proj"
 let testsGlob = __SOURCE_DIRECTORY__  @@ "tests/**/*.??proj"
+
+let mainApp = src @@ productName
 
 let srcAndTest =
     !! srcGlob
@@ -57,6 +62,18 @@ let failOnBadExitAndPrint (p : ProcessResult) =
         p.Errors |> Seq.iter Trace.traceError
         failwithf "failed with exitcode %d" p.ExitCode
 
+let rec retryIfInCI times fn =
+    match Environment.environVarOrNone "CI" with
+    | Some _ ->
+        if times > 1 then
+            try
+                fn()
+            with
+            | _ -> retryIfInCI (times - 1) fn
+        else
+            fn()
+    | _ -> fn()
+
 module dotnet =
     let watch cmdParam program args =
         DotNet.exec cmdParam (sprintf "watch %s" program) args
@@ -70,10 +87,6 @@ module dotnet =
 
     let reportgenerator optionConfig args =
         tool optionConfig "reportgenerator" args
-
-    let sourcelink optionConfig args =
-        tool optionConfig "sourcelink" args
-
 
 
 Target.create "Clean" <| fun _ ->
@@ -91,7 +104,7 @@ Target.create "Clean" <| fun _ ->
 
 Target.create "DotnetRestore" <| fun _ ->
     [sln ; toolsDir]
-    |> Seq.iter(fun dir ->
+    |> Seq.map(fun dir -> fun () ->
         let args =
             [
                 sprintf "/p:PackageVersion=%s" release.NugetVersion
@@ -103,13 +116,13 @@ Target.create "DotnetRestore" <| fun _ ->
                     |> DotNet.Options.withCustomParams
                         (Some(args))
             }) dir)
+    |> Seq.iter(retryIfInCI 10)
 
 Target.create "DotnetBuild" <| fun ctx ->
 
     let args =
         [
             sprintf "/p:PackageVersion=%s" release.NugetVersion
-            sprintf "/p:SourceLinkCreate=%b" (isRelease ctx.Context.AllExecutingTargets)
             "--no-restore"
         ] |> String.concat " "
     DotNet.build(fun c ->
@@ -124,7 +137,7 @@ Target.create "DotnetBuild" <| fun ctx ->
 
 let invokeAsync f = async { f () }
 
-let coverageThresholdPercent = 80
+let coverageThresholdPercent = 1
 
 Target.create "DotnetTest" <| fun ctx ->
     !! testsGlob
@@ -168,6 +181,19 @@ Target.create "GenerateCoverageReport" <| fun _ ->
         independentArgs
         |> String.concat " "
     dotnet.reportgenerator id args
+
+
+Target.create "WatchApp" <| fun _ ->
+    let appArgs =
+        [
+            "World"
+        ]
+        |> String.concat " "
+    dotnet.watch
+        (fun opt -> opt |> DotNet.Options.withWorkingDirectory (mainApp))
+        "run"
+        appArgs
+    |> ignore
 
 
 Target.create "WatchTests" <| fun _ ->
@@ -227,31 +253,35 @@ Target.create "AssemblyInfo" <| fun _ ->
         | Vbproj -> AssemblyInfoFile.createVisualBasic ((folderName @@ "My Project") @@ "AssemblyInfo.vb") attributes
         )
 
+let runtimes = [
+    "linux-x64", "CreateTarball"
+    "osx-x64", "CreateTarball"
+    "win-x64", "CreateZip"
+]
 
-Target.create "DotnetPack" <| fun ctx ->
-    !! srcGlob
-    |> Seq.iter (fun proj ->
+Target.create "CreatePackages" <| fun _ ->
+
+    let targetFramework =  "netcoreapp2.1"
+    runtimes
+    |> Seq.iter(fun (runtime, packageType) ->
         let args =
             [
+                sprintf "/t:Restore;%s" packageType
+                sprintf "/p:TargetFramework=%s" targetFramework
+                sprintf "/p:CustomTarget=%s" packageType
+                sprintf "/p:RuntimeIdentifier=%s" runtime
+                sprintf "/p:Configuration=%s" "Release"
                 sprintf "/p:PackageVersion=%s" release.NugetVersion
-                sprintf "/p:PackageReleaseNotes=\"%s\"" (release.Notes |> String.concat "\n")
-                sprintf "/p:SourceLinkCreate=%b" (isRelease (ctx.Context.AllExecutingTargets))
+                sprintf "/p:PackagePath=%s" (distDir @@ (sprintf "%s-%s-%s" productName release.NugetVersion runtime ))
             ] |> String.concat " "
-        DotNet.pack (fun c ->
-            { c with
-                Configuration = configuration (ctx.Context.AllExecutingTargets)
-                OutputPath = Some distDir
-                Common =
-                    c.Common
-                    |> DotNet.Options.withCustomParams (Some args)
-            }) proj
-    )
-
-
-Target.create "SourcelinkTest" <| fun _ ->
-    !! distGlob
-    |> Seq.iter (fun nupkg ->
-        dotnet.sourcelink id (sprintf "test %s" nupkg)
+        let result =
+            DotNet.exec (fun opt ->
+                { opt with
+                    WorkingDirectory = mainApp }
+            ) "msbuild" args
+        if result.OK |> not then
+            result.Errors |> Seq.iter Trace.traceError
+            failwith "package creation failed"
     )
 
 
@@ -259,15 +289,6 @@ let isReleaseBranchCheck () =
     let releaseBranch = "master"
     if Git.Information.getBranchName "" <> releaseBranch then failwithf "Not on %s.  If you want to release please switch to this branch." releaseBranch
 
-Target.create "Publish" <| fun _ ->
-    isReleaseBranchCheck ()
-
-    Paket.push(fun c ->
-            { c with
-                PublishUrl = "https://www.nuget.org"
-                WorkingDir = "dist"
-            }
-        )
 
 Target.create "GitRelease" <| fun _ ->
     isReleaseBranchCheck ()
@@ -307,27 +328,25 @@ Target.create "Release" ignore
 // Only call Clean if DotnetPack was in the call chain
 // Ensure Clean is called before DotnetRestore
 "Clean" ?=> "DotnetRestore"
-"Clean" ==> "DotnetPack"
+"Clean" ==> "CreatePackages"
 
 // // Only call AssemblyInfo if Publish was in the call chain
 // // Ensure AssemblyInfo is called after DotnetRestore and before DotnetBuild
 "DotnetRestore" ?=> "AssemblyInfo"
 "AssemblyInfo" ?=> "DotnetBuild"
-"AssemblyInfo" ==> "Publish"
+"AssemblyInfo" ==> "GitRelease"
 
 "DotnetRestore"
   ==> "DotnetBuild"
   ==> "DotnetTest"
   ==> "GenerateCoverageReport"
-  ==> "DotnetPack"
-  ==> "SourcelinkTest"
-  ==> "Publish"
+  ==> "CreatePackages"
   ==> "GitRelease"
-//   ==> "GitHubRelease"
+  ==> "GitHubRelease"
   ==> "Release"
 
 "DotnetRestore"
  ==> "WatchTests"
 
 
-Target.runOrDefaultWithArguments "DotnetPack"
+Target.runOrDefaultWithArguments "CreatePackages"

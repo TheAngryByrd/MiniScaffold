@@ -148,6 +148,16 @@ paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9
 ./build.sh Release
 ```
 
+## Options
+
+### githubUserName
+This is uesd to atomatically configure author information in the nuget package, as well as configure push urls for repo locations.
+
+### outputType
+Defaults to Library
+
+When set to either Console or Library project and the supporting infrastructure around their respective types.
+
 
 ## Known issues
 
@@ -173,3 +183,5 @@ This is because dotnet template loses permissions of files. (https://github.com/
 * [AltCover](https://github.com/SteveGilham/altcover)
 * [ReportGenerator](https://github.com/danielpalme/ReportGenerator)
 * [Fantomas](https://github.com/fsprojects/fantomas)
+* [Argu](https://github.com/fsprojects/Argu)
+* [dotnet-packaging](https://github.com/qmfrederik/dotnet-packaging)

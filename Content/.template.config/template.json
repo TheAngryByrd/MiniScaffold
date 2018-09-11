@@ -1,6 +1,9 @@
 {
+    "$schema": "http://json.schemastore.org/template",
     "author": "Jimmy Byrd",
-    "classifications": ["Scaffold"],
+    "classifications": [
+        "Scaffold"
+    ],
     "name": "MiniScaffold",
     "tags": {
         "language": "F#"
@@ -14,18 +17,49 @@
         "githubUsername": {
             "type": "parameter",
             "replaces": "MyGithubUsername"
+        },
+        "outputType": {
+            "type": "parameter",
+            "dataType": "choice",
+            "defaultValue": "library",
+            "choices": [
+                {
+                    "choice": "library",
+                    "description": "Creates a template for library projects"
+                },
+                {
+                    "choice": "console",
+                    "description": "Creates a template for console projects"
+                }
+            ]
         }
     },
-    "postActions": [{
-        "condition": "(OS != \"Windows_NT\")",
-        "description": "Make scripts executable",
-        "manualInstructions": [{
-            "text": "Run 'chmod +x *.sh'"
-        }],
-        "actionId": "cb9a6cf3-4f5c-4860-b9d2-03a574959774",
-        "args": {
-            "+x": "*.sh"
+    "sources": [
+        {
+            "source": "./Library/",
+            "target": "./",
+            "condition": "(outputType == \"library\")",
         },
-        "continueOnError": true
-    }]
+        {
+            "source": "./Console/",
+            "target": "./",
+            "condition": "(outputType == \"console\")",
+        }
+    ],
+    "postActions": [
+        {
+            "condition": "(OS != \"Windows_NT\")",
+            "description": "Make scripts executable",
+            "manualInstructions": [
+                {
+                    "text": "Run 'chmod +x *.sh'"
+                }
+            ],
+            "actionId": "cb9a6cf3-4f5c-4860-b9d2-03a574959774",
+            "args": {
+                "+x": "*.sh"
+            },
+            "continueOnError": true
+        }
+    ]
 }

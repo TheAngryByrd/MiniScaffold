@@ -1,0 +1,32 @@
+source https://www.nuget.org/api/v2
+source https://api.nuget.org/v3/index.json
+storage: none
+clitool dotnet-mono 0.5.2
+clitool dotnet-sourcelink 2.8.1
+clitool dotnet-fantomas 2.8.0
+clitool dotnet-reportgenerator-cli 4.0.0-rc4
+nuget FSharp.Core 4.3.4
+nuget Expecto 8.0.0
+nuget SourceLink.Create.CommandLine 2.8.1 copy_local: true
+nuget YoloDev.Expecto.TestSdk 0.5.0
+nuget Microsoft.NET.Test.Sdk 15.7.2
+nuget altcover 4.0.603
+
+// [ FAKE GROUP ]
+group Build
+
+    storage: none
+    source https://www.nuget.org/api/v2
+    source https://api.nuget.org/v3/index.json
+    nuget Fake.IO.FileSystem
+    nuget Fake.Core.Target
+    nuget Fake.Core.ReleaseNotes
+    nuget FAKE.Core.Environment
+    nuget Fake.DotNet.Cli
+    nuget FAKE.Core.Process
+    nuget Fake.DotNet.AssemblyInfoFile
+    nuget Fake.Tools.Git
+    nuget Fake.DotNet.Paket
+    nuget Fake.Api.GitHub
+    nuget Fake.BuildServer.AppVeyor
+    nuget Fake.BuildServer.Travis

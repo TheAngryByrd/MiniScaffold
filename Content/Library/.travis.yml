@@ -4,7 +4,6 @@ dist: trusty
 
 dotnet: 2.1.401
 mono:
-  - 5.12.0
   - 5.14.0
   - latest # => "stable release"
   - alpha
@@ -13,10 +12,10 @@ mono:
 os:
   - linux
 
-# addons:
-#   apt:
-#     packages:
-#     - dotnet-sharedframework-microsoft.netcore.app-1.1.2
+addons:
+  apt:
+    packages:
+    - dotnet-sharedframework-microsoft.netcore.app-1.1.2
 
 script:
   - ./build.sh
