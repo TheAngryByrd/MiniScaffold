@@ -57,6 +57,18 @@ let failOnBadExitAndPrint (p : ProcessResult) =
         p.Errors |> Seq.iter Trace.traceError
         failwithf "failed with exitcode %d" p.ExitCode
 
+let rec retryIfInCI times fn =
+    match Environment.environVarOrNone "CI" with
+    | Some _ ->
+        if times > 1 then
+            try
+                fn()
+            with
+            | _ -> retryIfInCI (times - 1) fn
+        else
+            fn()
+    | _ -> fn()
+
 module dotnet =
     let watch cmdParam program args =
         DotNet.exec cmdParam (sprintf "watch %s" program) args
@@ -91,7 +103,7 @@ Target.create "Clean" <| fun _ ->
 
 Target.create "DotnetRestore" <| fun _ ->
     [sln ; toolsDir]
-    |> Seq.iter(fun dir ->
+    |> Seq.map(fun dir -> fun () ->
         let args =
             [
                 sprintf "/p:PackageVersion=%s" release.NugetVersion
@@ -103,6 +115,7 @@ Target.create "DotnetRestore" <| fun _ ->
                     |> DotNet.Options.withCustomParams
                         (Some(args))
             }) dir)
+    |> Seq.iter(retryIfInCI 10)
 
 Target.create "DotnetBuild" <| fun ctx ->
 
