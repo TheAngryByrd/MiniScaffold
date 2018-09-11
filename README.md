@@ -183,3 +183,5 @@ This is because dotnet template loses permissions of files. (https://github.com/
 * [AltCover](https://github.com/SteveGilham/altcover)
 * [ReportGenerator](https://github.com/danielpalme/ReportGenerator)
 * [Fantomas](https://github.com/fsprojects/fantomas)
+* [Argu](https://github.com/fsprojects/Argu)
+* [dotnet-packaging](https://github.com/qmfrederik/dotnet-packaging)
