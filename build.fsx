@@ -1,4 +1,5 @@
 #load ".fake/build.fsx/intellisense.fsx"
+open Fake.SystemHelper
 #if !FAKE
 #r "Facades/netstandard"
 #r "netstandard"
@@ -30,16 +31,71 @@ let gitOwner = "TheAngryByrd"
 let gitRepoName = "MiniScaffold"
 
 
+let docsDir = __SOURCE_DIRECTORY__ @@ "docs"
+let docSrcDir = __SOURCE_DIRECTORY__ @@ "docSrc"
 
 let failOnBadExitAndPrint (p : ProcessResult) =
     if p.ExitCode <> 0 then
         p.Errors |> Seq.iter Trace.traceError
         failwithf "failed with exitcode %d" p.ExitCode
+    else
+        p.Messages |> Seq.iter Trace.trace
+
+let exec config = Process.execRaw config TimeSpan.MaxValue false Trace.traceError Trace.trace
+
+let execOrFail config =
+    let exitCode = exec config
+    if exitCode <> 0 then
+        failwithf "failed with exitcode %d" exitCode
+
+let openBrowser url =
+    if Environment.isMacOS then
+        Diagnostics.Process.Start("open", url) |> ignore
+    elif Environment.isLinux then
+        Diagnostics.Process.Start("xdg-open", url) |> ignore
+    else
+        Diagnostics.Process.Start(url) |> ignore
+
+module Docs =
+    let docsHost = "localhost"
+    let docsPort = 8008
+    let docfxPath = __SOURCE_DIRECTORY__ @@ "packages/docs/docfx.console/tools/docfx.exe"
+    let docsConfig = docSrcDir @@ "docfx_project/docfx.json"
+    let build () =
+        execOrFail (fun (info:ProcStartInfo) ->
+            { info with
+                FileName = docfxPath
+                Arguments = sprintf "build %s" docsConfig
+            } |> Process.withFramework
+        )
+
+    let serve () =
+        let args =
+            [
+                sprintf "serve %s" docsDir
+                sprintf "--hostname %s" docsHost
+                sprintf "--port %d" docsPort
+            ] |> String.concat " "
+
+        execOrFail(fun (info:ProcStartInfo) ->
+            { info with
+                FileName = docfxPath
+                Arguments = args
+            } |> Process.withFramework
+        )
+
+
+
+
+
 
 Target.create "Clean" <| fun _ ->
     [ "obj" ;"dist"]
     |> Shell.cleanDirs
 
+Target.create "CleanDocs" <| fun _ ->
+    docsDir
+    |> Shell.cleanDir
 
 Target.create "DotnetRestore" <| fun _ ->
     !! srcGlob
@@ -162,6 +218,21 @@ Target.create "IntegrationTests" <| fun _ ->
             failwithf "Intregration test failed with params %s" param
     )
 
+Target.create "BuildDocs" <| fun _ ->
+    Docs.build ()
+
+Target.create "ServeDocs" <| fun _ ->
+    async {
+        do! Async.Sleep 1000
+        let url = sprintf "http://%s:%d" Docs.docsHost Docs.docsPort
+        openBrowser url
+    } |> Async.Start
+    Docs.serve ()
+
+Target.create "SaveDocs" <| fun _ ->
+    Git.Staging.stageAll docsDir
+    Git.Staging.stageAll docSrcDir
+    Git.Commit.exec "" (sprintf "Docs for version to %s " release.NugetVersion)
 
 
 Target.create "Publish" <| fun _ ->
@@ -206,10 +277,20 @@ Target.create "GitHubRelease" <| fun _ ->
 
 Target.create "Release" ignore
 
+"CleanDocs"
+  ==> "BuildDocs"
+
+"BuildDocs"
+ ==> "SaveDocs"
+
+"BuildDocs"
+  ==> "ServeDocs"
+
 "Clean"
   ==> "DotnetRestore"
   ==> "DotnetPack"
   ==> "IntegrationTests"
+  ==> "SaveDocs"
   ==> "Publish"
   ==> "GitRelease"
   ==> "GithubRelease"
