@@ -1,3 +1,5 @@
+open System.IO
+open Paket
 #load ".fake/build.fsx/intellisense.fsx"
 #if !FAKE
 #r "Facades/netstandard"
@@ -137,7 +139,48 @@ Target.create "IntegrationTests" <| fun ctx ->
                         (Some(args))
                 }) proj)
 
+open FSharp.Literate
 
+Target.create "GenerateDocs" <| fun _ ->
+    let lockFile = Paket.LockFile.LoadFrom Paket.Constants.LockFileName
+    let packageName = Paket.Domain.PackageName "FSharp.Core"
+    let (_,package,version) =
+        lockFile.InstalledPackages
+        |> Seq.filter(fun (_,p,_) ->
+            p =  packageName
+        )
+        |> Seq.maxBy(fun (_,_,semver) -> semver)
+    let fsharpCoreDir = Paket.NuGetCache.GetTargetUserFolder package version </> "lib" </> "netstandard1.6"
+
+
+    let parse source =
+        let doc =
+          let fsharpCoreDir = sprintf "-I:%s" fsharpCoreDir
+          let systemRuntime = "-r:System.Runtime"
+          Literate.ParseScriptString(
+                      source,
+                      compilerOptions = systemRuntime + " " + fsharpCoreDir,
+                      fsiEvaluator = FSharp.Literate.FsiEvaluator([|fsharpCoreDir|]))
+        FSharp.Literate.Literate.FormatLiterateNodes(doc, OutputKind.Html, "", true, true)
+    let format (doc: LiterateDocument) =
+        Formatting.format doc.MarkdownDocument true OutputKind.Html
+
+
+    let snipet  =
+        """
+        (** # *F# literate* in action *)
+        printfn "Hello"
+        """
+    let fs =
+        snipet
+        |> parse
+        |> format
+    printfn "%s" fs
+    // let md =
+    //     """# Markdown is cool
+    //     especially with *FSharp.Formatting* ! """
+    //     |> FSharp.Markdown.Markdown.TransformHtml
+    // printfn "%s" md
 
 Target.create "Publish" <| fun _ ->
     Paket.push(fun c ->
