@@ -20,5 +20,8 @@ group Build
     nuget Fake.DotNet.Paket
     nuget Fake.Api.GitHub
 
+    nuget FSharp.Literate
+    nuget Fable.React
+    nuget Paket.Core
     nuget Fake.BuildServer.AppVeyor
     nuget Fake.BuildServer.Travis
