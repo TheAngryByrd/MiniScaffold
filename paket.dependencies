@@ -21,3 +21,6 @@ group Build
     nuget Fake.Api.GitHub 5.18.3
     nuget Fake.BuildServer.AppVeyor 5.18.3
     nuget Fake.BuildServer.Travis 5.18.3
+    nuget FSharp.Literate
+    nuget Fable.React
+    nuget Paket.Core
