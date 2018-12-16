@@ -4,24 +4,32 @@ source https://www.nuget.org/api/v2
 
 // [ FAKE GROUP ]
 group Build
-    source https://www.nuget.org/api/v2
-    storage: none
-    nuget Expecto
-    nuget YoloDev.Expecto.TestSdk
-    nuget Microsoft.NET.Test.Sdk 15.7.2
-    nuget Fake.IO.FileSystem
-    nuget Fake.Core.Target
-    nuget Fake.Core.ReleaseNotes
-    nuget FAKE.Core.Environment
-    nuget Fake.DotNet.Cli
-    nuget FAKE.Core.Process
-    nuget Fake.DotNet.AssemblyInfoFile
-    nuget Fake.Tools.Git
-    nuget Fake.DotNet.Paket
-    nuget Fake.Api.GitHub
-
-    nuget FSharp.Literate
-    nuget Fable.React
-    nuget Paket.Core
-    nuget Fake.BuildServer.AppVeyor
-    nuget Fake.BuildServer.Travis
+  source https://www.nuget.org/api/v2
+  storage: none
+  nuget Expecto
+  nuget YoloDev.Expecto.TestSdk
+  nuget Microsoft.NET.Test.Sdk 15.7.2
+  source https://www.nuget.org/api/v2
+  source https://ci.appveyor.com/nuget/fsharp-formatting
+  nuget FSharp.Core 4.5.4
+  nuget Fake.IO.FileSystem
+  nuget Fake.Core.Target
+  nuget Fake.Core.ReleaseNotes
+  nuget FAKE.Core.Environment
+  nuget Fake.DotNet.Cli
+  nuget FAKE.Core.Process
+  nuget Fake.DotNet.AssemblyInfoFile
+  nuget Fake.Tools.Git
+  nuget Fake.DotNet.Paket
+  nuget Fake.Api.GitHub
+  nuget FSharp.Literate
+  nuget Fable.React
+  nuget Paket.Core
+  nuget Microsoft.AspNetCore.StaticFiles
+  nuget Microsoft.AspNetCore.Hosting
+  nuget Microsoft.AspNetCore.Server.Kestrel
+  nuget FSharp.Literate
+  nuget Fable.React
+  nuget Paket.Core
+  nuget Fake.BuildServer.AppVeyor
+  nuget Fake.BuildServer.Travis
