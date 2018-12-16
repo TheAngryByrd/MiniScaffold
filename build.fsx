@@ -147,10 +147,24 @@ open FSharp.Literate
 open Fable.Helpers.React
 open Fable.Helpers.React.Props
 
+
 let template titletext bodytext =
     html [Lang "en"] [
         head [] [
-            title [] [ str ("My blog / " + titletext) ]
+            title [] [ str (sprintf "%s docs / %s" gitRepoName titletext) ]
+            link [
+                Href "https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css"
+                Type "text/css"
+                Rel "stylesheet"
+            ]
+            link [
+                Href "content/style.css"
+                Type "text/css"
+                Rel "stylesheet"
+            ]
+            script [Src "https://code.jquery.com/jquery-1.8.0.js" ] []
+            script [Src "https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js" ] []
+            script [Src "content/tips.js" ] []
         ]
         body [] [
             RawText bodytext
@@ -186,29 +200,82 @@ Target.create "GenerateDocs" <| fun _ ->
         FSharp.Literate.Literate.FormatLiterateNodes(doc, OutputKind.Html, "", true, true)
     let format (doc: LiterateDocument) =
         Formatting.format doc.MarkdownDocument true OutputKind.Html
+        + doc.FormattedTips
 
 
 
     !! docsSrcGlob
     |> Seq.iter(fun filePath ->
+        sprintf "Rendering %s" filePath
+        |> Fake.Core.Trace.trace
         let file = IO.File.ReadAllLines filePath |> String.concat "\n"
         let outPath =
             filePath.Replace(docsSrcDir, docsDir).Replace(".fsx", ".html")
+            |> FileInfo
         let fs =
             file
             |> parse
             |> format
         let contents =
             fs
-            |> template "foo"
+            |> template outPath.Name
             |> render
-        IO.File.WriteAllText(outPath, fs)
+        IO.File.WriteAllText(outPath.FullName, contents)
+
+        sprintf "Rendered %s to %s" filePath outPath.FullName
+        |> Fake.Core.Trace.trace
 
     )
+    Shell.copyDir (docsDir </> "content")   ( docsSrcDir </> "content") (fun _ -> true)
+    Shell.copyDir (docsDir </> "files")   ( docsSrcDir </> "files") (fun _ -> true)
 
+
+
+open Microsoft.AspNetCore.Builder
+open Microsoft.AspNetCore.Hosting
+open Microsoft.Extensions.FileProviders
+
+let openBrowser url =
+    //https://github.com/dotnet/corefx/issues/10361
+    let result =
+        Process.execSimple (fun info ->
+                { info with
+                    FileName = url
+                    UseShellExecute = true })
+                TimeSpan.MaxValue
+    if result <> 0 then failwithf "opening browser failed"
+
+
+let waitForPortInUse (hostname : string) port =
+    let mutable portInUse = false
+    while not portInUse do
+        Async.Sleep(10) |> Async.RunSynchronously
+        use client = new Net.Sockets.TcpClient()
+        try
+            client.Connect(hostname,port)
+            portInUse <- client.Connected
+            client.Close()
+        with e ->
+            client.Close()
 
 Target.create "ServeDocs" <| fun _ ->
-    ()
+    let hostname = "localhost"
+    let port = 5000
+    async {
+        waitForPortInUse hostname port
+        sprintf "http://%s:%d/index.html" hostname port |> openBrowser
+    } |> Async.Start
+    WebHostBuilder()
+        .UseKestrel()
+        .Configure(fun app ->
+            let opts =
+                StaticFileOptions(
+                    FileProvider =  new PhysicalFileProvider(docsDir)
+                )
+            app.UseStaticFiles(opts) |> ignore
+        )
+        .Build()
+        .Run()
 
 Target.create "Publish" <| fun _ ->
     Paket.push(fun c ->
@@ -252,6 +319,9 @@ Target.create "GitHubRelease" <| fun _ ->
    |> Async.RunSynchronously
 
 Target.create "Release" ignore
+
+"GenerateDocs"
+  ==> "ServeDocs"
 
 "Clean"
   ==> "DotnetRestore"
