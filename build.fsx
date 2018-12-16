@@ -189,32 +189,37 @@ Target.create "GenerateDocs" <| fun _ ->
         )
         |> Seq.maxBy(fun (_,_,semver) -> semver)
     let fsharpCoreDir = Paket.NuGetCache.GetTargetUserFolder package version </> "lib" </> "netstandard1.6"
-    let parse source =
+
+    let parse fileName source =
         let doc =
           let fsharpCoreDir = sprintf "-I:%s" fsharpCoreDir
           let systemRuntime = "-r:System.Runtime"
           Literate.ParseScriptString(
                       source,
+                      path = fileName,
                       compilerOptions = systemRuntime + " " + fsharpCoreDir,
                       fsiEvaluator = FSharp.Literate.FsiEvaluator([|fsharpCoreDir|]))
         FSharp.Literate.Literate.FormatLiterateNodes(doc, OutputKind.Html, "", true, true)
+
     let format (doc: LiterateDocument) =
-        Formatting.format doc.MarkdownDocument true OutputKind.Html
-        + doc.FormattedTips
-
-
+        if not <| Seq.isEmpty doc.Errors
+        then
+            failwithf "error while formatting file %s. Errors are:\n%A" doc.SourceFile doc.Errors
+        else
+            Formatting.format doc.MarkdownDocument true OutputKind.Html
+            + doc.FormattedTips
 
     !! docsSrcGlob
     |> Seq.iter(fun filePath ->
         sprintf "Rendering %s" filePath
         |> Fake.Core.Trace.trace
-        let file = IO.File.ReadAllLines filePath |> String.concat "\n"
+        let file = IO.File.ReadAllText filePath
         let outPath =
             filePath.Replace(docsSrcDir, docsDir).Replace(".fsx", ".html")
             |> FileInfo
         let fs =
             file
-            |> parse
+            |> parse filePath
             |> format
         let contents =
             fs
