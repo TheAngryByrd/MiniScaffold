@@ -1,4 +1,5 @@
 #load ".fake/build.fsx/intellisense.fsx"
+#load "./docs.fsx"
 #if !FAKE
 #r "Facades/netstandard"
 #r "netstandard"
@@ -14,6 +15,8 @@ open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
 open Fake.Api
 open Fake.BuildServer
+
+
 
 BuildServer.install [
     AppVeyor.Installer
@@ -367,10 +370,14 @@ Target.create "GitHubRelease" githubRelease
 Target.create "FormatCode" formatCode
 Target.create "Release" ignore
 
+Target.create "ServeDocs" <| fun _ ->
+    Docs.serveDocs ()
 
 //-----------------------------------------------------------------------------
 // Target Dependencies
 //-----------------------------------------------------------------------------
+=======
+
 
 // Only call Clean if DotnetPack was in the call chain
 // Ensure Clean is called before DotnetRestore

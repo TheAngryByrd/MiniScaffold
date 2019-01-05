@@ -18,6 +18,7 @@ group Build
     storage: none
     source https://www.nuget.org/api/v2
     source https://api.nuget.org/v3/index.json
+    source https://ci.appveyor.com/nuget/fsharp-formatting
     nuget Fake.IO.FileSystem
     nuget Fake.Core.Target
     nuget Fake.Core.ReleaseNotes
@@ -30,3 +31,9 @@ group Build
     nuget Fake.Api.GitHub
     nuget Fake.BuildServer.AppVeyor
     nuget Fake.BuildServer.Travis
+    nuget FSharp.Literate
+    nuget Fable.React
+    nuget Paket.Core
+    nuget Microsoft.AspNetCore.StaticFiles
+    nuget Microsoft.AspNetCore.Hosting
+    nuget Microsoft.AspNetCore.Server.Kestrel
