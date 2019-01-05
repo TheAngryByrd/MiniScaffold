@@ -28,3 +28,9 @@ group Build
     nuget Fake.BuildServer.AppVeyor 5.18.3
     nuget Fake.BuildServer.Travis 5.18.3
     nuget Fantomas 3.0.0
+    nuget FSharp.Literate
+    nuget Fable.React
+    nuget Paket.Core
+    nuget Microsoft.AspNetCore.StaticFiles
+    nuget Microsoft.AspNetCore.Hosting
+    nuget Microsoft.AspNetCore.Server.Kestrel
