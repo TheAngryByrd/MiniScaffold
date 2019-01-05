@@ -1,5 +1,6 @@
 open System.IO
 open Paket
+open Fake.IO
 #load ".fake/build.fsx/intellisense.fsx"
 #if !FAKE
 #r "Facades/netstandard"
@@ -32,7 +33,7 @@ let distGlob = distDir @@ "*.nupkg"
 
 let docsDir = __SOURCE_DIRECTORY__ @@ "docs"
 let docsSrcDir = __SOURCE_DIRECTORY__ @@ "docsSrc"
-let docsSrcGlob = docsSrcDir @@ "*.fsx"
+let docsSrcGlob = docsSrcDir @@ "**/*.fsx"
 
 let gitOwner = "TheAngryByrd"
 let gitRepoName = "MiniScaffold"
@@ -148,28 +149,125 @@ open Fable.Helpers.React
 open Fable.Helpers.React.Props
 
 
-let template titletext bodytext =
+
+let template navBar titletext bodytext =
     html [Lang "en"] [
         head [] [
             title [] [ str (sprintf "%s docs / %s" gitRepoName titletext) ]
             link [
-                Href "https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css"
+                Href "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
                 Type "text/css"
                 Rel "stylesheet"
+                Integrity "sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+                CrossOrigin "anonymous"
             ]
             link [
-                Href "content/style.css"
+                Href "/content/style.css"
                 Type "text/css"
                 Rel "stylesheet"
             ]
-            script [Src "https://code.jquery.com/jquery-1.8.0.js" ] []
-            script [Src "https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js" ] []
-            script [Src "content/tips.js" ] []
+
         ]
         body [] [
+            navBar
             RawText bodytext
+            script [
+                Src "https://code.jquery.com/jquery-3.2.1.slim.min.js"
+                Integrity "sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+                CrossOrigin "anonymous"
+                ] []
+            script [
+                Src "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+                Integrity "sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+                CrossOrigin "anonymous"
+                ] []
+            script [
+                Src "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+                Integrity "sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+                CrossOrigin "anonymous"
+                ] []
+            script [Src "/content/tips.js" ] []
         ]
     ]
+
+
+
+let generateNav () =
+
+    let  navItem text link =
+        li [
+            Class "nav-item"
+        ] [
+            a [
+                Class "nav-link"
+                Href link
+            ] [
+                span [] [str text]
+            ]
+
+        ]
+
+    let navDropDownItem text href =
+        a [
+            Class "dropdown-item"
+            Href href
+        ] [
+            str text
+        ]
+    let navDropDown text items =
+        li [
+            Class "nav-item dropdown"
+        ] [
+            a [
+                Class "nav-link dropdown-toggle"
+                Id (sprintf "navbarDropdown-%s"  text)
+                Role "button"
+                DataToggle "dropdown"
+                HTMLAttr.Custom ("aria-haspopup", "true")
+                HTMLAttr.Custom ("aria-expanded", "false")
+            ] [str text]
+            div [
+                Class "dropdown-menu"
+                HTMLAttr.Custom ("aria-labelledby", (sprintf "navbarDropdown-%s"  text))
+            ] items
+
+        ]
+
+    nav [
+        Class "navbar navbar-expand-lg sticky-top navbar-dark bg-dark"
+    ] [
+        a [
+            Class "navbar-brand"
+            Href "/index.html"
+        ] [str (gitRepoName)]
+        button [
+            Class "navbar-toggler"
+            Type "button"
+            DataToggle "collapse"
+            HTMLAttr.Custom("data-target","#navbarNav" )
+            HTMLAttr.Custom("aria-controls","navbarNav" )
+            HTMLAttr.Custom("aria-expanded","false" )
+            HTMLAttr.Custom("aria-label","Toggle navigation" )
+        ] [
+            span [Class "navbar-toggler-icon"] []
+        ]
+        div [
+            Class "collapse navbar-collapse"
+            Id "navbarNav"
+        ] [
+            ul [
+                Class "navbar-nav"
+            ] [
+                navItem "Getting Started" "/Getting_Started.html"
+                navDropDown "Docs" [
+                    navDropDownItem "Docs" "/docs/Docs.html"
+                ]
+                navDropDown "Apis" []
+            ]
+        ]
+
+    ]
+
 
 let render html =
   fragment [] [
@@ -209,6 +307,9 @@ Target.create "GenerateDocs" <| fun _ ->
             Formatting.format doc.MarkdownDocument true OutputKind.Html
             + doc.FormattedTips
 
+    let relativePaths = generateNav ()
+
+
     !! docsSrcGlob
     |> Seq.iter(fun filePath ->
         sprintf "Rendering %s" filePath
@@ -223,14 +324,17 @@ Target.create "GenerateDocs" <| fun _ ->
             |> format
         let contents =
             fs
-            |> template outPath.Name
+            |> template relativePaths outPath.Name
             |> render
+        IO.Directory.CreateDirectory(outPath.DirectoryName) |> ignore
+
         IO.File.WriteAllText(outPath.FullName, contents)
 
         sprintf "Rendered %s to %s" filePath outPath.FullName
         |> Fake.Core.Trace.trace
 
     )
+
     Shell.copyDir (docsDir </> "content")   ( docsSrcDir </> "content") (fun _ -> true)
     Shell.copyDir (docsDir </> "files")   ( docsSrcDir </> "files") (fun _ -> true)
 
@@ -272,6 +376,7 @@ Target.create "ServeDocs" <| fun _ ->
     } |> Async.Start
     WebHostBuilder()
         .UseKestrel()
+        .UseUrls(sprintf "http://%s:%d" hostname port)
         .Configure(fun app ->
             let opts =
                 StaticFileOptions(
