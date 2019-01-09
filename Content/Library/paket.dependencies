@@ -31,7 +31,8 @@ group Build
     nuget Fake.Api.GitHub
     nuget Fake.BuildServer.AppVeyor
     nuget Fake.BuildServer.Travis
-    nuget FSharp.Literate
+    nuget FSharp.Literate prerelease
+    nuget FSharp.Formatting prerelease
     nuget Fable.React
     nuget Paket.Core
     nuget Microsoft.AspNetCore.StaticFiles
