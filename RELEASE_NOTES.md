@@ -1,3 +1,6 @@
+### 0.12.1 - 2019-01-09
+* BUGFIX: NETSDK1061 msbuild error (https://github.com/TheAngryByrd/MiniScaffold/pull/112)
+
 ### 0.12.0 - 2018-09-11
 * FEATURE: Console App Scaffold Support (https://github.com/TheAngryByrd/MiniScaffold/pull/105)
 
