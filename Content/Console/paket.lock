@@ -3,7 +3,7 @@ RESTRICTION: == netcoreapp2.1
 NUGET
   remote: https://www.nuget.org/api/v2
     altcover (4.0.603)
-    Argu (5.1)
+    Argu (5.2)
       FSharp.Core (>= 4.3.2)
       System.Configuration.ConfigurationManager (>= 4.4)
     Chessie (0.6)
@@ -29,9 +29,9 @@ NUGET
       Microsoft.Extensions.Configuration.Json (>= 2.1)
       Microsoft.NETCore.App (>= 2.0)
       SixLabors.ImageSharp.Drawing (>= 1.0.0-beta0004)
-    Expecto (8.0)
-      Argu (>= 5.1)
-      Mono.Cecil (>= 0.10)
+    Expecto (8.7)
+      Argu (>= 5.2)
+      Mono.Cecil (>= 0.10.1)
       System.Diagnostics.FileVersionInfo (>= 4.3)
     Fantomas (2.8)
       FSharp.Compiler.Service (>= 23.0.3)
@@ -149,7 +149,7 @@ NUGET
     Microsoft.Win32.Registry (4.5)
       System.Security.AccessControl (>= 4.5)
       System.Security.Principal.Windows (>= 4.5)
-    Mono.Cecil (0.10)
+    Mono.Cecil (0.10.1)
       System.Collections (>= 4.0.11)
       System.IO.FileSystem (>= 4.0.1)
       System.IO.FileSystem.Primitives (>= 4.0.1)
@@ -704,10 +704,9 @@ NUGET
       System.Xml.ReaderWriter (>= 4.3)
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
-    YoloDev.Expecto.TestSdk (0.5)
-      Expecto (>= 7.0)
+    YoloDev.Expecto.TestSdk (0.7)
+      Expecto (>= 8.4 < 9.0)
       FSharp.Core (>= 4.3.2)
-      Microsoft.NETCore.App (>= 2.0)
       System.Collections.Immutable (>= 1.4)
 
 GROUP Build
