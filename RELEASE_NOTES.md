@@ -1,3 +1,7 @@
+### 0.13.0 - 2019-01-09
+* FEATURE: Improved github issue templates (https://github.com/TheAngryByrd/MiniScaffold/pull/115)
+* FEATURE: Paket as a dotnet tool (https://github.com/TheAngryByrd/MiniScaffold/pull/114)
+
 ### 0.12.1 - 2019-01-09
 * BUGFIX: NETSDK1061 msbuild error (https://github.com/TheAngryByrd/MiniScaffold/pull/112)
 
