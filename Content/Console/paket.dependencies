@@ -6,8 +6,8 @@ clitool dotnet-mono 0.5.2
 clitool dotnet-fantomas 2.8.0
 clitool dotnet-reportgenerator-cli 4.0.0-rc4
 nuget FSharp.Core 4.3.4
-nuget Expecto 8.0.0
-nuget YoloDev.Expecto.TestSdk 0.5.0
+nuget Expecto 8.7.0
+nuget YoloDev.Expecto.TestSdk 0.7.0
 nuget Microsoft.NET.Test.Sdk 15.7.2
 nuget altcover 4.0.603
 nuget Packaging.Targets 0.1.45
