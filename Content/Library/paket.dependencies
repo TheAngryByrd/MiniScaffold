@@ -38,3 +38,4 @@ group Build
     nuget Microsoft.AspNetCore.StaticFiles
     nuget Microsoft.AspNetCore.Hosting
     nuget Microsoft.AspNetCore.Server.Kestrel
+    nuget Microsoft.AspNetCore.WebSockets
