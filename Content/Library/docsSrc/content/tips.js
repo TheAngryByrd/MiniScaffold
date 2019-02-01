@@ -47,8 +47,9 @@ function showTip(evt, name, unique, owner) {
 
 $( window ).ready(() => {
     $('.function-or-value').each((i, el) => {
-        const $this = $(el);
-        const guid = $this.data('guid');
+        var $this = $(el);
+        var guid = $this.data('guid');
+
         $this.on('mouseout', (e) => {
             hideTip(e, guid, guid);
         });

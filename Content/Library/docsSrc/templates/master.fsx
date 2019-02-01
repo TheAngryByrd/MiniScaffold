@@ -44,5 +44,6 @@ let masterTemplate gitRepoName navBar titletext bodyText =
                 CrossOrigin "anonymous"
                 ] []
             yield script [Src "/content/tips.js" ] []
+            yield script [Src "/content/hotload.js" ] []
         ]
     ]
