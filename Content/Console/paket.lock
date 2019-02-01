@@ -608,6 +608,32 @@ NUGET
       Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81))
       Microsoft.NETCore.Targets (>= 1.1) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81))
       System.Runtime (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81))
+<<<<<<< HEAD:Content/Console/paket.lock
+=======
+    System.Threading.Tasks.Dataflow (4.8) - restriction: || (&& (>= netcoreapp1.0) (>= netstandard2.0)) (>= netcoreapp2.1)
+=======
+    System.Text.RegularExpressions (4.3.1) - restriction: || (&& (< net45) (>= netstandard1.6) (< netstandard2.0)) (&& (>= netcoreapp1.0) (< netstandard2.0))
+      System.Collections (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net45) (< netcoreapp1.1) (>= netstandard1.6) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
+      System.Globalization (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net45) (< netcoreapp1.1) (>= netstandard1.6) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
+      System.Resources.ResourceManager (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net45) (< netcoreapp1.1) (>= netstandard1.6) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
+      System.Runtime (>= 4.3.1) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.6) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81)) (&& (< monoandroid) (< net45) (>= netstandard1.3) (< netstandard1.6) (< win8) (< wpa81)) (>= netcoreapp1.1)
+      System.Runtime.Extensions (>= 4.3.1) - restriction: && (< monoandroid) (< monotouch) (< net45) (< netcoreapp1.1) (>= netstandard1.6) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
+      System.Threading (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net45) (< netcoreapp1.1) (>= netstandard1.6) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
+    System.Threading (4.3) - restriction: || (&& (< net45) (>= netstandard1.6) (< netstandard2.0)) (&& (>= netcoreapp1.0) (>= netstandard2.0)) (&& (>= netcoreapp1.0) (< netstandard2.0))
+      System.Runtime (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81))
+      System.Threading.Tasks (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81))
+    System.Threading.Tasks (4.3) - restriction: || (&& (< monoandroid) (< net45) (< netstandard1.3) (>= netstandard1.6) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (< netstandard1.5) (>= netstandard1.6) (< win8) (< wpa81)) (&& (< net45) (>= netstandard1.6) (< netstandard2.0)) (&& (>= netcoreapp1.0) (< netstandard1.3)) (&& (>= netcoreapp1.0) (< netstandard2.0)) (>= netcoreapp2.0)
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81))
+      Microsoft.NETCore.Targets (>= 1.1) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81))
+      System.Runtime (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81))
+    System.Threading.Tasks.Dataflow (4.9) - restriction: >= netcoreapp2.1
+    System.Threading.Tasks.Extensions (4.5.3) - restriction: && (>= netcoreapp1.0) (< netstandard2.0)
+      System.Collections (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net45) (>= netstandard1.0) (< netstandard2.0) (< win8) (< wp8) (< wpa81) (< xamarintvos) (< xamarinwatchos)
+      System.Runtime (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net45) (>= netstandard1.0) (< netstandard2.0) (< win8) (< wp8) (< wpa81) (< xamarintvos) (< xamarinwatchos)
+      System.Runtime.CompilerServices.Unsafe (>= 4.5.2) - restriction: || (&& (< monoandroid) (< monotouch) (>= netstandard1.0) (< netstandard2.0) (< win8) (< wpa81) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< netstandard1.0) (>= portable-net45+win8+wp8+wpa81) (< win8)) (>= net45) (&& (< netcoreapp2.1) (>= netstandard2.0) (< xamarinios) (< xamarinmac)) (&& (< netstandard1.0) (>= win8)) (&& (< netstandard2.0) (>= wpa81)) (>= wp8)
+      System.Threading.Tasks (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net45) (>= netstandard1.0) (< netstandard2.0) (< win8) (< wp8) (< wpa81) (< xamarintvos) (< xamarinwatchos)
+>>>>>>> huh
+>>>>>>> Hot reload with docsSrc files changed:Content/Library/paket.lock
     System.Threading.Tasks.Parallel (4.3) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
       System.Collections.Concurrent (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.1) (< netstandard1.3) (< win8) (< wpa81))
       System.Diagnostics.Debug (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
@@ -866,6 +892,117 @@ NUGET
       FSharp.Core (>= 4.2.3) - restriction: || (>= net46) (>= netstandard2.0)
       System.Reactive (>= 4.0) - restriction: || (>= net46) (>= netstandard2.0)
     FSharp.Core (4.7) - restriction: || (>= net462) (>= netstandard2.0)
+<<<<<<< HEAD:Content/Console/paket.lock
+=======
+=======
+    FSharp.Compiler.Service (27.0.1)
+      FSharp.Core (>= 4.5.2) - restriction: || (>= net45) (>= netstandard2.0)
+      System.Collections.Immutable (>= 1.5) - restriction: || (>= net45) (>= netstandard2.0)
+      System.Diagnostics.Process (>= 4.1) - restriction: && (< net45) (>= netstandard2.0)
+      System.Diagnostics.TraceSource (>= 4.0) - restriction: && (< net45) (>= netstandard2.0)
+      System.Reflection.Emit (>= 4.3) - restriction: && (< net45) (>= netstandard2.0)
+      System.Reflection.Metadata (>= 1.6) - restriction: || (>= net45) (>= netstandard2.0)
+      System.Reflection.TypeExtensions (>= 4.3) - restriction: && (< net45) (>= netstandard2.0)
+      System.Runtime.Loader (>= 4.0) - restriction: && (< net45) (>= netstandard2.0)
+      System.Security.Cryptography.Algorithms (>= 4.3) - restriction: && (< net45) (>= netstandard2.0)
+      System.ValueTuple (>= 4.4) - restriction: >= net45
+    FSharp.Compiler.Tools (10.2.3) - restriction: >= net45
+    FSharp.Control.Reactive (4.2) - restriction: || (>= net462) (>= netstandard2.0)
+      FSharp.Core (>= 4.2.3) - restriction: || (>= net46) (>= netstandard2.0)
+      System.Reactive (>= 4.0) - restriction: || (>= net46) (>= netstandard2.0)
+    FSharp.Core (4.7) - restriction: || (>= net45) (>= netstandard2.0)
+    FSharp.Formatting (3.1)
+      FSharp.Compiler.Service (>= 27.0.1 < 28.0)
+      Microsoft.AspNet.Razor (>= 3.2.7 < 4.0)
+      System.ValueTuple (>= 4.5 < 5.0)
+    FSharp.Literate (3.1)
+      FSharp.Compiler.Service (>= 27.0.1 < 28.0)
+      System.ValueTuple (>= 4.5 < 5.0)
+    Microsoft.AspNet.Razor (3.2.7)
+    Microsoft.AspNetCore.Connections.Abstractions (2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Http.Features (>= 2.2) - restriction: >= netstandard2.0
+      System.IO.Pipelines (>= 4.5.2) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.Hosting (2.2.7)
+      Microsoft.AspNetCore.Hosting.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Http (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Http.Extensions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Configuration (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Configuration.EnvironmentVariables (>= 2.2.4) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Configuration.FileExtensions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.DependencyInjection (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.FileProviders.Physical (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Hosting.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Logging (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Options (>= 2.2) - restriction: >= netstandard2.0
+      System.Diagnostics.DiagnosticSource (>= 4.5.1) - restriction: >= netstandard2.0
+      System.Reflection.Metadata (>= 1.6) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.Hosting.Abstractions (2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Hosting.Server.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Http.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Hosting.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.Hosting.Server.Abstractions (2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Http.Features (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Configuration.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.Http (2.2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Http.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.WebUtilities (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.ObjectPool (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Options (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Net.Http.Headers (>= 2.2) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.Http.Abstractions (2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Http.Features (>= 2.2) - restriction: >= netstandard2.0
+      System.Text.Encodings.Web (>= 4.5) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.Http.Extensions (2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Http.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.FileProviders.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Net.Http.Headers (>= 2.2) - restriction: >= netstandard2.0
+      System.Buffers (>= 4.5) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.Http.Features (2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Primitives (>= 2.2) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.Server.Kestrel (2.2)
+      Microsoft.AspNetCore.Hosting (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Server.Kestrel.Core (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Server.Kestrel.Https (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets (>= 2.2) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.Server.Kestrel.Core (2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Hosting.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Http (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.WebUtilities (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Configuration.Binder (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Logging.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Options (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Net.Http.Headers (>= 2.2) - restriction: >= netstandard2.0
+      System.Memory (>= 4.5.1) - restriction: >= netstandard2.0
+      System.Numerics.Vectors (>= 4.5) - restriction: >= netstandard2.0
+      System.Runtime.CompilerServices.Unsafe (>= 4.5.1) - restriction: >= netstandard2.0
+      System.Security.Cryptography.Cng (>= 4.5) - restriction: >= netstandard2.0
+      System.Threading.Tasks.Extensions (>= 4.5.1) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.Server.Kestrel.Https (2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Http.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Server.Kestrel.Core (>= 2.2) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions (2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Connections.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets (2.2.1) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Hosting.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Options (>= 2.2) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.StaticFiles (2.2)
+      Microsoft.AspNetCore.Hosting.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.AspNetCore.Http.Extensions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.FileProviders.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Logging.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.WebEncoders (>= 2.2) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.WebSockets (2.2.1)
+      Microsoft.AspNetCore.Http.Extensions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Logging.Abstractions (>= 2.2) - restriction: >= netstandard2.0
+      Microsoft.Extensions.Options (>= 2.2) - restriction: >= netstandard2.0
+      System.Net.WebSockets.WebSocketProtocol (>= 4.5.3) - restriction: >= netstandard2.0
+    Microsoft.AspNetCore.WebUtilities (2.2) - restriction: >= netstandard2.0
+      Microsoft.Net.Http.Headers (>= 2.2) - restriction: >= netstandard2.0
+      System.Text.Encodings.Web (>= 4.5) - restriction: >= netstandard2.0
+>>>>>>> huh
+>>>>>>> Hot reload with docsSrc files changed:Content/Library/paket.lock
     Microsoft.Build (16.0.461) - restriction: || (>= net462) (>= netstandard2.0)
       Microsoft.Build.Framework (>= 16.0.461) - restriction: || (>= net472) (>= netcoreapp2.1)
       Microsoft.VisualStudio.Setup.Configuration.Interop (>= 1.16.30) - restriction: >= net472
@@ -1198,6 +1335,26 @@ NUGET
       System.Runtime.Handles (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
     System.Numerics.Vectors (4.5) - restriction: || (&& (< monoandroid) (< net45) (< netcoreapp2.0) (>= netstandard2.0) (< xamarinios) (< xamarinmac)) (&& (< net45) (>= net462) (>= netstandard2.0)) (&& (< net46) (>= net461) (>= netstandard2.0)) (&& (< net46) (>= net462) (>= netstandard2.0)) (&& (>= net461) (>= netcoreapp2.0)) (&& (>= net462) (>= netcoreapp2.0)) (&& (>= net462) (>= uap10.1)) (&& (>= netstandard2.0) (>= uap10.1))
     System.ObjectModel (4.3) - restriction: || (&& (< monoandroid) (< net45) (< netstandard1.3) (>= netstandard2.0) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (>= netstandard2.0) (< win8) (< wpa81) (< xamarinios) (< xamarinmac))
+<<<<<<< HEAD:Content/Console/paket.lock
+=======
+=======
+    System.Net.Sockets (4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.6) (< netstandard2.0) (< win8) (< wpa81) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.3) (< netstandard1.4) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (>= netstandard1.4) (< netstandard1.5) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (>= netstandard1.5) (< netstandard1.6) (< win8) (< wpa81)) (&& (< net45) (>= net46) (< netstandard1.4)) (&& (< netstandard1.5) (>= uap10.0) (< win8) (< wpa81))
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: && (< monoandroid) (< monotouch) (< net46) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
+      Microsoft.NETCore.Targets (>= 1.1) - restriction: && (< monoandroid) (< monotouch) (< net46) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
+      System.IO (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net46) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
+      System.Net.Primitives (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net46) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
+      System.Runtime (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net46) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
+      System.Threading.Tasks (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net46) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
+    System.Net.WebSockets.WebSocketProtocol (4.5.3) - restriction: >= netstandard2.0
+      System.Buffers (>= 4.4) - restriction: || (&& (>= monoandroid) (< netstandard2.0)) (>= monotouch) (&& (< netcoreapp2.0) (>= netstandard2.0)) (>= xamarinios) (>= xamarinmac) (>= xamarintvos) (>= xamarinwatchos)
+      System.Memory (>= 4.5.1) - restriction: || (&& (>= monoandroid) (< netstandard2.0)) (>= monotouch) (&& (>= netcoreapp2.0) (< netcoreapp2.1)) (&& (< netcoreapp2.0) (>= netstandard2.0)) (>= uap10.1) (>= xamarinios) (>= xamarinmac) (>= xamarintvos) (>= xamarinwatchos)
+      System.Numerics.Vectors (>= 4.4) - restriction: && (< netcoreapp2.0) (>= netstandard2.0) (< xamarinios) (< xamarinmac)
+      System.Runtime.CompilerServices.Unsafe (>= 4.5.2) - restriction: || (&& (>= monoandroid) (< netstandard2.0)) (>= monotouch) (&& (>= netcoreapp2.0) (< netcoreapp2.1)) (&& (< netcoreapp2.0) (>= netstandard2.0)) (>= uap10.1) (>= xamarinios) (>= xamarinmac) (>= xamarintvos) (>= xamarinwatchos)
+      System.Threading.Tasks.Extensions (>= 4.5.1) - restriction: || (&& (>= netcoreapp2.0) (< netcoreapp2.1)) (&& (< netcoreapp2.0) (>= netstandard2.0) (< xamarinios) (< xamarinmac)) (>= uap10.1)
+    System.Numerics.Vectors (4.5) - restriction: >= netstandard2.0
+    System.ObjectModel (4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.6) (< netstandard2.0) (< win8) (< wpa81) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.1) (< netstandard1.2) (< win8)) (&& (< monoandroid) (< net45) (>= netstandard1.2) (< netstandard1.3) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (< netstandard1.2) (>= netstandard1.6) (< win8)) (&& (< monoandroid) (< net45) (>= netstandard1.3) (< netstandard1.4) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (< netstandard1.3) (>= netstandard1.6) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (< netstandard1.3) (>= netstandard2.0) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (>= netstandard1.4) (< netstandard1.5) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (< netstandard1.4) (>= netstandard1.6) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (>= netstandard1.5) (< netstandard1.6) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (< netstandard1.5) (>= netstandard1.6) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (>= netstandard2.0) (< win8) (< wpa81) (< xamarinios) (< xamarinmac)) (&& (>= netstandard1.0) (< portable-net45+win8+wpa81) (< wp8)) (&& (< netstandard1.5) (>= uap10.0) (< win8) (< wpa81)) (&& (>= netstandard1.6) (< portable-net45+win8+wpa81))
+>>>>>>> huh
+>>>>>>> Hot reload with docsSrc files changed:Content/Library/paket.lock
       System.Collections (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
       System.Diagnostics.Debug (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
       System.Resources.ResourceManager (>= 4.3) - restriction: && (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
