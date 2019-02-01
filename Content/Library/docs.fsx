@@ -7,6 +7,7 @@ open Fable.Import.React
 #load "./docsSrc/templates/modules.fsx"
 #load "./docsSrc/templates/namespaces.fsx"
 #load "./docsSrc/templates/types.fsx"
+#load "./docsSrc/templates/nav.fsx"
 #if !FAKE
 #r "Facades/netstandard"
 #r "netstandard"
@@ -40,84 +41,6 @@ let render html =
         RawText "\n"
         html ]
     |> Fable.Helpers.ReactServer.renderToString
-
-
-
-let generateNav (gitRepoName) =
-
-    let  navItem text link =
-        li [
-            Class "nav-item"
-        ] [
-            a [
-                Class "nav-link"
-                Href link
-            ] [
-                span [] [str text]
-            ]
-
-        ]
-
-    let navDropDownItem text href =
-        a [
-            Class "dropdown-item"
-            Href href
-        ] [
-            str text
-        ]
-    let navDropDown text items =
-        li [
-            Class "nav-item dropdown"
-        ] [
-            a [
-                Class "nav-link dropdown-toggle"
-                Id (sprintf "navbarDropdown-%s"  text)
-                Role "button"
-                DataToggle "dropdown"
-                HTMLAttr.Custom ("aria-haspopup", "true")
-                HTMLAttr.Custom ("aria-expanded", "false")
-            ] [str text]
-            div [
-                Class "dropdown-menu"
-                HTMLAttr.Custom ("aria-labelledby", (sprintf "navbarDropdown-%s"  text))
-            ] items
-
-        ]
-
-    nav [
-        Class "navbar navbar-expand-lg sticky-top navbar-dark bg-dark"
-    ] [
-        a [
-            Class "navbar-brand"
-            Href "/index.html"
-        ] [str (gitRepoName)]
-        button [
-            Class "navbar-toggler"
-            Type "button"
-            DataToggle "collapse"
-            HTMLAttr.Custom("data-target","#navbarNav" )
-            HTMLAttr.Custom("aria-controls","navbarNav" )
-            HTMLAttr.Custom("aria-expanded","false" )
-            HTMLAttr.Custom("aria-label","Toggle navigation" )
-        ] [
-            span [Class "navbar-toggler-icon"] []
-        ]
-        div [
-            Class "collapse navbar-collapse"
-            Id "navbarNav"
-        ] [
-            ul [
-                Class "navbar-nav"
-            ] [
-                navItem "Getting Started" "/Getting_Started.html"
-                navDropDown "Docs" [
-                    navDropDownItem "Docs" "/docs/Docs.html"
-                ]
-                navItem "Api" "/api/index.html"
-            ]
-        ]
-
-    ]
 
 
 
@@ -182,7 +105,7 @@ let generateAPI gitRepoName (dllGlob : IGlobbingPattern) =
     // printfn "%A" generatorOutput
     // generatorOutput.AssemblyGroup.Namespaces
     let fi = FileInfo <| docsApiDir @@ "index.html"
-    let nav = (generateNav gitRepoName)
+    let nav = (Nav.generateNav gitRepoName)
     [Namespaces.generateNamespaceDocs generatorOutput.AssemblyGroup generatorOutput.Properties]
     |> renderWithMasterAndWrite fi nav "apiDocs"
     generatorOutput.ModuleInfos
@@ -230,7 +153,7 @@ let generateDocs githubRepoName =
             Formatting.format doc.MarkdownDocument true OutputKind.Html
             + doc.FormattedTips
 
-    let relativePaths = generateNav githubRepoName
+    let relativePaths = Nav.generateNav githubRepoName
 
 
     !! docsSrcGlob
