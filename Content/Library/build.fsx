@@ -52,6 +52,8 @@ let srcAndTest =
     !! srcGlob
     ++ testsGlob
 
+let srcBinGlob = __SOURCE_DIRECTORY__ @@ "src/MyLib.1/bin/**/netstandard2.0/MyLib.*.dll"
+
 let distDir = __SOURCE_DIRECTORY__  @@ "dist"
 let distGlob = distDir @@ "*.nupkg"
 let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
@@ -373,15 +375,19 @@ Target.create "Release" ignore
 
 Target.create "GenerateDocs" <| fun _ ->
     Docs.generateDocs gitRepoName
+    Docs.generateAPI gitRepoName (!! srcBinGlob)
 
 Target.create "ServeDocs" <| fun _ ->
     Docs.serveDocs ()
 
+<<<<<<< HEAD
 //-----------------------------------------------------------------------------
 // Target Dependencies
 //-----------------------------------------------------------------------------
 =======
 
+=======
+>>>>>>> Generate API Documentation
 
 // Only call Clean if DotnetPack was in the call chain
 // Ensure Clean is called before DotnetRestore
@@ -393,6 +399,9 @@ Target.create "ServeDocs" <| fun _ ->
 "DotnetRestore" ?=> "GenerateAssemblyInfo"
 "GenerateAssemblyInfo" ?=> "DotnetBuild"
 "GenerateAssemblyInfo" ==> "PublishToNuget"
+
+"DotnetBuild"
+==> "GenerateDocs"
 
 "GenerateDocs"
   ==> "ServeDocs"
