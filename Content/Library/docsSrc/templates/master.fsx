@@ -13,10 +13,9 @@ let masterTemplate gitRepoName navBar titletext bodyText =
         head [] [
             title [] [ str (sprintf "%s docs / %s" gitRepoName titletext) ]
             link [
-                Href "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-                Type "text/css"
+                Href "https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
                 Rel "stylesheet"
-                Integrity "sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+                Integrity "sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
                 CrossOrigin "anonymous"
             ]
             link [
@@ -30,18 +29,18 @@ let masterTemplate gitRepoName navBar titletext bodyText =
             yield navBar
             yield! bodyText
             yield script [
-                Src "https://code.jquery.com/jquery-3.2.1.slim.min.js"
-                Integrity "sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+                Src "https://code.jquery.com/jquery-3.3.1.slim.min.js"
+                Integrity "sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
                 CrossOrigin "anonymous"
                 ] []
             yield script [
-                Src "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-                Integrity "sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+                Src "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+                Integrity "sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
                 CrossOrigin "anonymous"
                 ] []
             yield script [
-                Src "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-                Integrity "sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+                Src "https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+                Integrity "sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
                 CrossOrigin "anonymous"
                 ] []
             yield script [Src "/content/tips.js" ] []
