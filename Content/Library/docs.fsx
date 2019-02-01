@@ -35,6 +35,11 @@ let docsApiDir = docsDir @@ "api"
 let docsSrcDir = __SOURCE_DIRECTORY__ @@ "docsSrc"
 let docsSrcGlob = docsSrcDir @@ "**/*.fsx"
 
+
+let docsFileGlob =
+    !! docsSrcGlob
+    -- (docsSrcDir @@ "templates/*") // Don't want to generate from html templates
+
 let render html =
     fragment [] [
         RawText "<!doctype html>"
@@ -130,7 +135,7 @@ let copyAssets () =
 
 
 
-let generateDocs githubRepoName =
+let generateDocs (docSourcePaths : IGlobbingPattern) githubRepoName =
     // This finds the current fsharp.core version of your solution to use for fsharp.literate
     let fsharpCoreDir = locateDLL "FSharp.Core" "netstandard1.6"
 
@@ -138,6 +143,7 @@ let generateDocs githubRepoName =
         let doc =
             let fsharpCoreDir = sprintf "-I:%s" fsharpCoreDir
             let systemRuntime = "-r:System.Runtime"
+            //TODO: possibly make a global so we don't have the spinup cost everytime we call
             Literate.ParseScriptString(
                 source,
                 path = fileName,
@@ -156,8 +162,7 @@ let generateDocs githubRepoName =
     let relativePaths = Nav.generateNav githubRepoName
 
 
-    !! docsSrcGlob
-    -- (docsSrcDir @@ "templates/*")
+    docSourcePaths
     |> Seq.iter(fun filePath ->
         Fake.Core.Trace.tracefn "Rendering %s" filePath
         let file = IO.File.ReadAllText filePath
@@ -184,6 +189,13 @@ let generateDocs githubRepoName =
 
     copyAssets()
 
+
+let watchDocs githubRepoName =
+    docsFileGlob
+    |> ChangeWatcher.run (fun changes ->
+        changes
+        |> Seq.iter (fun m -> generateDocs (!! m.FullPath) githubRepoName)
+    )
 
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
