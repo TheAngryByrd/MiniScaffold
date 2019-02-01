@@ -150,7 +150,6 @@ let generateDocs (docSourcePaths : IGlobbingPattern) githubRepoName =
         let doc =
             let fsharpCoreDir = sprintf "-I:%s" fsharpCoreDir
             let systemRuntime = "-r:System.Runtime"
-            //TODO: possibly make a global so we don't have the spinup cost everytime we call
             Literate.ParseScriptString(
                 source,
                 path = fileName,
