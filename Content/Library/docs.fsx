@@ -196,15 +196,27 @@ let generateDocs (docSourcePaths : IGlobbingPattern) githubRepoName =
     copyAssets()
 
 
-let watchDocs githubRepoName =
-    docsFileGlob
-    |> ChangeWatcher.run (fun changes ->
-        changes
-        |> Seq.iter (fun m ->
-            generateDocs (!! m.FullPath) githubRepoName
-            refereshWebpageEvent.Trigger m.FullPath
+let watchDocs githubRepoName (dllGlob : IGlobbingPattern) (startWatchBuild : unit -> unit) =
+    let d1 =
+        docsFileGlob
+        |> ChangeWatcher.run (fun changes ->
+            changes
+            |> Seq.iter (fun m ->
+                generateDocs (!! m.FullPath) githubRepoName
+                refereshWebpageEvent.Trigger m.FullPath
+            )
         )
-    )
+    startWatchBuild ()
+    let d2 =
+        dllGlob
+        |> ChangeWatcher.run(fun changes ->
+            changes
+            |> Seq.iter(fun c -> Trace.logf "Regenerating API docs due to %s" c.FullPath )
+            generateAPI githubRepoName dllGlob
+            refereshWebpageEvent.Trigger "Api"
+        )
+    d1, d2
+
 
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting

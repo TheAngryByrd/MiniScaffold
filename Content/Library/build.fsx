@@ -377,8 +377,21 @@ Target.create "GenerateDocs" <| fun _ ->
     Docs.generateDocs Docs.docsFileGlob gitRepoName
     Docs.generateAPI gitRepoName (!! srcBinGlob)
 
+let watchBuild () =
+    !! srcGlob
+    |> Seq.map(fun proj -> fun () ->
+        dotnet.watch
+            (fun opt ->
+                opt |> DotNet.Options.withWorkingDirectory (IO.Path.GetDirectoryName proj))
+            "build"
+            ""
+        |> ignore
+    )
+    |> Seq.iter (invokeAsync >> Async.Catch >> Async.Ignore >> Async.Start)
+
 Target.create "ServeDocs" <| fun _ ->
-    use d = Docs.watchDocs gitRepoName
+    let d1,d2 = Docs.watchDocs gitRepoName (!! srcBinGlob) watchBuild
+    use d2 = d2
     Docs.serveDocs ()
 
 <<<<<<< HEAD
