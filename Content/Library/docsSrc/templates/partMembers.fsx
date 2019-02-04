@@ -23,20 +23,19 @@ let partMembers (header : string) (tableHeader : string) (members : #seq<Member>
         ]
 
         yield table [
-            Class "table table-bordered member-list"
+            Class "table"
         ] [
             thead [] [
                 tr [] [
-                    td [] [
+                    th [] [
                         str tableHeader
                     ]
 
-                    td [] [
+                    th [] [
                         str "Description"
                     ]
                 ]
             ]
-
             tbody [] [
                 for it in members do
                     let id = Guid.NewGuid().ToString()

@@ -64,9 +64,13 @@ let generateNamespaceDocs (asm : AssemblyGroup) (props) =
             ]
         )
         |> Seq.collect id
-    div [] [
-        yield h1 [] [
-            str asm.Name
+    div [ Class "container-fluid py-3" ] [
+        div [ Class "row" ] [
+            div [ Class "col-12" ] [
+                yield h1 [] [
+                    str asm.Name
+                ]
+                yield! parts
+            ]
         ]
-        yield! parts
     ]

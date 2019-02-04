@@ -12,13 +12,13 @@ open FSharp.MetadataFormat
 let partNested (types : Type array) (modules : Module array) =
     [
         if types.Length > 0 then
-            yield table [] [
-                thead [Class "table table-bordered type-list"] [
+            yield table [ Class "table" ] [
+                thead [] [
                     tr [] [
-                        td [] [
+                        th [] [
                             str "Type"
                         ]
-                        td [] [
+                        th [] [
                             str "Description"
                         ]
                     ]
@@ -48,13 +48,13 @@ let partNested (types : Type array) (modules : Module array) =
                 ]
             ]
         if modules.Length > 0 then
-            yield table [] [
-                thead [Class "table table-bordered type-list"] [
+            yield table [ Class "table" ] [
+                thead [] [
                     tr [] [
-                        td [] [
+                        th [] [
                             str "Module"
                         ]
-                        td [] [
+                        th [] [
                             str "Description"
                         ]
                     ]
