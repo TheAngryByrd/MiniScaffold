@@ -16,6 +16,111 @@ type ModuleByCategory = {
     Name : string
 }
 
+let tooltip (m: Member) (dataId: string) =
+    div [
+        Class "tip"
+        Id dataId
+    ] [
+        yield strong [] [
+            str "Signature:"
+        ]
+
+        yield str m.Details.Signature
+
+        yield br []
+
+        if m.Details.Modifiers |> Seq.isEmpty then
+            yield strong [] [
+                str "Modifiers:"
+            ]
+
+            yield str m.Details.FormatModifiers
+
+            yield br []
+
+        if m.Details.TypeArguments |> Seq.isEmpty then
+            yield strong [] [
+                str "Type parameters:"
+            ]
+
+            yield str m.Details.FormatTypeArguments
+
+        if m.Attributes |> Seq.isEmpty |> not then
+            yield span [] [
+                yield strong [] [
+                    str "Attributes:"
+                ]
+
+                yield br []
+
+                for attr in m.Attributes do
+                    yield str (attr.Format())
+
+                    yield br []
+            ]
+    ]
+
+let obsoleteMessage (m: Member) = seq {
+    if m.IsObsolete then
+        yield div [
+            Class "alert alert-warning"
+        ] [
+            strong [] [
+                str "WARNING:"
+            ]
+
+            str "This API is obsolete"
+
+            p [] [
+                str m.ObsoleteMessage
+            ]
+        ]
+    }
+
+let repoSourceLink (m: Member) = seq {
+    if m.Details.FormatSourceLocation |> String.IsNullOrEmpty |> not then
+        yield a [
+            Href m.Details.FormatSourceLocation
+            Class "github-link"
+        ] [
+            yield img [
+                Src "../content/img/github.png"
+                Class "github-link"
+            ]
+
+            yield img [
+                Src "../content/img/github-blue.png"
+                Class "normal"
+            ]
+        ]
+}
+
+
+let commentBlock (c: Comment) =
+    let (|EmptyDefaultBlock|NonEmptyDefaultBlock|Section|) (KeyValue(section, content)) =
+        match section, content with
+        | "<default>", c when String.IsNullOrEmpty c -> EmptyDefaultBlock
+        | "<default>", c -> NonEmptyDefaultBlock c
+        | section, content -> Section (section, content)
+
+    let renderSection s: Fable.Import.React.ReactElement list =
+        match s with
+        | EmptyDefaultBlock -> []
+        | NonEmptyDefaultBlock content -> [ div [ Class "comment-block" ] [ RawText content ] ]
+        | Section(name, content) -> [ h2 [] [ str name ]
+                                      RawText content ]
+
+    c.Sections
+    |> List.collect renderSection
+
+let compiledName (m: Member) = seq {
+    if m.Details.FormatCompiledName |> String.IsNullOrEmpty |> not then
+        yield p [] [
+            strong [] [ str "CompiledName:" ]
+            code [] [ str m.Details.FormatCompiledName ]
+        ]
+}
+
 let partMembers (header : string) (tableHeader : string) (members : #seq<Member>) = [
     if members |> Seq.length > 0 then
         yield h3 [] [
@@ -49,96 +154,17 @@ let partMembers (header : string) (tableHeader : string) (members : #seq<Member>
                             ] [
                                 str (it.Details.FormatUsage(40))
                             ]
-
-                            div [
-                                Class "tip"
-                                Id id
-                            ] [
-                                yield strong [] [
-                                    str "Signature:"
-                                ]
-
-                                yield str it.Details.Signature
-
-                                yield br []
-
-                                if it.Details.Modifiers |> Seq.isEmpty then
-                                    yield strong [] [
-                                        str "Modifiers:"
-                                    ]
-
-                                    yield str it.Details.FormatModifiers
-
-                                    yield br []
-
-                                if it.Details.TypeArguments |> Seq.isEmpty then
-                                    yield strong [] [
-                                        str "Type parameters:"
-                                    ]
-
-                                    yield str it.Details.FormatTypeArguments
-
-                                if it.Attributes |> Seq.isEmpty |> not then
-                                    yield span [] [
-                                        yield strong [] [
-                                            str "Attributes:"
-                                        ]
-
-                                        yield br []
-
-                                        for attr in it.Attributes do
-                                            yield str (attr.Format())
-
-                                            yield br []
-                                    ]
-                            ]
-
+                            tooltip it id
                         ]
 
                         td [
                             Class "xmldoc"
                         ] [
-                            if it.IsObsolete then
-                                yield div [
-                                    Class "alert alert-warning"
-                                ] [
-                                    strong [] [
-                                        str "WARNING:"
-                                    ]
-
-                                    str "This API is obsolete"
-
-                                    p [] [
-                                        str it.ObsoleteMessage
-                                    ]
-                                ]
-
-                            if it.Details.FormatSourceLocation |> String.IsNullOrEmpty |> not then
-                                yield a [
-                                    Href it.Details.FormatSourceLocation
-                                    Class "github-link"
-                                ] [
-                                    yield img [
-                                        Src "../content/img/github.png"
-                                        Class "github-link"
-                                    ]
-
-                                    yield img [
-                                        Src "../content/img/github-blue.png"
-                                        Class "normal"
-                                    ]
-
-                                    yield RawText it.Comment.FullText
-
-                                    if it.Details.FormatCompiledName |> String.IsNullOrEmpty |> not then
-                                        yield p [] [
-                                            str "CompiledName: "
-
-                                            code [] [
-                                                str it.Details.FormatCompiledName
-                                            ]
-                                        ]
-                                ]
+                            yield! obsoleteMessage it
+                            yield! repoSourceLink it
+                            // printfn "%s:\n%A" it.Name it.Comment
+                            yield! commentBlock it.Comment
+                            yield! compiledName it
                         ]
                     ]
             ]
