@@ -32,16 +32,16 @@ module Say =
             (person.DateOfBirth.ToString("o"))
             person.FavoriteNumber
 
-    /// ## Description
+    /// #### Description
     /// I do nothing, ever.
     ///
-    /// ## Parameters
+    /// #### Parameters
     ///   * `name` - parameter of type `'a`
     ///
-    /// ## Output Type
+    /// #### Output Type
     ///   * `unit`
     ///
-    /// ## Exceptions
+    /// #### Exceptions
     /// None
     let nothing name =
         name |> ignore
