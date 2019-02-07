@@ -107,7 +107,7 @@ let commentBlock (c: Comment) =
         match s with
         | EmptyDefaultBlock -> []
         | NonEmptyDefaultBlock content -> [ div [ Class "comment-block" ] [ RawText content ] ]
-        | Section(name, content) -> [ h2 [] [ str name ]
+        | Section(name, content) -> [ h5 [] [ str name ] // h2 is obnoxiously large for this context, go with the smaller h5
                                       RawText content ]
 
     c.Sections
