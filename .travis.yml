@@ -2,21 +2,15 @@ language: csharp
 sudo: required
 dist: trusty
 
-dotnet: 2.1.401
+dotnet: 2.2.103
 mono:
-  - 5.12.0
-  - 5.14.0
+  - 5.18.0
   - latest # => "stable release"
   - alpha
   - beta
   - weekly # => "latest commits"
 os:
   - linux
-
-# addons:
-#   apt:
-#     packages:
-#     - dotnet-sharedframework-microsoft.netcore.app-1.1.2
 
 script:
   - ./build.sh
