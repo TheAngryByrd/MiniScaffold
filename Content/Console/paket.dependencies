@@ -1,6 +1,5 @@
 source https://www.nuget.org/api/v2
 source https://api.nuget.org/v3/index.json
-framework: netcoreapp2.1
 storage: none
 clitool dotnet-mono 0.5.2
 clitool dotnet-fantomas 2.8.0
