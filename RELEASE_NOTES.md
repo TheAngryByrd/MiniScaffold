@@ -1,3 +1,7 @@
+### 0.14.0-beta001 - 2019-01-18
+* MINOR: Use Directory.build.props for nuget metadata (https://github.com/TheAngryByrd/MiniScaffold/pull/118)
+* FEATURE: Update CI dotnet versions and TargetFrameworks to latest (https://github.com/TheAngryByrd/MiniScaffold/pull/119)
+
 ### 0.13.0 - 2019-01-09
 * FEATURE: Improved github issue templates (https://github.com/TheAngryByrd/MiniScaffold/pull/115)
 * FEATURE: Paket as a dotnet tool (https://github.com/TheAngryByrd/MiniScaffold/pull/114)
