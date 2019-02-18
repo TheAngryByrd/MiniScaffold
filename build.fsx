@@ -29,7 +29,7 @@ let distGlob = distDir @@ "*.nupkg"
 let gitOwner = "TheAngryByrd"
 let gitRepoName = "MiniScaffold"
 
-
+let isCI =  Environment.environVarAsBool "CI"
 
 let failOnBadExitAndPrint (p : ProcessResult) =
     if p.ExitCode <> 0 then
@@ -209,7 +209,8 @@ Target.create "Release" ignore
 "Clean"
   ==> "DotnetRestore"
   ==> "DotnetPack"
-  ==> "IntegrationTests"
+//https://github.com/dotnet/templating/issues/1736#issuecomment-464847242
+  =?> ("IntegrationTests", isCI)
   ==> "Publish"
   ==> "GitRelease"
   ==> "GithubRelease"
