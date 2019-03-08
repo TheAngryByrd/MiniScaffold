@@ -4,7 +4,8 @@ storage: none
 clitool dotnet-fantomas 2.9.2
 clitool dotnet-reportgenerator-cli 4.0.15
 nuget FSharp.Core 4.5.4
-nuget Expecto 8.7.0
+nuget Argu ~> 5
+nuget Expecto 8.9.1
 nuget YoloDev.Expecto.TestSdk 0.7.0
 nuget Microsoft.NET.Test.Sdk 15.7.2
 nuget altcover 4.0.603
