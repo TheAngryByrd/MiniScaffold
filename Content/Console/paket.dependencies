@@ -9,7 +9,7 @@ nuget Expecto 8.9.1
 nuget YoloDev.Expecto.TestSdk 0.7.0
 nuget Microsoft.NET.Test.Sdk 15.7.2
 nuget altcover 5.1.666
-nuget Packaging.Targets 0.1.45
+nuget Packaging.Targets 0.1.56
 
 // [ FAKE GROUP ]
 group Build
