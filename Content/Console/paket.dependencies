@@ -1,9 +1,9 @@
 source https://www.nuget.org/api/v2
 source https://api.nuget.org/v3/index.json
 storage: none
-clitool dotnet-fantomas 2.8.0
+clitool dotnet-fantomas 2.9.2
 clitool dotnet-reportgenerator-cli 4.0.0-rc4
-nuget FSharp.Core 4.3.4
+nuget FSharp.Core 4.5.4
 nuget Expecto 8.7.0
 nuget YoloDev.Expecto.TestSdk 0.7.0
 nuget Microsoft.NET.Test.Sdk 15.7.2
