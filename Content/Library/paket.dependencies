@@ -10,7 +10,7 @@ nuget Expecto 8.9.1
 nuget SourceLink.Create.CommandLine 2.8.1 copy_local: true
 nuget YoloDev.Expecto.TestSdk 0.7.0
 nuget Microsoft.NET.Test.Sdk 15.7.2
-nuget altcover 4.0.603
+nuget altcover ~> 5
 
 // [ FAKE GROUP ]
 group Build
