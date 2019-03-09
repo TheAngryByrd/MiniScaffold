@@ -54,7 +54,7 @@ NUGET
       System.Runtime.Loader (>= 4.0) - restriction: && (< net45) (>= netstandard2.0)
       System.Security.Cryptography.Algorithms (>= 4.3) - restriction: && (< net45) (>= netstandard2.0)
       System.ValueTuple (>= 4.3.1) - restriction: >= net45
-    FSharp.Core (4.3.4)
+    FSharp.Core (4.5.4)
       System.Collections (>= 4.0.11) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
       System.Console (>= 4.0) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
       System.Diagnostics.Debug (>= 4.0.11) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
