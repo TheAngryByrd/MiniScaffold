@@ -261,7 +261,7 @@ let runtimes = [
 
 Target.create "CreatePackages" <| fun _ ->
 
-    let targetFramework =  "netcoreapp2.1"
+    let targetFramework =  "netcoreapp2.2"
     runtimes
     |> Seq.iter(fun (runtime, packageType) ->
         let args =
