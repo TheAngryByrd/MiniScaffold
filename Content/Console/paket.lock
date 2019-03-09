@@ -219,7 +219,7 @@ NUGET
       System.Runtime.Serialization.Formatters (>= 4.3) - restriction: && (< net20) (>= netstandard1.3) (< netstandard2.0)
       System.Runtime.Serialization.Primitives (>= 4.3) - restriction: || (&& (< net20) (>= netstandard1.0) (< netstandard1.3)) (&& (< net20) (>= netstandard1.3) (< netstandard2.0))
       System.Xml.XmlDocument (>= 4.3) - restriction: && (< net20) (>= netstandard1.3) (< netstandard2.0)
-    Packaging.Targets (0.1.45)
+    Packaging.Targets (0.1.56)
       NETStandard.Library (>= 1.6.1) - restriction: && (>= netstandard1.5) (< netstandard2.0)
       System.Globalization.Extensions (>= 4.3) - restriction: && (>= netstandard1.5) (< netstandard2.0)
       System.Runtime.InteropServices (>= 4.3) - restriction: && (>= netstandard1.5) (< netstandard2.0)
