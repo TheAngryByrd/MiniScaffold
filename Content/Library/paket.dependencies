@@ -5,7 +5,7 @@ clitool dotnet-mono 0.5.2
 clitool dotnet-sourcelink 2.8.1
 clitool dotnet-fantomas 2.8.0
 clitool dotnet-reportgenerator-cli ~> 4
-nuget FSharp.Core 4.5.4
+nuget FSharp.Core 4.3.4
 nuget Expecto 8.9.1
 nuget SourceLink.Create.CommandLine 2.8.1 copy_local: true
 nuget YoloDev.Expecto.TestSdk 0.7.0
