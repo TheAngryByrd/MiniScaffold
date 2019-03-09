@@ -8,7 +8,7 @@ nuget Argu ~> 5
 nuget Expecto 8.9.1
 nuget YoloDev.Expecto.TestSdk 0.7.0
 nuget Microsoft.NET.Test.Sdk 15.7.2
-nuget altcover 5.1.666
+nuget  altcover 4.0.603
 nuget Packaging.Targets 0.1.56
 
 // [ FAKE GROUP ]
