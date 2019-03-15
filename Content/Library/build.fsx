@@ -242,23 +242,21 @@ Target.create "AssemblyInfo" <| fun _ ->
 
 
 Target.create "DotnetPack" <| fun ctx ->
-    !! srcGlob
-    |> Seq.iter (fun proj ->
-        let args =
-            [
-                sprintf "/p:PackageVersion=%s" release.NugetVersion
-                sprintf "/p:PackageReleaseNotes=\"%s\"" (release.Notes |> String.concat "\n")
-                sprintf "/p:SourceLinkCreate=%b" (isRelease (ctx.Context.AllExecutingTargets))
-            ] |> String.concat " "
-        DotNet.pack (fun c ->
-            { c with
-                Configuration = configuration (ctx.Context.AllExecutingTargets)
-                OutputPath = Some distDir
-                Common =
-                    c.Common
-                    |> DotNet.Options.withCustomParams (Some args)
-            }) proj
-    )
+    let args =
+        [
+            sprintf "/p:PackageVersion=%s" release.NugetVersion
+            sprintf "/p:PackageReleaseNotes=\"%s\"" (release.Notes |> String.concat "\n")
+            sprintf "/p:SourceLinkCreate=%b" (isRelease (ctx.Context.AllExecutingTargets))
+        ] |> String.concat " "
+    DotNet.pack (fun c ->
+        { c with
+            Configuration = configuration (ctx.Context.AllExecutingTargets)
+            OutputPath = Some distDir
+            Common =
+                c.Common
+                |> DotNet.Options.withCustomParams (Some args)
+        }) sln
+
 
 
 Target.create "SourcelinkTest" <| fun _ ->
