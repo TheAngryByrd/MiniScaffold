@@ -1,3 +1,6 @@
+### 0.14.1 - 2019-04-09
+* MAINTENANCE: Bump most dependencies (https://github.com/TheAngryByrd/MiniScaffold/pull/122)
+
 ### 0.14.0 - 2019-01-18
 * MINOR: Use Directory.build.props for nuget metadata (https://github.com/TheAngryByrd/MiniScaffold/pull/118)
 * FEATURE: Update CI dotnet versions and TargetFrameworks to latest (https://github.com/TheAngryByrd/MiniScaffold/pull/119)
