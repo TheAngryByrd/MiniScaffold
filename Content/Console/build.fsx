@@ -140,13 +140,17 @@ let invokeAsync f = async { f () }
 let coverageThresholdPercent = 1
 
 Target.create "DotnetTest" <| fun ctx ->
+    let excludeCoverage =
+        !! testsGlob
+        |> Seq.map IO.Path.GetFileNameWithoutExtension
+        |> String.concat "|"
     DotNet.test(fun c ->
         let args =
             [
                 "--no-build"
                 "/p:AltCover=true"
                 sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
-                sprintf "/p:AltCoverAssemblyExcludeFilter=%s" (IO.Path.GetFileNameWithoutExtension(proj))
+                sprintf "/p:AltCoverAssemblyExcludeFilter=%s" excludeCoverage
             ] |> String.concat " "
         { c with
             Configuration = configuration (ctx.Context.AllExecutingTargets)
