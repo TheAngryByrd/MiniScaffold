@@ -1,6 +1,10 @@
 source https://www.nuget.org/api/v2
 
 
+nuget Expecto
+nuget YoloDev.Expecto.TestSdk
+nuget Microsoft.NET.Test.Sdk 15.7.2
+
 // [ FAKE GROUP ]
 group Build
   source https://www.nuget.org/api/v2
