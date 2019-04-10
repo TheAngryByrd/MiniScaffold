@@ -45,11 +45,3 @@ module Disposables =
         interface IDisposable with
             member x.Dispose() =
                 IO.Directory.Delete(x.Directory, true)
-
-    // type DisposeablePushd (directory : string) =
-    //     do Shell.pushd directory
-    //     member x.Directory = directory
-    //     member x.DirectoryInfo = IO.DirectoryInfo(directory)
-    //     interface IDisposable with
-    //         member x.Dispose() =
-    //             Shell.popd()

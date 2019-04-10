@@ -6,37 +6,28 @@ open Fake.SystemHelper
 module Tests =
     open System
     open Fake.Core
+    open Fake.DotNet
     open Expecto
     open Infrastructure
-    open Fake.IO.FileSystemOperators
     let executeBuild workingDir testTarget =
         let cmd, args =
             if Environment.isUnix then
-                "bash", [sprintf "./build.sh %s" testTarget]
+                "bash", [
+                    sprintf "./build.sh"
+                    testTarget
+                ]
             else
-                ".\\build.cmd", [testTarget]
+                ".\\build.cmd", [
+                    testTarget
+                ]
 
         CreateProcess.fromRawCommand cmd args
         |> CreateProcess.withWorkingDirectory workingDir
         |> CreateProcess.ensureExitCode
-        |> fun x -> printfn "%A" x ; x
+        |> CreateProcess.redirectOutput
         |> Proc.run
         |> ignore
-        // Process.execSimple (fun psi ->
-        //         let psi = psi.WithWorkingDirectory(workingDir)
-        //         let psi =
-        //             if Environment.isUnix then
-        //                 psi
-        //                     .WithFileName("bash")
-        //                     .WithArguments(sprintf "./build.sh %s" testTarget)
-        //             else
-        //                 psi
-        //                     .WithFileName(IO.Directory.GetCurrentDirectory() @@ "build.cmd")
-        //                     .WithArguments(sprintf "%s" testTarget)
-        //         psi
-        //         ) (TimeSpan.FromMinutes(5.))
-        // |> fun exitCode ->
-        //     if exitCode <> 0 then failwithf "Intregration test failed with params %s" testTarget
+
     [<Tests>]
     let tests =
         testList "samples" [
@@ -47,11 +38,11 @@ module Tests =
                 "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console", "CreatePackages"
 
             ] |> Seq.map(fun (args,target) -> testCase args <| fun _ ->
-                let d = Disposables.DisposableDirectory.Create()
+                use d = Disposables.DisposableDirectory.Create()
                 let newArgs = [
                     sprintf "mini-scaffold -lang F# %s" args
                 ]
-                Dotnet.New.cmd (fun opt -> { opt with WorkingDirectory = d.Directory }) newArgs
+                Dotnet.New.cmd (fun opt -> { opt with WorkingDirectory = d.Directory}) newArgs
 
                 let projectDir =
                     d.DirectoryInfo.GetDirectories ()
