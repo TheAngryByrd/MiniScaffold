@@ -1,3 +1,5 @@
+group build
+Fake.DotNet.Cli
 Expecto
 FSharp.Core
 Microsoft.NET.Test.Sdk
