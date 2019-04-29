@@ -23,6 +23,8 @@ BuildServer.install [
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
 let srcGlob = "*.csproj"
 
+let testsGlob = __SOURCE_DIRECTORY__  @@ "tests/**/*.??proj"
+
 let distDir = __SOURCE_DIRECTORY__  @@ "dist"
 let distGlob = distDir @@ "*.nupkg"
 
@@ -30,6 +32,19 @@ let gitOwner = "TheAngryByrd"
 let gitRepoName = "MiniScaffold"
 
 let isCI =  Environment.environVarAsBool "CI"
+
+let isRelease (targets : Target list) =
+    targets
+    |> Seq.map(fun t -> t.Name)
+    |> Seq.exists ((=)"Release")
+
+let configuration (targets : Target list) =
+    let defaultVal = if isRelease targets then "Release" else "Debug"
+    match Environment.environVarOrDefault "CONFIGURATION" defaultVal with
+     | "Debug" -> DotNet.BuildConfiguration.Debug
+     | "Release" -> DotNet.BuildConfiguration.Release
+     | config -> DotNet.BuildConfiguration.Custom config
+
 
 let failOnBadExitAndPrint (p : ProcessResult) =
     if p.ExitCode <> 0 then
@@ -102,65 +117,21 @@ type DisposeablePushd (directory : string) =
             Shell.popd()
 
 
-Target.create "IntegrationTests" <| fun _ ->
-    // uninstall current MiniScaffold
-    DotNet.exec  id
-        "new"
-        "-u MiniScaffold"
-    |> failOnBadExitAndPrint
-    // install from dist/
-    DotNet.exec  id
-        "new"
-        (sprintf "-i dist/MiniScaffold.%s.nupkg" release.NugetVersion)
-    |> failOnBadExitAndPrint
-    [
-        "-n MyCoolLib --githubUsername CoolPersonNo2", "DotnetPack"
-        // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
-        "-n fsharp-data-sample --githubUsername CoolPersonNo2", "DotnetPack"
-        "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console", "CreatePackages"
-    ]
-    |> Seq.iter(fun (param, testTarget) ->
-        use directory = DisposableDirectory.Create()
-        use pushd1 = new DisposeablePushd(directory.Directory)
-        DotNet.exec (fun commandParams ->
-            { commandParams with WorkingDirectory = directory.Directory}
-        )
-            "new"
-            (sprintf "mini-scaffold -lang F# %s" param)
-        |> failOnBadExitAndPrint
-        use pushd2 =
-            directory.DirectoryInfo.GetDirectories ()
-            |> Seq.head
-            |> string
-            |> fun x -> new DisposeablePushd(x)
+Target.create "IntegrationTests" <| fun ctx ->
+    !! testsGlob
+    |> Seq.iter (fun proj ->
+        DotNet.test(fun c ->
+            let args =
+                [
 
-        if Environment.isUnix then
-            Process.execSimple(fun psi ->
-                psi
-                    .WithWorkingDirectory(pushd2.Directory)
-                    .WithFileName("chmod")
-                    .WithArguments("+x ./build.sh")
-
-            ) (TimeSpan.FromMinutes(5.))
-            |> fun exitCode -> if exitCode <> 0 then failwith "Failed to chmod ./build.sh"
-
-        let exitCode =
-            Process.execSimple (fun psi ->
-                let psi = psi.WithWorkingDirectory(pushd2.Directory)
-                if Environment.isUnix then
-                    psi
-                        .WithFileName("bash")
-                        .WithArguments(sprintf "./build.sh %s" testTarget)
-                else
-                    psi
-                        .WithFileName(IO.Directory.GetCurrentDirectory() @@ "build.cmd")
-                        .WithArguments(sprintf "%s" testTarget)
-
-                ) (TimeSpan.FromMinutes(5.))
-
-        if exitCode <> 0 then
-            failwithf "Intregration test failed with params %s" param
-    )
+                ] |> String.concat " "
+            { c with
+                Configuration = configuration (ctx.Context.AllExecutingTargets)
+                Common =
+                    c.Common
+                    |> DotNet.Options.withCustomParams
+                        (Some(args))
+                }) proj)
 
 
 

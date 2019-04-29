@@ -9,6 +9,7 @@ module Dotnet =
             p.Errors |> Seq.iter Trace.traceError
             failwithf "failed with exitcode %d" p.ExitCode
 
+
     module New =
         let cmd opt args =
             let args = args |> String.concat " "
