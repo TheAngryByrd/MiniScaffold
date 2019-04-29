@@ -28,16 +28,21 @@ module Tests =
         |> Proc.run
         |> ignore
 
+    let commonAsserts = [
+        Assert.``paket.dependencies exists``
+        Assert.``paket.lock exists``
+    ]
+
     [<Tests>]
     let tests =
         testList "samples" [
             yield! [
-                "-n MyCoolLib --githubUsername CoolPersonNo2", "DotnetPack"
+                "-n MyCoolLib --githubUsername CoolPersonNo2", "DotnetPack", [yield! commonAsserts]
                 // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
-                "-n fsharp-data-sample --githubUsername CoolPersonNo2", "DotnetPack"
-                "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console", "CreatePackages"
+                "-n fsharp-data-sample --githubUsername CoolPersonNo2", "DotnetPack", [yield! commonAsserts]
+                "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console", "CreatePackages", [yield! commonAsserts]
 
-            ] |> Seq.map(fun (args,target) -> testCase args <| fun _ ->
+            ] |> Seq.map(fun (args,target, additionalAsserts) -> testCase args <| fun _ ->
                 use d = Disposables.DisposableDirectory.Create()
                 let newArgs = [
                     sprintf "mini-scaffold -lang F# %s" args
@@ -49,6 +54,9 @@ module Tests =
                     |> Seq.head
 
                 executeBuild projectDir.FullName target
+
+                additionalAsserts
+                |> Seq.iter(fun asserter -> asserter projectDir)
             )
 
         ]
