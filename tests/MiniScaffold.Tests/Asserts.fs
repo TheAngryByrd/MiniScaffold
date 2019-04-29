@@ -4,11 +4,6 @@ open Expecto
 
 module Assert =
     open System
-    type Foo = {
-        name : string
-    }
-        interface IDisposable with
-            member x.Disposable() = ()
 
 
     let private failIfNoneWithMsg msg opt =
