@@ -45,13 +45,14 @@ module Tests =
                 ".\\build.cmd", [
                     testTarget
                 ]
+        // printfn "running %s" cmd
         let result =
             CreateProcess.fromRawCommand cmd args
             |> CreateProcess.withWorkingDirectory workingDir
             // |> CreateProcess.ensureExitCode
             |> CreateProcess.redirectOutput
             |> Proc.run
-
+        // printfn "finished %s" cmd
         if result.ExitCode <> 0 then
             failwithf "exit code was %d with output: %s \n\n\n error: %s" result.ExitCode result.Result.Output result.Result.Error
 
