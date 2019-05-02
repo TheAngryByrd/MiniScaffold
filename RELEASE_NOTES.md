@@ -1,3 +1,8 @@
+### 0.15.0 - 2019-05-02
+* FEATURE: Run tests via solution file to speed up build if multiple test projects (https://github.com/TheAngryByrd/MiniScaffold/pull/124)
+* FEATURE: Run pack via solution via to speed up build if multiple library projects (https://github.com/TheAngryByrd/MiniScaffold/pull/123)
+* FEATURE: Add recommended vscode plugins (https://github.com/TheAngryByrd/MiniScaffold/pull/128)
+
 ### 0.14.2 - 2019-05-02
 * BUGFIX: Fixing packaging issues (https://github.com/TheAngryByrd/MiniScaffold/pull/127)
 
