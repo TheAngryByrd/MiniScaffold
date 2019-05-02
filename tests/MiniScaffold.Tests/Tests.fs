@@ -22,15 +22,17 @@ module Tests =
             |> Seq.head
             |> fun fi -> fi.FullName
 
-
+    let debug () =
+        if not(System.Diagnostics.Debugger.IsAttached) then
+            printfn "Please attach a debugger, PID: %d" (System.Diagnostics.Process.GetCurrentProcess().Id)
+        while not(System.Diagnostics.Debugger.IsAttached) do
+            System.Threading.Thread.Sleep(100)
+        System.Diagnostics.Debugger.Break()
+        ()
     let setup () =
-        // if not(System.Diagnostics.Debugger.IsAttached) then
-        //     printfn "Please attach a debugger, PID: %d" (System.Diagnostics.Process.GetCurrentProcess().Id)
-        // while not(System.Diagnostics.Debugger.IsAttached) do
-        //     System.Threading.Thread.Sleep(100)
-        // System.Diagnostics.Debugger.Break()
+        // debug ()
         // ensure we're installing the one from our dist folder
-        printfn "nugetPkgPath %s" nugetPkgPath
+        // printfn "nugetPkgPath %s" nugetPkgPath
 
         Dotnet.New.uninstall nugetPkgName
         Dotnet.New.install nugetPkgPath
@@ -49,12 +51,9 @@ module Tests =
         let result =
             CreateProcess.fromRawCommand cmd args
             |> CreateProcess.withWorkingDirectory workingDir
-            // |> CreateProcess.ensureExitCode
-            |> CreateProcess.redirectOutput
+            |> CreateProcess.ensureExitCode
             |> Proc.run
-        // printfn "finished %s" cmd
-        if result.ExitCode <> 0 then
-            failwithf "exit code was %d with output: %s \n\n\n error: %s" result.ExitCode result.Result.Output result.Result.Error
+        ()
 
     let commonAsserts = [
         Assert.``paket.dependencies exists``
@@ -63,6 +62,7 @@ module Tests =
 
     [<Tests>]
     let tests =
+        testSequenced <|
         testList "samples" [
             do setup ()
             yield! [
