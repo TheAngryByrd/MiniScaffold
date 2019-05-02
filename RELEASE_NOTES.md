@@ -1,3 +1,6 @@
+### 0.14.2-beta001 - 2019-05-02
+* BUGFIX: Fixing packaging issues (https://github.com/TheAngryByrd/MiniScaffold/pull/127)
+
 ### 0.14.1 - 2019-04-09
 * MAINTENANCE: Bump most dependencies (https://github.com/TheAngryByrd/MiniScaffold/pull/122)
 
