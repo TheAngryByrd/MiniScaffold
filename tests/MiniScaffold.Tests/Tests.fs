@@ -44,7 +44,9 @@ module Tests =
                     testTarget
                 ]
             else
-                ".\\build.cmd", [
+                "cmd.exe", [
+                    "/c"
+                    ".\\build.cmd"
                     testTarget
                 ]
         // printfn "running %s" cmd
