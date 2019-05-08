@@ -1,5 +1,8 @@
+### 0.16.0 - 2019-05-08
+* FEATURE: VSCode Devcontainer support (https://github.com/TheAngryByrd/MiniScaffold/pull/130)
+
 ### 0.15.1 - 2019-05-02
-MAINTENANCE: Bump YoloDev.Expecto.TestSdk to 0.8.0 (https://github.com/TheAngryByrd/MiniScaffold/pull/129)
+* MAINTENANCE: Bump YoloDev.Expecto.TestSdk to 0.8.0 (https://github.com/TheAngryByrd/MiniScaffold/pull/129)
 
 ### 0.15.0 - 2019-05-02
 * FEATURE: Run tests via solution file to speed up build if multiple test projects (https://github.com/TheAngryByrd/MiniScaffold/pull/124)
