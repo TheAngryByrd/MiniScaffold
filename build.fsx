@@ -182,7 +182,7 @@ Target.create "Release" ignore
   ==> "DotnetPack"
 //https://github.com/dotnet/templating/issues/1736#issuecomment-464847242
   =?> ("IntegrationTests", isCI)
-//   ==> "Publish"
+  ==> "Publish"
   ==> "GitRelease"
   ==> "GithubRelease"
   ==> "Release"
