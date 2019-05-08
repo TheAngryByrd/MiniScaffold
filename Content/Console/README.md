@@ -11,12 +11,11 @@ MacOS/Linux | Windows
 [![Travis Badge](https://travis-ci.org/MyGithubUsername/MyLib.1.svg?branch=master)](https://travis-ci.org/MyGithubUsername/MyLib.1) | [![Build status](https://ci.appveyor.com/api/projects/status/github/MyGithubUsername/MyLib.1?svg=true)](https://ci.appveyor.com/project/MyGithubUsername/MyLib.1)
 [![Build History](https://buildstats.info/travisci/chart/MyGithubUsername/MyLib.1)](https://travis-ci.org/MyGithubUsername/MyLib.1/builds) | [![Build History](https://buildstats.info/appveyor/chart/MyGithubUsername/MyLib.1)](https://ci.appveyor.com/project/MyGithubUsername/MyLib.1)  
 
+---
 
-## Nuget 
+### Developing
 
-Stable | Prerelease
---- | ---
-[![NuGet Badge](https://buildstats.info/nuget/MyLib.1)](https://www.nuget.org/packages/MyLib.1/) | [![NuGet Badge](https://buildstats.info/nuget/MyLib.1?includePreReleases=true)](https://www.nuget.org/packages/MyLib.1/)
+- [VSCode Dev Container](https://code.visualstudio.com/docs/remote/containers)
 
 ---
 
