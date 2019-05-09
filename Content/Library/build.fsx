@@ -122,7 +122,6 @@ Target.create "DotnetBuild" <| fun ctx ->
     let args =
         [
             sprintf "/p:PackageVersion=%s" release.NugetVersion
-            sprintf "/p:SourceLinkCreate=%b" (isRelease ctx.Context.AllExecutingTargets)
             "--no-restore"
         ] |> String.concat " "
     DotNet.build(fun c ->
@@ -248,7 +247,6 @@ Target.create "DotnetPack" <| fun ctx ->
         [
             sprintf "/p:PackageVersion=%s" release.NugetVersion
             sprintf "/p:PackageReleaseNotes=\"%s\"" (release.Notes |> String.concat "\n")
-            sprintf "/p:SourceLinkCreate=%b" (isRelease (ctx.Context.AllExecutingTargets))
         ] |> String.concat " "
     DotNet.pack (fun c ->
         { c with
