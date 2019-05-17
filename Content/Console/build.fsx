@@ -102,7 +102,15 @@ Target.create "Clean" <| fun _ ->
         )
     |> Shell.cleanDirs
 
+    [
+        "paket-files/paket.restore.cached"
+    ]
+    |> Seq.iter Shell.rm
+
 Target.create "DotnetRestore" <| fun _ ->
+    Paket.restore(fun p ->
+        {p with ToolPath = __SOURCE_DIRECTORY__ </> ".paket" </> (if Environment.isWindows then "paket.exe" else "paket")})
+
     [sln ; toolsDir]
     |> Seq.map(fun dir -> fun () ->
         let args =
