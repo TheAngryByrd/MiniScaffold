@@ -1,3 +1,6 @@
+### 0.16.3 - 2019-05-17
+* MINOR: Update Fake dependencies to 5.13.7 (https://github.com/TheAngryByrd/MiniScaffold/pull/136)
+
 ### 0.16.2 - 2019-05-17
 * MINOR: Speed up DotnetRestore target (https://github.com/TheAngryByrd/MiniScaffold/pull/135)
 
