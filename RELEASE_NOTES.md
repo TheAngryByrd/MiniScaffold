@@ -1,8 +1,9 @@
+### 0.16.2 - 2019-05-17
+* MINOR: Speed up DotnetRestore target (https://github.com/TheAngryByrd/MiniScaffold/pull/135)
 
 ### 0.16.1 - 2019-05-08
 * BUGFIX: Use latest mono in TravisCI Builds (https://github.com/TheAngryByrd/MiniScaffold/pull/133)
 * MAINTENANCE: Use SourceLink from Microsoft (https://github.com/TheAngryByrd/MiniScaffold/pull/131)
-
 
 ### 0.16.0 - 2019-05-08
 * FEATURE: VSCode Devcontainer support (https://github.com/TheAngryByrd/MiniScaffold/pull/130)
