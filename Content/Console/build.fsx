@@ -151,13 +151,12 @@ let dotnetRestore _ =
         let args =
             [
                 sprintf "/p:PackageVersion=%s" releaseNotes.NugetVersion
-            ] |> String.concat " "
+            ]
         DotNet.restore(fun c ->
             { c with
                  Common =
                     c.Common
-                    |> DotNet.Options.withCustomParams
-                        (Some(args))
+                    |> DotNet.Options.withAdditionalArgs args
             }) dir)
     |> Seq.iter(retryIfInCI 10)
 
@@ -166,14 +165,13 @@ let dotnetBuild ctx =
         [
             sprintf "/p:PackageVersion=%s" releaseNotes.NugetVersion
             "--no-restore"
-        ] |> String.concat " "
+        ]
     DotNet.build(fun c ->
         { c with
             Configuration = configuration (ctx.Context.AllExecutingTargets)
             Common =
                 c.Common
-                |> DotNet.Options.withCustomParams
-                    (Some(args))
+                |> DotNet.Options.withAdditionalArgs args
         }) sln
 
 let dotnetTest ctx =
@@ -188,13 +186,12 @@ let dotnetTest ctx =
                 "/p:AltCover=true"
                 sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
                 sprintf "/p:AltCoverAssemblyExcludeFilter=%s" excludeCoverage
-            ] |> String.concat " "
+            ]
         { c with
             Configuration = configuration (ctx.Context.AllExecutingTargets)
             Common =
                 c.Common
-                |> DotNet.Options.withCustomParams
-                    (Some(args))
+                |> DotNet.Options.withAdditionalArgs args
             }) sln
 
 let generateCoverageReport _ =
