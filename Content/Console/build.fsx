@@ -39,9 +39,12 @@ let srcAndTest =
     ++ testsGlob
 
 let distDir = __SOURCE_DIRECTORY__  @@ "dist"
-let distGlob = distDir @@ "*.nupkg"
-let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
+let distGlob =
+    !! (distDir @@ "*.zip")
+    ++ (distDir @@ "*.tgz")
+    ++ (distDir @@ "*.tar.gz")
 
+let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
 
 let coverageThresholdPercent = 1
 let coverageReportDir =  __SOURCE_DIRECTORY__  @@ "docs" @@ "coverage"
@@ -328,7 +331,7 @@ let githubRelease _ =
        | s when not (String.IsNullOrWhiteSpace s) -> s
        | _ -> failwith "please set the github_token environment variable to a github personal access token with repro access."
 
-   let files = !! distGlob
+   let files = distGlob
 
    GitHub.createClientWithToken token
    |> GitHub.draftNewRelease gitOwner gitRepoName releaseNotes.NugetVersion (releaseNotes.SemVer.PreRelease <> None) releaseNotes.Notes
