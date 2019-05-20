@@ -84,9 +84,9 @@ let isReleaseBranchCheck () =
 let configuration (targets : Target list) =
     let defaultVal = if isRelease targets then "Release" else "Debug"
     match Environment.environVarOrDefault "CONFIGURATION" defaultVal with
-     | "Debug" -> DotNet.BuildConfiguration.Debug
-     | "Release" -> DotNet.BuildConfiguration.Release
-     | config -> DotNet.BuildConfiguration.Custom config
+    | "Debug" -> DotNet.BuildConfiguration.Debug
+    | "Release" -> DotNet.BuildConfiguration.Release
+    | config -> DotNet.BuildConfiguration.Custom config
 
 let failOnBadExitAndPrint (p : ProcessResult) =
     if p.ExitCode <> 0 then
@@ -133,7 +133,7 @@ let clean _ =
     |> Seq.collect(fun p ->
         ["bin";"obj"]
         |> Seq.map(fun sp ->
-             IO.Path.GetDirectoryName p @@ sp)
+            IO.Path.GetDirectoryName p @@ sp)
         )
     |> Shell.cleanDirs
 
@@ -154,7 +154,7 @@ let dotnetRestore _ =
             ]
         DotNet.restore(fun c ->
             { c with
-                 Common =
+                Common =
                     c.Common
                     |> DotNet.Options.withAdditionalArgs args
             }) dir)
@@ -272,10 +272,11 @@ let generateAssemblyInfo _ =
 
     let getProjectDetails projectPath =
         let projectName = IO.Path.GetFileNameWithoutExtension(projectPath)
-        ( projectPath,
-          projectName,
-          IO.Path.GetDirectoryName(projectPath),
-          (getAssemblyInfoAttributes projectName)
+        (
+            projectPath,
+            projectName,
+            IO.Path.GetDirectoryName(projectPath),
+            (getAssemblyInfoAttributes projectName)
         )
 
     srcAndTest
@@ -300,14 +301,12 @@ let createPackages _ =
                 sprintf "/p:PackageVersion=%s" releaseNotes.NugetVersion
                 sprintf "/p:PackagePath=%s" (distDir @@ (sprintf "%s-%s-%s" productName releaseNotes.NugetVersion runtime ))
             ] |> String.concat " "
-        let result =
-            DotNet.exec (fun opt ->
-                { opt with
-                    WorkingDirectory = mainApp }
-            ) "msbuild" args
-        if result.OK |> not then
-            result.Errors |> Seq.iter Trace.traceError
-            failwith "package creation failed"
+
+        DotNet.exec (fun opt ->
+            { opt with
+                WorkingDirectory = mainApp }
+        ) "msbuild" args
+        |> failOnBadExitAndPrint
     )
 
 let gitRelease _ =
@@ -323,18 +322,18 @@ let gitRelease _ =
     Git.Branches.pushTag "" "origin" releaseNotes.NugetVersion
 
 let githubRelease _ =
-   let token =
-       match Environment.environVarOrDefault "GITHUB_TOKEN" "" with
-       | s when not (String.IsNullOrWhiteSpace s) -> s
-       | _ -> failwith "please set the github_token environment variable to a github personal access token with repro access."
+    let token =
+        match Environment.environVarOrDefault "GITHUB_TOKEN" "" with
+        | s when not (String.IsNullOrWhiteSpace s) -> s
+        | _ -> failwith "please set the github_token environment variable to a github personal access token with repro access."
 
-   let files = distGlob
+    let files = distGlob
 
-   GitHub.createClientWithToken token
-   |> GitHub.draftNewRelease gitOwner gitRepoName releaseNotes.NugetVersion (releaseNotes.SemVer.PreRelease <> None) releaseNotes.Notes
-   |> GitHub.uploadFiles files
-   |> GitHub.publishDraft
-   |> Async.RunSynchronously
+    GitHub.createClientWithToken token
+    |> GitHub.draftNewRelease gitOwner gitRepoName releaseNotes.NugetVersion (releaseNotes.SemVer.PreRelease <> None) releaseNotes.Notes
+    |> GitHub.uploadFiles files
+    |> GitHub.publishDraft
+    |> Async.RunSynchronously
 
 let formatCode _ =
     srcAndTest
