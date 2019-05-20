@@ -62,9 +62,9 @@ let invokeAsync f = async { f () }
 let configuration (targets : Target list) =
     let defaultVal = if isRelease targets then "Release" else "Debug"
     match Environment.environVarOrDefault "CONFIGURATION" defaultVal with
-     | "Debug" -> DotNet.BuildConfiguration.Debug
-     | "Release" -> DotNet.BuildConfiguration.Release
-     | config -> DotNet.BuildConfiguration.Custom config
+    | "Debug" -> DotNet.BuildConfiguration.Debug
+    | "Release" -> DotNet.BuildConfiguration.Release
+    | config -> DotNet.BuildConfiguration.Custom config
 
 let failOnBadExitAndPrint (p : ProcessResult) =
     if p.ExitCode <> 0 then
@@ -116,9 +116,7 @@ let clean _ =
     ++ testsGlob
     |> Seq.collect(fun p ->
         ["bin";"obj"]
-        |> Seq.map(fun sp ->
-             IO.Path.GetDirectoryName p @@ sp)
-        )
+        |> Seq.map(fun sp -> IO.Path.GetDirectoryName p @@ sp ))
     |> Shell.cleanDirs
 
     [
@@ -138,7 +136,7 @@ let dotnetRestore _ =
             ] |> String.concat " "
         DotNet.restore(fun c ->
             { c with
-                 Common =
+                Common =
                     c.Common
                     |> DotNet.Options.withCustomParams
                         (Some(args))
@@ -236,22 +234,24 @@ let generateAssemblyInfo _ =
         | Some pr -> pr.Name
         | _ -> "release"
     let getAssemblyInfoAttributes projectName =
-        [ AssemblyInfo.Title (projectName)
-          AssemblyInfo.Product productName
-          AssemblyInfo.Version releaseNotes.AssemblyVersion
-          AssemblyInfo.Metadata("ReleaseDate", releaseNotes.Date.Value.ToString("o"))
-          AssemblyInfo.FileVersion releaseNotes.AssemblyVersion
-          AssemblyInfo.InformationalVersion releaseNotes.AssemblyVersion
-          AssemblyInfo.Metadata("ReleaseChannel", releaseChannel)
-          AssemblyInfo.Metadata("GitHash", Git.Information.getCurrentSHA1(null))
+        [
+            AssemblyInfo.Title (projectName)
+            AssemblyInfo.Product productName
+            AssemblyInfo.Version releaseNotes.AssemblyVersion
+            AssemblyInfo.Metadata("ReleaseDate", releaseNotes.Date.Value.ToString("o"))
+            AssemblyInfo.FileVersion releaseNotes.AssemblyVersion
+            AssemblyInfo.InformationalVersion releaseNotes.AssemblyVersion
+            AssemblyInfo.Metadata("ReleaseChannel", releaseChannel)
+            AssemblyInfo.Metadata("GitHash", Git.Information.getCurrentSHA1(null))
         ]
 
     let getProjectDetails projectPath =
         let projectName = IO.Path.GetFileNameWithoutExtension(projectPath)
-        ( projectPath,
-          projectName,
-          IO.Path.GetDirectoryName(projectPath),
-          (getAssemblyInfoAttributes projectName)
+        (
+            projectPath,
+            projectName,
+            IO.Path.GetDirectoryName(projectPath),
+            (getAssemblyInfoAttributes projectName)
         )
 
     srcAndTest
@@ -308,18 +308,18 @@ let gitRelease _ =
     Git.Branches.pushTag "" "origin" releaseNotes.NugetVersion
 
 let githubRelease _ =
-   let token =
-       match Environment.environVarOrDefault "GITHUB_TOKEN" "" with
-       | s when not (String.IsNullOrWhiteSpace s) -> s
-       | _ -> failwith "please set the github_token environment variable to a github personal access token with repro access."
+    let token =
+        match Environment.environVarOrDefault "GITHUB_TOKEN" "" with
+        | s when not (String.IsNullOrWhiteSpace s) -> s
+        | _ -> failwith "please set the github_token environment variable to a github personal access token with repro access."
 
-   let files = !! distGlob
+    let files = !! distGlob
 
-   GitHub.createClientWithToken token
-   |> GitHub.draftNewRelease gitOwner gitRepoName releaseNotes.NugetVersion (releaseNotes.SemVer.PreRelease <> None) releaseNotes.Notes
-   |> GitHub.uploadFiles files
-   |> GitHub.publishDraft
-   |> Async.RunSynchronously
+    GitHub.createClientWithToken token
+    |> GitHub.draftNewRelease gitOwner gitRepoName releaseNotes.NugetVersion (releaseNotes.SemVer.PreRelease <> None) releaseNotes.Notes
+    |> GitHub.uploadFiles files
+    |> GitHub.publishDraft
+    |> Async.RunSynchronously
 
 let formatCode _ =
     srcAndTest
@@ -338,10 +338,10 @@ Target.create "DotnetBuild" dotnetBuild
 Target.create "DotnetTest" dotnetTest
 Target.create "GenerateCoverageReport" generateCoverageReport
 Target.create "WatchTests" watchTests
-Target.create "AssemblyInfo" generateAssemblyInfo
+Target.create "GenerateAssemblyInfo" generateAssemblyInfo
 Target.create "DotnetPack" dotnetPack
 Target.create "SourcelinkTest" sourceLinkTest
-Target.create "Publish" publishToNuget
+Target.create "PublishToNuget" publishToNuget
 Target.create "GitRelease" gitRelease
 Target.create "GitHubRelease" githubRelease
 Target.create "FormatCode" formatCode
@@ -359,23 +359,23 @@ Target.create "Release" ignore
 
 // Only call AssemblyInfo if Publish was in the call chain
 // Ensure AssemblyInfo is called after DotnetRestore and before DotnetBuild
-"DotnetRestore" ?=> "AssemblyInfo"
-"AssemblyInfo" ?=> "DotnetBuild"
-"AssemblyInfo" ==> "Publish"
+"DotnetRestore" ?=> "GenerateAssemblyInfo"
+"GenerateAssemblyInfo" ?=> "DotnetBuild"
+"GenerateAssemblyInfo" ==> "PublishToNuget"
 
 "DotnetRestore"
-  ==> "DotnetBuild"
-  ==> "DotnetTest"
-  ==> "GenerateCoverageReport"
-  ==> "DotnetPack"
-  ==> "SourcelinkTest"
-  ==> "Publish"
-  ==> "GitRelease"
-  ==> "GitHubRelease"
-  ==> "Release"
+    ==> "DotnetBuild"
+    ==> "DotnetTest"
+    ==> "GenerateCoverageReport"
+    ==> "DotnetPack"
+    ==> "SourcelinkTest"
+    ==> "PublishToNuget"
+    ==> "GitRelease"
+    ==> "GitHubRelease"
+    ==> "Release"
 
 "DotnetRestore"
- ==> "WatchTests"
+    ==> "WatchTests"
 
 //-----------------------------------------------------------------------------
 // Target Start
