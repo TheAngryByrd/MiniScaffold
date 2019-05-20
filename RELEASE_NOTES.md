@@ -1,3 +1,6 @@
+### 0.16.4 - 2019-05-20
+* MINOR: Reorganzition of build.fsx for Library and Console (https://github.com/TheAngryByrd/MiniScaffold/pull/137)
+
 ### 0.16.3 - 2019-05-17
 * MINOR: Update Fake dependencies to 5.13.7 (https://github.com/TheAngryByrd/MiniScaffold/pull/136)
 
