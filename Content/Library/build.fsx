@@ -26,6 +26,7 @@ BuildServer.install [
 
 let productName = "MyLib.1"
 let sln = "MyLib.1.sln"
+
 let srcGlob =__SOURCE_DIRECTORY__  @@ "src/**/*.??proj"
 let testsGlob = __SOURCE_DIRECTORY__  @@ "tests/**/*.??proj"
 
@@ -37,6 +38,8 @@ let distDir = __SOURCE_DIRECTORY__  @@ "dist"
 let distGlob = distDir @@ "*.nupkg"
 let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
 
+
+let coverageThresholdPercent = 80
 let coverageReportDir =  __SOURCE_DIRECTORY__  @@ "docs" @@ "coverage"
 
 let gitOwner = "MyGithubUsername"
@@ -52,6 +55,7 @@ let paketToolPath = __SOURCE_DIRECTORY__ </> ".paket" </> (if Environment.isWind
 //-----------------------------------------------------------------------------
 // Helpers
 //-----------------------------------------------------------------------------
+
 let isRelease (targets : Target list) =
     targets
     |> Seq.map(fun t -> t.Name)
@@ -71,6 +75,7 @@ let failOnBadExitAndPrint (p : ProcessResult) =
         p.Errors |> Seq.iter Trace.traceError
         failwithf "failed with exitcode %d" p.ExitCode
 
+// CI Servers can have bizzare failures that have nothing to do with your code
 let rec retryIfInCI times fn =
     match Environment.environVarOrNone "CI" with
     | Some _ ->
@@ -160,7 +165,6 @@ let dotnetBuild ctx =
         }) sln
 
 let dotnetTest ctx =
-    let coverageThresholdPercent = 80
     let excludeCoverage =
         !! testsGlob
         |> Seq.map IO.Path.GetFileNameWithoutExtension
