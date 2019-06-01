@@ -43,6 +43,8 @@ $ ./build.sh  // on unix
   * `CONFIGURATION=Debug ./build.sh` will result in things like `dotnet build -c Debug`
 * `GITHUB_TOKEN` will be used to upload release notes and nuget packages to github.
   * Be sure to set this before releasing
+* `DISABLE_COVERAGE` Will disable running code coverage metrics.  AltCover can have [severe performance degradation](https://github.com/SteveGilham/altcover/issues/57) so it worth disabling when looking to do a quicker feedback loop.
+    * `DISABLE_COVERAGE=1 ./build.sh`
 
 ### Watch Tests
 
