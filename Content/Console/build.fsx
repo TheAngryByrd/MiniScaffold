@@ -20,6 +20,20 @@ BuildServer.install [
     Travis.Installer
 ]
 
+let environVarAsBoolOrDefault varName defaultValue =
+    let truthyConsts = [
+        "1"
+        "Y"
+        "YES"
+        "T"
+        "TRUE"
+    ]
+    try
+        let envvar = (Environment.environVar varName).ToUpper()
+        truthyConsts |> List.exists((=)envvar)
+    with
+    | _ ->  defaultValue
+
 //-----------------------------------------------------------------------------
 // Metadata and Configuration
 //-----------------------------------------------------------------------------
@@ -66,6 +80,10 @@ let runtimes = [
 ]
 
 let paketToolPath = __SOURCE_DIRECTORY__ </> ".paket" </> (if Environment.isWindows then "paket.exe" else "paket")
+
+
+let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
+
 
 //-----------------------------------------------------------------------------
 // Helpers
@@ -183,7 +201,7 @@ let dotnetTest ctx =
         let args =
             [
                 "--no-build"
-                "/p:AltCover=true"
+                sprintf "/p:AltCover=%b" (not disableCodeCoverage)
                 sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
                 sprintf "/p:AltCoverAssemblyExcludeFilter=%s" excludeCoverage
             ]
@@ -378,7 +396,7 @@ Target.create "Release" ignore
 "DotnetRestore"
   ==> "DotnetBuild"
   ==> "DotnetTest"
-  ==> "GenerateCoverageReport"
+  =?> ("GenerateCoverageReport", not disableCodeCoverage)
   ==> "CreatePackages"
   ==> "GitRelease"
   ==> "GitHubRelease"
