@@ -31,6 +31,8 @@ let distGlob = distDir @@ "*.nupkg"
 let gitOwner = "TheAngryByrd"
 let gitRepoName = "MiniScaffold"
 
+let contentDir = __SOURCE_DIRECTORY__ @@ "Content"
+
 let isCI =  Environment.environVarAsBool "CI"
 
 let isRelease (targets : Target list) =
@@ -54,6 +56,8 @@ let failOnBadExitAndPrint (p : ProcessResult) =
 Target.create "Clean" <| fun _ ->
     [ "obj" ;"dist"]
     |> Shell.cleanDirs
+
+    Git.CommandHelper.directRunGitCommandAndFail contentDir "clean -xfd"
 
 
 Target.create "DotnetRestore" <| fun _ ->
