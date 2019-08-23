@@ -1,8 +1,6 @@
 source https://www.nuget.org/api/v2
 source https://api.nuget.org/v3/index.json
 storage: none
-clitool dotnet-fantomas 2.8.0
-clitool dotnet-reportgenerator-cli ~> 4
 nuget Argu 5.2
 nuget FSharp.Core 4.3.4
 nuget Expecto 8.10.1

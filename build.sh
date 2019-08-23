@@ -17,6 +17,10 @@ realpath() {
   echo "$REALPATH"
 }
 
+
+echo "Restoring dotnet tools..."
+dotnet tool restore
+
 FAKE_TOOL_PATH=$(realpath .fake)
 FAKE="$FAKE_TOOL_PATH"/fake
 
