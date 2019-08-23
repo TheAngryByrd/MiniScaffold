@@ -50,8 +50,6 @@ let srcAndTest =
 
 let distDir = __SOURCE_DIRECTORY__  @@ "dist"
 let distGlob = distDir @@ "*.nupkg"
-let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
-
 
 let coverageThresholdPercent = 80
 let coverageReportDir =  __SOURCE_DIRECTORY__  @@ "docs" @@ "coverage"
@@ -113,7 +111,7 @@ module dotnet =
         DotNet.exec cmdParam (sprintf "watch %s" program) args
 
     let tool optionConfig command args =
-        DotNet.exec (fun p -> { p with WorkingDirectory = toolsDir} |> optionConfig ) (sprintf "%s" command) args
+        DotNet.exec optionConfig (sprintf "%s" command) args
         |> failOnBadExitAndPrint
 
     let fantomas optionConfig args =
@@ -149,7 +147,7 @@ let dotnetRestore _ =
     Paket.restore(fun p ->
         {p with ToolPath = paketToolPath})
 
-    [sln ; toolsDir]
+    [sln]
     |> Seq.map(fun dir -> fun () ->
         let args =
             [

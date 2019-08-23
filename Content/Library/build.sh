@@ -17,13 +17,8 @@ realpath() {
   echo "$REALPATH"
 }
 
-FAKE_TOOL_PATH=$(realpath .fake)
-FAKE="$FAKE_TOOL_PATH"/fake
-
-if ! [ -e "$FAKE" ]
-then
-  dotnet tool install fake-cli --tool-path "$FAKE_TOOL_PATH"
-fi
+echo "Restoring dotnet tools..."
+dotnet tool restore
 
 PAKET_TOOL_PATH=$(realpath .paket)
 PAKET="$PAKET_TOOL_PATH"/paket
@@ -33,4 +28,4 @@ then
   dotnet tool install paket --tool-path "$PAKET_TOOL_PATH"
 fi
 
-FAKE_DETAILED_ERRORS=true "$FAKE" build -t "$@"
+FAKE_DETAILED_ERRORS=true dotnet fake build -t "$@"
