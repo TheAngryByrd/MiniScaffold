@@ -79,7 +79,7 @@ module Tests =
                     sprintf "mini-scaffold -lang F# %s" args
                 ]
                 Dotnet.New.cmd (fun opt -> { opt with WorkingDirectory = d.Directory}) newArgs
-
+                printfn "%s" "here!"
                 let projectDir =
                     d.DirectoryInfo.GetDirectories ()
                     |> Seq.head
