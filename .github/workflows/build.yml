@@ -8,7 +8,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        dotnet: [2.2.401, 3.0.100-preview9-014004]
+        # dotnet: [2.2.401, 3.0.100-preview9-014004]
+        dotnet: [2.2.401]
     runs-on: ${{ matrix.os }}
     
     steps:
