@@ -192,4 +192,4 @@ Target.create "Release" ignore
   ==> "Release"
 
 
-Target.runOrDefaultWithArguments "IntegrationTests"
+Target.runOrDefaultWithArguments (if isCI then "IntegrationTests" else "DotnetPack")
