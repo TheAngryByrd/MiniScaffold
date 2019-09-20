@@ -6,8 +6,8 @@
 #r "netstandard"
 #endif
 open System
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
+open Fable.React
+open Fable.React.Props
 open FSharp.MetadataFormat
 open PartNested
 open PartMembers
@@ -19,12 +19,12 @@ let generateModuleDocs (moduleInfo : ModuleInfo) (props) =
 
     let byCategory =
         members
-        |> Seq.groupBy(fun m -> m.Category)
-        |> Seq.sortBy(fun (g,v)  -> if String.IsNullOrEmpty g then "ZZZ" else g)
-        |> Seq.mapi(fun i (key, value) -> {
+        |> List.groupBy(fun m -> m.Category)
+        |> List.sortBy(fun (g,v)  -> if String.IsNullOrEmpty g then "ZZZ" else g)
+        |> List.mapi(fun i (key, value) -> {
             Index = i
             GroupKey = key
-            Members = value |> Seq.sortBy(fun m -> m.Name)
+            Members = value |> List.sortBy(fun m -> m.Name)
             Name = if String.IsNullOrEmpty key then "Other module members" else key
         })
     let nestModules = moduleInfo.Module.NestedModules
