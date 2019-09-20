@@ -145,8 +145,8 @@ Target.create "IntegrationTests" <| fun ctx ->
                 }) proj)
 
 open FSharp.Literate
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
+open Fable.React
+open Fable.React.Props
 
 
 
@@ -274,7 +274,7 @@ let render html =
     RawText "<!doctype html>"
     RawText "\n"
     html ]
-  |> Fable.Helpers.ReactServer.renderToString
+  |> Fable.ReactServer.renderToString
 
 Target.create "GenerateDocs" <| fun _ ->
     // This finds the current fsharp.core version of your solution to use for fsharp.literate

@@ -5,8 +5,8 @@
 #r "netstandard"
 #endif
 open System
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
+open Fable.React
+open Fable.React.Props
 open FSharp.MetadataFormat
 
 

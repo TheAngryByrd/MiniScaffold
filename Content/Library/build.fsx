@@ -401,18 +401,14 @@ let watchBuild () =
     |> Seq.iter (invokeAsync >> Async.Catch >> Async.Ignore >> Async.Start)
 
 Target.create "ServeDocs" <| fun _ ->
-    let d1,d2 = Docs.watchDocs gitRepoName (!! srcBinGlob) watchBuild
+    let d1P,d2 = Docs.watchDocs gitRepoName (!! srcBinGlob) watchBuild
     use d2 = d2
     Docs.serveDocs ()
 
-<<<<<<< HEAD
 //-----------------------------------------------------------------------------
 // Target Dependencies
 //-----------------------------------------------------------------------------
-=======
 
-=======
->>>>>>> Generate API Documentation
 
 // Only call Clean if DotnetPack was in the call chain
 // Ensure Clean is called before DotnetRestore
