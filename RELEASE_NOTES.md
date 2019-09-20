@@ -1,3 +1,6 @@
+### 0.18.0 - 2019-09-20
+* FEATURE: Github Actions (https://github.com/TheAngryByrd/MiniScaffold/pull/145) (https://github.com/TheAngryByrd/MiniScaffold/pull/146)
+
 ### 0.17.1 - 2019-06-04
 * FEATURE: Adds environment variable `DISABLE_COVERAGE` to disable code coverage (https://github.com/TheAngryByrd/MiniScaffold/pull/139)
 
