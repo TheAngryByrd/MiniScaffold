@@ -104,7 +104,7 @@ let dllsAndLibDirs (dllPattern:IGlobbingPattern) =
 
 let generateAPI gitRepoName (dllGlob : IGlobbingPattern) =
     let dlls, libDirs = dllsAndLibDirs dllGlob
-    let fsharpCoreDir = locateDLL "FSharp.Core" "netstandard1.6"
+    let fsharpCoreDir = locateDLL "FSharp.Core" "netstandard2.0"
     let mscorlibDir =
         (Uri(typedefof<System.Runtime.MemoryFailPoint>.GetType().Assembly.CodeBase)) //Find runtime dll
             .AbsolutePath // removes file protocol from path
@@ -144,16 +144,16 @@ let copyAssets () =
 
 let generateDocs (docSourcePaths : IGlobbingPattern) githubRepoName =
     // This finds the current fsharp.core version of your solution to use for fsharp.literate
-    let fsharpCoreDir = locateDLL "FSharp.Core" "netstandard1.6"
+    let fsharpCoreDir = locateDLL "FSharp.Core" "netstandard2.0"
 
     let parse fileName source =
         let doc =
             let fsharpCoreDir = sprintf "-I:%s" fsharpCoreDir
-            let systemRuntime = "-r:System.Runtime"
+            let runtimeDeps = "-r:System.Runtime -r:System.Net.WebClient"
             Literate.ParseScriptString(
                 source,
                 path = fileName,
-                compilerOptions = systemRuntime + " " + fsharpCoreDir,
+                compilerOptions = runtimeDeps + " " + fsharpCoreDir,
                 fsiEvaluator = FSharp.Literate.FsiEvaluator([|fsharpCoreDir|]))
         FSharp.Literate.Literate.FormatLiterateNodes(doc, OutputKind.Html, "", true, true)
 
