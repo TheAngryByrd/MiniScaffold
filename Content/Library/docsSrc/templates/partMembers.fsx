@@ -5,14 +5,14 @@
 #r "netstandard"
 #endif
 open System
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
+open Fable.React
+open Fable.React.Props
 open FSharp.MetadataFormat
 
 type ModuleByCategory = {
     Index : int
     GroupKey : string
-    Members : seq<Member>
+    Members : list<Member>
     Name : string
 }
 
@@ -103,7 +103,7 @@ let commentBlock (c: Comment) =
         | "<default>", c -> NonEmptyDefaultBlock c
         | section, content -> Section (section, content)
 
-    let renderSection s: Fable.Import.React.ReactElement list =
+    let renderSection s: Fable.React.ReactElement list =
         match s with
         | EmptyDefaultBlock -> []
         | NonEmptyDefaultBlock content -> [ div [ Class "comment-block" ] [ RawText content ] ]

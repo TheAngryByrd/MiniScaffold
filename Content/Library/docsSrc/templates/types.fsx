@@ -6,8 +6,8 @@
 #r "netstandard"
 #endif
 open System
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
+open Fable.React
+open Fable.React.Props
 open FSharp.MetadataFormat
 open PartNested
 open PartMembers
@@ -19,12 +19,12 @@ let generateTypeDocs (model : TypeInfo) (props) =
     let ``type`` = model.Type
     let byCategory =
         members
-        |> Seq.groupBy (fun m -> m.Category)
-        |> Seq.sortBy (fun (k,v) -> if String.IsNullOrEmpty(k) then "ZZZ" else k )
-        |> Seq.mapi (fun i (k,v) -> {
+        |> List.groupBy (fun m -> m.Category)
+        |> List.sortBy (fun (k,v) -> if String.IsNullOrEmpty(k) then "ZZZ" else k )
+        |> List.mapi (fun i (k,v) -> {
             Index = i
             GroupKey = k
-            Members = v |> Seq.sortBy (fun m -> if m.Kind = MemberKind.StaticParameter then "" else m.Name)
+            Members = v |> List.sortBy (fun m -> if m.Kind = MemberKind.StaticParameter then "" else m.Name)
             Name = if String.IsNullOrEmpty(k) then "Other type members" else k
         })
     [

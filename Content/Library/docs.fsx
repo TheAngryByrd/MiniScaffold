@@ -1,7 +1,7 @@
 open FSharp.Literate
 open System.Collections.Generic
 open System.Reflection
-open Fable.Import.React
+open Fable.Import
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Http
 open System.Net.WebSockets
@@ -32,8 +32,8 @@ open Fake.Core.TargetOperators
 open Fake.Api
 open FSharp.Literate
 open FSharp.MetadataFormat
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
+open Fable.React
+open Fable.React.Props
 
 let docsDir = __SOURCE_DIRECTORY__ @@ "docs"
 let docsApiDir = docsDir @@ "api"
@@ -52,7 +52,7 @@ let render html =
         RawText "<!doctype html>"
         RawText "\n"
         html ]
-    |> Fable.Helpers.ReactServer.renderToString
+    |> Fable.ReactServer.renderToString
 
 
 

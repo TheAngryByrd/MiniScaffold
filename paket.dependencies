@@ -22,9 +22,6 @@ group Build
   nuget Fake.Tools.Git
   nuget Fake.DotNet.Paket
   nuget Fake.Api.GitHub
-  nuget FSharp.Literate
-  nuget Fable.React
-  nuget Paket.Core
   nuget Microsoft.AspNetCore.StaticFiles
   nuget Microsoft.AspNetCore.Hosting
   nuget Microsoft.AspNetCore.Server.Kestrel
