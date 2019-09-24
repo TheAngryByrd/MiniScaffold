@@ -253,7 +253,7 @@ let createWebsocket (httpContext : HttpContext) (next : unit -> Async<unit>) = a
             refereshWebpageEvent.Publish
             |> Observable.subscribe (fun m ->
                 let segment = ArraySegment<byte>(m |> Text.Encoding.UTF8.GetBytes)
-                websocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None)
+                websocket.SendAsync(segment, WebSocketMessageType.Text, true, httpContext.RequestAborted)
                 |> Async.AwaitTask
                 |> Async.Start
 

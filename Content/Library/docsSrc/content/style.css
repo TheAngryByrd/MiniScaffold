@@ -4,7 +4,7 @@
   Formatting for F# code snippets
 /*--------------------------------------------------------------------------*/
 
-/* strings --- and stlyes for other string related formats */
+/* strings --- and styles for other string related formats */
 span.s { color:#E0E268; }
 /* printf formatters */
 span.pf { color:#E0C57F; }
@@ -95,6 +95,11 @@ table.pre td.lines {
   width:30px;
 }
 
+.table thead td.fit, 
+.table th.fit {
+    white-space: nowrap;
+    width: 1%;
+}
 /*--------------------------------------------------------------------------
   Formatting for page & standard document content
 /*--------------------------------------------------------------------------*/
@@ -278,4 +283,10 @@ h1.header:visited {
 
 .social {
   margin-bottom: 30px;
+}
+
+/* This fixes page anchors with top nav bars  */
+.page-anchor {
+    padding-top: 69px; 
+    margin-top: -69px;
 }
