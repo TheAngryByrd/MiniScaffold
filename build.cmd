@@ -1,4 +1,5 @@
 echo Restoring dotnet tools...
+dotnet tool restore
 
 SET PAKET_TOOL_PATH=.paket
 
