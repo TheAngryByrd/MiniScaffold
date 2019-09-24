@@ -1,11 +1,4 @@
-#load "../../.fake/build.fsx/intellisense.fsx"
-#load "partNested.fsx"
-#load "partMembers.fsx"
-#load "helpers.fsx"
-#if !FAKE
-#r "Facades/netstandard"
-#r "netstandard"
-#endif
+module Modules
 open System
 open Fable.React
 open Fable.React.Props
@@ -36,7 +29,6 @@ let generateModuleDocs (moduleInfo : ModuleInfo) (props) =
             yield div [ Class "row" ] [
                 yield div [ Class "col-12" ] [
                     yield h1 [] [
-                        createAnchor moduleInfo.Module.Name
                         str moduleInfo.Module.Name
                     ]
                     if moduleInfo.Module.IsObsolete then

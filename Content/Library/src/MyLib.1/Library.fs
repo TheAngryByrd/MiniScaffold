@@ -4,7 +4,13 @@ open System
 /// Initial Module
 module Say =
 
-    /// **Person**
+    // Some janky payment union
+    type PaymentTypes =
+    | Cash
+    | Check of int*int
+    | Credit of string*DateTime*int
+
+    /// Person
     type Person = {
         /// First
         First : string
@@ -14,16 +20,7 @@ module Say =
     }
 
 
-    /// **Description**
-    ///
-    /// **Parameters**
-    ///   * `person` - parameter of type `Person`
-    ///
-    /// **Output Type**
-    ///   * `string`
-    ///
-    /// **Exceptions**
-    ///
+    /// <summary>Says hello to a specific person</summary>
     let helloPerson (person : Person) =
         sprintf
             "Hello %s %s. You were born on %s and your favorite number is %d."
@@ -32,32 +29,16 @@ module Say =
             (person.DateOfBirth.ToString("o"))
             person.FavoriteNumber
 
-    /// #### Description
-    /// I do nothing, ever.
-    ///
-    /// #### Parameters
-    ///   * `name` - parameter of type `'a`
-    ///
-    /// #### Output Type
-    ///   * `unit`
-    ///
-    /// #### Exceptions
-    /// None
+    /// I do nothing
     let nothing name =
         name |> ignore
 
 
-    /// **Description**
-    ///
-    /// **Parameters**
-    ///   * `name` - parameter of type `string`
-    ///
-    /// **Output Type**
-    ///   * `string`
-    ///
-    /// **Exceptions**
-    ///
     [<CompiledName("Hiya")>]
     let hello name =
         sprintf "Hello %s" name
 
+    /// We did a bad api design
+    [<Obsolete>]
+    let reallyOldCode name =
+        nothing name
