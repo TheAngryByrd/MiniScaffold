@@ -2,7 +2,7 @@ language: csharp
 sudo: required
 dist: xenial
 
-dotnet: 3.0.100-preview8-013656
+dotnet: 3.0.100
 mono:
   - latest # => "stable release"
   - alpha
