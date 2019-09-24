@@ -1,3 +1,7 @@
+
+### 0.19.0 - 2019-09-24
+* FEATURE: Dotnet core 3.0 support: https://github.com/TheAngryByrd/MiniScaffold/pull/141
+
 ### 0.18.0 - 2019-09-20
 * FEATURE: Github Actions (https://github.com/TheAngryByrd/MiniScaffold/pull/145) (https://github.com/TheAngryByrd/MiniScaffold/pull/146)
 
