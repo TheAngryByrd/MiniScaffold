@@ -62,7 +62,7 @@ let releaseNotes = Fake.Core.ReleaseNotes.load "RELEASE_NOTES.md"
 
 let publishUrl = "https://www.nuget.org"
 
-let paketToolPath = __SOURCE_DIRECTORY__ </> ".paket" </> (if Environment.isWindows then "paket.exe" else "paket")
+let paketToolPath = "dotnet paket"
 
 let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
 
@@ -123,6 +123,9 @@ module dotnet =
     let sourcelink optionConfig args =
         tool optionConfig "sourcelink" args
 
+    let paket optionConfig args =
+        tool optionConfig "paket" args
+
 //-----------------------------------------------------------------------------
 // Target Implementations
 //-----------------------------------------------------------------------------
@@ -144,8 +147,7 @@ let clean _ =
     |> Seq.iter Shell.rm
 
 let dotnetRestore _ =
-    Paket.restore(fun p ->
-        {p with ToolPath = paketToolPath})
+    dotnet.paket id "restore"
 
     [sln]
     |> Seq.map(fun dir -> fun () ->
