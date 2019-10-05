@@ -1,6 +1,4 @@
-open Docs
 #load ".fake/build.fsx/intellisense.fsx"
-#load "./docs.fsx"
 #if !FAKE
 #r "Facades/netstandard"
 #r "netstandard"
@@ -62,6 +60,8 @@ let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
 let coverageThresholdPercent = 80
 let coverageReportDir =  __SOURCE_DIRECTORY__  @@ "docs" @@ "coverage"
 
+let docsToolDir = __SOURCE_DIRECTORY__ @@ "docsTool"
+
 let gitOwner = "MyGithubUsername"
 let gitRepoName = "MyLib.1"
 
@@ -118,6 +118,9 @@ module dotnet =
     let watch cmdParam program args =
         DotNet.exec cmdParam (sprintf "watch %s" program) args
 
+    let run cmdParam args =
+        DotNet.exec cmdParam "run" args
+
     let tool optionConfig command args =
         DotNet.exec (fun p -> { p with WorkingDirectory = toolsDir} |> optionConfig ) (sprintf "%s" command) args
         |> failOnBadExitAndPrint
@@ -130,6 +133,19 @@ module dotnet =
 
     let sourcelink optionConfig args =
         tool optionConfig "sourcelink" args
+
+module DocsTool =
+    let build () =
+        dotnet.run (fun args ->
+            { args with WorkingDirectory = docsToolDir }
+        ) "build"
+        |> failOnBadExitAndPrint
+
+    let watch () =
+        dotnet.watch (fun args ->
+            { args with WorkingDirectory = docsToolDir }
+        ) "run" "watch"
+        |> failOnBadExitAndPrint
 
 //-----------------------------------------------------------------------------
 // Target Implementations
@@ -374,8 +390,7 @@ Target.create "FormatCode" formatCode
 Target.create "Release" ignore
 
 Target.create "GenerateDocs" <| fun _ ->
-    Docs.generateDocs Docs.docsFileGlob gitRepoName
-    Docs.generateAPI gitRepoName (!! srcBinGlob)
+    DocsTool.build ()
 
 let watchBuild () =
     !! srcGlob
@@ -390,9 +405,7 @@ let watchBuild () =
     |> Seq.iter (invokeAsync >> Async.Catch >> Async.Ignore >> Async.Start)
 
 Target.create "ServeDocs" <| fun _ ->
-    let d1P,d2 = Docs.watchDocs gitRepoName (!! srcBinGlob) watchBuild
-    use d2 = d2
-    Docs.serveDocs ()
+    DocsTool.watch ()
 
 //-----------------------------------------------------------------------------
 // Target Dependencies
