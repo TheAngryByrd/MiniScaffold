@@ -179,8 +179,13 @@ module GenerateDocs =
             Types.generateTypeDocs m generatorOutput.Properties
             |> renderWithMasterAndWrite fi nav (sprintf "%s-%s" m.Type.Name gitRepoName)
         )
-    let watchDocs githubRepoName (dllGlob : IGlobbingPattern) =
+
+    let buildDocs githubRepoName (dllGlob : IGlobbingPattern) =
         generateDocs (docsFileGlob) githubRepoName
+        generateAPI githubRepoName dllGlob
+
+    let watchDocs githubRepoName (dllGlob : IGlobbingPattern) =
+        buildDocs githubRepoName dllGlob
         let d1 =
             docsFileGlob
             |> ChangeWatcher.run (fun changes ->
@@ -192,7 +197,7 @@ module GenerateDocs =
                     refereshWebpageEvent.Trigger m.FullPath
                 )
             )
-        generateAPI githubRepoName dllGlob
+
         let d2 =
             dllGlob
             |> ChangeWatcher.run(fun changes ->
@@ -202,6 +207,7 @@ module GenerateDocs =
                 refereshWebpageEvent.Trigger "Api"
             )
         d1, d2
+
 
 module WebServer =
 
@@ -283,9 +289,46 @@ module WebServer =
         } |> Async.Start
         startWebserver (sprintf "http://%s:%d" hostname port)
 
+
+open Argu
+
+
+type WatchArgs =
+    | SrcBinGlob of string
+with
+    interface IArgParserTemplate with
+        member this.Usage =
+            match this with
+            | SrcBinGlob _  -> "The glob for the dlls to generate API documentation"
+
+type BuildArgs =
+    | SrcBinGlob of string
+with
+    interface IArgParserTemplate with
+        member this.Usage =
+            match this with
+            | SrcBinGlob _  -> "The glob for the dlls to generate API documentation"
+
+type CLIArguments =
+    | [<CustomCommandLine("watch")>]  Watch of ParseResults<WatchArgs>
+    | [<CustomCommandLine("build")>]  Build of ParseResults<BuildArgs>
+with
+    interface IArgParserTemplate with
+        member this.Usage =
+            match this with
+            | Watch _ -> "Builds the docs, serves the content, and watches for changes to the content."
+            | Build _ -> "Builds the docs"
+
 [<EntryPoint>]
 let main argv =
     let srcBinGlob = __SOURCE_DIRECTORY__ @@ ".." @@ "src/MyLib.1/bin/**/netstandard2.0/MyLib.*.dll"
-    let ds = GenerateDocs.watchDocs "MyLib.1" (!! srcBinGlob)
-    WebServer.serveDocs()
+    let errorHandler = ProcessExiter(colorizer = function ErrorCode.HelpText -> None | _ -> Some ConsoleColor.Red)
+    let parser = ArgumentParser.Create<CLIArguments>(programName = "gadget.exe", errorHandler = errorHandler)
+    let parsedArgs = parser.Parse argv
+    match parsedArgs.GetSubCommand() with
+    | Build args ->
+        GenerateDocs.buildDocs "MyLib.1" (!! srcBinGlob)
+    | Watch args ->
+        let ds = GenerateDocs.watchDocs "MyLib.1" (!! srcBinGlob)
+        WebServer.serveDocs()
     0 // return an integer exit code
