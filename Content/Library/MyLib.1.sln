@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{ACBEE43C
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MyLib.1.Tests", "tests\MyLib.1.Tests\MyLib.1.Tests.fsproj", "{1CA2E092-2320-451D-A4F0-9ED7C7C528CA}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "docSrc2", "docsSrc2\docSrc2.fsproj", "{8855EC73-F6A1-43D3-AFBC-04A3E09F9BD9}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "docsTool", "docsSrc2\docsTool.fsproj", "{8855EC73-F6A1-43D3-AFBC-04A3E09F9BD9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
