@@ -1,5 +1,6 @@
 namespace MyLib._1
 open System
+open Newtonsoft.Json.Linq
 
 /// Initial Module
 module Say =
@@ -42,3 +43,8 @@ module Say =
     [<Obsolete>]
     let reallyOldCode name =
         nothing name
+
+
+    /// Who doesn't like json?
+    let personJToken (person : Person) =
+        JToken.FromObject person
