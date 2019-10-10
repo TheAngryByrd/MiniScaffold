@@ -42,7 +42,6 @@ group Docs
     nuget Fake.IO.FileSystem
     nuget FAKE.Core.Environment
     nuget Fake.DotNet.Cli
-    nuget FAKE.Core.Process
     nuget FSharp.Literate prerelease
     nuget Fable.React
     nuget Paket.Core
