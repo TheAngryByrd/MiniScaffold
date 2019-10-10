@@ -19,7 +19,6 @@ group Build
     source https://www.nuget.org/api/v2
     source https://api.nuget.org/v3/index.json
     source https://ci.appveyor.com/nuget/fsharp-formatting
-    nuget Argu
     nuget Fake.IO.FileSystem
     nuget Fake.Core.Target
     nuget Fake.Core.ReleaseNotes
@@ -32,8 +31,19 @@ group Build
     nuget Fake.Api.GitHub
     nuget Fake.BuildServer.AppVeyor
     nuget Fake.BuildServer.Travis
+
+group Docs
+    storage: none
+    source https://www.nuget.org/api/v2
+    source https://api.nuget.org/v3/index.json
+    source https://ci.appveyor.com/nuget/fsharp-formatting
+    nuget Argu
+    nuget FSharp.Core
+    nuget Fake.IO.FileSystem
+    nuget FAKE.Core.Environment
+    nuget Fake.DotNet.Cli
+    nuget FAKE.Core.Process
     nuget FSharp.Literate prerelease
-    nuget FSharp.Formatting prerelease
     nuget Fable.React
     nuget Paket.Core
     nuget Microsoft.AspNetCore.StaticFiles
