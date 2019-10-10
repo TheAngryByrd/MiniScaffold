@@ -3,7 +3,6 @@ Argu
 FSharp.Core
 Fake.IO.FileSystem
 Fake.DotNet.Cli
-FAKE.Core.Process
 FSharp.Literate
 Fable.React
 Paket.Core
