@@ -405,6 +405,7 @@ let watchBuild () =
     |> Seq.iter (invokeAsync >> Async.Catch >> Async.Ignore >> Async.Start)
 
 Target.create "ServeDocs" <| fun _ ->
+    watchBuild ()
     DocsTool.watch ()
 
 //-----------------------------------------------------------------------------
