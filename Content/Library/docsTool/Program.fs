@@ -15,6 +15,7 @@ open Fable.React.Helpers
 open FSharp.Literate
 open System.IO
 open FSharp.MetadataFormat
+open System.Diagnostics
 
 let refereshWebpageEvent = new Event<string>()
 
@@ -278,13 +279,10 @@ module WebServer =
 
     let openBrowser url =
         //https://github.com/dotnet/corefx/issues/10361
-        let result =
-            Process.execSimple (fun info ->
-                    { info with
-                        FileName = url
-                        UseShellExecute = true })
-                    TimeSpan.MaxValue
-        if result <> 0 then failwithf "opening browser failed"
+        let psi = ProcessStartInfo(FileName = url, UseShellExecute = true)
+        let proc = Process.Start psi
+        proc.WaitForExit()
+        if proc.ExitCode <> 0 then failwithf "opening browser failed"
 
     let serveDocs () =
         let hostname = "localhost"
