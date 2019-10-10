@@ -64,19 +64,23 @@ module GenerateDocs =
     let generateDocs (docSourcePaths : IGlobbingPattern) githubRepoName =
         // This finds the current fsharp.core version of your solution to use for fsharp.literate
         let fsharpCoreDir = locateDLL "FSharp.Core" "netstandard2.0"
-
+        let newtonsoft = locateDLL "Newtonsoft.Json" "netstandard2.0"
         let parse (fileName : string) source =
             let doc =
                 let fsharpCoreDir = sprintf "-I:%s" fsharpCoreDir
+                let newtonsoftDir = sprintf "-I:%s" newtonsoft
                 let runtimeDeps = "-r:System.Runtime -r:System.Net.WebClient"
                 let compilerOptions = String.Join(' ',[
                     runtimeDeps
                     fsharpCoreDir
+                    newtonsoftDir
                 ])
-                let fsiEvaluator = FSharp.Literate.FsiEvaluator([|fsharpCoreDir|])
+                let fsiEvaluator = FSharp.Literate.FsiEvaluator([|
+                    fsharpCoreDir
+                    newtonsoftDir
+                    |])
                 match Path.GetExtension fileName with
                 | ".fsx" ->
-
                     Literate.ParseScriptString(
                         source,
                         path = fileName,
@@ -151,13 +155,15 @@ module GenerateDocs =
 
     let generateAPI gitRepoName (dllGlob : IGlobbingPattern) =
         let dlls, libDirs = dllsAndLibDirs dllGlob
+        //TODO: Read fsharp core and dependent libs from dotnet-proj-info
         let fsharpCoreDir = locateDLL "FSharp.Core" "netstandard2.0"
+        let newtonsoft = locateDLL "Newtonsoft.Json" "netstandard2.0"
         let mscorlibDir =
             (Uri(typedefof<System.Runtime.MemoryFailPoint>.GetType().Assembly.CodeBase)) //Find runtime dll
                 .AbsolutePath // removes file protocol from path
                 |> Path.GetDirectoryName
 
-        let libDirs = fsharpCoreDir :: mscorlibDir  :: libDirs
+        let libDirs = fsharpCoreDir :: mscorlibDir :: newtonsoft  :: libDirs
         // printfn "%A" dlls
         // printfn "%A" libDirs
         let generatorOutput = MetadataFormat.Generate(dlls, libDirs = libDirs)
@@ -321,7 +327,8 @@ with
 
 [<EntryPoint>]
 let main argv =
-    let srcBinGlob = __SOURCE_DIRECTORY__ @@ ".." @@ "src/MyLib.1/bin/**/netstandard2.0/MyLib.*.dll"
+    let srcBinGlob = "/Users/jimmybyrd/Documents/GitHub/MiniScaffold/Content/Library/src/MyLib.1/bin/**/netstandard2.0/MyLib.*.dll"
+    printfn "%A" srcBinGlob
     let errorHandler = ProcessExiter(colorizer = function ErrorCode.HelpText -> None | _ -> Some ConsoleColor.Red)
     let parser = ArgumentParser.Create<CLIArguments>(programName = "gadget.exe", errorHandler = errorHandler)
     let parsedArgs = parser.Parse argv

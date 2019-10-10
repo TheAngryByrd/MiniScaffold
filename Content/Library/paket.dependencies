@@ -29,6 +29,18 @@ group Build
     nuget Fake.BuildServer.Travis 5.18.3
     nuget Fantomas 3.0.0
     nuget FSharp.Literate
+group Docs
+    storage: none
+    source https://www.nuget.org/api/v2
+    source https://api.nuget.org/v3/index.json
+    source https://ci.appveyor.com/nuget/fsharp-formatting
+    nuget Argu
+    nuget FSharp.Core
+    nuget Fake.IO.FileSystem
+    nuget FAKE.Core.Environment
+    nuget Fake.DotNet.Cli
+    nuget FAKE.Core.Process
+    nuget FSharp.Literate prerelease
     nuget Fable.React
     nuget Paket.Core
     nuget Microsoft.AspNetCore.StaticFiles
