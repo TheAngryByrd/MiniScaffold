@@ -41,8 +41,8 @@ group Docs
     nuget Fake.DotNet.Cli
     nuget FSharp.Literate prerelease
     nuget Fable.React
-    nuget Paket.Core
     nuget Microsoft.AspNetCore.StaticFiles
     nuget Microsoft.AspNetCore.Hosting
     nuget Microsoft.AspNetCore.Server.Kestrel
     nuget Microsoft.AspNetCore.WebSockets
+    nuget Dotnet.ProjInfo.Workspace.FCS
