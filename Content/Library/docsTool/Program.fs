@@ -23,6 +23,66 @@ let docsDir = FileInfo(__SOURCE_DIRECTORY__ @@ ".." @@ "docs").FullName
 let docsApiDir = docsDir @@ "api"
 let docsSrcDir = FileInfo(__SOURCE_DIRECTORY__ @@ ".." @@ "docsSrc").FullName
 
+
+module ProjInfo =
+
+    type References = FileInfo []
+    type TargetPath = FileInfo
+
+    type ProjInfo = {
+        References : References
+        TargetPath : TargetPath
+    }
+
+    open Dotnet.ProjInfo.Workspace
+    open Dotnet.ProjInfo.Workspace.FCS
+    let createFCS () =
+        let checker =
+            FCS_Checker.Create(
+              projectCacheSize = 200,
+              keepAllBackgroundResolutions = true,
+              keepAssemblyContents = true)
+        checker.ImplicitlyStartBackgroundWork <- true
+        checker
+
+    let createLoader () =
+        let msbuildLocator = MSBuildLocator()
+        let config = LoaderConfig.Default msbuildLocator
+        let loader = Loader.Create(config)
+        let netFwconfig = NetFWInfoConfig.Default msbuildLocator
+        let netFwInfo = NetFWInfo.Create(netFwconfig)
+
+        loader, netFwInfo
+
+    let findReferences projPath : ProjInfo=
+        let fcs = createFCS ()
+        let loader, netFwInfo = createLoader ()
+        loader.LoadProjects [ projPath ]
+        let fcsBinder = FCSBinder(netFwInfo, loader, fcs)
+        match fcsBinder.GetProjectOptions(projPath) with
+        | Some options ->
+            let references =
+                options.OtherOptions
+                |> Array.filter(fun s ->
+                    s.StartsWith("-r:")
+                )
+                |> Array.map(fun s ->
+                    s.Remove(0,3)
+                    |> FileInfo
+                )
+            let targetPath =
+                match options.ExtraProjectInfo with
+                | Some (:? ProjectOptions as dpwPo) ->
+                    dpwPo.ExtraProjectInfo.TargetPath |> FileInfo
+                | x -> failwithf "invalid project info %A" x
+            { References = references ; TargetPath = targetPath}
+
+        | None ->
+            failwithf "Couldn't read project %s" projPath
+
+
+
+
 module GenerateDocs =
     let docsFileGlob =
         !! (docsSrcDir @@ "**/*.fsx")
@@ -46,40 +106,27 @@ module GenerateDocs =
         IO.File.WriteAllText(outPath.FullName, contents)
         Fake.Core.Trace.tracefn "Rendered to %s" outPath.FullName
 
-    let locateDLL name rid =
-        let lockFile = Paket.LockFile.LoadFrom (__SOURCE_DIRECTORY__ @@ ".." @@ Paket.Constants.LockFileName)
-        let packageName = Paket.Domain.PackageName name
-        let (_,package,version) =
-            lockFile.InstalledPackages
-            |> Seq.filter(fun (_,p,_) ->
-                p =  packageName
-            )
-            |> Seq.maxBy(fun (_,_,semver) -> semver)
-        Paket.NuGetCache.GetTargetUserFolder package version </> "lib" </> rid
-
-
     let copyAssets () =
         Shell.copyDir (docsDir </> "content")   ( docsSrcDir </> "content") (fun _ -> true)
         Shell.copyDir (docsDir </> "files")   ( docsSrcDir </> "files") (fun _ -> true)
 
-    let generateDocs (docSourcePaths : IGlobbingPattern) githubRepoName =
-        // This finds the current fsharp.core version of your solution to use for fsharp.literate
-        let fsharpCoreDir = locateDLL "FSharp.Core" "netstandard2.0"
-        let newtonsoft = locateDLL "Newtonsoft.Json" "netstandard2.0"
+    let generateDocs (libDirs : ProjInfo.References) (docSourcePaths : IGlobbingPattern) githubRepoName =
         let parse (fileName : string) source =
             let doc =
-                let fsharpCoreDir = sprintf "-I:%s" fsharpCoreDir
-                let newtonsoftDir = sprintf "-I:%s" newtonsoft
-                let runtimeDeps = "-r:System.Runtime -r:System.Net.WebClient"
-                let compilerOptions = String.Join(' ',[
-                    runtimeDeps
-                    fsharpCoreDir
-                    newtonsoftDir
-                ])
-                let fsiEvaluator = FSharp.Literate.FsiEvaluator([|
-                    fsharpCoreDir
-                    newtonsoftDir
-                    |])
+                let references =
+                    libDirs
+                    |> Array.map(fun fi -> fi.DirectoryName)
+                    |> Array.distinct
+                    |> Array.map(sprintf "-I:%s")
+                let runtimeDeps =
+                    [|
+                        "-r:System.Runtime"
+                        "-r:System.Net.WebClient"
+                    |]
+                let compilerOptions = String.Join(' ', Array.concat [runtimeDeps; references])
+                let fsiEvaluator =
+                    references
+                    |> fun libs -> FSharp.Literate.FsiEvaluator(libs)
                 match Path.GetExtension fileName with
                 | ".fsx" ->
                     Literate.ParseScriptString(
@@ -139,37 +186,19 @@ module GenerateDocs =
         copyAssets()
 
 
-    let baseDir = Path.GetFullPath "."
-
-    let dllsAndLibDirs (dllPattern:IGlobbingPattern) =
-        let dlls =
-            dllPattern
-            |> GlobbingPattern.setBaseDir baseDir
-            |> Seq.distinctBy Path.GetFileName
-            |> List.ofSeq
-        let libDirs =
-            dlls
-            |> Seq.map Path.GetDirectoryName
-            |> Seq.distinct
-            |> List.ofSeq
-        (dlls, libDirs)
-
-    let generateAPI gitRepoName (dllGlob : IGlobbingPattern) =
-        let dlls, libDirs = dllsAndLibDirs dllGlob
-        //TODO: Read fsharp core and dependent libs from dotnet-proj-info
-        let fsharpCoreDir = locateDLL "FSharp.Core" "netstandard2.0"
-        let newtonsoft = locateDLL "Newtonsoft.Json" "netstandard2.0"
+    let generateAPI (projInfo : ProjInfo.ProjInfo) gitRepoName =
         let mscorlibDir =
             (Uri(typedefof<System.Runtime.MemoryFailPoint>.GetType().Assembly.CodeBase)) //Find runtime dll
                 .AbsolutePath // removes file protocol from path
                 |> Path.GetDirectoryName
+        let references =
+            projInfo.References
+            |> Array.toList
+            |> List.map(fun fi -> fi.DirectoryName)
+            |> List.distinct
+        let libDirs = mscorlibDir :: references
 
-        let libDirs = fsharpCoreDir :: mscorlibDir :: newtonsoft  :: libDirs
-        // printfn "%A" dlls
-        // printfn "%A" libDirs
-        let generatorOutput = MetadataFormat.Generate(dlls, libDirs = libDirs)
-        // printfn "%A" generatorOutput
-        // generatorOutput.AssemblyGroup.Namespaces
+        let generatorOutput = MetadataFormat.Generate(projInfo.TargetPath.FullName, libDirs = libDirs)
         let fi = FileInfo <| docsApiDir @@ "index.html"
         let nav = (Nav.generateNav gitRepoName)
         [Namespaces.generateNamespaceDocs generatorOutput.AssemblyGroup generatorOutput.Properties]
@@ -187,12 +216,12 @@ module GenerateDocs =
             |> renderWithMasterAndWrite fi nav (sprintf "%s-%s" m.Type.Name gitRepoName)
         )
 
-    let buildDocs githubRepoName (dllGlob : IGlobbingPattern) =
-        generateDocs (docsFileGlob) githubRepoName
-        generateAPI githubRepoName dllGlob
+    let buildDocs (projInfo : ProjInfo.ProjInfo) githubRepoName =
+        generateDocs projInfo.References (docsFileGlob) githubRepoName
+        generateAPI projInfo githubRepoName
 
-    let watchDocs githubRepoName (dllGlob : IGlobbingPattern) =
-        buildDocs githubRepoName dllGlob
+    let watchDocs (projInfo : ProjInfo.ProjInfo) githubRepoName =
+        buildDocs projInfo githubRepoName
         let d1 =
             docsFileGlob
             |> ChangeWatcher.run (fun changes ->
@@ -200,17 +229,17 @@ module GenerateDocs =
                 changes
                 |> Seq.iter (fun m ->
                     printfn "watching %s" m.FullPath
-                    generateDocs (!! m.FullPath) githubRepoName
+                    generateDocs projInfo.References (!! m.FullPath) githubRepoName
                     refereshWebpageEvent.Trigger m.FullPath
                 )
             )
 
         let d2 =
-            dllGlob
+            !!( projInfo.TargetPath.FullName )
             |> ChangeWatcher.run(fun changes ->
                 changes
                 |> Seq.iter(fun c -> Trace.logf "Regenerating API docs due to %s" c.FullPath )
-                generateAPI githubRepoName dllGlob
+                generateAPI projInfo githubRepoName
                 refereshWebpageEvent.Trigger "Api"
             )
         d1, d2
@@ -298,20 +327,20 @@ open Argu
 
 
 type WatchArgs =
-    | SrcBinGlob of string
+    | ProjectPath of string
 with
     interface IArgParserTemplate with
         member this.Usage =
             match this with
-            | SrcBinGlob _  -> "The glob for the dlls to generate API documentation"
+            | ProjectPath _  -> "The glob for the dlls to generate API documentation"
 
 type BuildArgs =
-    | SrcBinGlob of string
+    | ProjectPath of string
 with
     interface IArgParserTemplate with
         member this.Usage =
             match this with
-            | SrcBinGlob _  -> "The glob for the dlls to generate API documentation"
+            | ProjectPath _  -> "The glob for the dlls to generate API documentation"
 
 type CLIArguments =
     | [<CustomCommandLine("watch")>]  Watch of ParseResults<WatchArgs>
@@ -325,15 +354,18 @@ with
 
 [<EntryPoint>]
 let main argv =
-    let srcBinGlob = "/Users/jimmybyrd/Documents/GitHub/MiniScaffold/Content/Library/src/MyLib.1/bin/**/netstandard2.0/MyLib.*.dll"
-    printfn "%A" srcBinGlob
+
     let errorHandler = ProcessExiter(colorizer = function ErrorCode.HelpText -> None | _ -> Some ConsoleColor.Red)
     let parser = ArgumentParser.Create<CLIArguments>(programName = "gadget.exe", errorHandler = errorHandler)
     let parsedArgs = parser.Parse argv
     match parsedArgs.GetSubCommand() with
     | Build args ->
-        GenerateDocs.buildDocs "MyLib.1" (!! srcBinGlob)
+        let projpath = args.GetResult<@ BuildArgs.ProjectPath @>
+        let projInfo = ProjInfo.findReferences  projpath
+        GenerateDocs.buildDocs projInfo "MyLib.1"
     | Watch args ->
-        let ds = GenerateDocs.watchDocs "MyLib.1" (!! srcBinGlob)
+        let projpath = args.GetResult<@ WatchArgs.ProjectPath @>
+        let projInfo = ProjInfo.findReferences  projpath
+        let ds = GenerateDocs.watchDocs projInfo "MyLib.1"
         WebServer.serveDocs()
     0 // return an integer exit code

@@ -50,8 +50,6 @@ let srcAndTest =
     !! srcGlob
     ++ testsGlob
 
-let srcBinGlob = __SOURCE_DIRECTORY__ @@ "src/MyLib.1/bin/**/netstandard2.0/MyLib.*.dll"
-
 let distDir = __SOURCE_DIRECTORY__  @@ "dist"
 let distGlob = distDir @@ "*.nupkg"
 let toolsDir = __SOURCE_DIRECTORY__  @@ "tools"
@@ -135,16 +133,16 @@ module dotnet =
         tool optionConfig "sourcelink" args
 
 module DocsTool =
-    let build () =
+    let build projectpath =
         dotnet.run (fun args ->
             { args with WorkingDirectory = docsToolDir }
-        ) "build"
+        ) (sprintf "build --projectpath \"%s\"" projectpath)
         |> failOnBadExitAndPrint
 
-    let watch () =
+    let watch projectpath =
         dotnet.watch (fun args ->
             { args with WorkingDirectory = docsToolDir }
-        ) "run" "watch"
+        ) "run" (sprintf "watch --projectpath \"%s\"" projectpath)
         |> failOnBadExitAndPrint
 
 //-----------------------------------------------------------------------------
@@ -390,7 +388,7 @@ Target.create "FormatCode" formatCode
 Target.create "Release" ignore
 
 Target.create "GenerateDocs" <| fun _ ->
-    DocsTool.build ()
+    DocsTool.build (!! srcGlob |> Seq.head)
 
 let watchBuild () =
     !! srcGlob
@@ -406,7 +404,7 @@ let watchBuild () =
 
 Target.create "ServeDocs" <| fun _ ->
     watchBuild ()
-    DocsTool.watch ()
+    DocsTool.watch (!! srcGlob |> Seq.head)
 
 //-----------------------------------------------------------------------------
 // Target Dependencies
@@ -427,8 +425,8 @@ Target.create "ServeDocs" <| fun _ ->
 "DotnetBuild"
 ==> "GenerateDocs"
 
-"GenerateDocs"
-  ==> "ServeDocs"
+"DotnetBuild"
+==> "ServeDocs"
 
 "DotnetRestore"
     ==> "DotnetBuild"
