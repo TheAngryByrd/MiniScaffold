@@ -1,30 +1,27 @@
 ﻿// Learn more about F# at http://fsharp.org
 
+
 open System
-open Microsoft.AspNetCore.Hosting
-open Microsoft.AspNetCore.Builder
-open Microsoft.Extensions.FileProviders
-open Microsoft.AspNetCore.Http
-open System.Net.WebSockets
-open Fake.Core
 open Fake.IO.FileSystemOperators
-open Fake.IO.Globbing.Operators
-open Fake.IO
-open Fable.React
-open Fable.React.Helpers
-open FSharp.Literate
-open System.IO
-open FSharp.MetadataFormat
-open System.Diagnostics
 
-let refereshWebpageEvent = new Event<string>()
+let refreshWebpageEvent = new Event<string>()
 
-let docsDir = FileInfo(__SOURCE_DIRECTORY__ @@ ".." @@ "docs").FullName
+let docsDir = IO.FileInfo(__SOURCE_DIRECTORY__ @@ ".." @@ "docs").FullName
 let docsApiDir = docsDir @@ "api"
-let docsSrcDir = FileInfo(__SOURCE_DIRECTORY__ @@ ".." @@ "docsSrc").FullName
+let docsSrcDir = IO.FileInfo(__SOURCE_DIRECTORY__ @@ ".." @@ "docsSrc").FullName
 
+module Helpers =
+    open System
+    type DisposableList =
+        {
+            disposables : IDisposable list
+        } interface IDisposable with
+            member x.Dispose () =
+                x.disposables |> List.iter(fun s -> s.Dispose())
+open Helpers
 
 module ProjInfo =
+    open System.IO
 
     type References = FileInfo []
     type TargetPath = FileInfo
@@ -83,11 +80,20 @@ module ProjInfo =
 
 
 
+
 module GenerateDocs =
+    open Fake.Core
+    open Fake.IO.Globbing.Operators
+    open Fake.IO
+    open Fable.React
+    open Fable.React.Helpers
+    open FSharp.Literate
+    open System.IO
+    open FSharp.MetadataFormat
+
     let docsFileGlob =
         !! (docsSrcDir @@ "**/*.fsx")
         ++ (docsSrcDir @@ "**/*.md")
-        -- (docsSrcDir @@ "templates/*") // Don't want to generate from html templates
 
     let render html =
         fragment [] [
@@ -95,6 +101,7 @@ module GenerateDocs =
             RawText "\n"
             html ]
         |> Fable.ReactServer.renderToString
+
     let renderWithMasterTemplate navBar titletext bodytext =
         Master.masterTemplate "gitRepoName" navBar titletext bodytext
         |> render
@@ -124,9 +131,7 @@ module GenerateDocs =
                         "-r:System.Net.WebClient"
                     |]
                 let compilerOptions = String.Join(' ', Array.concat [runtimeDeps; references])
-                let fsiEvaluator =
-                    references
-                    |> fun libs -> FSharp.Literate.FsiEvaluator(libs)
+                let fsiEvaluator = FSharp.Literate.FsiEvaluator(references)
                 match Path.GetExtension fileName with
                 | ".fsx" ->
                     Literate.ParseScriptString(
@@ -230,7 +235,7 @@ module GenerateDocs =
                 |> Seq.iter (fun m ->
                     printfn "watching %s" m.FullPath
                     generateDocs projInfo.References (!! m.FullPath) githubRepoName
-                    refereshWebpageEvent.Trigger m.FullPath
+                    refreshWebpageEvent.Trigger m.FullPath
                 )
             )
 
@@ -240,12 +245,18 @@ module GenerateDocs =
                 changes
                 |> Seq.iter(fun c -> Trace.logf "Regenerating API docs due to %s" c.FullPath )
                 generateAPI projInfo githubRepoName
-                refereshWebpageEvent.Trigger "Api"
+                refreshWebpageEvent.Trigger "Api"
             )
-        d1, d2
+        { disposables = [d1; d2] } :> IDisposable
 
 
 module WebServer =
+    open Microsoft.AspNetCore.Hosting
+    open Microsoft.AspNetCore.Builder
+    open Microsoft.Extensions.FileProviders
+    open Microsoft.AspNetCore.Http
+    open System.Net.WebSockets
+    open System.Diagnostics
 
     /// Helper to determine if port is in use
     let waitForPortInUse (hostname : string) port =
@@ -272,7 +283,7 @@ module WebServer =
         if httpContext.WebSockets.IsWebSocketRequest then
             let! websocket = httpContext.WebSockets.AcceptWebSocketAsync() |> Async.AwaitTask
             use d =
-                refereshWebpageEvent.Publish
+                refreshWebpageEvent.Publish
                 |> Observable.subscribe (fun m ->
                     let segment = ArraySegment<byte>(m |> Text.Encoding.UTF8.GetBytes)
                     websocket.SendAsync(segment, WebSocketMessageType.Text, true, httpContext.RequestAborted)
@@ -366,6 +377,6 @@ let main argv =
     | Watch args ->
         let projpath = args.GetResult<@ WatchArgs.ProjectPath @>
         let projInfo = ProjInfo.findReferences  projpath
-        let ds = GenerateDocs.watchDocs projInfo "MyLib.1"
+        use ds = GenerateDocs.watchDocs projInfo "MyLib.1"
         WebServer.serveDocs()
     0 // return an integer exit code
