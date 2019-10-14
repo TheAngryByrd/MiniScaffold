@@ -18,7 +18,6 @@ group Build
     storage: none
     source https://www.nuget.org/api/v2
     source https://api.nuget.org/v3/index.json
-    source https://ci.appveyor.com/nuget/fsharp-formatting
     nuget Fake.IO.FileSystem
     nuget Fake.Core.Target
     nuget Fake.Core.ReleaseNotes
@@ -36,7 +35,6 @@ group Docs
     storage: none
     source https://www.nuget.org/api/v2
     source https://api.nuget.org/v3/index.json
-    source https://ci.appveyor.com/nuget/fsharp-formatting
     nuget Argu
     nuget FSharp.Core
     nuget Fake.IO.FileSystem
