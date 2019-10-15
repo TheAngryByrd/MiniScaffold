@@ -290,3 +290,19 @@ h1.header:visited {
     padding-top: 69px; 
     margin-top: -69px;
 }
+
+/* .main {
+    margin: .5em 3em;
+} */
+
+.main h1 {
+    padding: .5em 0em
+}
+
+.main h2 {
+    padding: .5em 0em
+}
+
+.footer {
+    padding-top: 4em
+}
