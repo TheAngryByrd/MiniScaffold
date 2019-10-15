@@ -238,8 +238,17 @@ module GenerateDocs =
                     refreshWebpageEvent.Trigger m.FullPath
                 )
             )
-
         let d2 =
+            !! (docsSrcDir </> "content" </> "**/*")
+            ++ (docsSrcDir </> "files"  </> "**/*")
+            |> ChangeWatcher.run(fun changes ->
+                printfn "changes %A" changes
+                copyAssets ()
+                refreshWebpageEvent.Trigger "Assets"
+            )
+
+
+        let d3 =
             !!( projInfo.TargetPath.FullName )
             |> ChangeWatcher.run(fun changes ->
                 changes
@@ -247,7 +256,7 @@ module GenerateDocs =
                 generateAPI projInfo githubRepoName
                 refreshWebpageEvent.Trigger "Api"
             )
-        { disposables = [d1; d2] } :> IDisposable
+        { disposables = [d1; d2; d3] } :> IDisposable
 
 
 module WebServer =

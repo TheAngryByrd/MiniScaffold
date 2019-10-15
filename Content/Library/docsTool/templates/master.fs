@@ -28,7 +28,7 @@ let masterTemplate gitRepoName navBar titletext bodyText =
         ]
         body [] [
             yield navBar
-            yield! bodyText
+            yield div [Class "container main"] bodyText
             yield script [
                 Src "https://code.jquery.com/jquery-3.3.1.slim.min.js"
                 Integrity "sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
@@ -46,5 +46,10 @@ let masterTemplate gitRepoName navBar titletext bodyText =
                 ] []
             yield script [Src "/content/tips.js" ] []
             yield script [Src "/content/hotload.js" ] []
+        ]
+        footer [ Class "footer font-small bg-dark navbar fixed-bottom" ] [
+            div [Class "container"] [
+                p [] [str "hello"]
+            ]
         ]
     ]
