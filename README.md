@@ -30,7 +30,7 @@ Not so mini anymore...
     - To build for `netstandard2.1`
         - Have [.NET core 3.0](https://dotnet.microsoft.com/download) installed
 - [Sourcelink](https://github.com/dotnet/sourcelink) which enables a great source debugging experience for your users, by adding source control metadata to your built assets
-- [Release](#Library-Release) build step pushes NuGet packages to [NuGet](https://www.nuget.org/)
+- [Release](Content/Library/README.md#Releasing) build step pushes NuGet packages to [NuGet](https://www.nuget.org/)
 
 
 ### For [Applications](Content/Console/README.md)
