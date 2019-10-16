@@ -56,7 +56,16 @@ dotnet new -i "MiniScaffold::*"
 Then choose:
 
 - [I want to build a Library](Content/Library/README.md)
+
+```
+dotnet new mini-scaffold -n MyCoolNewLib --githubUsername MyGithubUsername
+```
+
 - [I want to build an Application](Content/Console/README.md)
+
+```
+dotnet new mini-scaffold -n MyCoolNewApp --githubUsername MyGithubUsername -ou console
+```
 
 ---
 
