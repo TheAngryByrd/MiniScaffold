@@ -1,7 +1,7 @@
 # MiniScaffold
 F# Template for
-- creating and publishing [libraries](#Library) targeting .NET Full `net461` and Core `netstandard2.1`
-- creating and publishing [applications](#Application) targeting .NET  Core `netcoreapp3.0`
+- creating and publishing [libraries](Content/Library/README.md) targeting .NET Full `net461` and Core `netstandard2.1`
+- creating and publishing [applications](Content/Console/README.md) targeting .NET  Core `netcoreapp3.0`
 
 ## What does this include in the box?
 
