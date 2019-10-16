@@ -18,7 +18,7 @@ Not so mini anymore...
 - [Code formatting](https://en.wikipedia.org/wiki/Programming_style) style via [Fantomas](https://github.com/fsprojects/fantomas)
 - `Release` build step commits latest [Release Notes](https://fake.build/apidocs/v5/fake-core-releasenotes.html) in the body and creates a [git tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging).
     - If you [reference a Pull Request](https://github.com/TheAngryByrd/FSharp.Control.WebSockets/blob/master/RELEASE_NOTES.md#021---2019-09-12) in the `Release Notes` it will [update that Pull Request](https://github.com/TheAngryByrd/FSharp.Control.WebSockets/pull/3#ref-commit-142baba) with the version it was released in.
-- `Release` build step publishes a Github Release via the  [Release Notes](https://fake.build/apidocs/v5/fake-core-releasenotes.html) and adds any artifacts (nuget/zip/targz/etc).
+- `Release` build step publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) via the  [Release Notes](https://fake.build/apidocs/v5/fake-core-releasenotes.html) and adds any artifacts (nuget/zip/targz/etc).
 - [Continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) via [AppVeyor](https://www.appveyor.com/docs/) (Windows) and [TravisCI] (Linux) or [GitHub Actions](https://github.com/features/actions)
 
 
