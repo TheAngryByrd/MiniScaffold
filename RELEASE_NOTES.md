@@ -1,4 +1,7 @@
 
+### 0.19.1 - 2019-10-21
+* MINOR: Better READMEs (https://github.com/TheAngryByrd/MiniScaffold/pull/150)
+
 ### 0.19.0 - 2019-09-24
 * FEATURE: Dotnet core 3.0 support: https://github.com/TheAngryByrd/MiniScaffold/pull/141
 
