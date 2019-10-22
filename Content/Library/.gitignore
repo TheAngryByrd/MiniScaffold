@@ -253,7 +253,7 @@ paket-files/
 
 TestResults.xml
 
-# Nuget packages distributables
+# NuGet packages distributables
 dist/
 
 # Ionide cache

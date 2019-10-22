@@ -6,9 +6,9 @@ Please insert a description of your problem or question.
 
 Please add any error logs or screenshots if available.
 
-## Failing test, failing github repo, or reproduction steps
+## Failing test, failing GitHub repo, or reproduction steps
 
-Please add either a failing test, a github repo of the problem or detailed reproduction steps.
+Please add either a failing test, a GitHub repo of the problem or detailed reproduction steps.
 
 ## Expected Behavior
 

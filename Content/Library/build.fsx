@@ -358,8 +358,8 @@ Target.create "GenerateCoverageReport" generateCoverageReport
 Target.create "WatchTests" watchTests
 Target.create "GenerateAssemblyInfo" generateAssemblyInfo
 Target.create "DotnetPack" dotnetPack
-Target.create "SourcelinkTest" sourceLinkTest
-Target.create "PublishToNuget" publishToNuget
+Target.create "SourceLinkTest" sourceLinkTest
+Target.create "PublishToNuGet" publishToNuget
 Target.create "GitRelease" gitRelease
 Target.create "GitHubRelease" githubRelease
 Target.create "FormatCode" formatCode
@@ -379,15 +379,15 @@ Target.create "Release" ignore
 // Ensure AssemblyInfo is called after DotnetRestore and before DotnetBuild
 "DotnetRestore" ?=> "GenerateAssemblyInfo"
 "GenerateAssemblyInfo" ?=> "DotnetBuild"
-"GenerateAssemblyInfo" ==> "PublishToNuget"
+"GenerateAssemblyInfo" ==> "PublishToNuGet"
 
 "DotnetRestore"
     ==> "DotnetBuild"
     ==> "DotnetTest"
     =?> ("GenerateCoverageReport", not disableCodeCoverage)
     ==> "DotnetPack"
-    ==> "SourcelinkTest"
-    ==> "PublishToNuget"
+    ==> "SourceLinkTest"
+    ==> "PublishToNuGet"
     ==> "GitRelease"
     ==> "GitHubRelease"
     ==> "Release"
