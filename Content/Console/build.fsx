@@ -14,6 +14,8 @@ open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
 open Fake.Api
 open Fake.BuildServer
+open Fantomas
+open Fantomas.FakeHelpers
 
 BuildServer.install [
     AppVeyor.Installer
@@ -42,6 +44,14 @@ let productName = "MyLib.1"
 let sln = "MyLib.1.sln"
 
 let src = __SOURCE_DIRECTORY__  @@ "src"
+
+let srcCodeGlob =
+    !! ( src  @@ "**/*.fs")
+    ++ ( src  @@ "**/*.fsx")
+
+let testsCodeGlob =
+    !! (__SOURCE_DIRECTORY__  @@ "tests/**/*.fs")
+    ++ (__SOURCE_DIRECTORY__  @@ "tests/**/*.fsx")
 
 let srcGlob = src @@ "**/*.??proj"
 let testsGlob = __SOURCE_DIRECTORY__  @@ "tests/**/*.??proj"
@@ -125,9 +135,6 @@ module dotnet =
     let tool optionConfig command args =
         DotNet.exec optionConfig (sprintf "%s" command) args
         |> failOnBadExitAndPrint
-
-    let fantomas optionConfig args =
-        tool optionConfig "fantomas" args
 
     let reportgenerator optionConfig args =
         tool optionConfig "reportgenerator" args
@@ -345,10 +352,21 @@ let githubRelease _ =
     |> Async.RunSynchronously
 
 let formatCode _ =
-    srcAndTest
-    |> Seq.map (IO.Path.GetDirectoryName)
-    |> Seq.iter (fun projDir ->
-        dotnet.fantomas id (sprintf "--recurse %s" projDir)
+    [
+        srcCodeGlob
+        testsCodeGlob
+    ]
+    |> Seq.collect id
+    // Ignore AssemblyInfo
+    |> Seq.filter(fun f -> f.EndsWith("AssemblyInfo.fs") |> not)
+    |> formatFilesAsync FormatConfig.FormatConfig.Default
+    |> Async.RunSynchronously
+    |> Seq.iter(fun result ->
+        match result with
+        | Formatted(original, tempfile) ->
+            tempfile |> Shell.copyFile original
+            Trace.logfn "Formatted %s" original
+        | _ -> ()
     )
 
 //-----------------------------------------------------------------------------
