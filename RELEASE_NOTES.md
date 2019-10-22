@@ -1,3 +1,8 @@
+### 0.20.0 - 2019-10-22
+* FEATURE: Use Paket as local tool (https://github.com/TheAngryByrd/MiniScaffold/pull/148)
+* MINOR: Update FAKE to 5.18.1 (https://github.com/TheAngryByrd/MiniScaffold/pull/148)
+* MINOR: Update Fantomas to 3.0.0 (https://github.com/TheAngryByrd/MiniScaffold/pull/152)
+
 ### 0.19.2 - 2019-10-22
 * MINOR: More README cleanups (https://github.com/TheAngryByrd/MiniScaffold/pull/151)
 
@@ -5,7 +10,7 @@
 * MINOR: Better READMEs (https://github.com/TheAngryByrd/MiniScaffold/pull/150)
 
 ### 0.19.0 - 2019-09-24
-* FEATURE: Dotnet core 3.0 support: https://github.com/TheAngryByrd/MiniScaffold/pull/141
+* FEATURE: Dotnet core 3.0 support (https://github.com/TheAngryByrd/MiniScaffold/pull/1410
 
 ### 0.18.0 - 2019-09-20
 * FEATURE: GitHub Actions (https://github.com/TheAngryByrd/MiniScaffold/pull/145) (https://github.com/TheAngryByrd/MiniScaffold/pull/146)
