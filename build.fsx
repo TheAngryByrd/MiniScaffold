@@ -141,11 +141,12 @@ Target.create "IntegrationTests" <| fun ctx ->
 
 Target.create "Publish" <| fun _ ->
     Paket.push(fun c ->
-            { c with
-                PublishUrl = "https://www.nuget.org"
-                WorkingDir = "dist"
-            }
-        )
+        { c with
+            ToolType = ToolType.CreateLocalTool()
+            PublishUrl = "https://www.nuget.org"
+            WorkingDir = "dist"
+        }
+    )
 
 
 let isReleaseBranchCheck () =
