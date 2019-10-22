@@ -62,8 +62,6 @@ let releaseNotes = Fake.Core.ReleaseNotes.load "RELEASE_NOTES.md"
 
 let publishUrl = "https://www.nuget.org"
 
-let paketToolPath = "dotnet paket"
-
 let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
 
 //-----------------------------------------------------------------------------
@@ -123,9 +121,6 @@ module dotnet =
     let sourcelink optionConfig args =
         tool optionConfig "sourcelink" args
 
-    let paket optionConfig args =
-        tool optionConfig "paket" args
-
 //-----------------------------------------------------------------------------
 // Target Implementations
 //-----------------------------------------------------------------------------
@@ -147,8 +142,6 @@ let clean _ =
     |> Seq.iter Shell.rm
 
 let dotnetRestore _ =
-    dotnet.paket id "restore"
-
     [sln]
     |> Seq.map(fun dir -> fun () ->
         let args =
@@ -306,14 +299,13 @@ let sourceLinkTest _ =
 
 let publishToNuget _ =
     isReleaseBranchCheck ()
-
     Paket.push(fun c ->
-            { c with
-                ToolPath = paketToolPath
-                PublishUrl = publishUrl
-                WorkingDir = "dist"
-            }
-        )
+        { c with
+            ToolType = ToolType.CreateLocalTool()
+            PublishUrl = publishUrl
+            WorkingDir = "dist"
+        }
+    )
 
 let gitRelease _ =
     isReleaseBranchCheck ()
