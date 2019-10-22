@@ -27,3 +27,4 @@ group Build
     nuget Fake.Api.GitHub 5.18.1
     nuget Fake.BuildServer.AppVeyor 5.18.1
     nuget Fake.BuildServer.Travis 5.18.1
+    nuget Fantomas 3.0.0
