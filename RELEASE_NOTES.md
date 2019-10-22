@@ -1,3 +1,5 @@
+### 0.19.2 - 2019-10-22
+* MINOR: More README cleanups (https://github.com/TheAngryByrd/MiniScaffold/pull/151)
 
 ### 0.19.1 - 2019-10-21
 * MINOR: Better READMEs (https://github.com/TheAngryByrd/MiniScaffold/pull/150)
