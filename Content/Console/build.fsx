@@ -132,9 +132,6 @@ module dotnet =
     let reportgenerator optionConfig args =
         tool optionConfig "reportgenerator" args
 
-    let paket optionConfig args =
-        tool optionConfig "paket" args
-
 //-----------------------------------------------------------------------------
 // Target Implementations
 //-----------------------------------------------------------------------------
@@ -158,8 +155,6 @@ let clean _ =
     |> Seq.iter Shell.rm
 
 let dotnetRestore _ =
-    dotnet.paket id "restore"
-
     [sln]
     |> Seq.map(fun dir -> fun () ->
         let args =
