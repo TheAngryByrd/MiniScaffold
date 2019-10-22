@@ -26,7 +26,7 @@ Not so mini anymore...
 - Builds for both `net461` and `netstandard2.1` - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
     - To build for `net461`
         - On windows: Have at least .NET Framework 4.6.1 installed
-        - On osx/linux: Have [mono](https://www.mono-project.com/download/stable/) installed
+        - On macOS/linux: Have [mono](https://www.mono-project.com/download/stable/) installed
     - To build for `netstandard2.1`
         - Have [.NET core 3.0](https://dotnet.microsoft.com/download) installed
 - [Sourcelink](https://github.com/dotnet/sourcelink) which enables a great source debugging experience for your users, by adding source control metadata to your built assets
@@ -47,7 +47,7 @@ Not so mini anymore...
 ## Getting started
 
 
-### Install the [dotnet template](https://docs.microsoft.com/en-us/dotnet/core/tools/custom-templates) from nuget:
+### Install the [dotnet template](https://docs.microsoft.com/en-us/dotnet/core/tools/custom-templates) from NuGet:
 
 ```
 dotnet new -i "MiniScaffold::*"
@@ -71,12 +71,12 @@ dotnet new mini-scaffold -n MyCoolNewApp --githubUsername MyGithubUsername -ou c
 
 ## Builds
 
-MacOS/Linux | Windows
+macOS/Linux | Windows
 :---: | :---:
 [![Travis Badge](https://travis-ci.org/TheAngryByrd/MiniScaffold.svg?branch=master)](https://travis-ci.org/TheAngryByrd/MiniScaffold) | [![Build status](https://ci.appveyor.com/api/projects/status/rvwrjthtnew2digr/branch/master?svg=true)](https://ci.appveyor.com/project/TheAngryByrd/miniscaffold/branch/master)
 [![Build History](https://buildstats.info/travisci/chart/TheAngryByrd/MiniScaffold)](https://travis-ci.org/TheAngryByrd/MiniScaffold/builds) | [![Build History](https://buildstats.info/appveyor/chart/TheAngryByrd/MiniScaffold)](https://ci.appveyor.com/project/TheAngryByrd/MiniScaffold)
 
-## Nuget
+## NuGet
 
 
 Stable | Prerelease
@@ -88,7 +88,7 @@ Stable | Prerelease
 ## Options
 
 ### githubUserName
-This is uesd to atomatically configure author information in the nuget package, as well as configure push urls for repo locations.
+This is used to automatically configure author information in the NuGet package, as well as configure push urls for repo locations.
 
 ### outputType
 Defaults to Library
@@ -119,7 +119,7 @@ This is because dotnet template loses permissions of files. (https://github.com/
 * [Expecto](https://github.com/haf/expecto)
 * Heavily inspired by [Project Scaffold](https://github.com/fsprojects/ProjectScaffold)
 * [Buildstats.info](https://github.com/dustinmoris/CI-BuildStats)
-* [SourceLink](https://github.com/ctaggart/SourceLink)
+* [Source Link](https://github.com/ctaggart/SourceLink)
 * [AltCover](https://github.com/SteveGilham/altcover)
 * [ReportGenerator](https://github.com/danielpalme/ReportGenerator)
 * [Fantomas](https://github.com/fsprojects/fantomas)
