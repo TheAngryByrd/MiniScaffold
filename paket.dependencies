@@ -9,16 +9,15 @@ group Build
     nuget Expecto
     nuget YoloDev.Expecto.TestSdk
     nuget Microsoft.NET.Test.Sdk 15.7.2
-    nuget Fake.IO.FileSystem
-    nuget Fake.Core.Target
-    nuget Fake.Core.ReleaseNotes
-    nuget FAKE.Core.Environment
-    nuget Fake.DotNet.Cli
-    nuget FAKE.Core.Process
-    nuget Fake.DotNet.AssemblyInfoFile
-    nuget Fake.Tools.Git
-    nuget Fake.DotNet.Paket
-    nuget Fake.Api.GitHub
-
-    nuget Fake.BuildServer.AppVeyor
-    nuget Fake.BuildServer.Travis
+    nuget Fake.IO.FileSystem 5.18.1
+    nuget Fake.Core.Target 5.18.1
+    nuget Fake.Core.ReleaseNotes 5.18.1
+    nuget FAKE.Core.Environment 5.18.1
+    nuget Fake.DotNet.Cli 5.18.1
+    nuget FAKE.Core.Process 5.18.1
+    nuget Fake.DotNet.AssemblyInfoFile 5.18.1
+    nuget Fake.Tools.Git 5.18.1
+    nuget Fake.DotNet.Paket 5.18.1
+    nuget Fake.Api.GitHub 5.18.1
+    nuget Fake.BuildServer.AppVeyor 5.18.1
+    nuget Fake.BuildServer.Travis 5.18.1
