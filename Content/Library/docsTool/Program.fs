@@ -117,7 +117,7 @@ module GenerateDocs =
         Shell.copyDir (docsDir </> "content")   ( docsSrcDir </> "content") (fun _ -> true)
         Shell.copyDir (docsDir </> "files")   ( docsSrcDir </> "files") (fun _ -> true)
 
-    let generateDocs (libDirs : ProjInfo.References) (docSourcePaths : IGlobbingPattern) githubRepoName =
+    let generateDocs (libDirs : ProjInfo.References) (docSourcePaths : IGlobbingPattern) githubRepoName topLevelNavs =
         let parse (fileName : string) source =
             let doc =
                 let references =
@@ -157,7 +157,7 @@ module GenerateDocs =
                 Formatting.format doc.MarkdownDocument true OutputKind.Html
                 + doc.FormattedTips
 
-        let relativePaths = Nav.generateNav githubRepoName
+        let relativePaths = Nav.generateNav githubRepoName topLevelNavs
 
 
         docSourcePaths
@@ -191,7 +191,7 @@ module GenerateDocs =
         copyAssets()
 
 
-    let generateAPI (projInfo : ProjInfo.ProjInfo) gitRepoName =
+    let generateAPI (projInfo : ProjInfo.ProjInfo) gitRepoName topLevelNavs =
         let mscorlibDir =
             (Uri(typedefof<System.Runtime.MemoryFailPoint>.GetType().Assembly.CodeBase)) //Find runtime dll
                 .AbsolutePath // removes file protocol from path
@@ -205,7 +205,7 @@ module GenerateDocs =
 
         let generatorOutput = MetadataFormat.Generate(projInfo.TargetPath.FullName, libDirs = libDirs)
         let fi = FileInfo <| docsApiDir @@ "index.html"
-        let nav = (Nav.generateNav gitRepoName)
+        let nav = (Nav.generateNav gitRepoName topLevelNavs)
         [Namespaces.generateNamespaceDocs generatorOutput.AssemblyGroup generatorOutput.Properties]
         |> renderWithMasterAndWrite fi nav "apiDocs"
         generatorOutput.ModuleInfos
@@ -221,12 +221,12 @@ module GenerateDocs =
             |> renderWithMasterAndWrite fi nav (sprintf "%s-%s" m.Type.Name gitRepoName)
         )
 
-    let buildDocs (projInfo : ProjInfo.ProjInfo) githubRepoName =
-        generateDocs projInfo.References (docsFileGlob) githubRepoName
-        generateAPI projInfo githubRepoName
+    let buildDocs (projInfo : ProjInfo.ProjInfo) githubRepoName topLevelNavs =
+        generateDocs projInfo.References (docsFileGlob) githubRepoName topLevelNavs
+        generateAPI projInfo githubRepoName topLevelNavs
 
-    let watchDocs (projInfo : ProjInfo.ProjInfo) githubRepoName =
-        buildDocs projInfo githubRepoName
+    let watchDocs (projInfo : ProjInfo.ProjInfo) githubRepoName topLevelNavs =
+        buildDocs projInfo githubRepoName topLevelNavs
         let d1 =
             docsFileGlob
             |> ChangeWatcher.run (fun changes ->
@@ -234,7 +234,7 @@ module GenerateDocs =
                 changes
                 |> Seq.iter (fun m ->
                     printfn "watching %s" m.FullPath
-                    generateDocs projInfo.References (!! m.FullPath) githubRepoName
+                    generateDocs projInfo.References (!! m.FullPath) githubRepoName topLevelNavs
                     refreshWebpageEvent.Trigger m.FullPath
                 )
             )
@@ -253,7 +253,7 @@ module GenerateDocs =
             |> ChangeWatcher.run(fun changes ->
                 changes
                 |> Seq.iter(fun c -> Trace.logf "Regenerating API docs due to %s" c.FullPath )
-                generateAPI projInfo githubRepoName
+                generateAPI projInfo githubRepoName topLevelNavs
                 refreshWebpageEvent.Trigger "Api"
             )
         { disposables = [d1; d2; d3] } :> IDisposable
@@ -375,6 +375,13 @@ with
 [<EntryPoint>]
 let main argv =
 
+    //TODO: Dynamic
+    let topLevelNavs : Nav.TopLevelNav = {
+        Tutorials = ["Getting Started", "/Tutorials/Getting_Started.html"]
+        HowToGuides = ["Doing A Thing", "/HowTos/Doing_A_Thing.html"]
+        Explanations = ["Background", "/Explanations/Background.html"]
+    }
+
     let errorHandler = ProcessExiter(colorizer = function ErrorCode.HelpText -> None | _ -> Some ConsoleColor.Red)
     let parser = ArgumentParser.Create<CLIArguments>(programName = "gadget.exe", errorHandler = errorHandler)
     let parsedArgs = parser.Parse argv
@@ -382,10 +389,10 @@ let main argv =
     | Build args ->
         let projpath = args.GetResult<@ BuildArgs.ProjectPath @>
         let projInfo = ProjInfo.findReferences  projpath
-        GenerateDocs.buildDocs projInfo "MyLib.1"
+        GenerateDocs.buildDocs projInfo "MyLib.1" topLevelNavs
     | Watch args ->
         let projpath = args.GetResult<@ WatchArgs.ProjectPath @>
         let projInfo = ProjInfo.findReferences  projpath
-        use ds = GenerateDocs.watchDocs projInfo "MyLib.1"
+        use ds = GenerateDocs.watchDocs projInfo "MyLib.1" topLevelNavs
         WebServer.serveDocs()
     0 // return an integer exit code
