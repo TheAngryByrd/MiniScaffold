@@ -4,7 +4,16 @@ module Nav
 open Fable.React
 open Fable.React.Props
 
-let generateNav (gitRepoName) =
+type NameOfArticle = string
+type UrlPath = string
+
+type TopLevelNav = {
+    Tutorials : list<NameOfArticle * UrlPath>
+    HowToGuides : list<NameOfArticle * UrlPath>
+    Explanations : list<NameOfArticle * UrlPath>
+}
+
+let generateNav (gitRepoName) (topLevelNav : TopLevelNav) =
 
     let  navItem text link =
         li [
@@ -70,11 +79,19 @@ let generateNav (gitRepoName) =
             ul [
                 Class "navbar-nav"
             ] [
-                navItem "Getting Started" "/Getting_Started.html"
-                navDropDown "Docs" [
-                    navDropDownItem "Docs" "/docs/Docs.html"
+                navDropDown "Tutorials" [
+                    yield! topLevelNav.Tutorials
+                           |> List.map(fun (name, link) -> navDropDownItem name link )
                 ]
-                navItem "Api" "/api/index.html"
+                navDropDown "How-To Guides" [
+                    yield! topLevelNav.HowToGuides
+                           |> List.map(fun (name, link) -> navDropDownItem name link )
+                ]
+                navDropDown "Explanations" [
+                    yield! topLevelNav.Explanations
+                           |> List.map(fun (name, link) -> navDropDownItem name link )
+                ]
+                navItem "Reference/API" "/api/index.html"
             ]
         ]
 
