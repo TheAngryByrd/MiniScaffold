@@ -143,13 +143,13 @@ module DocsTool =
     let build projectpath =
         dotnet.run (fun args ->
             { args with WorkingDirectory = docsToolDir }
-        ) (sprintf "build --projectpath \"%s\"" projectpath)
+        ) (sprintf "build --projectglob \"%s\"" projectpath)
         |> failOnBadExitAndPrint
 
     let watch projectpath =
         dotnet.watch (fun args ->
            { args with WorkingDirectory = docsToolDir }
-        ) "run" (sprintf "-- watch --projectpath \"%s\"" projectpath)
+        ) "run" (sprintf "-- watch --projectglob \"%s\"" projectpath)
         |> failOnBadExitAndPrint
 
 //-----------------------------------------------------------------------------
@@ -402,7 +402,7 @@ Target.create "FormatCode" formatCode
 Target.create "Release" ignore
 
 Target.create "GenerateDocs" <| fun _ ->
-    DocsTool.build (!! srcGlob |> Seq.head)
+    DocsTool.build srcGlob
 
 let watchBuild () =
     !! srcGlob
@@ -418,7 +418,7 @@ let watchBuild () =
 
 Target.create "ServeDocs" <| fun _ ->
     watchBuild ()
-    DocsTool.watch (!! srcGlob |> Seq.head)
+    DocsTool.watch srcGlob
 
 //-----------------------------------------------------------------------------
 // Target Dependencies
