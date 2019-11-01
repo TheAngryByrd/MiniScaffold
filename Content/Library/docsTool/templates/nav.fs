@@ -73,6 +73,19 @@ type NavTree =
 | File of title:string * link:string
 | Folder of title: string * NavTree list
 
+let rec sortNavTree (navtree : NavTree list) =
+    navtree
+    |> List.map(fun navTree ->
+        match navTree with
+        | File (t,l) -> File (t,l)
+        | Folder(title, nodes) -> Folder(title, sortNavTree nodes)
+    )
+    |> List.sortBy(fun navtree ->
+        match navtree with
+        | File(title,_) -> title
+        | Folder(title, nodes) -> title
+    )
+
 let navTreeFromPaths (rootPath : IO.DirectoryInfo) (files : IO.FileInfo list) =
     let rec addPath subFilePath parts nodes =
         match parts with
@@ -140,7 +153,7 @@ let generateNav (gitRepoName : string) (topLevelNav : TopLevelNav) =
         div [   Class "collapse navbar-collapse"
                 Id "navbarNav" ] [
             ul [ Class "navbar-nav mr-auto" ] [
-                yield! navTreeFromPaths topLevelNav.DocsRoot topLevelNav.DocsPages |> generateNavMenus
+                yield! navTreeFromPaths topLevelNav.DocsRoot topLevelNav.DocsPages |> sortNavTree |> generateNavMenus
             ]
         ]
     ]

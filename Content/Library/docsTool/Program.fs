@@ -7,7 +7,7 @@ open Fake.IO.FileSystemOperators
 let refreshWebpageEvent = new Event<string>()
 
 let docsDir = IO.FileInfo(__SOURCE_DIRECTORY__ @@ ".." @@ "docs").FullName
-let docsApiDir = docsDir @@ "api"
+let docsApiDir = docsDir @@ "Api_Reference"
 let docsSrcDir = IO.FileInfo(__SOURCE_DIRECTORY__ @@ ".." @@ "docsSrc").FullName
 
 module Helpers =
@@ -380,6 +380,8 @@ let main argv =
         (IO.DirectoryInfo docsDir).GetFiles("*.html" , IO.SearchOption.AllDirectories)
         |> Array.filter(fun f -> f.FullName.StartsWith(docsDir </> "content") |> not)
         |> Array.filter(fun f -> f.FullName.StartsWith(docsDir </> "files") |> not)
+        |> Array.filter(fun f -> f.FullName.StartsWith(docsDir </> "index.html") |> not)
+
     let topLevelNavs : Nav.TopLevelNav = {
         DocsRoot = IO.DirectoryInfo docsDir
         DocsPages = pages |> Array.toList
