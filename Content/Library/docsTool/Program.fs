@@ -68,11 +68,13 @@ module ProjInfo =
                     s.Remove(0,3)
                     |> FileInfo
                 )
-            let targetPath =
+
+            let dpwPo =
                 match options.ExtraProjectInfo with
-                | Some (:? ProjectOptions as dpwPo) ->
-                    dpwPo.ExtraProjectInfo.TargetPath |> FileInfo
+                | Some (:? ProjectOptions as dpwPo) -> dpwPo
                 | x -> failwithf "invalid project info %A" x
+            let targetPath =
+                    dpwPo.ExtraProjectInfo.TargetPath |> FileInfo
             { References = references ; TargetPath = targetPath}
 
         | None ->
@@ -192,42 +194,46 @@ module GenerateDocs =
         copyAssets()
 
 
-    let generateAPI (projInfo : ProjInfo.ProjInfo) gitRepoName topLevelNavs =
-        let mscorlibDir =
-            (Uri(typedefof<System.Runtime.MemoryFailPoint>.GetType().Assembly.CodeBase)) //Find runtime dll
-                .AbsolutePath // removes file protocol from path
-                |> Path.GetDirectoryName
-        let references =
-            projInfo.References
-            |> Array.toList
-            |> List.map(fun fi -> fi.DirectoryName)
-            |> List.distinct
-        let libDirs = mscorlibDir :: references
+    let generateAPI (projInfos : ProjInfo.ProjInfo array) gitRepoName topLevelNavs =
+        let generate ( projInfo :  ProjInfo.ProjInfo) =
+            let mscorlibDir =
+                (Uri(typedefof<System.Runtime.MemoryFailPoint>.GetType().Assembly.CodeBase)) //Find runtime dll
+                    .AbsolutePath // removes file protocol from path
+                    |> Path.GetDirectoryName
+            let references =
+                projInfo.References
+                |> Array.toList
+                |> List.map(fun fi -> fi.DirectoryName)
+                |> List.distinct
+            let libDirs = mscorlibDir :: references
+            let targetApiDir = docsApiDir @@ IO.Path.GetFileNameWithoutExtension(projInfo.TargetPath.Name)
+            let generatorOutput = MetadataFormat.Generate(projInfo.TargetPath.FullName, libDirs = libDirs)
+            let fi = FileInfo <| targetApiDir @@ "index.html"
+            let nav = (Nav.generateNav gitRepoName topLevelNavs)
+            [Namespaces.generateNamespaceDocs generatorOutput.AssemblyGroup generatorOutput.Properties]
+            |> renderWithMasterAndWrite fi nav "apiDocs"
+            generatorOutput.ModuleInfos
+            |> List.iter (fun m ->
+                let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" m.Module.UrlName)
+                Modules.generateModuleDocs m generatorOutput.Properties
+                |> renderWithMasterAndWrite fi nav (sprintf "%s-%s" m.Module.Name gitRepoName)
+            )
+            generatorOutput.TypesInfos
+            |> List.iter (fun m ->
+                let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" m.Type.UrlName)
+                Types.generateTypeDocs m generatorOutput.Properties
+                |> renderWithMasterAndWrite fi nav (sprintf "%s-%s" m.Type.Name gitRepoName)
+            )
+        projInfos |> Seq.iter(generate)
 
-        let generatorOutput = MetadataFormat.Generate(projInfo.TargetPath.FullName, libDirs = libDirs)
-        let fi = FileInfo <| docsApiDir @@ "index.html"
-        let nav = (Nav.generateNav gitRepoName topLevelNavs)
-        [Namespaces.generateNamespaceDocs generatorOutput.AssemblyGroup generatorOutput.Properties]
-        |> renderWithMasterAndWrite fi nav "apiDocs"
-        generatorOutput.ModuleInfos
-        |> List.iter (fun m ->
-            let fi = FileInfo <| docsApiDir @@ (sprintf "%s.html" m.Module.UrlName)
-            Modules.generateModuleDocs m generatorOutput.Properties
-            |> renderWithMasterAndWrite fi nav (sprintf "%s-%s" m.Module.Name gitRepoName)
-        )
-        generatorOutput.TypesInfos
-        |> List.iter (fun m ->
-            let fi = FileInfo <| docsApiDir @@ (sprintf "%s.html" m.Type.UrlName)
-            Types.generateTypeDocs m generatorOutput.Properties
-            |> renderWithMasterAndWrite fi nav (sprintf "%s-%s" m.Type.Name gitRepoName)
-        )
+    let buildDocs (projInfos : ProjInfo.ProjInfo array) githubRepoName topLevelNavs =
+        let refs = projInfos |> Seq.collect (fun p -> p.References) |> Seq.distinct |> Seq.toArray
+        generateDocs refs (docsFileGlob) githubRepoName topLevelNavs
+        generateAPI projInfos githubRepoName topLevelNavs
 
-    let buildDocs (projInfo : ProjInfo.ProjInfo) githubRepoName topLevelNavs =
-        generateDocs projInfo.References (docsFileGlob) githubRepoName topLevelNavs
-        generateAPI projInfo githubRepoName topLevelNavs
-
-    let watchDocs (projInfo : ProjInfo.ProjInfo) githubRepoName topLevelNavs =
-        buildDocs projInfo githubRepoName topLevelNavs
+    let watchDocs (projInfos : ProjInfo.ProjInfo array) githubRepoName topLevelNavs =
+        let refs = projInfos |> Seq.collect (fun p -> p.References) |> Seq.distinct |> Seq.toArray
+        buildDocs projInfos githubRepoName topLevelNavs
         let d1 =
             docsFileGlob
             |> ChangeWatcher.run (fun changes ->
@@ -235,7 +241,7 @@ module GenerateDocs =
                 changes
                 |> Seq.iter (fun m ->
                     printfn "watching %s" m.FullPath
-                    generateDocs projInfo.References (!! m.FullPath) githubRepoName topLevelNavs
+                    generateDocs refs (!! m.FullPath) githubRepoName topLevelNavs
                     refreshWebpageEvent.Trigger m.FullPath
                 )
             )
@@ -250,11 +256,15 @@ module GenerateDocs =
 
 
         let d3 =
-            !!( projInfo.TargetPath.FullName )
+
+            projInfos
+            |> Seq.map(fun p -> p.TargetPath.FullName)
+            |> Seq.fold ((++)) (!! "")
+
             |> ChangeWatcher.run(fun changes ->
                 changes
                 |> Seq.iter(fun c -> Trace.logf "Regenerating API docs due to %s" c.FullPath )
-                generateAPI projInfo githubRepoName topLevelNavs
+                generateAPI projInfos githubRepoName topLevelNavs
                 refreshWebpageEvent.Trigger "Api"
             )
         { disposables = [d1; d2; d3] } :> IDisposable
@@ -345,23 +355,23 @@ module WebServer =
 
 
 open Argu
-
+open Fake.IO.Globbing.Operators
 
 type WatchArgs =
-    | ProjectPath of string
+    | ProjectGlob of string
 with
     interface IArgParserTemplate with
         member this.Usage =
             match this with
-            | ProjectPath _  -> "The glob for the dlls to generate API documentation"
+            | ProjectGlob _  -> "The glob for the dlls to generate API documentation"
 
 type BuildArgs =
-    | ProjectPath of string
+    | ProjectGlob of string
 with
     interface IArgParserTemplate with
         member this.Usage =
             match this with
-            | ProjectPath _  -> "The glob for the dlls to generate API documentation"
+            | ProjectGlob _  -> "The glob for the dlls to generate API documentation"
 
 type CLIArguments =
     | [<CustomCommandLine("watch")>]  Watch of ParseResults<WatchArgs>
@@ -392,12 +402,12 @@ let main argv =
     let parsedArgs = parser.Parse argv
     match parsedArgs.GetSubCommand() with
     | Build args ->
-        let projpath = args.GetResult<@ BuildArgs.ProjectPath @>
-        let projInfo = ProjInfo.findReferences  projpath
-        GenerateDocs.buildDocs projInfo "MyLib.1" topLevelNavs
+        let projGlob = args.GetResult<@ BuildArgs.ProjectGlob @>
+        let projInfos = !! projGlob |> Seq.map(ProjInfo.findReferences) |> Seq.toArray
+        GenerateDocs.buildDocs projInfos "MyLib.1" topLevelNavs
     | Watch args ->
-        let projpath = args.GetResult<@ WatchArgs.ProjectPath @>
-        let projInfo = ProjInfo.findReferences  projpath
-        use ds = GenerateDocs.watchDocs projInfo "MyLib.1" topLevelNavs
+        let projGlob = args.GetResult<@ WatchArgs.ProjectGlob @>
+        let projInfos = !! projGlob |> Seq.map(ProjInfo.findReferences) |> Seq.toArray
+        use ds = GenerateDocs.watchDocs projInfos "MyLib.1" topLevelNavs
         WebServer.serveDocs()
     0 // return an integer exit code

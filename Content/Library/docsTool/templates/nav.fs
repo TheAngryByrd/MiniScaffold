@@ -83,7 +83,7 @@ let rec sortNavTree (navtree : NavTree list) =
     |> List.sortBy(fun navtree ->
         match navtree with
         | File(title,_) -> title
-        | Folder(title, nodes) -> title
+        | Folder(title, _) -> title
     )
 
 let navTreeFromPaths (rootPath : IO.DirectoryInfo) (files : IO.FileInfo list) =
@@ -95,7 +95,7 @@ let navTreeFromPaths (rootPath : IO.DirectoryInfo) (files : IO.FileInfo list) =
     and addHeadPath subFilePath (part : string) remainingParts (nodes : NavTree list)=
         match nodes with
         | [] ->
-            if IO.Path.HasExtension part then
+            if part.EndsWith("html") then
                 File(IO.Path.GetFileNameWithoutExtension part, subFilePath)
             else
                 Folder(part, addPath subFilePath remainingParts [])
