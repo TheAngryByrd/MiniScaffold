@@ -147,9 +147,10 @@ module DocsTool =
         |> failOnBadExitAndPrint
 
     let watch projectpath =
-        dotnet.fcswatch (fun args ->
-            { args with WorkingDirectory = docsToolDir }
-        ) (sprintf "-- watch --projectpath \"%s\"" projectpath)
+        dotnet.watch (fun args ->
+           { args with WorkingDirectory = docsToolDir }
+        ) "run" (sprintf "-- watch --projectpath \"%s\"" projectpath)
+        |> failOnBadExitAndPrint
 
 //-----------------------------------------------------------------------------
 // Target Implementations
