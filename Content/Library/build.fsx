@@ -136,6 +136,9 @@ module dotnet =
     let sourcelink optionConfig args =
         tool optionConfig "sourcelink" args
 
+    let fcswatch optionConfig args =
+        tool optionConfig "fcswatch" args
+
 module DocsTool =
     let build projectpath =
         dotnet.run (fun args ->
@@ -144,10 +147,9 @@ module DocsTool =
         |> failOnBadExitAndPrint
 
     let watch projectpath =
-        dotnet.watch (fun args ->
+        dotnet.fcswatch (fun args ->
             { args with WorkingDirectory = docsToolDir }
-        ) "run" (sprintf "watch --projectpath \"%s\"" projectpath)
-        |> failOnBadExitAndPrint
+        ) (sprintf "-- watch --projectpath \"%s\"" projectpath)
 
 //-----------------------------------------------------------------------------
 // Target Implementations

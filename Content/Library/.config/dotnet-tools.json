@@ -25,6 +25,12 @@
       "commands": [
         "paket"
       ]
+    },
+    "fcswatch-cli": {
+      "version": "0.7.14",
+      "commands": [
+        "fcswatch"
+      ]
     }
   }
 }
