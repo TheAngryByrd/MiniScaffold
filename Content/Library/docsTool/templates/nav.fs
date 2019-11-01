@@ -9,10 +9,14 @@ type NameOfArticle = string
 type UrlPath = string
 
 type TopLevelNav = {
-    Tutorials : list<NameOfArticle * UrlPath>
-    HowToGuides : list<NameOfArticle * UrlPath>
-    Explanations : list<NameOfArticle * UrlPath>
+    DocsRoot : IO.DirectoryInfo
+    DocsPages : IO.FileInfo list
 }
+
+let normalizeText text =
+    System.Text.RegularExpressions.Regex.Replace(text, @"[^0-9a-zA-Z]+", " ")
+
+let normalizeStr =  normalizeText >> str
 
 let navItem text link =
         li [
@@ -22,7 +26,7 @@ let navItem text link =
                 Class "nav-link"
                 Href link
             ] [
-                span [] [str text]
+                normalizeStr text
             ]
         ]
 
@@ -35,7 +39,7 @@ let dropDownNavMenu text items =
                     AriaHasPopup true
                     AriaExpanded false
                     Class "nav-link dropdown-toggle" ]
-                    [ str text ]
+                    [ normalizeStr text ]
                 ul [    HTMLAttr.Custom ("aria-labelledby", "dropdownMenu1")
                         Class "dropdown-menu border-0 shadow" ] items ]
 
@@ -47,7 +51,7 @@ let dropDownNavItem text link =
             Class "dropdown-item"
             Href link
         ] [
-            span [] [str text]
+            normalizeStr text
         ]
     ]
 let dropdownSubMenu text items =
@@ -59,7 +63,7 @@ let dropdownSubMenu text items =
             AriaHasPopup true
             AriaExpanded false
             Class "dropdown-item dropdown-toggle" ] [
-                str text ]
+                normalizeStr text ]
         ul [
             HTMLAttr.Custom ("aria-labelledby", "dropdownMenu2")
             Class "dropdown-menu border-0 shadow" ] items
@@ -71,40 +75,29 @@ type NavTree =
 
 let navTreeFromPaths (rootPath : IO.DirectoryInfo) (files : IO.FileInfo list) =
     let rec addPath subFilePath parts nodes =
-        // printfn "parts -> %A ... nodes -> %A" parts nodes
         match parts with
         | [] -> nodes
         | hp :: tp ->
             addHeadPath subFilePath hp tp nodes
-    and addHeadPath subFilePath (hp : string) tp (nodes : NavTree list)=
-        // printfn "hp -> %A ... tp -> %A ... nodes -> %A" hp tp nodes
+    and addHeadPath subFilePath (part : string) remainingParts (nodes : NavTree list)=
         match nodes with
-        | [] -> [
-            if IO.Path.HasExtension hp then
-                File(IO.Path.GetFileNameWithoutExtension hp, subFilePath)
+        | [] ->
+            if IO.Path.HasExtension part then
+                File(IO.Path.GetFileNameWithoutExtension part, subFilePath)
             else
-                Folder(hp, addPath subFilePath tp [])
-            ]
-        | Folder(title, subnodes) :: nodes when title = hp -> Folder(title, addPath subFilePath tp subnodes ) :: nodes
-        | hn :: tn -> hn :: addHeadPath subFilePath hp tp tn
+                Folder(part, addPath subFilePath remainingParts [])
+            |> List.singleton
+        | Folder(title, subnodes) :: nodes when title = part -> Folder(title, addPath subFilePath remainingParts subnodes ) :: nodes
+        | hn :: tn -> hn :: addHeadPath subFilePath part remainingParts tn
 
     ([], files)
     ||> List.fold(fun state file ->
         let subFilePath = file.FullName.Replace(rootPath.FullName, "")
-        let pathParts = subFilePath.Split(IO.Path.DirectorySeparatorChar) |> Array.toList
+        let pathParts = subFilePath.Split(IO.Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries) |> Array.toList
         addPath subFilePath pathParts state
     )
 
 
-let rootpath = IO.DirectoryInfo("/rootthing/another/docs/")
-
-let files = [
-    IO.FileInfo(rootpath.FullName + "Tutorials/Getting_Started.html")
-    IO.FileInfo(rootpath.FullName + "Tutorials/Another_Tutorial.html")
-    IO.FileInfo(rootpath.FullName + "Tutorials/OtherThings/Another_Tutorial3.html")
-]
-
-let foo = navTreeFromPaths rootpath files
 
 let generateNavMenus (navTree : NavTree list) =
     let rec innerDo depth (navTree : NavTree list) =
@@ -123,25 +116,6 @@ let generateNavMenus (navTree : NavTree list) =
     innerDo 0 navTree
 
 
-let fakeMenu = [
-    Folder("Hover for action", [
-        File("Level 1 - Item 1" , "#")
-        Folder("Level 1 - Item 2", [
-            File("Level 2 - Item 1" , "#")
-            File("Level 2 - Item 2" , "#")
-            Folder("Level 2 - Item 3", [
-                File("Level 3 - Item 1" , "#")
-                File("Level 3 - Item 2" , "#")
-            ])
-        ])
-        File("Level 1 - Item 3" , "#")
-        File("Level 1 - Item 3" , "#")
-
-    ])
-    File("About" , "#")
-    File("Contact" , "#")
-    File("Services" , "#")
-]
 
 let generateNav (gitRepoName : string) (topLevelNav : TopLevelNav) =
 
@@ -166,37 +140,10 @@ let generateNav (gitRepoName : string) (topLevelNav : TopLevelNav) =
         div [   Class "collapse navbar-collapse"
                 Id "navbarNav" ] [
             ul [ Class "navbar-nav mr-auto" ] [
-                yield! navTreeFromPaths rootpath files |> generateNavMenus
-                // yield! generateNavMenus fakeMenu
+                yield! navTreeFromPaths topLevelNav.DocsRoot topLevelNav.DocsPages |> generateNavMenus
             ]
         ]
     ]
-            // ul [
-            //     Class "navbar-nav"
-            // ] [
-            //     navDropDown "Tutorials" [
-            //         yield! topLevelNav.Tutorials
-            //                |> List.map(fun (name, link) -> navDropDownItem name link )
-            //     ]
-            //     navDropDown "How-To Guides" [
-            //         yield! topLevelNav.HowToGuides
-            //                |> List.map(fun (name, link) -> navDropDownItem name link )
-            //     ]
-            //     navDropDown "Explanationss" [
-            //         yield! topLevelNav.Explanations
-            //                |> List.map(fun (name, link) -> navDropDownItem name link )
-            //     ]
-            //     navItem "Reference/API" "/api/index.html"
 
-            //     navDropDown "Top Level" [
-            //         subNavDropDown "Second Level" [
-
-            //             navItem "hello" ""
-            //             navItem "world" ""
-            //         ]
-
-            //     ]
-            // ]
-        // ]
 
 

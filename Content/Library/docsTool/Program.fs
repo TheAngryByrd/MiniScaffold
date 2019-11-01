@@ -376,11 +376,13 @@ with
 [<EntryPoint>]
 let main argv =
 
-    //TODO: Dynamic
+    let pages =
+        (IO.DirectoryInfo docsDir).GetFiles("*.html" , IO.SearchOption.AllDirectories)
+        |> Array.filter(fun f -> f.FullName.StartsWith(docsDir </> "content") |> not)
+        |> Array.filter(fun f -> f.FullName.StartsWith(docsDir </> "files") |> not)
     let topLevelNavs : Nav.TopLevelNav = {
-        Tutorials = ["Getting Started", "/Tutorials/Getting_Started.html"]
-        HowToGuides = ["Doing A Thing", "/HowTos/Doing_A_Thing.html"]
-        Explanations = ["Background", "/Explanations/Background.html"]
+        DocsRoot = IO.DirectoryInfo docsDir
+        DocsPages = pages |> Array.toList
     }
 
     let errorHandler = ProcessExiter(colorizer = function ErrorCode.HelpText -> None | _ -> Some ConsoleColor.Red)
