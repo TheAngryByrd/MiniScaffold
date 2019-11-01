@@ -64,6 +64,7 @@ module ProjInfo =
                     s.StartsWith("-r:")
                 )
                 |> Array.map(fun s ->
+                    // removes "-r:" from beginning of reference path
                     s.Remove(0,3)
                     |> FileInfo
                 )

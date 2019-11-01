@@ -46,10 +46,11 @@ let masterTemplate gitRepoName navBar titletext bodyText =
                 ] []
             yield script [Src "/content/tips.js" ] []
             yield script [Src "/content/hotload.js" ] []
+            yield script [Src "/content/submenu.js" ] []
         ]
-        footer [ Class "footer font-small bg-dark navbar fixed-bottom" ] [
-            div [Class "container"] [
-                p [] [str "hello"]
-            ]
-        ]
+        // footer [ Class "footer font-small bg-dark navbar fixed-bottom" ] [
+        //     div [Class "container"] [
+        //         p [] [str "hello"]
+        //     ]
+        // ]
     ]
