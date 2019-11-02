@@ -1,4 +1,5 @@
 #load ".fake/build.fsx/intellisense.fsx"
+#load "docsTool/CLI.fs"
 #if !FAKE
 #r "Facades/netstandard"
 #r "netstandard"
@@ -139,17 +140,33 @@ module dotnet =
     let fcswatch optionConfig args =
         tool optionConfig "fcswatch" args
 
+open DocsTool.CLIArgs
 module DocsTool =
-    let build projectpath =
+    open Argu
+    let buildparser = ArgumentParser.Create<BuildArgs>(programName = "docstool")
+    let buildCLI =
+        [
+            BuildArgs.ProjectGlob srcGlob
+        ]
+        |> buildparser.PrintCommandLineArgumentsFlat
+
+    let build () =
         dotnet.run (fun args ->
             { args with WorkingDirectory = docsToolDir }
-        ) (sprintf "build --projectglob \"%s\"" projectpath)
+        ) (sprintf " -- build %s" (buildCLI))
         |> failOnBadExitAndPrint
+
+    let watchparser = ArgumentParser.Create<WatchArgs>(programName = "docstool")
+    let watchCLI =
+        [
+            WatchArgs.ProjectGlob srcGlob
+        ]
+        |> watchparser.PrintCommandLineArgumentsFlat
 
     let watch projectpath =
         dotnet.watch (fun args ->
            { args with WorkingDirectory = docsToolDir }
-        ) "run" (sprintf "-- watch --projectglob \"%s\"" projectpath)
+        ) "run" (sprintf "-- watch %s" (watchCLI))
         |> failOnBadExitAndPrint
 
 //-----------------------------------------------------------------------------
@@ -402,7 +419,7 @@ Target.create "FormatCode" formatCode
 Target.create "Release" ignore
 
 Target.create "GenerateDocs" <| fun _ ->
-    DocsTool.build srcGlob
+    DocsTool.build ()
 
 let watchBuild () =
     !! srcGlob
@@ -418,7 +435,7 @@ let watchBuild () =
 
 Target.create "ServeDocs" <| fun _ ->
     watchBuild ()
-    DocsTool.watch srcGlob
+    DocsTool.watch ())
 
 //-----------------------------------------------------------------------------
 // Target Dependencies
