@@ -10,15 +10,13 @@ let docsDir = IO.FileInfo(__SOURCE_DIRECTORY__ @@ ".." @@ "docs").FullName
 let docsApiDir = docsDir @@ "Api_Reference"
 let docsSrcDir = IO.FileInfo(__SOURCE_DIRECTORY__ @@ ".." @@ "docsSrc").FullName
 
-module Helpers =
-    open System
-    type DisposableList =
+type DisposableList =
         {
             disposables : IDisposable list
         } interface IDisposable with
             member x.Dispose () =
                 x.disposables |> List.iter(fun s -> s.Dispose())
-open Helpers
+
 
 module ProjInfo =
     open System.IO
@@ -94,6 +92,12 @@ module GenerateDocs =
     open System.IO
     open FSharp.MetadataFormat
 
+    type GeneratedDoc = {
+        OutputPath : FileInfo
+        Content : ReactElement list
+        Title : string
+    }
+
     let docsFileGlob =
         !! (docsSrcDir @@ "**/*.fsx")
         ++ (docsSrcDir @@ "**/*.md")
@@ -116,11 +120,34 @@ module GenerateDocs =
         IO.File.WriteAllText(outPath.FullName, contents)
         Fake.Core.Trace.tracefn "Rendered to %s" outPath.FullName
 
+    let generateNav gitRepoName (generatedDocs : GeneratedDoc list) =
+        let pages =
+                generatedDocs
+                |> List.map(fun gd -> gd.OutputPath)
+                |> List.filter(fun f -> f.FullName.StartsWith(docsDir </> "content") |> not)
+                |> List.filter(fun f -> f.FullName.StartsWith(docsDir </> "files") |> not)
+                |> List.filter(fun f -> f.FullName.StartsWith(docsDir </> "index.html") |> not)
+
+        let topLevelNavs : Nav.TopLevelNav = {
+            DocsRoot = IO.DirectoryInfo docsDir
+            DocsPages = pages
+        }
+        Nav.generateNav gitRepoName topLevelNavs
+
+    let renderGeneratedDocs gitRepoName (generatedDocs : GeneratedDoc list) =
+        let nav = generateNav gitRepoName generatedDocs
+
+        generatedDocs
+        |> Seq.iter(fun gd ->
+            renderWithMasterAndWrite gd.OutputPath nav gd.Title gd.Content
+        )
+
+
     let copyAssets () =
         Shell.copyDir (docsDir </> "content")   ( docsSrcDir </> "content") (fun _ -> true)
         Shell.copyDir (docsDir </> "files")   ( docsSrcDir </> "files") (fun _ -> true)
 
-    let generateDocs (libDirs : ProjInfo.References) (docSourcePaths : IGlobbingPattern) githubRepoName topLevelNavs =
+    let generateDocs (libDirs : ProjInfo.References) (docSourcePaths : IGlobbingPattern) githubRepoName =
         let parse (fileName : string) source =
             let doc =
                 let references =
@@ -160,11 +187,10 @@ module GenerateDocs =
                 Formatting.format doc.MarkdownDocument true OutputKind.Html
                 + doc.FormattedTips
 
-        let relativePaths = Nav.generateNav githubRepoName topLevelNavs
 
 
         docSourcePaths
-        |> Seq.iter(fun filePath ->
+        |> Seq.map(fun filePath ->
 
             Fake.Core.Trace.tracefn "Rendering %s" filePath
             let file = IO.File.ReadAllText filePath
@@ -183,19 +209,20 @@ module GenerateDocs =
                     |> RawText
                 ]]
 
-                |> renderWithMasterTemplate relativePaths outPath.Name
-            IO.Directory.CreateDirectory(outPath.DirectoryName) |> ignore
-
-            IO.File.WriteAllText(outPath.FullName, contents)
-            Fake.Core.Trace.tracefn "Rendered %s to %s" filePath outPath.FullName
-
+            {
+                OutputPath = outPath
+                Content = contents
+                Title = sprintf "%s-%s" outPath.Name githubRepoName
+            }
         )
+        |> Seq.toList
 
-        copyAssets()
 
 
-    let generateAPI (projInfos : ProjInfo.ProjInfo array) gitRepoName topLevelNavs =
+
+    let generateAPI (projInfos : ProjInfo.ProjInfo array) gitRepoName =
         let generate ( projInfo :  ProjInfo.ProjInfo) =
+            Trace.logf "Generating API Docs for %s" projInfo.TargetPath.FullName
             let mscorlibDir =
                 (Uri(typedefof<System.Runtime.MemoryFailPoint>.GetType().Assembly.CodeBase)) //Find runtime dll
                     .AbsolutePath // removes file protocol from path
@@ -209,31 +236,65 @@ module GenerateDocs =
             let targetApiDir = docsApiDir @@ IO.Path.GetFileNameWithoutExtension(projInfo.TargetPath.Name)
             let generatorOutput = MetadataFormat.Generate(projInfo.TargetPath.FullName, libDirs = libDirs)
             let fi = FileInfo <| targetApiDir @@ "index.html"
-            let nav = (Nav.generateNav gitRepoName topLevelNavs)
-            [Namespaces.generateNamespaceDocs generatorOutput.AssemblyGroup generatorOutput.Properties]
-            |> renderWithMasterAndWrite fi nav "apiDocs"
-            generatorOutput.ModuleInfos
-            |> List.iter (fun m ->
-                let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" m.Module.UrlName)
-                Modules.generateModuleDocs m generatorOutput.Properties
-                |> renderWithMasterAndWrite fi nav (sprintf "%s-%s" m.Module.Name gitRepoName)
-            )
-            generatorOutput.TypesInfos
-            |> List.iter (fun m ->
-                let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" m.Type.UrlName)
-                Types.generateTypeDocs m generatorOutput.Properties
-                |> renderWithMasterAndWrite fi nav (sprintf "%s-%s" m.Type.Name gitRepoName)
-            )
-        projInfos |> Seq.iter(generate)
+            // let nav = (Nav.generateNav gitRepoName topLevelNavs)
+            let indexDoc = {
+                OutputPath = fi
+                Content = [Namespaces.generateNamespaceDocs generatorOutput.AssemblyGroup generatorOutput.Properties]
+                Title = sprintf "%s-%s" fi.Name gitRepoName
+            }
 
-    let buildDocs (projInfos : ProjInfo.ProjInfo array) githubRepoName topLevelNavs =
-        let refs = projInfos |> Seq.collect (fun p -> p.References) |> Seq.distinct |> Seq.toArray
-        generateDocs refs (docsFileGlob) githubRepoName topLevelNavs
-        generateAPI projInfos githubRepoName topLevelNavs
+            let moduleDocs =
+                generatorOutput.ModuleInfos
+                |> List.map (fun m ->
+                    let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" m.Module.UrlName)
+                    let content = Modules.generateModuleDocs m generatorOutput.Properties
+                    {
+                        OutputPath = fi
+                        Content = content
+                        Title = sprintf "%s-%s" m.Module.Name gitRepoName
+                    }
+                )
+            let typeDocs =
+                generatorOutput.TypesInfos
+                |> List.map (fun m ->
+                    let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" m.Type.UrlName)
+                    let content = Types.generateTypeDocs m generatorOutput.Properties
+                    {
+                        OutputPath = fi
+                        Content = content
+                        Title = sprintf "%s-%s" m.Type.Name gitRepoName
+                    }
+                )
+            [ indexDoc ] @ moduleDocs @ typeDocs
+        projInfos
+        |> Seq.collect(generate)
+        |> Seq.toList
 
-    let watchDocs (projInfos : ProjInfo.ProjInfo array) githubRepoName topLevelNavs =
+    let buildDocs (projInfos : ProjInfo.ProjInfo array) githubRepoName =
         let refs = projInfos |> Seq.collect (fun p -> p.References) |> Seq.distinct |> Seq.toArray
-        buildDocs projInfos githubRepoName topLevelNavs
+        copyAssets ()
+        let generateDocs =
+            async {
+                return generateDocs refs (docsFileGlob) githubRepoName
+            }
+        let generateAPI =
+            async {
+                return (generateAPI projInfos githubRepoName)
+            }
+        Async.Parallel [generateDocs; generateAPI]
+        |> Async.RunSynchronously
+        |> Array.toList
+        |> List.collect id
+
+    let renderDocs (projInfos : ProjInfo.ProjInfo array) githubRepoName =
+        buildDocs projInfos githubRepoName
+        |> renderGeneratedDocs githubRepoName
+
+    let watchDocs (projInfos : ProjInfo.ProjInfo array) githubRepoName =
+        let initialDocs = buildDocs projInfos githubRepoName
+        initialDocs |> renderGeneratedDocs githubRepoName
+
+        let refs = projInfos |> Seq.collect (fun p -> p.References) |> Seq.distinct |> Seq.toArray
         let d1 =
             docsFileGlob
             |> ChangeWatcher.run (fun changes ->
@@ -241,9 +302,14 @@ module GenerateDocs =
                 changes
                 |> Seq.iter (fun m ->
                     printfn "watching %s" m.FullPath
-                    generateDocs refs (!! m.FullPath) githubRepoName topLevelNavs
-                    refreshWebpageEvent.Trigger m.FullPath
+                    let generated = generateDocs refs (!! m.FullPath) githubRepoName
+                    initialDocs
+                    |> List.filter(fun x -> generated |> List.exists(fun y -> y.OutputPath =  x.OutputPath) |> not )
+                    |> List.append generated
+                    |> List.distinctBy(fun gd -> gd.OutputPath.FullName)
+                    |> renderGeneratedDocs githubRepoName
                 )
+                refreshWebpageEvent.Trigger "m.FullPath"
             )
         let d2 =
             !! (docsSrcDir </> "content" </> "**/*")
@@ -264,7 +330,12 @@ module GenerateDocs =
             |> ChangeWatcher.run(fun changes ->
                 changes
                 |> Seq.iter(fun c -> Trace.logf "Regenerating API docs due to %s" c.FullPath )
-                generateAPI projInfos githubRepoName topLevelNavs
+                let generated = generateAPI projInfos githubRepoName
+                initialDocs
+                |> List.filter(fun x -> generated |> List.exists(fun y -> y.OutputPath =  x.OutputPath) |> not )
+                |> List.append generated
+                |> List.distinctBy(fun gd -> gd.OutputPath.FullName)
+                |> renderGeneratedDocs githubRepoName
                 refreshWebpageEvent.Trigger "Api"
             )
         { disposables = [d1; d2; d3] } :> IDisposable
@@ -386,17 +457,6 @@ with
 [<EntryPoint>]
 let main argv =
 
-    let pages =
-        (IO.DirectoryInfo docsDir).GetFiles("*.html" , IO.SearchOption.AllDirectories)
-        |> Array.filter(fun f -> f.FullName.StartsWith(docsDir </> "content") |> not)
-        |> Array.filter(fun f -> f.FullName.StartsWith(docsDir </> "files") |> not)
-        |> Array.filter(fun f -> f.FullName.StartsWith(docsDir </> "index.html") |> not)
-
-    let topLevelNavs : Nav.TopLevelNav = {
-        DocsRoot = IO.DirectoryInfo docsDir
-        DocsPages = pages |> Array.toList
-    }
-
     let errorHandler = ProcessExiter(colorizer = function ErrorCode.HelpText -> None | _ -> Some ConsoleColor.Red)
     let parser = ArgumentParser.Create<CLIArguments>(programName = "gadget.exe", errorHandler = errorHandler)
     let parsedArgs = parser.Parse argv
@@ -404,10 +464,10 @@ let main argv =
     | Build args ->
         let projGlob = args.GetResult<@ BuildArgs.ProjectGlob @>
         let projInfos = !! projGlob |> Seq.map(ProjInfo.findReferences) |> Seq.toArray
-        GenerateDocs.buildDocs projInfos "MyLib.1" topLevelNavs
+        GenerateDocs.renderDocs projInfos "MyLib.1"
     | Watch args ->
         let projGlob = args.GetResult<@ WatchArgs.ProjectGlob @>
         let projInfos = !! projGlob |> Seq.map(ProjInfo.findReferences) |> Seq.toArray
-        use ds = GenerateDocs.watchDocs projInfos "MyLib.1" topLevelNavs
+        use ds = GenerateDocs.watchDocs projInfos "MyLib.1"
         WebServer.serveDocs()
     0 // return an integer exit code
