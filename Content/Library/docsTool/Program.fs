@@ -190,6 +190,7 @@ module GenerateDocs =
 
 
         docSourcePaths
+        |> Array.ofSeq
         |> Seq.map(fun filePath ->
 
             Fake.Core.Trace.tracefn "Rendering %s" filePath
@@ -218,11 +219,9 @@ module GenerateDocs =
         |> Seq.toList
 
 
-
-
     let generateAPI (projInfos : ProjInfo.ProjInfo array) gitRepoName =
         let generate ( projInfo :  ProjInfo.ProjInfo) =
-            Trace.logf "Generating API Docs for %s" projInfo.TargetPath.FullName
+            Trace.tracefn "Generating API Docs for %s" projInfo.TargetPath.FullName
             let mscorlibDir =
                 (Uri(typedefof<System.Runtime.MemoryFailPoint>.GetType().Assembly.CodeBase)) //Find runtime dll
                     .AbsolutePath // removes file protocol from path
@@ -236,7 +235,6 @@ module GenerateDocs =
             let targetApiDir = docsApiDir @@ IO.Path.GetFileNameWithoutExtension(projInfo.TargetPath.Name)
             let generatorOutput = MetadataFormat.Generate(projInfo.TargetPath.FullName, libDirs = libDirs)
             let fi = FileInfo <| targetApiDir @@ "index.html"
-            // let nav = (Nav.generateNav gitRepoName topLevelNavs)
             let indexDoc = {
                 OutputPath = fi
                 Content = [Namespaces.generateNamespaceDocs generatorOutput.AssemblyGroup generatorOutput.Properties]
