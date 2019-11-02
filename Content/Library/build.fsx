@@ -68,6 +68,9 @@ let distGlob = distDir @@ "*.nupkg"
 let coverageThresholdPercent = 80
 let coverageReportDir =  __SOURCE_DIRECTORY__  @@ "docs" @@ "coverage"
 
+
+let docsDir = __SOURCE_DIRECTORY__  @@ "docs"
+let docsSrcDir = __SOURCE_DIRECTORY__  @@ "docsSrc"
 let docsToolDir = __SOURCE_DIRECTORY__ @@ "docsTool"
 
 let gitOwner = "MyGithubUsername"
@@ -147,6 +150,10 @@ module DocsTool =
     let buildCLI =
         [
             BuildArgs.ProjectGlob srcGlob
+            BuildArgs.DocsOutputDirectory docsDir
+            BuildArgs.DocsSourceDirectory docsSrcDir
+            BuildArgs.GitHubRepoName gitRepoName
+
         ]
         |> buildparser.PrintCommandLineArgumentsFlat
 
@@ -160,6 +167,9 @@ module DocsTool =
     let watchCLI =
         [
             WatchArgs.ProjectGlob srcGlob
+            WatchArgs.DocsOutputDirectory docsDir
+            WatchArgs.DocsSourceDirectory docsSrcDir
+            WatchArgs.GitHubRepoName gitRepoName
         ]
         |> watchparser.PrintCommandLineArgumentsFlat
 
@@ -435,7 +445,7 @@ let watchBuild () =
 
 Target.create "ServeDocs" <| fun _ ->
     watchBuild ()
-    DocsTool.watch ())
+    DocsTool.watch ()
 
 //-----------------------------------------------------------------------------
 // Target Dependencies
