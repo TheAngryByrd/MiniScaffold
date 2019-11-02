@@ -6,19 +6,31 @@ module CLIArgs =
 
     type WatchArgs =
         | ProjectGlob of string
+        | DocsOutputDirectory of string
+        | DocsSourceDirectory of string
+        | GitHubRepoName of string
     with
         interface IArgParserTemplate with
             member this.Usage =
                 match this with
-                | ProjectGlob _  -> "The glob for the dlls to generate API documentation"
+                | ProjectGlob _  -> "The glob for the dlls to generate API documentation."
+                | DocsOutputDirectory _ -> "The docs output directory."
+                | DocsSourceDirectory _ -> "The docs source directory."
+                | GitHubRepoName _ -> "The GitHub repository name."
 
     type BuildArgs =
         | ProjectGlob of string
+        | DocsOutputDirectory of string
+        | DocsSourceDirectory of string
+        | GitHubRepoName of string
     with
         interface IArgParserTemplate with
             member this.Usage =
                 match this with
                 | ProjectGlob _  -> "The glob for the dlls to generate API documentation"
+                | DocsOutputDirectory _ -> "The docs output directory."
+                | DocsSourceDirectory _ -> "The docs source directory."
+                | GitHubRepoName _ -> "The GitHub repository name."
 
     type CLIArguments =
         | [<CustomCommandLine("watch")>]  Watch of ParseResults<WatchArgs>
