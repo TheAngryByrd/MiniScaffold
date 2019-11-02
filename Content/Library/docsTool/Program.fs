@@ -3,6 +3,7 @@
 
 open System
 open Fake.IO.FileSystemOperators
+open Fake.IO
 
 let refreshWebpageEvent = new Event<string>()
 
@@ -10,6 +11,7 @@ type Configuration = {
     DocsOutputDirectory : IO.DirectoryInfo
     DocsSourceDirectory : IO.DirectoryInfo
     GithubRepoName      : string
+    ProjectFilesGlob    : IGlobbingPattern
 }
 
 let docsApiDir docsDir = docsDir @@ "Api_Reference"
@@ -292,11 +294,13 @@ module GenerateDocs =
         |> Array.toList
         |> List.collect id
 
-    let renderDocs (projInfos : ProjInfo.ProjInfo array) (cfg : Configuration) =
+    let renderDocs (cfg : Configuration) =
+        let projInfos = cfg.ProjectFilesGlob |> Seq.map(ProjInfo.findReferences) |> Seq.toArray
         buildDocs projInfos cfg
         |> renderGeneratedDocs cfg
 
-    let watchDocs (projInfos : ProjInfo.ProjInfo array) (cfg : Configuration) =
+    let watchDocs (cfg : Configuration) =
+        let projInfos = cfg.ProjectFilesGlob |> Seq.map(ProjInfo.findReferences) |> Seq.toArray
         let initialDocs = buildDocs projInfos cfg
         initialDocs |> renderGeneratedDocs cfg
 
@@ -443,6 +447,7 @@ let main argv =
         DocsOutputDirectory = IO.DirectoryInfo docsDir
         DocsSourceDirectory = IO.DirectoryInfo docsSrcDir
         GithubRepoName = "MyLib.1"
+        ProjectFilesGlob = !! ""
     }
 
     let errorHandler = ProcessExiter(colorizer = function ErrorCode.HelpText -> None | _ -> Some ConsoleColor.Red)
@@ -450,12 +455,23 @@ let main argv =
     let parsedArgs = parser.Parse argv
     match parsedArgs.GetSubCommand() with
     | Build args ->
-        let projGlob = args.GetResult<@ BuildArgs.ProjectGlob @>
-        let projInfos = !! projGlob |> Seq.map(ProjInfo.findReferences) |> Seq.toArray
-        GenerateDocs.renderDocs projInfos defaultConfig
+        let config =
+            (defaultConfig, args.GetAllResults())
+            ||> List.fold(fun state next ->
+                match next with
+                | BuildArgs.ProjectGlob glob -> {state with ProjectFilesGlob = !! glob}
+
+
+            )
+        GenerateDocs.renderDocs config
     | Watch args ->
-        let projGlob = args.GetResult<@ WatchArgs.ProjectGlob @>
-        let projInfos = !! projGlob |> Seq.map(ProjInfo.findReferences) |> Seq.toArray
-        use ds = GenerateDocs.watchDocs projInfos defaultConfig
+        let config =
+            (defaultConfig, args.GetAllResults())
+            ||> List.fold(fun state next ->
+                match next with
+                | WatchArgs.ProjectGlob glob -> {state with ProjectFilesGlob = !! glob}
+
+            )
+        use ds = GenerateDocs.watchDocs config
         WebServer.serveDocs defaultConfig.DocsOutputDirectory.FullName
     0 // return an integer exit code
