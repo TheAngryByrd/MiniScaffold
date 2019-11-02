@@ -14,6 +14,7 @@
     <Compile Include="templates/types.fs" />
     <Compile Include="templates/master.fs" />
     <Compile Include="templates/nav.fs" />
+    <Compile Include="CLI.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

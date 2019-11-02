@@ -6,9 +6,13 @@ open Fake.IO.FileSystemOperators
 
 let refreshWebpageEvent = new Event<string>()
 
-let docsDir = IO.FileInfo(__SOURCE_DIRECTORY__ @@ ".." @@ "docs").FullName
-let docsApiDir = docsDir @@ "Api_Reference"
-let docsSrcDir = IO.FileInfo(__SOURCE_DIRECTORY__ @@ ".." @@ "docsSrc").FullName
+type Configuration = {
+    DocsOutputDirectory : IO.DirectoryInfo
+    DocsSourceDirectory : IO.DirectoryInfo
+    GithubRepoName      : string
+}
+
+let docsApiDir docsDir = docsDir @@ "Api_Reference"
 
 type DisposableList =
         {
@@ -92,13 +96,15 @@ module GenerateDocs =
     open System.IO
     open FSharp.MetadataFormat
 
+
     type GeneratedDoc = {
         OutputPath : FileInfo
         Content : ReactElement list
         Title : string
     }
 
-    let docsFileGlob =
+
+    let docsFileGlob docsSrcDir =
         !! (docsSrcDir @@ "**/*.fsx")
         ++ (docsSrcDir @@ "**/*.md")
 
@@ -109,18 +115,19 @@ module GenerateDocs =
             html ]
         |> Fable.ReactServer.renderToString
 
-    let renderWithMasterTemplate navBar titletext bodytext =
-        Master.masterTemplate "gitRepoName" navBar titletext bodytext
+    let renderWithMasterTemplate githubRepoName navBar titletext bodytext =
+        Master.masterTemplate githubRepoName navBar titletext bodytext
         |> render
 
-    let renderWithMasterAndWrite (outPath : FileInfo) navBar titletext bodytext   =
-        let contents = renderWithMasterTemplate navBar titletext bodytext
+    let renderWithMasterAndWrite (outPath : FileInfo) githubRepoName navBar titletext bodytext   =
+        let contents = renderWithMasterTemplate githubRepoName navBar titletext bodytext
         IO.Directory.CreateDirectory(outPath.DirectoryName) |> ignore
 
         IO.File.WriteAllText(outPath.FullName, contents)
         Fake.Core.Trace.tracefn "Rendered to %s" outPath.FullName
 
-    let generateNav gitRepoName (generatedDocs : GeneratedDoc list) =
+    let generateNav (cfg : Configuration) (generatedDocs : GeneratedDoc list) =
+        let docsDir = cfg.DocsOutputDirectory.FullName
         let pages =
                 generatedDocs
                 |> List.map(fun gd -> gd.OutputPath)
@@ -132,22 +139,22 @@ module GenerateDocs =
             DocsRoot = IO.DirectoryInfo docsDir
             DocsPages = pages
         }
-        Nav.generateNav gitRepoName topLevelNavs
+        Nav.generateNav cfg.GithubRepoName topLevelNavs
 
-    let renderGeneratedDocs gitRepoName (generatedDocs : GeneratedDoc list) =
-        let nav = generateNav gitRepoName generatedDocs
+    let renderGeneratedDocs (cfg : Configuration)  (generatedDocs : GeneratedDoc list) =
+        let nav = generateNav cfg generatedDocs
 
         generatedDocs
         |> Seq.iter(fun gd ->
-            renderWithMasterAndWrite gd.OutputPath nav gd.Title gd.Content
+            renderWithMasterAndWrite gd.OutputPath cfg.GithubRepoName nav gd.Title gd.Content
         )
 
 
-    let copyAssets () =
-        Shell.copyDir (docsDir </> "content")   ( docsSrcDir </> "content") (fun _ -> true)
-        Shell.copyDir (docsDir </> "files")   ( docsSrcDir </> "files") (fun _ -> true)
+    let copyAssets (cfg : Configuration) =
+        Shell.copyDir (cfg.DocsOutputDirectory.FullName </> "content")   ( cfg.DocsSourceDirectory.FullName </> "content") (fun _ -> true)
+        Shell.copyDir (cfg.DocsOutputDirectory.FullName </> "files")   ( cfg.DocsSourceDirectory.FullName </> "files") (fun _ -> true)
 
-    let generateDocs (libDirs : ProjInfo.References) (docSourcePaths : IGlobbingPattern) githubRepoName =
+    let generateDocs (libDirs : ProjInfo.References) (docSourcePaths : IGlobbingPattern) (cfg : Configuration) =
         let parse (fileName : string) source =
             let doc =
                 let references =
@@ -197,7 +204,7 @@ module GenerateDocs =
             let file = IO.File.ReadAllText filePath
             let outPath =
                 let changeExtension ext path = IO.Path.ChangeExtension(path,ext)
-                filePath.Replace(docsSrcDir, docsDir)
+                filePath.Replace(cfg.DocsSourceDirectory.FullName, cfg.DocsOutputDirectory.FullName)
                 |> changeExtension ".html"
                 |> FileInfo
             let fs =
@@ -213,14 +220,14 @@ module GenerateDocs =
             {
                 OutputPath = outPath
                 Content = contents
-                Title = sprintf "%s-%s" outPath.Name githubRepoName
+                Title = sprintf "%s-%s" outPath.Name cfg.GithubRepoName
             }
         )
         |> Seq.toList
 
 
-    let generateAPI (projInfos : ProjInfo.ProjInfo array) gitRepoName =
-        let generate ( projInfo :  ProjInfo.ProjInfo) =
+    let generateAPI (projInfos : ProjInfo.ProjInfo array) (cfg : Configuration) =
+        let generate (projInfo :  ProjInfo.ProjInfo) =
             Trace.tracefn "Generating API Docs for %s" projInfo.TargetPath.FullName
             let mscorlibDir =
                 (Uri(typedefof<System.Runtime.MemoryFailPoint>.GetType().Assembly.CodeBase)) //Find runtime dll
@@ -232,14 +239,14 @@ module GenerateDocs =
                 |> List.map(fun fi -> fi.DirectoryName)
                 |> List.distinct
             let libDirs = mscorlibDir :: references
-            let targetApiDir = docsApiDir @@ IO.Path.GetFileNameWithoutExtension(projInfo.TargetPath.Name)
+            let targetApiDir = docsApiDir cfg.DocsOutputDirectory.FullName @@ IO.Path.GetFileNameWithoutExtension(projInfo.TargetPath.Name)
             let generatorOutput = MetadataFormat.Generate(projInfo.TargetPath.FullName, libDirs = libDirs)
 
             let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" generatorOutput.AssemblyGroup.Name)
             let indexDoc = {
                 OutputPath = fi
                 Content = [Namespaces.generateNamespaceDocs generatorOutput.AssemblyGroup generatorOutput.Properties]
-                Title = sprintf "%s-%s" fi.Name gitRepoName
+                Title = sprintf "%s-%s" fi.Name cfg.GithubRepoName
             }
 
             let moduleDocs =
@@ -250,7 +257,7 @@ module GenerateDocs =
                     {
                         OutputPath = fi
                         Content = content
-                        Title = sprintf "%s-%s" m.Module.Name gitRepoName
+                        Title = sprintf "%s-%s" m.Module.Name cfg.GithubRepoName
                     }
                 )
             let typeDocs =
@@ -261,7 +268,7 @@ module GenerateDocs =
                     {
                         OutputPath = fi
                         Content = content
-                        Title = sprintf "%s-%s" m.Type.Name gitRepoName
+                        Title = sprintf "%s-%s" m.Type.Name cfg.GithubRepoName
                     }
                 )
             [ indexDoc ] @ moduleDocs @ typeDocs
@@ -269,59 +276,58 @@ module GenerateDocs =
         |> Seq.collect(generate)
         |> Seq.toList
 
-    let buildDocs (projInfos : ProjInfo.ProjInfo array) githubRepoName =
+    let buildDocs (projInfos : ProjInfo.ProjInfo array) (cfg : Configuration) =
         let refs = projInfos |> Seq.collect (fun p -> p.References) |> Seq.distinct |> Seq.toArray
-        copyAssets ()
+        copyAssets cfg
         let generateDocs =
             async {
-                return generateDocs refs (docsFileGlob) githubRepoName
+                return generateDocs refs (docsFileGlob cfg.DocsSourceDirectory.FullName) cfg
             }
         let generateAPI =
             async {
-                return (generateAPI projInfos githubRepoName)
+                return (generateAPI projInfos cfg)
             }
         Async.Parallel [generateDocs; generateAPI]
         |> Async.RunSynchronously
         |> Array.toList
         |> List.collect id
 
-    let renderDocs (projInfos : ProjInfo.ProjInfo array) githubRepoName =
-        buildDocs projInfos githubRepoName
-        |> renderGeneratedDocs githubRepoName
+    let renderDocs (projInfos : ProjInfo.ProjInfo array) (cfg : Configuration) =
+        buildDocs projInfos cfg
+        |> renderGeneratedDocs cfg
 
-    let watchDocs (projInfos : ProjInfo.ProjInfo array) githubRepoName =
-        let initialDocs = buildDocs projInfos githubRepoName
-        initialDocs |> renderGeneratedDocs githubRepoName
+    let watchDocs (projInfos : ProjInfo.ProjInfo array) (cfg : Configuration) =
+        let initialDocs = buildDocs projInfos cfg
+        initialDocs |> renderGeneratedDocs cfg
 
         let refs = projInfos |> Seq.collect (fun p -> p.References) |> Seq.distinct |> Seq.toArray
         let d1 =
-            docsFileGlob
+            docsFileGlob cfg.DocsSourceDirectory.FullName
             |> ChangeWatcher.run (fun changes ->
                 printfn "changes %A" changes
                 changes
                 |> Seq.iter (fun m ->
                     printfn "watching %s" m.FullPath
-                    let generated = generateDocs refs (!! m.FullPath) githubRepoName
+                    let generated = generateDocs refs (!! m.FullPath) cfg
                     initialDocs
                     |> List.filter(fun x -> generated |> List.exists(fun y -> y.OutputPath =  x.OutputPath) |> not )
                     |> List.append generated
                     |> List.distinctBy(fun gd -> gd.OutputPath.FullName)
-                    |> renderGeneratedDocs githubRepoName
+                    |> renderGeneratedDocs cfg
                 )
                 refreshWebpageEvent.Trigger "m.FullPath"
             )
         let d2 =
-            !! (docsSrcDir </> "content" </> "**/*")
-            ++ (docsSrcDir </> "files"  </> "**/*")
+            !! (cfg.DocsSourceDirectory.FullName </> "content" </> "**/*")
+            ++ (cfg.DocsSourceDirectory.FullName </> "files"  </> "**/*")
             |> ChangeWatcher.run(fun changes ->
                 printfn "changes %A" changes
-                copyAssets ()
+                copyAssets cfg
                 refreshWebpageEvent.Trigger "Assets"
             )
 
 
         let d3 =
-
             projInfos
             |> Seq.map(fun p -> p.TargetPath.FullName)
             |> Seq.fold ((++)) (!! "")
@@ -329,12 +335,12 @@ module GenerateDocs =
             |> ChangeWatcher.run(fun changes ->
                 changes
                 |> Seq.iter(fun c -> Trace.logf "Regenerating API docs due to %s" c.FullPath )
-                let generated = generateAPI projInfos githubRepoName
+                let generated = generateAPI projInfos cfg
                 initialDocs
                 |> List.filter(fun x -> generated |> List.exists(fun y -> y.OutputPath =  x.OutputPath) |> not )
                 |> List.append generated
                 |> List.distinctBy(fun gd -> gd.OutputPath.FullName)
-                |> renderGeneratedDocs githubRepoName
+                |> renderGeneratedDocs cfg
                 refreshWebpageEvent.Trigger "Api"
             )
         { disposables = [d1; d2; d3] } :> IDisposable
@@ -392,7 +398,7 @@ module WebServer =
         |> useAsync (createWebsocketForLiveReload)
         |> ignore
 
-    let startWebserver (url : string) =
+    let startWebserver docsDir (url : string) =
         WebHostBuilder()
             .UseKestrel()
             .UseUrls(url)
@@ -414,47 +420,30 @@ module WebServer =
         proc.WaitForExit()
         if proc.ExitCode <> 0 then failwithf "opening browser failed"
 
-    let serveDocs () =
+    let serveDocs docsDir =
         let hostname = "localhost"
         let port = 5000
         async {
             waitForPortInUse hostname port
             sprintf "http://%s:%d/index.html" hostname port |> openBrowser
         } |> Async.Start
-        startWebserver (sprintf "http://%s:%d" hostname port)
+        startWebserver docsDir (sprintf "http://%s:%d" hostname port)
 
 
 open Argu
 open Fake.IO.Globbing.Operators
-
-type WatchArgs =
-    | ProjectGlob of string
-with
-    interface IArgParserTemplate with
-        member this.Usage =
-            match this with
-            | ProjectGlob _  -> "The glob for the dlls to generate API documentation"
-
-type BuildArgs =
-    | ProjectGlob of string
-with
-    interface IArgParserTemplate with
-        member this.Usage =
-            match this with
-            | ProjectGlob _  -> "The glob for the dlls to generate API documentation"
-
-type CLIArguments =
-    | [<CustomCommandLine("watch")>]  Watch of ParseResults<WatchArgs>
-    | [<CustomCommandLine("build")>]  Build of ParseResults<BuildArgs>
-with
-    interface IArgParserTemplate with
-        member this.Usage =
-            match this with
-            | Watch _ -> "Builds the docs, serves the content, and watches for changes to the content."
-            | Build _ -> "Builds the docs"
-
+open DocsTool.CLIArgs
 [<EntryPoint>]
 let main argv =
+
+    let docsDir = IO.FileInfo(__SOURCE_DIRECTORY__ @@ ".." @@ "docs").FullName
+    let docsSrcDir = IO.FileInfo(__SOURCE_DIRECTORY__ @@ ".." @@ "docsSrc").FullName
+
+    let defaultConfig = {
+        DocsOutputDirectory = IO.DirectoryInfo docsDir
+        DocsSourceDirectory = IO.DirectoryInfo docsSrcDir
+        GithubRepoName = "MyLib.1"
+    }
 
     let errorHandler = ProcessExiter(colorizer = function ErrorCode.HelpText -> None | _ -> Some ConsoleColor.Red)
     let parser = ArgumentParser.Create<CLIArguments>(programName = "gadget.exe", errorHandler = errorHandler)
@@ -463,10 +452,10 @@ let main argv =
     | Build args ->
         let projGlob = args.GetResult<@ BuildArgs.ProjectGlob @>
         let projInfos = !! projGlob |> Seq.map(ProjInfo.findReferences) |> Seq.toArray
-        GenerateDocs.renderDocs projInfos "MyLib.1"
+        GenerateDocs.renderDocs projInfos defaultConfig
     | Watch args ->
         let projGlob = args.GetResult<@ WatchArgs.ProjectGlob @>
         let projInfos = !! projGlob |> Seq.map(ProjInfo.findReferences) |> Seq.toArray
-        use ds = GenerateDocs.watchDocs projInfos "MyLib.1"
-        WebServer.serveDocs()
+        use ds = GenerateDocs.watchDocs projInfos defaultConfig
+        WebServer.serveDocs defaultConfig.DocsOutputDirectory.FullName
     0 // return an integer exit code
