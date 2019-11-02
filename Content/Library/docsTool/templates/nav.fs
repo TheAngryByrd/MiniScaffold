@@ -14,7 +14,7 @@ type TopLevelNav = {
 }
 
 let normalizeText text =
-    System.Text.RegularExpressions.Regex.Replace(text, @"[^0-9a-zA-Z]+", " ")
+    System.Text.RegularExpressions.Regex.Replace(text, @"[^0-9a-zA-Z\.]+", " ")
 
 let normalizeStr =  normalizeText >> str
 
