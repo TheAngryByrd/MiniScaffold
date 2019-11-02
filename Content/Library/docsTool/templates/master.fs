@@ -13,12 +13,12 @@ let masterTemplate gitRepoName navBar titletext bodyText =
                 Integrity "sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
                 CrossOrigin "anonymous"
             ]
-            // link [
-            //     Href "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css"
-            //     Rel "stylesheet"
-            //     // Integrity "sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
-            //     CrossOrigin "anonymous"
-            // ]
+            link [
+                Href "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css"
+                Rel "stylesheet"
+                Integrity "sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN"
+                CrossOrigin "anonymous"
+            ]
             link [
                 Href "/content/style.css"
                 Type "text/css"

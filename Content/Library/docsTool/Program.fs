@@ -234,7 +234,8 @@ module GenerateDocs =
             let libDirs = mscorlibDir :: references
             let targetApiDir = docsApiDir @@ IO.Path.GetFileNameWithoutExtension(projInfo.TargetPath.Name)
             let generatorOutput = MetadataFormat.Generate(projInfo.TargetPath.FullName, libDirs = libDirs)
-            let fi = FileInfo <| targetApiDir @@ "index.html"
+
+            let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" generatorOutput.AssemblyGroup.Name)
             let indexDoc = {
                 OutputPath = fi
                 Content = [Namespaces.generateNamespaceDocs generatorOutput.AssemblyGroup generatorOutput.Properties]

@@ -317,7 +317,8 @@ h1.header:visited {
     content: "\f0da";
     float: right;
     border: none;
-    font-family: 'FontAwesome';
+    font-weight: 900;
+    font-family: 'Font Awesome 5 Free';
 }
 
 .dropdown-submenu>.dropdown-menu {

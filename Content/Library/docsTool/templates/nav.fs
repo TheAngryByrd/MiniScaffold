@@ -135,6 +135,7 @@ let generateNav (gitRepoName : string) (topLevelNav : TopLevelNav) =
     nav [
         Class "navbar navbar-expand-lg sticky-top navbar-dark bg-dark"
     ] [
+        i [ Class "fa fa-car"] []
         a [
             Class "navbar-brand"
             Href "/index.html"
