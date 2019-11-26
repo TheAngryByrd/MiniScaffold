@@ -3,7 +3,7 @@ source https://api.nuget.org/v3/index.json
 storage: none
 nuget Argu 5.2
 nuget FSharp.Core 4.3.4
-nuget Expecto 8.10.1
+nuget Expecto 8.13.1
 nuget YoloDev.Expecto.TestSdk 0.8.0
 nuget Microsoft.NET.Test.Sdk 15.7.2
 nuget altcover ~> 5
