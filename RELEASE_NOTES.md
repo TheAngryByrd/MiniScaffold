@@ -1,3 +1,12 @@
+### 0.20.1 - 2019-11-26
+* MINOR: UPdate Argu to 6.0 (https://github.com/TheAngryByrd/MiniScaffold/pull/154)
+* MINOR: Update Packaging.Targets to 0.1.121 (https://github.com/TheAngryByrd/MiniScaffold/pull/154)
+* MINOR: Update Altcover to 5.3.688 (https://github.com/TheAngryByrd/MiniScaffold/pull/154)
+* MINOR: Update expecto to 8.13.1 (https://github.com/TheAngryByrd/MiniScaffold/pull/154)
+* MINOR: Update FAKE to 5.18.3 (https://github.com/TheAngryByrd/MiniScaffold/pull/154)
+* MINOR: Update paket to 5.238.1 (https://github.com/TheAngryByrd/MiniScaffold/pull/154)
+
+
 ### 0.20.0 - 2019-10-22
 * FEATURE: Use Paket as local tool (https://github.com/TheAngryByrd/MiniScaffold/pull/148)
 * MINOR: Update FAKE to 5.18.1 (https://github.com/TheAngryByrd/MiniScaffold/pull/148)
