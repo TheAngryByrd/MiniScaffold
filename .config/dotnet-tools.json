@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "fake-cli": {
-      "version": "5.18.1",
+      "version": "5.18.3",
       "commands": [
         "fake"
       ]
