@@ -155,6 +155,15 @@ module GenerateDocs =
         Shell.copyDir (cfg.DocsOutputDirectory.FullName </> "files")   ( cfg.DocsSourceDirectory.FullName </> "files") (fun _ -> true)
 
 
+    let regexReplace (cfg : Configuration) source =
+        let replacements =
+            [
+                "{{siteBaseUrl}}", (cfg.SiteBaseUrl.ToString().TrimEnd('/'))
+            ]
+        (source, replacements)
+        ||> List.fold(fun state (pattern, replacement) ->
+            Text.RegularExpressions.Regex.Replace(state, pattern, replacement)
+        )
 
     let generateDocs (libDirs : ProjInfo.References) (docSourcePaths : IGlobbingPattern) (cfg : Configuration) =
         let parse (fileName : string) source =
@@ -179,6 +188,7 @@ module GenerateDocs =
                         compilerOptions = compilerOptions,
                         fsiEvaluator = fsiEvaluator)
                 | ".md" ->
+                    let source = regexReplace cfg source
                     Literate.ParseMarkdownString(
                         source,
                         path = fileName,
