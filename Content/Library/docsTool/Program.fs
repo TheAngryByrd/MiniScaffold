@@ -9,6 +9,7 @@ let refreshWebpageEvent = new Event<string>()
 
 type Configuration = {
     SiteBaseUrl         : Uri
+    GitHubRepoUrl       : Uri
     DocsOutputDirectory : IO.DirectoryInfo
     DocsSourceDirectory : IO.DirectoryInfo
     GitHubRepoName      : string
@@ -141,7 +142,15 @@ module GenerateDocs =
             DocsRoot = IO.DirectoryInfo docsDir
             DocsPages = pages
         }
-        Nav.generateNav cfg.SiteBaseUrl cfg.GitHubRepoName topLevelNavs
+
+        let navCfg : Nav.NavConfig = {
+            SiteBaseUrl = cfg.SiteBaseUrl
+            GitHubRepoUrl = cfg.GitHubRepoUrl
+            GitHubRepoName = cfg.GitHubRepoName
+            TopLevelNav = topLevelNavs
+        }
+
+        Nav.generateNav navCfg
 
     let renderGeneratedDocs (cfg : Configuration)  (generatedDocs : GeneratedDoc list) =
         let nav = generateNav cfg generatedDocs
@@ -455,6 +464,7 @@ let main argv =
 
     let defaultConfig = {
         SiteBaseUrl = Uri(sprintf "http://%s:%d/" WebServer.hostname WebServer.port )
+        GitHubRepoUrl = Uri "https://github.com"
         DocsOutputDirectory = IO.DirectoryInfo "docs"
         DocsSourceDirectory = IO.DirectoryInfo "docsSrc"
         GitHubRepoName = ""
@@ -474,6 +484,7 @@ let main argv =
                 | BuildArgs.ProjectGlob glob -> { state with ProjectFilesGlob = !! glob}
                 | BuildArgs.DocsOutputDirectory outdir -> { state with DocsOutputDirectory = IO.DirectoryInfo outdir}
                 | BuildArgs.DocsSourceDirectory srcdir -> { state with DocsSourceDirectory = IO.DirectoryInfo srcdir}
+                | BuildArgs.GitHubRepoUrl url -> { state with GitHubRepoUrl = Uri url}
                 | BuildArgs.GitHubRepoName repo -> { state with GitHubRepoName = repo}
             )
         GenerateDocs.renderDocs config
@@ -485,6 +496,7 @@ let main argv =
                 | WatchArgs.ProjectGlob glob -> {state with ProjectFilesGlob = !! glob}
                 | WatchArgs.DocsOutputDirectory outdir -> { state with DocsOutputDirectory = IO.DirectoryInfo outdir}
                 | WatchArgs.DocsSourceDirectory srcdir -> { state with DocsSourceDirectory = IO.DirectoryInfo srcdir}
+                | WatchArgs.GitHubRepoUrl url -> { state with GitHubRepoUrl = Uri url}
                 | WatchArgs.GitHubRepoName repo -> { state with GitHubRepoName = repo}
             )
         use ds = GenerateDocs.watchDocs config

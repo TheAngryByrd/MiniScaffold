@@ -42,6 +42,7 @@ I created it because I had to solve an issue with this other thing.
         <a href="{{siteBaseUrl}}/Explanations/Background.html" class="btn btn-primary">Dive Deeper</a>
       </div>
     </div>
+  </div>
   <div class="col-sm-6">
     <div class="card">
       <div class="card-body">
