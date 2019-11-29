@@ -8,6 +8,7 @@ open Fake.IO
 let refreshWebpageEvent = new Event<string>()
 
 type Configuration = {
+    SiteBaseUrl         : Uri
     DocsOutputDirectory : IO.DirectoryInfo
     DocsSourceDirectory : IO.DirectoryInfo
     GitHubRepoName      : string
@@ -117,12 +118,12 @@ module GenerateDocs =
             html ]
         |> Fable.ReactServer.renderToString
 
-    let renderWithMasterTemplate githubRepoName navBar titletext bodytext =
-        Master.masterTemplate githubRepoName navBar titletext bodytext
+    let renderWithMasterTemplate siteBaseUrl githubRepoName navBar titletext bodytext =
+        Master.masterTemplate siteBaseUrl githubRepoName navBar titletext bodytext
         |> render
 
-    let renderWithMasterAndWrite (outPath : FileInfo) githubRepoName navBar titletext bodytext   =
-        let contents = renderWithMasterTemplate githubRepoName navBar titletext bodytext
+    let renderWithMasterAndWrite siteBaseUrl (outPath : FileInfo) githubRepoName navBar titletext bodytext   =
+        let contents = renderWithMasterTemplate siteBaseUrl githubRepoName navBar titletext bodytext
         IO.Directory.CreateDirectory(outPath.DirectoryName) |> ignore
 
         IO.File.WriteAllText(outPath.FullName, contents)
@@ -148,7 +149,7 @@ module GenerateDocs =
 
         generatedDocs
         |> Seq.iter(fun gd ->
-            renderWithMasterAndWrite gd.OutputPath cfg.GitHubRepoName nav gd.Title gd.Content
+            renderWithMasterAndWrite cfg.SiteBaseUrl gd.OutputPath cfg.GitHubRepoName nav gd.Title gd.Content
         )
 
 
@@ -358,6 +359,9 @@ module WebServer =
     open System.Net.WebSockets
     open System.Diagnostics
 
+    let hostname = "localhost"
+    let port = 5000
+
     /// Helper to determine if port is in use
     let waitForPortInUse (hostname : string) port =
         let mutable portInUse = false
@@ -441,6 +445,7 @@ open DocsTool.CLIArgs
 let main argv =
 
     let defaultConfig = {
+        SiteBaseUrl = Uri(sprintf "http://%s:%d/" WebServer.hostname WebServer.port )
         DocsOutputDirectory = IO.DirectoryInfo "docs"
         DocsSourceDirectory = IO.DirectoryInfo "docsSrc"
         GitHubRepoName = ""
@@ -456,6 +461,7 @@ let main argv =
             (defaultConfig, args.GetAllResults())
             ||> List.fold(fun state next ->
                 match next with
+                | BuildArgs.SiteBaseUrl url ->  { state with SiteBaseUrl = Uri url }
                 | BuildArgs.ProjectGlob glob -> { state with ProjectFilesGlob = !! glob}
                 | BuildArgs.DocsOutputDirectory outdir -> { state with DocsOutputDirectory = IO.DirectoryInfo outdir}
                 | BuildArgs.DocsSourceDirectory srcdir -> { state with DocsSourceDirectory = IO.DirectoryInfo srcdir}

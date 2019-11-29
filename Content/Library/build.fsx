@@ -81,6 +81,8 @@ let releaseNotes = Fake.Core.ReleaseNotes.load "RELEASE_NOTES.md"
 
 let publishUrl = "https://www.nuget.org"
 
+let docsSiteBaseUrl = "https://%s.github.io/%s" gitOwner gitRepoName
+
 let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
 
 //-----------------------------------------------------------------------------
@@ -149,6 +151,7 @@ module DocsTool =
     let buildparser = ArgumentParser.Create<BuildArgs>(programName = "docstool")
     let buildCLI =
         [
+            BuildArgs.SiteBaseUrl docsSiteBaseUrl
             BuildArgs.ProjectGlob srcGlob
             BuildArgs.DocsOutputDirectory docsDir
             BuildArgs.DocsSourceDirectory docsSrcDir
@@ -428,7 +431,7 @@ Target.create "GitHubRelease" githubRelease
 Target.create "FormatCode" formatCode
 Target.create "Release" ignore
 
-Target.create "GenerateDocs" <| fun _ ->
+Target.create "BuildDocs" <| fun _ ->
     DocsTool.build ()
 
 let watchBuild () =
@@ -443,7 +446,7 @@ let watchBuild () =
     )
     |> Seq.iter (invokeAsync >> Async.Catch >> Async.Ignore >> Async.Start)
 
-Target.create "ServeDocs" <| fun _ ->
+Target.create "WatchDocs" <| fun _ ->
     watchBuild ()
     DocsTool.watch ()
 
@@ -464,10 +467,10 @@ Target.create "ServeDocs" <| fun _ ->
 "GenerateAssemblyInfo" ==> "PublishToNuGet"
 
 "DotnetBuild"
-==> "GenerateDocs"
+==> "BuildDocs"
 
 "DotnetBuild"
-==> "ServeDocs"
+==> "WatchDocs"
 
 "DotnetRestore"
     ==> "DotnetBuild"

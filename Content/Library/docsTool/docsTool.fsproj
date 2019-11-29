@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Prelude.fs" />
     <Compile Include="templates/helpers.fs" />
     <Compile Include="templates/partMembers.fs" />
     <Compile Include="templates/partNested.fs" />
