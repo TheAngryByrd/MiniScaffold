@@ -19,6 +19,7 @@ module CLIArgs =
                 | GitHubRepoName _ -> "The GitHub repository name."
 
     type BuildArgs =
+        | SiteBaseUrl of string
         | ProjectGlob of string
         | DocsOutputDirectory of string
         | DocsSourceDirectory of string
@@ -27,6 +28,7 @@ module CLIArgs =
         interface IArgParserTemplate with
             member this.Usage =
                 match this with
+                | SiteBaseUrl _ -> "The public site's base url."
                 | ProjectGlob _  -> "The glob for the dlls to generate API documentation"
                 | DocsOutputDirectory _ -> "The docs output directory."
                 | DocsSourceDirectory _ -> "The docs source directory."

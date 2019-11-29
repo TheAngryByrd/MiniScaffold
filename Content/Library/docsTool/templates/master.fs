@@ -1,9 +1,11 @@
 module Master
 
+open System
 open Fable.React
 open Fable.React.Props
+open DocsTool
 
-let masterTemplate gitRepoName navBar titletext bodyText =
+let masterTemplate (siteBaseUrl : Uri) gitRepoName navBar titletext bodyText =
     html [Lang "en"] [
         head [] [
             title [] [ str (sprintf "%s docs / %s" gitRepoName titletext) ]
@@ -20,7 +22,7 @@ let masterTemplate gitRepoName navBar titletext bodyText =
                 CrossOrigin "anonymous"
             ]
             link [
-                Href "/content/style.css"
+                Href (siteBaseUrl |> Uri.simpleCombine "/content/style.css" )
                 Type "text/css"
                 Rel "stylesheet"
             ]
@@ -44,9 +46,9 @@ let masterTemplate gitRepoName navBar titletext bodyText =
                 Integrity "sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
                 CrossOrigin "anonymous"
                 ] []
-            yield script [Src "/content/tips.js" ] []
-            yield script [Src "/content/hotload.js" ] []
-            yield script [Src "/content/submenu.js" ] []
+            yield script [Src (siteBaseUrl |> Uri.simpleCombine "/content/tips.js") ] []
+            yield script [Src (siteBaseUrl |> Uri.simpleCombine "/content/hotload.js") ] []
+            yield script [Src (siteBaseUrl |> Uri.simpleCombine "/content/submenu.js") ] []
         ]
         // footer [ Class "footer font-small bg-dark navbar fixed-bottom" ] [
         //     div [Class "container"] [
