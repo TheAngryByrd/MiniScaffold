@@ -28,22 +28,9 @@
     <PaketBootStrapperExePath Condition=" '$(PaketBootStrapperExePath)' == '' ">$(PaketToolsPath)paket.bootstrapper.exe</PaketBootStrapperExePath>
     <PaketBootStrapperExeDir Condition=" Exists('$(PaketBootStrapperExePath)') " >$([System.IO.Path]::GetDirectoryName("$(PaketBootStrapperExePath)"))\</PaketBootStrapperExeDir>
     
-<<<<<<< HEAD
     <PaketBootStrapperCommand Condition=" '$(OS)' == 'Windows_NT' ">"$(PaketBootStrapperExePath)"</PaketBootStrapperCommand>
-=======
-    <PaketBootStrapperCommand Condition=" '$(OS)' == 'Windows_NT'">"$(PaketBootStrapperExePath)"</PaketBootStrapperCommand>
->>>>>>> rebase fixes
     <PaketBootStrapperCommand Condition=" '$(OS)' != 'Windows_NT' ">$(MonoPath) --runtime=v4.0.30319 "$(PaketBootStrapperExePath)"</PaketBootStrapperCommand>
 
-<<<<<<< HEAD
-=======
-    <!-- Disable automagic references for F# dotnet sdk -->
-    <!-- This will not do anything for other project types -->
-    <!-- see https://github.com/fsharp/fslang-design/blob/master/tooling/FST-1002-fsharp-in-dotnet-sdk.md -->
-    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
-    <DisableImplicitSystemValueTupleReference>true</DisableImplicitSystemValueTupleReference>
-
->>>>>>> Fixup rebase
     <!-- Disable Paket restore under NCrunch build -->
     <PaketRestoreDisabled Condition="'$(NCrunch)' == '1'">True</PaketRestoreDisabled>
 
@@ -56,7 +43,6 @@
   <!-- Resolve how paket should be called -->
   <!-- Current priority is: local (1: repo root, 2: .paket folder) => 3: as CLI tool => as bootstrapper (4: proj Bootstrapper style, 5: BootstrapperExeDir) => 6: global path variable -->
   <Target Name="SetPaketCommand" >
-<<<<<<< HEAD
     <!-- Test if paket is available in the standard locations. If so, that takes priority. Case 1/2 - non-windows specific -->
     <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
       <!-- no windows, try native paket as default, root => tool -->
@@ -69,17 +55,6 @@
       <!-- root => tool -->
       <PaketExePath Condition=" '$(PaketExePath)' == '' AND Exists('$(PaketRootPath)paket.exe') ">$(PaketRootPath)paket.exe</PaketExePath>
       <PaketExePath Condition=" '$(PaketExePath)' == '' AND Exists('$(PaketToolsPath)paket.exe') ">$(PaketToolsPath)paket.exe</PaketExePath>
-=======
-  
-    <!-- Call 'dotnet paket' and see if it returns without an error. Mute all the output. -->
-    <Exec Command="dotnet paket --version" IgnoreExitCode="true" StandardOutputImportance="low" StandardErrorImportance="low" >
-      <Output TaskParameter="ExitCode" PropertyName="LocalPaketToolExitCode" />
-    </Exec>
-
-    <!-- If local paket tool is found, use that -->
-    <PropertyGroup Condition=" '$(LocalPaketToolExitCode)' == '0' ">
-      <InternalPaketCommand>dotnet paket</InternalPaketCommand>
->>>>>>> rebase fixes
     </PropertyGroup>
 
     <!-- If paket hasn't be found in standard locations, test for CLI tool usage. -->
@@ -130,20 +105,10 @@
     <MSBuild Projects="$(PaketToolsPath)paket.bootstrapper.proj" Targets="Restore" />
   </Target>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> rebase fixes
   <!-- Official workaround for https://docs.microsoft.com/en-us/visualstudio/msbuild/getfilehash-task?view=vs-2019 -->
   <UsingTask TaskName="Microsoft.Build.Tasks.GetFileHash" AssemblyName="Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(MSBuildSupportsHashing)' == 'true' And '$(DetectedMSBuildVersion)' &lt; '16.0.360' " />
   <UsingTask TaskName="Microsoft.Build.Tasks.VerifyFileHash" AssemblyName="Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(MSBuildSupportsHashing)' == 'true' And '$(DetectedMSBuildVersion)' &lt; '16.0.360' " />
   <Target Name="PaketRestore" Condition="'$(PaketRestoreDisabled)' != 'True'" BeforeTargets="_GenerateDotnetCliToolReferenceSpecs;_GenerateProjectRestoreGraphPerFramework;_GenerateRestoreGraphWalkPerFramework;CollectPackageReferences" DependsOnTargets="SetPaketCommand;PaketBootstrapping">
-<<<<<<< HEAD
-=======
-  <Target Name="PaketRestore" Condition="'$(PaketRestoreDisabled)' != 'True'" BeforeTargets="_GenerateDotnetCliToolReferenceSpecs;_GenerateProjectRestoreGraphPerFramework;_GenerateRestoreGraphWalkPerFramework;CollectPackageReferences" DependsOnTargets="PaketBootstrapping">
->>>>>>> Fixup rebase
-=======
->>>>>>> rebase fixes
 
     <!-- Step 1 Check if lockfile is properly restored (if the hash of the lockfile and the cache-file match) -->
     <PropertyGroup>
