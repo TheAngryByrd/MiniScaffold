@@ -56,6 +56,8 @@ module ProjInfo =
 
         loader, netFwInfo
 
+    let [<Literal>] RefPrefix = "-r:"
+
     let findReferences projPath : ProjInfo=
         let fcs = createFCS ()
         let loader, netFwInfo = createLoader ()
@@ -66,11 +68,11 @@ module ProjInfo =
             let references =
                 options.OtherOptions
                 |> Array.filter(fun s ->
-                    s.StartsWith("-r:")
+                    s.StartsWith(RefPrefix)
                 )
                 |> Array.map(fun s ->
                     // removes "-r:" from beginning of reference path
-                    s.Remove(0,3)
+                    s.Remove(0,RefPrefix.Length)
                     |> FileInfo
                 )
 
@@ -438,8 +440,6 @@ module WebServer =
         if proc.ExitCode <> 0 then failwithf "opening browser failed"
 
     let serveDocs docsDir =
-        let hostname = "localhost"
-        let port = 5000
         async {
             waitForPortInUse hostname port
             sprintf "http://%s:%d/index.html" hostname port |> openBrowser
