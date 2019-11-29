@@ -8,6 +8,7 @@ module CLIArgs =
         | ProjectGlob of string
         | DocsOutputDirectory of string
         | DocsSourceDirectory of string
+        | GitHubRepoUrl of string
         | GitHubRepoName of string
     with
         interface IArgParserTemplate with
@@ -16,6 +17,7 @@ module CLIArgs =
                 | ProjectGlob _  -> "The glob for the dlls to generate API documentation."
                 | DocsOutputDirectory _ -> "The docs output directory."
                 | DocsSourceDirectory _ -> "The docs source directory."
+                | GitHubRepoUrl _ -> "The GitHub repository url."
                 | GitHubRepoName _ -> "The GitHub repository name."
 
     type BuildArgs =
@@ -23,6 +25,7 @@ module CLIArgs =
         | ProjectGlob of string
         | DocsOutputDirectory of string
         | DocsSourceDirectory of string
+        | GitHubRepoUrl of string
         | GitHubRepoName of string
     with
         interface IArgParserTemplate with
@@ -32,6 +35,7 @@ module CLIArgs =
                 | ProjectGlob _  -> "The glob for the dlls to generate API documentation"
                 | DocsOutputDirectory _ -> "The docs output directory."
                 | DocsSourceDirectory _ -> "The docs source directory."
+                | GitHubRepoUrl _ -> "The GitHub repository url."
                 | GitHubRepoName _ -> "The GitHub repository name."
 
     type CLIArguments =

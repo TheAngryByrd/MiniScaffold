@@ -76,6 +76,8 @@ let docsToolDir = __SOURCE_DIRECTORY__ @@ "docsTool"
 let gitOwner = "MyGithubUsername"
 let gitRepoName = "MyLib.1"
 
+let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
+
 let releaseBranch = "master"
 let releaseNotes = Fake.Core.ReleaseNotes.load "RELEASE_NOTES.md"
 
@@ -155,6 +157,7 @@ module DocsTool =
             BuildArgs.ProjectGlob srcGlob
             BuildArgs.DocsOutputDirectory docsDir
             BuildArgs.DocsSourceDirectory docsSrcDir
+            BuildArgs.GitHubRepoUrl gitHubRepoUrl
             BuildArgs.GitHubRepoName gitRepoName
 
         ]
@@ -172,6 +175,7 @@ module DocsTool =
             WatchArgs.ProjectGlob srcGlob
             WatchArgs.DocsOutputDirectory docsDir
             WatchArgs.DocsSourceDirectory docsSrcDir
+            WatchArgs.GitHubRepoUrl gitHubRepoUrl
             WatchArgs.GitHubRepoName gitRepoName
         ]
         |> watchparser.PrintCommandLineArgumentsFlat

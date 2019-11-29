@@ -13,22 +13,31 @@ type TopLevelNav = {
     DocsPages : IO.FileInfo list
 }
 
+type NavConfig = {
+    SiteBaseUrl : Uri
+    GitHubRepoUrl : Uri
+    GitHubRepoName : string
+    TopLevelNav : TopLevelNav
+}
+
 let normalizeText text =
     System.Text.RegularExpressions.Regex.Replace(text, @"[^0-9a-zA-Z\.]+", " ")
 
 let normalizeStr =  normalizeText >> str
 
-let navItem text link =
-        li [
-            Class "nav-item"
-        ] [
-            a [
-                Class "nav-link"
-                Href link
-            ] [
-                normalizeStr text
-            ]
-        ]
+let navItem link inner  =
+    li [
+        Class "nav-item"
+    ] [
+        a [
+            Class "nav-link"
+            Href link
+        ] inner
+    ]
+
+let navItemText text link =
+        navItem link [ normalizeStr text ]
+
 
 let dropDownNavMenu text items =
             li [ Class "nav-item dropdown" ][
@@ -117,7 +126,7 @@ let generateNavMenus siteBaseUrl (navTree : NavTree list) =
         navTree
         |> List.map(fun nav ->
             match nav with
-            | File (title, link) when depth = 0 -> navItem title (siteBaseUrl |> Uri.simpleCombine link)
+            | File (title, link) when depth = 0 -> navItemText title (siteBaseUrl |> Uri.simpleCombine link)
             | File (title, link) -> dropDownNavItem title (siteBaseUrl |> Uri.simpleCombine link)
             | Folder (title, subtree) when depth = 0 ->
                 innerDo (depth + 1) subtree
@@ -130,16 +139,15 @@ let generateNavMenus siteBaseUrl (navTree : NavTree list) =
 
 
 
-let generateNav siteBaseUrl (gitRepoName : string) (topLevelNav : TopLevelNav) =
-
+let generateNav (navCfg : NavConfig) =
     nav [
         Class "navbar navbar-expand-lg sticky-top navbar-dark bg-dark"
     ] [
         i [ Class "fa fa-car"] []
         a [
             Class "navbar-brand"
-            Href (siteBaseUrl |> Uri.simpleCombine "/index.html")
-        ] [str (gitRepoName)]
+            Href (navCfg.SiteBaseUrl |> Uri.simpleCombine "/index.html")
+        ] [str (navCfg.GitHubRepoName)]
         button [
             Class "navbar-toggler"
             Type "button"
@@ -154,7 +162,12 @@ let generateNav siteBaseUrl (gitRepoName : string) (topLevelNav : TopLevelNav) =
         div [   Class "collapse navbar-collapse"
                 Id "navbarNav" ] [
             ul [ Class "navbar-nav mr-auto" ] [
-                yield! navTreeFromPaths topLevelNav.DocsRoot topLevelNav.DocsPages |> sortNavTree |> generateNavMenus siteBaseUrl
+                yield! navTreeFromPaths navCfg.TopLevelNav.DocsRoot navCfg.TopLevelNav.DocsPages |> sortNavTree |> generateNavMenus navCfg.SiteBaseUrl
+            ]
+            ul [ Class "navbar-nav"] [
+                navItem (string navCfg.GitHubRepoUrl) [
+                    i [ Class "fab fa-github fa-lg fa-fw text-light"] []
+                ]
             ]
         ]
     ]
