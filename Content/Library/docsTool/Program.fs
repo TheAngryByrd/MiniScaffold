@@ -86,9 +86,6 @@ module ProjInfo =
             failwithf "Couldn't read project %s" projPath
 
 
-
-
-
 module GenerateDocs =
     open Fake.Core
     open Fake.IO.Globbing.Operators
@@ -142,7 +139,7 @@ module GenerateDocs =
             DocsRoot = IO.DirectoryInfo docsDir
             DocsPages = pages
         }
-        Nav.generateNav cfg.GitHubRepoName topLevelNavs
+        Nav.generateNav cfg.SiteBaseUrl cfg.GitHubRepoName topLevelNavs
 
     let renderGeneratedDocs (cfg : Configuration)  (generatedDocs : GeneratedDoc list) =
         let nav = generateNav cfg generatedDocs
@@ -156,6 +153,8 @@ module GenerateDocs =
     let copyAssets (cfg : Configuration) =
         Shell.copyDir (cfg.DocsOutputDirectory.FullName </> "content")   ( cfg.DocsSourceDirectory.FullName </> "content") (fun _ -> true)
         Shell.copyDir (cfg.DocsOutputDirectory.FullName </> "files")   ( cfg.DocsSourceDirectory.FullName </> "files") (fun _ -> true)
+
+
 
     let generateDocs (libDirs : ProjInfo.References) (docSourcePaths : IGlobbingPattern) (cfg : Configuration) =
         let parse (fileName : string) source =
