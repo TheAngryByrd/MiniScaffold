@@ -1,7 +1,7 @@
 module Nav
 
 open System
-
+open DocsTool
 open Fable.React
 open Fable.React.Props
 
@@ -112,13 +112,13 @@ let navTreeFromPaths (rootPath : IO.DirectoryInfo) (files : IO.FileInfo list) =
 
 
 
-let generateNavMenus (navTree : NavTree list) =
+let generateNavMenus siteBaseUrl (navTree : NavTree list) =
     let rec innerDo depth (navTree : NavTree list) =
         navTree
         |> List.map(fun nav ->
             match nav with
-            | File (title, link) when depth = 0 -> navItem title link
-            | File (title, link) -> dropDownNavItem title link
+            | File (title, link) when depth = 0 -> navItem title (siteBaseUrl |> Uri.simpleCombine link)
+            | File (title, link) -> dropDownNavItem title (siteBaseUrl |> Uri.simpleCombine link)
             | Folder (title, subtree) when depth = 0 ->
                 innerDo (depth + 1) subtree
                 |> dropDownNavMenu title
@@ -130,7 +130,7 @@ let generateNavMenus (navTree : NavTree list) =
 
 
 
-let generateNav (gitRepoName : string) (topLevelNav : TopLevelNav) =
+let generateNav siteBaseUrl (gitRepoName : string) (topLevelNav : TopLevelNav) =
 
     nav [
         Class "navbar navbar-expand-lg sticky-top navbar-dark bg-dark"
@@ -154,7 +154,7 @@ let generateNav (gitRepoName : string) (topLevelNav : TopLevelNav) =
         div [   Class "collapse navbar-collapse"
                 Id "navbarNav" ] [
             ul [ Class "navbar-nav mr-auto" ] [
-                yield! navTreeFromPaths topLevelNav.DocsRoot topLevelNav.DocsPages |> sortNavTree |> generateNavMenus
+                yield! navTreeFromPaths topLevelNav.DocsRoot topLevelNav.DocsPages |> sortNavTree |> generateNavMenus siteBaseUrl
             ]
         ]
     ]
