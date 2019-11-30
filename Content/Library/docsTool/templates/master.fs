@@ -31,7 +31,7 @@ let masterTemplate (siteBaseUrl : Uri) gitRepoName navBar titletext bodyText =
         body [] [
             yield navBar
             yield div [Class "wrapper d-flex flex-column justify-content-between min-vh-100"] [
-                main [Class "container main"] bodyText
+                main [Class "container main mb-4"] bodyText
                 footer [Class "navbar font-small bg-dark m-0"] [
                     div [Class "container"] [
                         p [Class "text-light mb-0"] [str "hello"]
