@@ -12,7 +12,7 @@ type Configuration = {
     GitHubRepoUrl       : Uri
     DocsOutputDirectory : IO.DirectoryInfo
     DocsSourceDirectory : IO.DirectoryInfo
-    GitHubRepoName      : string
+    ProjectName         : string
     ProjectFilesGlob    : IGlobbingPattern
 }
 
@@ -118,12 +118,12 @@ module GenerateDocs =
             html ]
         |> Fable.ReactServer.renderToString
 
-    let renderWithMasterTemplate siteBaseUrl githubRepoName navBar titletext bodytext =
-        Master.masterTemplate siteBaseUrl githubRepoName navBar titletext bodytext
+    let renderWithMasterTemplate siteBaseUrl ProjectName navBar titletext bodytext =
+        Master.masterTemplate siteBaseUrl ProjectName navBar titletext bodytext
         |> render
 
-    let renderWithMasterAndWrite siteBaseUrl (outPath : FileInfo) githubRepoName navBar titletext bodytext   =
-        let contents = renderWithMasterTemplate siteBaseUrl githubRepoName navBar titletext bodytext
+    let renderWithMasterAndWrite siteBaseUrl (outPath : FileInfo) ProjectName navBar titletext bodytext   =
+        let contents = renderWithMasterTemplate siteBaseUrl ProjectName navBar titletext bodytext
         IO.Directory.CreateDirectory(outPath.DirectoryName) |> ignore
 
         IO.File.WriteAllText(outPath.FullName, contents)
@@ -146,7 +146,7 @@ module GenerateDocs =
         let navCfg : Nav.NavConfig = {
             SiteBaseUrl = cfg.SiteBaseUrl
             GitHubRepoUrl = cfg.GitHubRepoUrl
-            GitHubRepoName = cfg.GitHubRepoName
+            ProjectName = cfg.ProjectName
             TopLevelNav = topLevelNavs
         }
 
@@ -157,7 +157,7 @@ module GenerateDocs =
 
         generatedDocs
         |> Seq.iter(fun gd ->
-            renderWithMasterAndWrite cfg.SiteBaseUrl gd.OutputPath cfg.GitHubRepoName nav gd.Title gd.Content
+            renderWithMasterAndWrite cfg.SiteBaseUrl gd.OutputPath cfg.ProjectName nav gd.Title gd.Content
         )
 
 
@@ -243,7 +243,7 @@ module GenerateDocs =
             {
                 OutputPath = outPath
                 Content = contents
-                Title = sprintf "%s-%s" outPath.Name cfg.GitHubRepoName
+                Title = sprintf "%s-%s" outPath.Name cfg.ProjectName
             }
         )
         |> Seq.toList
@@ -269,7 +269,7 @@ module GenerateDocs =
             let indexDoc = {
                 OutputPath = fi
                 Content = [Namespaces.generateNamespaceDocs generatorOutput.AssemblyGroup generatorOutput.Properties]
-                Title = sprintf "%s-%s" fi.Name cfg.GitHubRepoName
+                Title = sprintf "%s-%s" fi.Name cfg.ProjectName
             }
 
             let moduleDocs =
@@ -280,7 +280,7 @@ module GenerateDocs =
                     {
                         OutputPath = fi
                         Content = content
-                        Title = sprintf "%s-%s" m.Module.Name cfg.GitHubRepoName
+                        Title = sprintf "%s-%s" m.Module.Name cfg.ProjectName
                     }
                 )
             let typeDocs =
@@ -291,7 +291,7 @@ module GenerateDocs =
                     {
                         OutputPath = fi
                         Content = content
-                        Title = sprintf "%s-%s" m.Type.Name cfg.GitHubRepoName
+                        Title = sprintf "%s-%s" m.Type.Name cfg.ProjectName
                     }
                 )
             [ indexDoc ] @ moduleDocs @ typeDocs
@@ -467,7 +467,7 @@ let main argv =
         GitHubRepoUrl = Uri "https://github.com"
         DocsOutputDirectory = IO.DirectoryInfo "docs"
         DocsSourceDirectory = IO.DirectoryInfo "docsSrc"
-        GitHubRepoName = ""
+        ProjectName = ""
         ProjectFilesGlob = !! ""
     }
 
@@ -485,7 +485,7 @@ let main argv =
                 | BuildArgs.DocsOutputDirectory outdir -> { state with DocsOutputDirectory = IO.DirectoryInfo outdir}
                 | BuildArgs.DocsSourceDirectory srcdir -> { state with DocsSourceDirectory = IO.DirectoryInfo srcdir}
                 | BuildArgs.GitHubRepoUrl url -> { state with GitHubRepoUrl = Uri url}
-                | BuildArgs.GitHubRepoName repo -> { state with GitHubRepoName = repo}
+                | BuildArgs.ProjectName repo -> { state with ProjectName = repo}
             )
         GenerateDocs.renderDocs config
     | Watch args ->
@@ -497,7 +497,7 @@ let main argv =
                 | WatchArgs.DocsOutputDirectory outdir -> { state with DocsOutputDirectory = IO.DirectoryInfo outdir}
                 | WatchArgs.DocsSourceDirectory srcdir -> { state with DocsSourceDirectory = IO.DirectoryInfo srcdir}
                 | WatchArgs.GitHubRepoUrl url -> { state with GitHubRepoUrl = Uri url}
-                | WatchArgs.GitHubRepoName repo -> { state with GitHubRepoName = repo}
+                | WatchArgs.ProjectName repo -> { state with ProjectName = repo}
             )
         use ds = GenerateDocs.watchDocs config
         WebServer.serveDocs config.DocsOutputDirectory.FullName

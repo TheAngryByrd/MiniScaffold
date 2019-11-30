@@ -9,7 +9,7 @@ module CLIArgs =
         | DocsOutputDirectory of string
         | DocsSourceDirectory of string
         | GitHubRepoUrl of string
-        | GitHubRepoName of string
+        | ProjectName of string
     with
         interface IArgParserTemplate with
             member this.Usage =
@@ -18,7 +18,7 @@ module CLIArgs =
                 | DocsOutputDirectory _ -> "The docs output directory."
                 | DocsSourceDirectory _ -> "The docs source directory."
                 | GitHubRepoUrl _ -> "The GitHub repository url."
-                | GitHubRepoName _ -> "The GitHub repository name."
+                | ProjectName _ -> "The project name."
 
     type BuildArgs =
         | SiteBaseUrl of string
@@ -26,7 +26,7 @@ module CLIArgs =
         | DocsOutputDirectory of string
         | DocsSourceDirectory of string
         | GitHubRepoUrl of string
-        | GitHubRepoName of string
+        | ProjectName of string
     with
         interface IArgParserTemplate with
             member this.Usage =
@@ -36,7 +36,7 @@ module CLIArgs =
                 | DocsOutputDirectory _ -> "The docs output directory."
                 | DocsSourceDirectory _ -> "The docs source directory."
                 | GitHubRepoUrl _ -> "The GitHub repository url."
-                | GitHubRepoName _ -> "The GitHub repository name."
+                | ProjectName _ -> "The project name."
 
     type CLIArguments =
         | [<CustomCommandLine("watch")>]  Watch of ParseResults<WatchArgs>
