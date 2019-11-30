@@ -38,6 +38,14 @@ let navItem link inner  =
 let navItemText text link =
         navItem link [ normalizeStr text ]
 
+let navItemIconOnly link ariaLabel inner =
+    li [Class "nav-item"] [
+        a [
+            Class "nav-link"
+            HTMLAttr.Custom("aria-label", ariaLabel)
+            Href link
+        ] inner
+    ]
 
 let dropDownNavMenu text items =
             li [ Class "nav-item dropdown" ][
@@ -141,13 +149,15 @@ let generateNavMenus siteBaseUrl (navTree : NavTree list) =
 
 let generateNav (navCfg : NavConfig) =
     nav [
-        Class "navbar navbar-expand-lg sticky-top navbar-dark bg-dark"
+        Class "navbar navbar-expand-md sticky-top navbar-dark bg-dark"
     ] [
-        i [ Class "fa fa-car"] []
         a [
             Class "navbar-brand"
             Href (navCfg.SiteBaseUrl |> Uri.simpleCombine "/index.html")
-        ] [str (navCfg.ProjectName)]
+        ] [
+            i [ Class "fa fa-car text-white mr-2"] []
+            str (navCfg.ProjectName)
+        ]
         button [
             Class "navbar-toggler"
             Type "button"
@@ -165,7 +175,7 @@ let generateNav (navCfg : NavConfig) =
                 yield! navTreeFromPaths navCfg.TopLevelNav.DocsRoot navCfg.TopLevelNav.DocsPages |> sortNavTree |> generateNavMenus navCfg.SiteBaseUrl
             ]
             ul [ Class "navbar-nav"] [
-                navItem (string navCfg.GitHubRepoUrl) [
+                navItemIconOnly (string navCfg.GitHubRepoUrl) "GitHub Repository" [
                     i [ Class "fab fa-github fa-lg fa-fw text-light"] []
                 ]
             ]
