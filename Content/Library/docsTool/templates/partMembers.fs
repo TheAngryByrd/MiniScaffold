@@ -77,17 +77,11 @@ let repoSourceLink (m: Member) = seq {
     if m.Details.FormatSourceLocation |> String.IsNullOrEmpty |> not then
         yield a [
             Href m.Details.FormatSourceLocation
-            Class "github-link"
+            Class "float-right"
         ] [
-            yield img [
-                Src "../content/img/github.png"
-                Class "github-link"
-            ]
-
-            yield img [
-                Src "../content/img/github-blue.png"
-                Class "normal"
-            ]
+            yield i [
+                Class "fab fa-github text-dark"
+            ] []
         ]
 }
 
