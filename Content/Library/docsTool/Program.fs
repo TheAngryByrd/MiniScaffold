@@ -161,7 +161,7 @@ module GenerateDocs =
             GitHubRepoUrl = cfg.GitHubRepoUrl
             ProjectName = cfg.ProjectName
             ReleaseVersion = cfg.ReleaseVersion
-            ReleaseDate = DateTime.Now.ToString("yyyy/MM/dd")
+            ReleaseDate = DateTimeOffset.Now
         }
         generatedDocs
         |> Seq.iter(fun gd ->

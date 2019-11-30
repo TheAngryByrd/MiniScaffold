@@ -10,7 +10,7 @@ type MasterTemplateConfig = {
     GitHubRepoUrl : Uri
     ProjectName : string
     ReleaseVersion : string
-    ReleaseDate : string
+    ReleaseDate : DateTimeOffset
 }
 
 let renderFooter (cfg : MasterTemplateConfig) =
@@ -86,11 +86,10 @@ let renderFooter (cfg : MasterTemplateConfig) =
                 div [Class "col"] [
                     div [Class "text-light"] [
                         h5 [] [str "Metadata"]
-                        //https://github.com/TheAngryByrd/MiniScaffold/releases/tag/0.20.1
                         p [] [
                             str "Generated for version "
                             a [Class "text-white"; Target "_blank"; Href (cfg.GitHubRepoUrl |> Uri.simpleCombine (sprintf "releases/tag/%s" cfg.ReleaseVersion))] [str cfg.ReleaseVersion]
-                            str (sprintf " on %s" cfg.ReleaseDate)
+                            str (sprintf " on %s" (cfg.ReleaseDate.ToString("yyyy/MM/dd")))
                         ]
                     ]
                 ]
@@ -123,7 +122,7 @@ let masterTemplate (cfg : MasterTemplateConfig) navBar titletext bodyText =
                 CrossOrigin "anonymous"
             ]
             link [
-                Href (cfg.SiteBaseUrl |> Uri.simpleCombine "/content/style.css" )
+                Href (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/style.css?version=%i" cfg.ReleaseDate.Ticks) )
                 Type "text/css"
                 Rel "stylesheet"
             ]
@@ -150,8 +149,8 @@ let masterTemplate (cfg : MasterTemplateConfig) navBar titletext bodyText =
                 Integrity "sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
                 CrossOrigin "anonymous"
                 ] []
-            yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine "/content/tips.js") ] []
-            yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine "/content/hotload.js") ] []
-            yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine "/content/submenu.js") ] []
+            yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/tips.js?version=%i" cfg.ReleaseDate.Ticks)) ] []
+            yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/hotload.js?version=%i" cfg.ReleaseDate.Ticks)) ] []
+            yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/submenu.js?version=%i" cfg.ReleaseDate.Ticks)) ] []
         ]
     ]
