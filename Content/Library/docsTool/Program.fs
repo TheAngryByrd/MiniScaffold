@@ -90,6 +90,7 @@ module ProjInfo =
 
 
 module GenerateDocs =
+    open DocsTool
     open Fake.Core
     open Fake.IO.Globbing.Operators
     open Fake.IO
@@ -118,12 +119,12 @@ module GenerateDocs =
             html ]
         |> Fable.ReactServer.renderToString
 
-    let renderWithMasterTemplate siteBaseUrl ProjectName navBar titletext bodytext =
-        Master.masterTemplate siteBaseUrl ProjectName navBar titletext bodytext
+    let renderWithMasterTemplate siteBaseUrl projectName navBar titletext bodytext =
+        Master.masterTemplate siteBaseUrl projectName navBar titletext bodytext
         |> render
 
-    let renderWithMasterAndWrite siteBaseUrl (outPath : FileInfo) ProjectName navBar titletext bodytext   =
-        let contents = renderWithMasterTemplate siteBaseUrl ProjectName navBar titletext bodytext
+    let renderWithMasterAndWrite siteBaseUrl (outPath : FileInfo) projectName navBar titletext bodytext   =
+        let contents = renderWithMasterTemplate siteBaseUrl projectName navBar titletext bodytext
         IO.Directory.CreateDirectory(outPath.DirectoryName) |> ignore
 
         IO.File.WriteAllText(outPath.FullName, contents)
@@ -263,7 +264,14 @@ module GenerateDocs =
                 |> List.distinct
             let libDirs = mscorlibDir :: references
             let targetApiDir = docsApiDir cfg.DocsOutputDirectory.FullName @@ IO.Path.GetFileNameWithoutExtension(projInfo.TargetPath.Name)
-            let generatorOutput = MetadataFormat.Generate(projInfo.TargetPath.FullName, libDirs = libDirs)
+
+            let generatorOutput =
+                MetadataFormat.Generate(
+                    projInfo.TargetPath.FullName,
+                    libDirs = libDirs,
+                    sourceFolder = __SOURCE_DIRECTORY__ @@ "..",
+                    sourceRepo = (cfg.GitHubRepoUrl |> Uri.simpleCombine "tree/master" |> string)
+                    )
 
             let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" generatorOutput.AssemblyGroup.Name)
             let indexDoc = {
