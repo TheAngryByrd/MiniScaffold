@@ -270,7 +270,8 @@ module GenerateDocs =
                     projInfo.TargetPath.FullName,
                     libDirs = libDirs,
                     sourceFolder = __SOURCE_DIRECTORY__ @@ "..",
-                    sourceRepo = (cfg.GitHubRepoUrl |> Uri.simpleCombine "tree/master" |> string)
+                    sourceRepo = (cfg.GitHubRepoUrl |> Uri.simpleCombine "tree/master" |> string),
+                    markDownComments = false
                     )
 
             let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" generatorOutput.AssemblyGroup.Name)

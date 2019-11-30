@@ -4,6 +4,7 @@ open System
 open Fable.React
 open Fable.React.Props
 open FSharp.MetadataFormat
+open System.Collections.Generic
 
 type ModuleByCategory = {
     Index : int
@@ -73,6 +74,14 @@ let obsoleteMessage (m: Member) = seq {
         ]
     }
 
+let signature (m : Member) = seq {
+    if m.Details.Signature  |> String.IsNullOrEmpty |> not then
+        yield
+            code [ Class "function-or-value"] [
+                str m.Details.Signature
+            ]
+}
+
 let repoSourceLink (m: Member) = seq {
     if m.Details.FormatSourceLocation |> String.IsNullOrEmpty |> not then
         yield a [
@@ -93,13 +102,15 @@ let commentBlock (c: Comment) =
         | "<default>", c -> NonEmptyDefaultBlock c
         | section, content -> Section (section, content)
 
-    let renderSection s: Fable.React.ReactElement list =
+    let renderSection (s : KeyValuePair<string,string>): Fable.React.ReactElement list =
+        printfn "section -> %A : %A" s.Key s.Value
         match s with
         | EmptyDefaultBlock -> []
-        | NonEmptyDefaultBlock content -> [ div [ Class "comment-block" ] [ RawText content ] ]
+        | NonEmptyDefaultBlock content -> [ div [ Class "comment-block" ] [ RawText (content.Replace("h2>", "h5>"))  ] ]
         | Section(name, content) -> [ h5 [] [ str name ] // h2 is obnoxiously large for this context, go with the smaller h5
-                                      RawText content ]
-
+                                      RawText (content.Replace("h2>", "h5>")) ]
+    printfn "Blurb -> %A" c.Blurb
+    printfn "FullText -> %A" c.FullText
     c.Sections
     |> List.collect renderSection
 
@@ -131,6 +142,10 @@ let partMembers (header : string) (tableHeader : string) (members : #seq<Member>
                     ]
 
                     th [] [
+                        str "Signature"
+                    ]
+
+                    th [] [
                         str "Description"
                     ]
                 ]
@@ -153,13 +168,17 @@ let partMembers (header : string) (tableHeader : string) (members : #seq<Member>
                             ]
                             tooltip it id
                         ]
+                        td [
+                            Class "member-name"
+                        ] [
+                            yield! signature it
+                        ]
 
                         td [
                             Class "xmldoc"
                         ] [
                             yield! obsoleteMessage it
                             yield! repoSourceLink it
-                            // printfn "%s:\n%A" it.Name it.Comment
                             yield! commentBlock it.Comment
                             yield! compiledName it
                         ]
