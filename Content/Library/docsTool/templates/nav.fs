@@ -16,7 +16,7 @@ type TopLevelNav = {
 type NavConfig = {
     SiteBaseUrl : Uri
     GitHubRepoUrl : Uri
-    GitHubRepoName : string
+    ProjectName : string
     TopLevelNav : TopLevelNav
 }
 
@@ -147,7 +147,7 @@ let generateNav (navCfg : NavConfig) =
         a [
             Class "navbar-brand"
             Href (navCfg.SiteBaseUrl |> Uri.simpleCombine "/index.html")
-        ] [str (navCfg.GitHubRepoName)]
+        ] [str (navCfg.ProjectName)]
         button [
             Class "navbar-toggler"
             Type "button"

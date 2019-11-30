@@ -158,7 +158,7 @@ module DocsTool =
             BuildArgs.DocsOutputDirectory docsDir
             BuildArgs.DocsSourceDirectory docsSrcDir
             BuildArgs.GitHubRepoUrl gitHubRepoUrl
-            BuildArgs.GitHubRepoName gitRepoName
+            BuildArgs.ProjectName gitRepoName
 
         ]
         |> buildparser.PrintCommandLineArgumentsFlat
@@ -176,7 +176,7 @@ module DocsTool =
             WatchArgs.DocsOutputDirectory docsDir
             WatchArgs.DocsSourceDirectory docsSrcDir
             WatchArgs.GitHubRepoUrl gitHubRepoUrl
-            WatchArgs.GitHubRepoName gitRepoName
+            WatchArgs.ProjectName gitRepoName
         ]
         |> watchparser.PrintCommandLineArgumentsFlat
 
