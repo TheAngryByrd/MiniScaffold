@@ -74,7 +74,7 @@ let renderFooter (cfg : MasterTemplateConfig) =
                             ]
                             li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
                                 a [Href "http://foundation.fsharp.org/"; Class "text-white"] [
-                                    img [Class "fsharp-footer-logo pr-1"; Src "https://fsharp.org/img/logo/fsharp.svg"]
+                                    img [Class "fsharp-footer-logo pr-1"; Src "https://fsharp.org/img/logo/fsharp.svg"; Alt "FSharp Logo"]
                                     str "F# Software Foundation"
                                 ]
                             ]
