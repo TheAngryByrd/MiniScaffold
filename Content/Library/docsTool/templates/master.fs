@@ -30,7 +30,14 @@ let masterTemplate (siteBaseUrl : Uri) gitRepoName navBar titletext bodyText =
         ]
         body [] [
             yield navBar
-            yield div [Class "container main"] bodyText
+            yield div [Class "wrapper d-flex flex-column justify-content-between min-vh-100"] [
+                main [Class "container main"] bodyText
+                footer [Class "navbar font-small bg-dark m-0"] [
+                    div [Class "container"] [
+                        p [Class "text-light mb-0"] [str "hello"]
+                    ]
+                ]
+            ]
             yield script [
                 Src "https://code.jquery.com/jquery-3.4.1.slim.min.js"
                 Integrity "sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
@@ -50,9 +57,4 @@ let masterTemplate (siteBaseUrl : Uri) gitRepoName navBar titletext bodyText =
             yield script [Src (siteBaseUrl |> Uri.simpleCombine "/content/hotload.js") ] []
             yield script [Src (siteBaseUrl |> Uri.simpleCombine "/content/submenu.js") ] []
         ]
-        // footer [ Class "footer font-small bg-dark navbar fixed-bottom" ] [
-        //     div [Class "container"] [
-        //         p [] [str "hello"]
-        //     ]
-        // ]
     ]

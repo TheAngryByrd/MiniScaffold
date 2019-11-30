@@ -106,8 +106,6 @@ table.pre td.lines {
 
 body {
   font-family: 'Open Sans', serif;
-  padding-top: 0px;
-  padding-bottom: 40px;
 }
 
 pre {
@@ -157,6 +155,11 @@ td.title, thead {
 
 #menu li {
   line-height:25px;
+}
+
+.wrapper {
+    margin-top: -56px;
+    padding-top: 56px;
 }
 
 /* Change font sizes for headings etc. */
@@ -265,9 +268,6 @@ h1.header:visited {
   white-space: nowrap;
 }
 
-.footer {
-  margin-top: 40px;
-}
 .links {
   text-align: center;
   margin-bottom: 8px;
@@ -302,12 +302,6 @@ h1.header:visited {
 .main h2 {
     padding: .5em 0em
 }
-
-.footer {
-    padding-top: 4em
-}
-
-
 
 .dropdown-submenu {
     position: relative;
