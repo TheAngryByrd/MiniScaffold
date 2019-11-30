@@ -319,3 +319,13 @@ h1.header:visited {
     margin-top: 0px;
     margin-left: 0px;
 }
+
+.no-bullets {
+    list-style-type: none; 
+}
+
+.list-group-item-dark {
+    background-color: #343a40;
+    color: #f8f9fa;
+    border: 1px solid rgba(248,249,259,.125);
+}

@@ -14,6 +14,7 @@ type Configuration = {
     DocsSourceDirectory : IO.DirectoryInfo
     ProjectName         : string
     ProjectFilesGlob    : IGlobbingPattern
+    ReleaseVersion      : string
 }
 
 let docsApiDir docsDir = docsDir @@ "Api_Reference"
@@ -119,12 +120,12 @@ module GenerateDocs =
             html ]
         |> Fable.ReactServer.renderToString
 
-    let renderWithMasterTemplate siteBaseUrl projectName navBar titletext bodytext =
-        Master.masterTemplate siteBaseUrl projectName navBar titletext bodytext
+    let renderWithMasterTemplate masterCfg navBar titletext bodytext =
+        Master.masterTemplate masterCfg navBar titletext bodytext
         |> render
 
-    let renderWithMasterAndWrite siteBaseUrl (outPath : FileInfo) projectName navBar titletext bodytext   =
-        let contents = renderWithMasterTemplate siteBaseUrl projectName navBar titletext bodytext
+    let renderWithMasterAndWrite masterCfg (outPath : FileInfo) navBar titletext bodytext   =
+        let contents = renderWithMasterTemplate masterCfg navBar titletext bodytext
         IO.Directory.CreateDirectory(outPath.DirectoryName) |> ignore
 
         IO.File.WriteAllText(outPath.FullName, contents)
@@ -155,10 +156,16 @@ module GenerateDocs =
 
     let renderGeneratedDocs (cfg : Configuration)  (generatedDocs : GeneratedDoc list) =
         let nav = generateNav cfg generatedDocs
-
+        let masterCfg : Master.MasterTemplateConfig = {
+            SiteBaseUrl = cfg.SiteBaseUrl
+            GitHubRepoUrl = cfg.GitHubRepoUrl
+            ProjectName = cfg.ProjectName
+            ReleaseVersion = cfg.ReleaseVersion
+            ReleaseDate = DateTime.Now.ToString("yyyy/MM/dd")
+        }
         generatedDocs
         |> Seq.iter(fun gd ->
-            renderWithMasterAndWrite cfg.SiteBaseUrl gd.OutputPath cfg.ProjectName nav gd.Title gd.Content
+            renderWithMasterAndWrite masterCfg gd.OutputPath nav gd.Title gd.Content
         )
 
 
@@ -478,6 +485,7 @@ let main argv =
         DocsSourceDirectory = IO.DirectoryInfo "docsSrc"
         ProjectName = ""
         ProjectFilesGlob = !! ""
+        ReleaseVersion = "0.1.0"
     }
 
     let errorHandler = ProcessExiter(colorizer = function ErrorCode.HelpText -> None | _ -> Some ConsoleColor.Red)
@@ -495,6 +503,7 @@ let main argv =
                 | BuildArgs.DocsSourceDirectory srcdir -> { state with DocsSourceDirectory = IO.DirectoryInfo srcdir}
                 | BuildArgs.GitHubRepoUrl url -> { state with GitHubRepoUrl = Uri url}
                 | BuildArgs.ProjectName repo -> { state with ProjectName = repo}
+                | BuildArgs.ReleaseVersion version -> { state with ReleaseVersion = version}
             )
         GenerateDocs.renderDocs config
     | Watch args ->
@@ -507,6 +516,7 @@ let main argv =
                 | WatchArgs.DocsSourceDirectory srcdir -> { state with DocsSourceDirectory = IO.DirectoryInfo srcdir}
                 | WatchArgs.GitHubRepoUrl url -> { state with GitHubRepoUrl = Uri url}
                 | WatchArgs.ProjectName repo -> { state with ProjectName = repo}
+                | WatchArgs.ReleaseVersion version -> { state with ReleaseVersion = version}
             )
         use ds = GenerateDocs.watchDocs config
         WebServer.serveDocs config.DocsOutputDirectory.FullName
