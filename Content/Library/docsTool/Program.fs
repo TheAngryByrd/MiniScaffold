@@ -60,6 +60,22 @@ module ProjInfo =
 
     let [<Literal>] RefPrefix = "-r:"
 
+    let findTargetPath targetPath =
+        if File.exists targetPath then
+            FileInfo targetPath
+        else
+            //HACK: Need to get dotnet-proj-info to handle configurations when extracting data
+            let debugFolder = sprintf "%cDebug%c" Path.DirectorySeparatorChar Path.DirectorySeparatorChar
+            let releaseFolder = sprintf "%cRelease%c" Path.DirectorySeparatorChar Path.DirectorySeparatorChar
+            let debugFolderAlt = sprintf "%cDebug%c" Path.DirectorySeparatorChar Path.AltDirectorySeparatorChar
+            let releaseFolderAlt = sprintf "%cRelease%c" Path.DirectorySeparatorChar Path.AltDirectorySeparatorChar
+
+            let releasePath = targetPath.Replace(debugFolder, releaseFolder).Replace(debugFolderAlt, releaseFolderAlt)
+            if releasePath |> File.exists then
+                releasePath |> FileInfo
+            else
+                failwithf "Couldn't find a dll to generate documentationfrom %s or %s" targetPath releasePath
+
     let findReferences projPath : ProjInfo=
         let fcs = createFCS ()
         let loader, netFwInfo = createLoader ()
@@ -82,8 +98,7 @@ module ProjInfo =
                 match options.ExtraProjectInfo with
                 | Some (:? ProjectOptions as dpwPo) -> dpwPo
                 | x -> failwithf "invalid project info %A" x
-            let targetPath =
-                    dpwPo.ExtraProjectInfo.TargetPath |> FileInfo
+            let targetPath = findTargetPath dpwPo.ExtraProjectInfo.TargetPath
             { References = references ; TargetPath = targetPath}
 
         | None ->
