@@ -14,40 +14,40 @@ type MasterTemplateConfig = {
 }
 
 let renderFooter (cfg : MasterTemplateConfig) =
-    footer [Class "footer font-small m-0 pt-1 bg-dark"] [
+    footer [Class "footer font-small m-0 py-4 bg-dark"] [
         div [Class "container"] [
-            div [Class "row py-4"] [
-                div [Class "col"] [
+            div [Class "row"] [
+                div [Class "col-12 col-md-4 mb-4 mb-md-0"] [
                     div [Class "text-light"] [
-                        h5 [] [ str "Project Resources"]
+                        h2 [Class "h5"] [ str "Project Resources"]
                         ul [Class "list-group list-group-flush"] [
                             li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
                                 a [Href (cfg.GitHubRepoUrl |> Uri.simpleCombine "blob/master/README.md"); Target "_blank"; Class "text-white"] [
-                                    i [ Class "fab fa-readme pr-1"] []
+                                    i [ Class "fas fa-book-reader fa-fw mr-2"] []
                                     str "README"
                                 ]
                             ]
                             li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
                                 a [Href (cfg.GitHubRepoUrl |> Uri.simpleCombine "blob/master/RELEASE_NOTES.md"); Target "_blank"; Class "text-white"] [
-                                    i [ Class "far fa-sticky-note pr-1"] []
+                                    i [ Class "fas fa-sticky-note fa-fw mr-2"] []
                                     str "Release Notes / Changelog"
                                 ]
                             ]
                             li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
                                 a [Href (cfg.GitHubRepoUrl |> Uri.simpleCombine "blob/master/LICENSE.md"); Target "_blank"; Class "text-white"] [
-                                    i [ Class "far fa-id-card pr-1"] []
+                                    i [ Class "fas fa-id-card fa-fw mr-2"] []
                                     str "License"
                                 ]
                             ]
                             li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
                                 a [Href (cfg.GitHubRepoUrl |> Uri.simpleCombine "blob/master/CONTRIBUTING.md"); Target "_blank"; Class "text-white"] [
-                                    i [ Class "fas fa-directions pr-1"] []
+                                    i [ Class "fas fa-directions fa-fw mr-2"] []
                                     str "Contributing"
                                 ]
                             ]
                             li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
                                 a [Href (cfg.GitHubRepoUrl |> Uri.simpleCombine "blob/master/CODE_OF_CONDUCT.md"); Target "_blank"; Class "text-white"] [
-                                    i [ Class "fas fa-users pr-1"] []
+                                    i [ Class "fas fa-users fa-fw mr-2"] []
                                     str "Code of Conduct"
                                 ]
                             ]
@@ -56,25 +56,25 @@ let renderFooter (cfg : MasterTemplateConfig) =
 
                     ]
                 ]
-                div [Class "col"] [
+                div [Class "col-12 col-md-4 mb-4 mb-md-0"] [
                     div [Class "text-light"] [
-                        h5 [] [ str "Other links"]
+                        h2 [Class "h5"] [ str "Other Links"]
                         ul [Class "list-group list-group-flush"] [
                             li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
                                 a [Href "https://docs.microsoft.com/en-us/dotnet/fsharp/"; Target "_blank"; Class "text-white"] [
-                                    i [Class "fab fa-microsoft pr-1"] []
+                                    i [Class "fab fa-microsoft fa-fw mr-2"] []
                                     str "F# Documentation"
                                 ]
                             ]
                             li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
                                 a [Href "https://fsharp.slack.com/"; Target "_blank"; Class "text-white"] [
-                                    i [Class "fab fa-slack pr-1"] []
+                                    i [Class "fab fa-slack fa-fw mr-2"] []
                                     str "F# Slack"
                                 ]
                             ]
                             li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
                                 a [Href "http://foundation.fsharp.org/"; Target "_blank"; Class "text-white"] [
-                                    img [Class "fsharp-footer-logo pr-1"; Src "https://fsharp.org/img/logo/fsharp.svg"; Alt "FSharp Logo"]
+                                    img [Class "fsharp-footer-logo mr-2"; Src "https://fsharp.org/img/logo/fsharp.svg"; Alt "FSharp Logo"]
                                     str "F# Software Foundation"
                                 ]
                             ]
@@ -83,9 +83,9 @@ let renderFooter (cfg : MasterTemplateConfig) =
 
 
                 ]
-                div [Class "col"] [
+                div [Class "col-12 col-md-4"] [
                     div [Class "text-light"] [
-                        h5 [] [str "Metadata"]
+                        h2 [Class "h5"] [str "Metadata"]
                         p [] [
                             str "Generated for version "
                             a [Class "text-white"; Target "_blank"; Href (cfg.GitHubRepoUrl |> Uri.simpleCombine (sprintf "releases/tag/%s" cfg.ReleaseVersion))] [str cfg.ReleaseVersion]
@@ -94,10 +94,10 @@ let renderFooter (cfg : MasterTemplateConfig) =
                     ]
                 ]
             ]
-            div [Class "row py-4"] [
-                div [Class "col"] [
-                    div [Class "text-light text-center"] [
-                        i [Class "fas fa-copyright pr-1"] []
+            div [Class "row"] [
+                div [Class "col text-center"] [
+                    small [Class "text-light"] [
+                        i [Class "fas fa-copyright mr-1"] []
                         str "MyLib.1, All rights reserved"
                     ]
                 ]
