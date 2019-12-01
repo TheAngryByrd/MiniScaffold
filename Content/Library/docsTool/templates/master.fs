@@ -13,7 +13,7 @@ type MasterTemplateConfig = {
     ReleaseDate : DateTimeOffset
 }
 
-let renderFooter (cfg : MasterTemplateConfig) =
+let renderFooter (cfg : MasterTemplateConfig) (pageSource : string option) =
     footer [Class "footer font-small m-0 py-4 bg-dark"] [
         div [Class "container"] [
             div [Class "row"] [
@@ -86,10 +86,23 @@ let renderFooter (cfg : MasterTemplateConfig) =
                 div [Class "col-12 col-md-4"] [
                     div [Class "text-light"] [
                         h2 [Class "h5"] [str "Metadata"]
-                        p [] [
-                            str "Generated for version "
-                            a [Class "text-white"; Href (cfg.GitHubRepoUrl |> Uri.simpleCombine (sprintf "releases/tag/%s" cfg.ReleaseVersion))] [str cfg.ReleaseVersion]
-                            str (sprintf " on %s" (cfg.ReleaseDate.ToString("yyyy/MM/dd")))
+                        ul [Class "list-group list-group-flush"] [
+                            li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
+                                str "Generated for version "
+                                a [Class "text-white"; Href (cfg.GitHubRepoUrl |> Uri.simpleCombine (sprintf "releases/tag/%s" cfg.ReleaseVersion))] [str cfg.ReleaseVersion]
+                                str (sprintf " on %s" (cfg.ReleaseDate.ToString("yyyy/MM/dd")))
+                            ]
+                            match pageSource with
+                            | Some p ->
+                                let page = cfg.GitHubRepoUrl |> Uri.simpleCombine "tree/master" |> Uri |> Uri.simpleCombine p
+                                li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
+                                    str "Found an issue? "
+                                    a [Class "text-white"; Href (page |> string)] [
+                                        str "Edit this page."
+                                    ]
+                                ]
+                            | None ->
+                                ()
                         ]
                     ]
                 ]
@@ -105,7 +118,7 @@ let renderFooter (cfg : MasterTemplateConfig) =
         ]
     ]
 
-let masterTemplate (cfg : MasterTemplateConfig) navBar titletext bodyText =
+let masterTemplate (cfg : MasterTemplateConfig) navBar titletext bodyText pageSource =
     html [Lang "en"] [
         head [] [
             title [] [ str (sprintf "%s docs / %s" cfg.ProjectName titletext) ]
@@ -132,7 +145,7 @@ let masterTemplate (cfg : MasterTemplateConfig) navBar titletext bodyText =
             yield navBar
             yield div [Class "wrapper d-flex flex-column justify-content-between min-vh-100"] [
                 main [Class "container main mb-4"] bodyText
-                renderFooter cfg
+                renderFooter cfg pageSource
             ]
             yield script [
                 Src "https://code.jquery.com/jquery-3.4.1.slim.min.js"
