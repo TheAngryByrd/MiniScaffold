@@ -307,7 +307,8 @@ h1.header:visited {
 
 .dropdown-submenu>a:after {
     content: "\f0da";
-    float: right;
+    padding-left: 5px;
+    vertical-align: middle;
     border: none;
     font-weight: 900;
     font-family: 'Font Awesome 5 Free';
