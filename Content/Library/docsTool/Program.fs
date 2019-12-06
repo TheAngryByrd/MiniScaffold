@@ -516,7 +516,16 @@ let main argv =
     }
 
     let errorHandler = ProcessExiter(colorizer = function ErrorCode.HelpText -> None | _ -> Some ConsoleColor.Red)
-    let parser = ArgumentParser.Create<CLIArguments>(programName = "gadget.exe", errorHandler = errorHandler)
+    let programName =
+        let name = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name
+        if Fake.Core.Environment.isWindows then
+            sprintf "%s.exe" name
+        else
+            name
+
+
+
+    let parser = ArgumentParser.Create<CLIArguments>(programName = programName, errorHandler = errorHandler)
     let parsedArgs = parser.Parse argv
     match parsedArgs.GetSubCommand() with
     | Build args ->
