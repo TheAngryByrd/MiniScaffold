@@ -8,8 +8,6 @@ nuget Expecto 8.13.1
 nuget YoloDev.Expecto.TestSdk 0.8.0
 nuget Microsoft.NET.Test.Sdk 15.7.2
 nuget altcover ~> 5
-//TODO Remove, needed to test for external deps showing in docs
-nuget Newtonsoft.Json
 
 // [ FAKE GROUP ]
 group Build
