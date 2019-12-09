@@ -1,7 +1,7 @@
 # MiniScaffold
 F# Template for
 - creating and publishing [libraries](Content/Library/README.md) targeting .NET Full `net461` and Core `netstandard2.1`
-- creating and publishing [applications](Content/Console/README.md) targeting .NET  Core `netcoreapp3.0`
+- creating and publishing [applications](Content/Console/README.md) targeting .NET  Core `netcoreapp3.1`
 
 ## What does this include in the box?
 
@@ -35,8 +35,8 @@ Not so mini anymore...
 
 ### For [Applications](Content/Console/README.md)
 - Basic argument parsing example via [Argu](https://fsprojects.github.io/Argu/)
-- Builds a `netcoreapp3.0` application - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
-    - To build for `netcoreapp3.0`
+- Builds a `netcoreapp3.1` application - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
+    - To build for `netcoreapp3.1`
         - Have [.NET core 3.0](https://dotnet.microsoft.com/download) installed
 - Builds for `win-x64`, `osx-x64` and `linux-x64` - [Runtime Identifiers](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog).  Bundles the application via [dotnet-packaging](https://github.com/qmfrederik/dotnet-packaging)
     - Bundles the `win-x64` application in a .zip file.
