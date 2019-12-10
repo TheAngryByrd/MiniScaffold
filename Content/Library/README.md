@@ -13,10 +13,9 @@ macOS/Linux | Windows
 
 ## NuGet 
 
-Stable | Prerelease
---- | ---
-[![NuGet Badge](https://buildstats.info/nuget/MyLib.1)](https://www.nuget.org/packages/MyLib.1/) | [![NuGet Badge](https://buildstats.info/nuget/MyLib.1?includePreReleases=true)](https://www.nuget.org/packages/MyLib.1/)
-
+Package | Stable | Prerelease
+--- | --- | ---
+MyLib.1 | [![NuGet Badge](https://buildstats.info/nuget/MyLib.1)](https://www.nuget.org/packages/MyLib.1/) | [![NuGet Badge](https://buildstats.info/nuget/MyLib.1?includePreReleases=true)](https://www.nuget.org/packages/MyLib.1/)
 
 ---
 
