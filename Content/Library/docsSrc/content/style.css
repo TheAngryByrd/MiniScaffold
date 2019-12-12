@@ -292,7 +292,8 @@ h1.header:visited {
 }
 
 /* Hides first br from FSharp.Literate xml-doc rendering */
-.comment-block > br:first-child {
+.comment-block > br:first-child,
+.xmldoc > br:first-child {
     display: none;
 }
 

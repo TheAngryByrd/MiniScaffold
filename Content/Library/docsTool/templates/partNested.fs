@@ -33,7 +33,7 @@ let partNested (types : Type array) (modules : Module array) =
                                     str t.Name
                                 ]
                             ]
-                            td [Class "xmdoc"] [
+                            td [Class "xmldoc"] [
                                 if t.IsObsolete then
                                     yield div [Class "alert alert-warning"] [
                                         strong [] [
@@ -75,7 +75,7 @@ let partNested (types : Type array) (modules : Module array) =
                                     str t.Name
                                 ]
                             ]
-                            td [Class "xmdoc"] [
+                            td [Class "xmldoc"] [
                                 if t.IsObsolete then
                                     yield div [Class "alert alert-warning"] [
                                         strong [] [
