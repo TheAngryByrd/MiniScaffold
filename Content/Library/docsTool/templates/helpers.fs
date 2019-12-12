@@ -8,7 +8,7 @@ open FSharp.MetadataFormat
 let createAnchorIcon name =
     let normalized = name
     let href = sprintf "#%s" normalized
-    a [Href href; Name normalized; Class "page-anchor"] [
+    a [Href href; Id normalized] [
         str "#"
     ]
 
