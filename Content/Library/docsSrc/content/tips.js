@@ -44,18 +44,3 @@ function showTip(evt, name, unique, owner) {
     el.style.top = posy + "px";
     el.style.display = "block";
 }
-
-$( window ).ready(() => {
-    $('.function-or-value').each((i, el) => {
-        var $this = $(el);
-        var guid = $this.data('guid');
-
-        $this.on('mouseout', (e) => {
-            hideTip(e, guid, guid);
-        });
-
-        $this.on('mouseover', (e) => {
-            showTip(e, guid, guid);
-        });
-    });
-});
