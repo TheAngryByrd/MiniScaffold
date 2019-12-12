@@ -94,6 +94,15 @@ let repoSourceLink (m: Member) = seq {
         ]
 }
 
+let replaceh2withh5 (content : string) =
+    content.Replace("<h2>", "<h2 class=\"h5\">")
+
+
+let normalize (content : string) =
+    content
+    |> replaceh2withh5
+
+
 
 let commentBlock (c: Comment) =
     let (|EmptyDefaultBlock|NonEmptyDefaultBlock|Section|) (KeyValue(section, content)) =
@@ -105,9 +114,9 @@ let commentBlock (c: Comment) =
     let renderSection (s : KeyValuePair<string,string>): Fable.React.ReactElement list =
         match s with
         | EmptyDefaultBlock -> []
-        | NonEmptyDefaultBlock content -> [ div [ Class "comment-block" ] [ RawText (content.Replace("h2>", "h5>"))  ] ]
+        | NonEmptyDefaultBlock content -> [ div [ Class "comment-block" ] [ RawText (normalize content)  ] ]
         | Section(name, content) -> [ h5 [] [ str name ] // h2 is obnoxiously large for this context, go with the smaller h5
-                                      RawText (content.Replace("h2>", "h5>")) ]
+                                      RawText (normalize content) ]
     c.Sections
     |> List.collect renderSection
 
