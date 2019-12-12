@@ -13,49 +13,6 @@ type ModuleByCategory = {
     Name : string
 }
 
-let tooltip (m: Member) (dataId: string) =
-    div [
-        Class "tip"
-        Id dataId
-    ] [
-        yield strong [] [
-            str "Signature:"
-        ]
-
-        yield str m.Details.Signature
-
-        yield br []
-
-        if m.Details.Modifiers |> Seq.isEmpty then
-            yield strong [] [
-                str "Modifiers:"
-            ]
-
-            yield str m.Details.FormatModifiers
-
-            yield br []
-
-        if m.Details.TypeArguments |> Seq.isEmpty then
-            yield strong [] [
-                str "Type parameters:"
-            ]
-
-            yield str m.Details.FormatTypeArguments
-
-        if m.Attributes |> Seq.isEmpty |> not then
-            yield span [] [
-                yield strong [] [
-                    str "Attributes:"
-                ]
-
-                yield br []
-
-                for attr in m.Attributes do
-                    yield str (attr.Format())
-
-                    yield br []
-            ]
-    ]
 
 let obsoleteMessage (m: Member) = seq {
     if m.IsObsolete then
@@ -172,7 +129,6 @@ let partMembers (header : string) (tableHeader : string) (members : #seq<Member>
                             ] [
                                 str (it.Details.FormatUsage(40))
                             ]
-                            tooltip it id
                         ]
                         td [
                             Class "member-name"
