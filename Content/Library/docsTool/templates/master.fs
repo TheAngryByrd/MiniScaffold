@@ -11,100 +11,60 @@ type MasterTemplateConfig = {
     ProjectName : string
     ReleaseVersion : string
     ReleaseDate : DateTimeOffset
+    RepositoryRoot: IO.DirectoryInfo
 }
 
+let footerLink uri image linkText =
+    a [Href uri; Class "text-white"] [
+        i [Class (sprintf "fas fa-%s fa-fw mr-2" image)] []
+        str linkText
+    ]
+
+let repoFileLink repoUrl filePathFromRepoRoot =
+    let link = repoUrl |> Uri.simpleCombine (sprintf "blob/master/%s" filePathFromRepoRoot)
+    footerLink link
+
+let linkColumn headerTitle items =
+    div [Class "col-12 col-md-4 mb-4 mb-md-0"] [
+        div [Class "text-light"] [
+            h2 [Class "h5"] [ str headerTitle ]
+            ul [Class "list-group list-group-flush"]
+                (items |> List.map (fun items -> li [Class "list-group-item list-group-item-dark ml-0 pl-0"] items))
+        ]
+    ]
+
 let renderFooter (cfg : MasterTemplateConfig) (pageSource : string option) =
+    let repoFileLink = repoFileLink cfg.GitHubRepoUrl
+
     footer [Class "footer font-small m-0 py-4 bg-dark"] [
         div [Class "container"] [
             div [Class "row"] [
-                div [Class "col-12 col-md-4 mb-4 mb-md-0"] [
-                    div [Class "text-light"] [
-                        h2 [Class "h5"] [ str "Project Resources"]
-                        ul [Class "list-group list-group-flush"] [
-                            li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
-                                a [Href (cfg.GitHubRepoUrl |> Uri.simpleCombine "blob/master/README.md"); Class "text-white"] [
-                                    i [ Class "fas fa-book-reader fa-fw mr-2"] []
-                                    str "README"
-                                ]
-                            ]
-                            li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
-                                a [Href (cfg.GitHubRepoUrl |> Uri.simpleCombine "blob/master/RELEASE_NOTES.md"); Class "text-white"] [
-                                    i [ Class "fas fa-sticky-note fa-fw mr-2"] []
-                                    str "Release Notes / Changelog"
-                                ]
-                            ]
-                            li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
-                                a [Href (cfg.GitHubRepoUrl |> Uri.simpleCombine "blob/master/LICENSE.md"); Class "text-white"] [
-                                    i [ Class "fas fa-id-card fa-fw mr-2"] []
-                                    str "License"
-                                ]
-                            ]
-                            li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
-                                a [Href (cfg.GitHubRepoUrl |> Uri.simpleCombine "blob/master/CONTRIBUTING.md"); Class "text-white"] [
-                                    i [ Class "fas fa-directions fa-fw mr-2"] []
-                                    str "Contributing"
-                                ]
-                            ]
-                            li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
-                                a [Href (cfg.GitHubRepoUrl |> Uri.simpleCombine "blob/master/CODE_OF_CONDUCT.md"); Class "text-white"] [
-                                    i [ Class "fas fa-users fa-fw mr-2"] []
-                                    str "Code of Conduct"
-                                ]
-                            ]
-
-                        ]
-
-                    ]
+                linkColumn "Project Resources" [
+                    [repoFileLink "README.md" "book-reader" "README"]
+                    [repoFileLink "RELEASE_NOTES.md" "sticky-note" "Release Notes / Changelog"]
+                    [repoFileLink "LICENSE.md" "id-card" "License"]
+                    [repoFileLink "CONTRIBUTING.md" "directions" "Contributing"]
+                    [repoFileLink "CODE_OF_CONDUCT.md" "users" "Code of Conduct"]
                 ]
-                div [Class "col-12 col-md-4 mb-4 mb-md-0"] [
-                    div [Class "text-light"] [
-                        h2 [Class "h5"] [ str "Other Links"]
-                        ul [Class "list-group list-group-flush"] [
-                            li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
-                                a [Href "https://docs.microsoft.com/en-us/dotnet/fsharp/"; Class "text-white"] [
-                                    i [Class "fab fa-microsoft fa-fw mr-2"] []
-                                    str "F# Documentation"
-                                ]
-                            ]
-                            li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
-                                a [Href "https://fsharp.org/guides/slack/"; Class "text-white"] [
-                                    i [Class "fab fa-slack fa-fw mr-2"] []
-                                    str "F# Slack"
-                                ]
-                            ]
-                            li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
-                                a [Href "http://foundation.fsharp.org/"; Class "text-white"] [
-                                    img [Class "fsharp-footer-logo mr-2"; Src "https://fsharp.org/img/logo/fsharp.svg"; Alt "FSharp Logo"]
-                                    str "F# Software Foundation"
-                                ]
-                            ]
-                        ]
-                    ]
-
-
+                linkColumn "Other Links" [
+                    [footerLink "https://docs.microsoft.com/en-us/dotnet/fsharp/" "microsoft" "F# Documentation"]
+                    [footerLink "https://fsharp.org/guides/slack/" "slack" "F# Slack"]
+                    [a [Href "http://foundation.fsharp.org/"; Class "text-white"] [
+                        img [Class "fsharp-footer-logo mr-2"; Src "https://fsharp.org/img/logo/fsharp.svg"; Alt "FSharp Logo"]
+                        str "F# Software Foundation"
+                    ]]
                 ]
-                div [Class "col-12 col-md-4"] [
-                    div [Class "text-light"] [
-                        h2 [Class "h5"] [str "Metadata"]
-                        ul [Class "list-group list-group-flush"] [
-                            li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
-                                str "Generated for version "
-                                a [Class "text-white"; Href (cfg.GitHubRepoUrl |> Uri.simpleCombine (sprintf "releases/tag/%s" cfg.ReleaseVersion))] [str cfg.ReleaseVersion]
-                                str (sprintf " on %s" (cfg.ReleaseDate.ToString("yyyy/MM/dd")))
-                            ]
-                            match pageSource with
-                            | Some p ->
-                                let page = cfg.GitHubRepoUrl |> Uri.simpleCombine "edit/master" |> Uri |> Uri.simpleCombine p
-                                li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
-                                    str "Found an issue? "
-                                    a [Class "text-white"; Href (page |> string)] [
-                                        str "Edit this page."
-                                    ]
-                                ]
-                            | None ->
-                                ()
-                        ]
-                    ]
+                linkColumn "Metadata" [
+                    [str "Generated for version "
+                     a [Class "text-white"; Href (cfg.GitHubRepoUrl |> Uri.simpleCombine (sprintf "releases/tag/%s" cfg.ReleaseVersion))] [str cfg.ReleaseVersion]
+                     str (sprintf " on %s" (cfg.ReleaseDate.ToString("yyyy/MM/dd")))]
+                    match pageSource with
+                    | Some p ->
+                        let page = cfg.GitHubRepoUrl |> Uri.simpleCombine "edit/master" |> Uri |> Uri.simpleCombine p
+                        [ str "Found an issue? "
+                          a [Class "text-white"; Href (page |> string)] [ str "Edit this page." ] ]
+                    | None ->
+                        ()
                 ]
             ]
             div [Class "row"] [
