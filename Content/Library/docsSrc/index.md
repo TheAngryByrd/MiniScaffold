@@ -27,7 +27,7 @@ I created it because I had to solve an issue with this other thing.
       <div class="card-body">
         <h5 class="card-title">How-To Guides</h5>
         <p class="card-text">Guides you through the steps involved in addressing key problems and use-cases. </p>
-        <a href="{{siteBaseUrl}}/HowTos/Doing_A_Thing.html" class="btn btn-primary">Learn Usecases</a>
+        <a href="{{siteBaseUrl}}/How_Tos/Doing_A_Thing.html" class="btn btn-primary">Learn Usecases</a>
       </div>
     </div>
   </div>
