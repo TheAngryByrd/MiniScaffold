@@ -1,3 +1,7 @@
+### 0.20.2 - 2019-12-13
+* MINOR: Bump to dotnet sdk 3.1 (https://github.com/TheAngryByrd/MiniScaffold/pull/155)
+* MINOR: Add Package Name to nuget table in README (https://github.com/TheAngryByrd/MiniScaffold/pull/156)
+
 ### 0.20.1 - 2019-11-26
 * MINOR: UPdate Argu to 6.0 (https://github.com/TheAngryByrd/MiniScaffold/pull/154)
 * MINOR: Update Packaging.Targets to 0.1.121 (https://github.com/TheAngryByrd/MiniScaffold/pull/154)
