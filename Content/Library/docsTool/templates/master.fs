@@ -94,7 +94,7 @@ let renderFooter (cfg : MasterTemplateConfig) (pageSource : string option) =
                             ]
                             match pageSource with
                             | Some p ->
-                                let page = cfg.GitHubRepoUrl |> Uri.simpleCombine "tree/master" |> Uri |> Uri.simpleCombine p
+                                let page = cfg.GitHubRepoUrl |> Uri.simpleCombine "edit/master" |> Uri |> Uri.simpleCombine p
                                 li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
                                     str "Found an issue? "
                                     a [Class "text-white"; Href (page |> string)] [
