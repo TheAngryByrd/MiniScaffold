@@ -38,13 +38,9 @@ let generateTypeDocs (model : TypeInfo) (props) =
                     str " This API is obsolete"
                 ]
 
-            yield span [] [
-                str (sprintf "Namespace: %s" model.Namespace.Name)
-            ]
-
-            yield br []
-
+            yield! Helpers.renderNamespace model.Namespace
             if model.HasParentModule then
+                yield br []
                 yield span [] [
                     str "Parent Module: "
 
@@ -55,9 +51,9 @@ let generateTypeDocs (model : TypeInfo) (props) =
                     ]
                 ]
 
-                yield br []
 
             if ``type``.Attributes |> Seq.isEmpty |> not then
+                yield br []
                 yield span [] [
                     yield str "Attributes: "
 
