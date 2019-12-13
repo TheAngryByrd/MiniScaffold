@@ -22,3 +22,7 @@ let createAnchor fullName name =
         str name
     ]
 
+let renderNamespace (ns: Namespace) = [
+    h3 [] [ str "Namespace" ]
+    str ns.Name
+]

@@ -43,13 +43,8 @@ let generateModuleDocs (moduleInfo : ModuleInfo) (props) =
                                 str moduleInfo.Module.ObsoleteMessage
                             ]
                         ]
+                    yield! Helpers.renderNamespace moduleInfo.Namespace
                     yield dl [] [
-                        yield dt [] [
-                            str "Namespace"
-                        ]
-                        yield dd [] [
-                            str moduleInfo.Namespace.Name
-                        ]
                         if moduleInfo.ParentModule.IsSome then
                             yield dt [] [
                                 str "Parent Module"
