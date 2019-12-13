@@ -44,6 +44,7 @@ let repoSourceLink (m: Member) = seq {
         yield a [
             Href m.Details.FormatSourceLocation
             Class "float-right"
+            HTMLAttr.Custom("aria-label", "View source on GitHub")
         ] [
             yield i [
                 Class "fab fa-github text-dark"
