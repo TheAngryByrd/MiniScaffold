@@ -1,3 +1,6 @@
+### 0.21.0 - 2019-12-13
+* FEATURE: Documentation generation (https://github.com/TheAngryByrd/MiniScaffold/pull/110)
+
 ### 0.20.2 - 2019-12-13
 * MINOR: Bump to dotnet sdk 3.1 (https://github.com/TheAngryByrd/MiniScaffold/pull/155)
 * MINOR: Add Package Name to nuget table in README (https://github.com/TheAngryByrd/MiniScaffold/pull/156)
