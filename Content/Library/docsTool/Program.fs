@@ -179,6 +179,7 @@ module GenerateDocs =
             ProjectName = cfg.ProjectName
             ReleaseVersion = cfg.ReleaseVersion
             ReleaseDate = DateTimeOffset.Now
+            RepositoryRoot = cfg.RepositoryRoot
         }
         generatedDocs
         |> Seq.iter(fun gd ->
