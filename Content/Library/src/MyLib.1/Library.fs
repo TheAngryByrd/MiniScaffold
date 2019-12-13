@@ -10,6 +10,9 @@ module Say =
     | Yellow
     | Blue
 
+    type ColorMode =
+    | RGBA of r: int * g: int * b: int * a: int
+
     /// <summary> A person with many different field types </summary>
     type Person = {
         Name : string
