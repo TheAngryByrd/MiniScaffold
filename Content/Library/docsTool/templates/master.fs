@@ -14,9 +14,17 @@ type MasterTemplateConfig = {
     RepositoryRoot: IO.DirectoryInfo
 }
 
+type FAIcon =
+| Solid of name: string
+| Brand of name: string
+
 let footerLink uri image linkText =
+    let faClass, img =
+        match image with
+        | Solid name -> "fas", name
+        | Brand name -> "fab", name
     a [Href uri; Class "text-white"] [
-        i [Class (sprintf "fas fa-%s fa-fw mr-2" image)] []
+        i [Class (sprintf "%s fa-%s fa-fw mr-2" faClass img)] []
         str linkText
     ]
 
@@ -50,15 +58,15 @@ let renderFooter (cfg : MasterTemplateConfig) (pageSource : string option) =
         div [Class "container"] [
             div [Class "row"] [
                 linkColumn "Project Resources" [
-                    repoFileLink "README.md" "book-reader" "README"
-                    repoFileLink "RELEASE_NOTES.md" "sticky-note" "Release Notes / Changelog"
-                    repoFileLink "LICENSE.md" "id-card" "License"
-                    repoFileLink "CONTRIBUTING.md" "directions" "Contributing"
-                    repoFileLink "CODE_OF_CONDUCT.md" "users" "Code of Conduct"
+                    repoFileLink "README.md" (Solid "book-reader") "README"
+                    repoFileLink "RELEASE_NOTES.md" (Solid "sticky-note") "Release Notes / Changelog"
+                    repoFileLink "LICENSE.md" (Solid "id-card") "License"
+                    repoFileLink "CONTRIBUTING.md" (Solid "directions") "Contributing"
+                    repoFileLink "CODE_OF_CONDUCT.md" (Solid "users") "Code of Conduct"
                 ]
                 linkColumn "Other Links" [
-                    [footerLink "https://docs.microsoft.com/en-us/dotnet/fsharp/" "microsoft" "F# Documentation"]
-                    [footerLink "https://fsharp.org/guides/slack/" "slack" "F# Slack"]
+                    [footerLink "https://docs.microsoft.com/en-us/dotnet/fsharp/" (Brand "microsoft") "F# Documentation"]
+                    [footerLink "https://fsharp.org/guides/slack/" (Brand "slack") "F# Slack"]
                     [a [Href "http://foundation.fsharp.org/"; Class "text-white"] [
                         img [Class "fsharp-footer-logo mr-2"; Src "https://fsharp.org/img/logo/fsharp.svg"; Alt "FSharp Logo"]
                         str "F# Software Foundation"
