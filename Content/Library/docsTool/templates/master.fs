@@ -111,7 +111,7 @@ let renderFooter (cfg : MasterTemplateConfig) (pageSource : string option) =
                 div [Class "col text-center"] [
                     small [Class "text-light"] [
                         i [Class "fas fa-copyright mr-1"] []
-                        str "MyLib.1, All rights reserved"
+                        str (sprintf "%s MyLib.1, All rights reserved" (DateTimeOffset.UtcNow.ToString("yyyy")))
                     ]
                 ]
             ]
