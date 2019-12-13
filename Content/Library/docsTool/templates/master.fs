@@ -67,7 +67,7 @@ let renderFooter (cfg : MasterTemplateConfig) (pageSource : string option) =
                                 ]
                             ]
                             li [Class "list-group-item list-group-item-dark ml-0 pl-0"] [
-                                a [Href "https://fsharp.slack.com/"; Class "text-white"] [
+                                a [Href "https://fsharp.org/guides/slack/"; Class "text-white"] [
                                     i [Class "fab fa-slack fa-fw mr-2"] []
                                     str "F# Slack"
                                 ]
