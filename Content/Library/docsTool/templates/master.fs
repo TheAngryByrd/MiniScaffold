@@ -29,22 +29,32 @@ let linkColumn headerTitle items =
         div [Class "text-light"] [
             h2 [Class "h5"] [ str headerTitle ]
             ul [Class "list-group list-group-flush"]
-                (items |> List.map (fun items -> li [Class "list-group-item list-group-item-dark ml-0 pl-0"] items))
+                (items |> List.choose (function | [] -> None
+                                                | items -> Some(li [Class "list-group-item list-group-item-dark ml-0 pl-0"] items)))
         ]
     ]
 
 let renderFooter (cfg : MasterTemplateConfig) (pageSource : string option) =
-    let repoFileLink = repoFileLink cfg.GitHubRepoUrl
+    let hasFile relPath =
+        match cfg.RepositoryRoot.GetFiles(relPath) with
+        | [||] -> false
+        | [|file|] -> true
+        | files -> false
+
+    let repoFileLink relPath image title =
+        if hasFile relPath
+        then [ repoFileLink cfg.GitHubRepoUrl relPath image title ]
+        else []
 
     footer [Class "footer font-small m-0 py-4 bg-dark"] [
         div [Class "container"] [
             div [Class "row"] [
                 linkColumn "Project Resources" [
-                    [repoFileLink "README.md" "book-reader" "README"]
-                    [repoFileLink "RELEASE_NOTES.md" "sticky-note" "Release Notes / Changelog"]
-                    [repoFileLink "LICENSE.md" "id-card" "License"]
-                    [repoFileLink "CONTRIBUTING.md" "directions" "Contributing"]
-                    [repoFileLink "CODE_OF_CONDUCT.md" "users" "Code of Conduct"]
+                    repoFileLink "README.md" "book-reader" "README"
+                    repoFileLink "RELEASE_NOTES.md" "sticky-note" "Release Notes / Changelog"
+                    repoFileLink "LICENSE.md" "id-card" "License"
+                    repoFileLink "CONTRIBUTING.md" "directions" "Contributing"
+                    repoFileLink "CODE_OF_CONDUCT.md" "users" "Code of Conduct"
                 ]
                 linkColumn "Other Links" [
                     [footerLink "https://docs.microsoft.com/en-us/dotnet/fsharp/" "microsoft" "F# Documentation"]
