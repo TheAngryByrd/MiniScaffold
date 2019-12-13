@@ -5,7 +5,7 @@ open Fable.React
 open Fable.React.Props
 open FSharp.MetadataFormat
 open PartMembers
-
+open Helpers
 
 let generateTypeDocs (model : TypeInfo) (props) =
     let members = model.Type.AllMembers
@@ -27,18 +27,8 @@ let generateTypeDocs (model : TypeInfo) (props) =
         ]
 
         yield p [] [
-            if model.Type.IsObsolete then
-                yield div [
-                    Class "alert alert-warning"
-                ] [
-                    strong [] [
-                        str "WARNING: "
-                    ]
-
-                    str " This API is obsolete"
-                ]
-
-            yield! Helpers.renderNamespace model.Namespace
+            yield! renderObsoleteMessage model.Type
+            yield! renderNamespace model.Namespace
             if model.HasParentModule then
                 yield br []
                 yield span [] [

@@ -1,9 +1,10 @@
 module PartNested
+
 open System
 open Fable.React
 open Fable.React.Props
 open FSharp.MetadataFormat
-
+open Helpers
 
 let partNested (types : Type array) (modules : Module array) =
     [
@@ -34,16 +35,7 @@ let partNested (types : Type array) (modules : Module array) =
                                 ]
                             ]
                             td [Class "xmldoc"] [
-                                if t.IsObsolete then
-                                    yield div [Class "alert alert-warning"] [
-                                        strong [] [
-                                            str "WARNING:"
-                                        ]
-                                        str "This API is obsolete"
-                                        p [] [
-                                            str t.ObsoleteMessage
-                                        ]
-                                    ]
+                                yield! renderObsoleteMessage t
                                 yield RawText t.Comment.Blurb
                             ]
                         ]
@@ -76,16 +68,7 @@ let partNested (types : Type array) (modules : Module array) =
                                 ]
                             ]
                             td [Class "xmldoc"] [
-                                if t.IsObsolete then
-                                    yield div [Class "alert alert-warning"] [
-                                        strong [] [
-                                            str "WARNING:"
-                                        ]
-                                        str "This API is obsolete"
-                                        p [] [
-                                            str t.ObsoleteMessage
-                                        ]
-                                    ]
+                                yield! renderObsoleteMessage t
                                 yield RawText t.Comment.Blurb
                             ]
                         ]

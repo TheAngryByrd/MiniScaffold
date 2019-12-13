@@ -5,6 +5,7 @@ open Fable.React
 open Fable.React.Props
 open FSharp.MetadataFormat
 open System.Collections.Generic
+open Helpers
 
 type ModuleByCategory = {
     Index : int
@@ -13,23 +14,6 @@ type ModuleByCategory = {
     Name : string
 }
 
-
-let obsoleteMessage (m: Member) = seq {
-    if m.IsObsolete then
-        yield div [
-            Class "alert alert-warning"
-        ] [
-            strong [] [
-                str "WARNING:"
-            ]
-
-            str "This API is obsolete"
-
-            p [] [
-                str m.ObsoleteMessage
-            ]
-        ]
-    }
 
 let signature (m : Member) = seq {
     if m.Details.Signature  |> String.IsNullOrEmpty |> not then
@@ -140,7 +124,7 @@ let partMembers (header : string) (tableHeader : string) (members : #seq<Member>
                         td [
                             Class "xmldoc"
                         ] [
-                            yield! obsoleteMessage it
+                            yield! renderObsoleteMessage it
                             yield! repoSourceLink it
                             yield! commentBlock it.Comment
                             yield! compiledName it

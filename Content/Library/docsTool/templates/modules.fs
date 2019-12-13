@@ -31,19 +31,8 @@ let generateModuleDocs (moduleInfo : ModuleInfo) (props) =
                     yield h1 [] [
                         str moduleInfo.Module.Name
                     ]
-                    if moduleInfo.Module.IsObsolete then
-                        yield div [
-                            Class "alert alert-warning"
-                        ] [
-                            strong [] [
-                                str "WARNING: "
-                            ]
-                            str " This API is obsolete"
-                            p [ Class "mb-0"] [
-                                str moduleInfo.Module.ObsoleteMessage
-                            ]
-                        ]
-                    yield! Helpers.renderNamespace moduleInfo.Namespace
+                    yield! renderObsoleteMessage moduleInfo.Module
+                    yield! renderNamespace moduleInfo.Namespace
                     yield dl [] [
                         if moduleInfo.ParentModule.IsSome then
                             yield dt [] [
