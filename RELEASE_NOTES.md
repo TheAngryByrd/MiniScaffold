@@ -1,3 +1,6 @@
+### 0.21.1 - 2019-12-16
+* BUGFIX: IsTestProject in Directory.Build.props for Console template should be true (https://github.com/TheAngryByrd/MiniScaffold/pull/157)
+
 ### 0.21.0 - 2019-12-13
 * FEATURE: Documentation generation (https://github.com/TheAngryByrd/MiniScaffold/pull/110)
 
