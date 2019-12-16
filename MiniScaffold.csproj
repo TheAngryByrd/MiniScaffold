@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>F# Template for creating and publishing libraries targeting .NET Full (net461) and Core (netstandard2.0)</Description>
+    <Description>F# Template for creating and publishing libraries targeting .NET Full (net461) and Core (netstandard2.1) or console apps  .NET Core (netcoreapp3.1)</Description>
     <Authors>Jimmy Byrd</Authors>
     <PackageProjectUrl>https://github.com/TheAngryByrd/MiniScaffold</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/TheAngryByrd/MiniScaffold/blob/master/LICENSE.md</PackageLicenseUrl>
