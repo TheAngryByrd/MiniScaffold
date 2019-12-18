@@ -28,7 +28,7 @@ Not so mini anymore...
         - On windows: Have at least .NET Framework 4.6.1 installed
         - On macOS/linux: Have [mono](https://www.mono-project.com/download/stable/) installed
     - To build for `netstandard2.1`
-        - Have [.NET core 3.0](https://dotnet.microsoft.com/download) installed
+        - Have [.NET core 3.1](https://dotnet.microsoft.com/download) installed
 - [Sourcelink](https://github.com/dotnet/sourcelink) which enables a great source debugging experience for your users, by adding source control metadata to your built assets
 - [Release](Content/Library/README.md#Releasing) build step pushes NuGet packages to [NuGet](https://www.nuget.org/)
 
