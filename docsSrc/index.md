@@ -89,7 +89,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
 
 ---
 
-<div class="row row-cols-1 row-cols-md-3">
+<div class="row row-cols-1 row-cols-md-2">
   <div class="col mb-4">
     <div class="card h-100">
       <div class="card-body">
@@ -97,7 +97,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
         <p class="card-text">Takes you by the hand through a series of steps to create your first thing. </p>
       </div>
       <div class="card-footer text-right bg-white border-top-0">
-        <a href="{{siteBaseUrl}}/Tutorials/Getting_Started.html" class="btn btn-primary">Get started</a>
+        <a href="{{siteBaseUrl}}/Tutorials/Getting_Started_With_Libraries.html" class="btn btn-primary">Get started</a>
       </div>
     </div>
   </div>
@@ -112,7 +112,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
       </div>
     </div>
   </div>
-  <div class="col mb-4">
+  <div class="col mb-4 mb-md-0">
     <div class="card h-100">
       <div class="card-body">
         <h5 class="card-title">Explanations</h5>
@@ -120,6 +120,17 @@ This takes away the ambiguity that developers face when creating an OSS project.
       </div>
       <div class="card-footer text-right bg-white border-top-0">
         <a href="{{siteBaseUrl}}/Explanations/Background.html" class="btn btn-primary">Dive Deeper</a>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Api Reference</h5>
+        <p class="card-text">Contain technical reference for APIs.</p>
+      </div>
+      <div class="card-footer text-right bg-white border-top-0">
+        <a href="{{siteBaseUrl}}/Api_Reference/MyLib.1/MyLib.1.html" class="btn btn-primary">Read Api Docs</a>
       </div>
     </div>
   </div>
