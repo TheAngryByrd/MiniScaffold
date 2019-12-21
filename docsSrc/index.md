@@ -68,7 +68,28 @@ This takes away the ambiguity that developers face when creating an OSS project.
 
 ---
 
-<div class="row row-cols-1 row-cols-md-2">
+## Getting started quickly
+
+### Install the [dotnet template](https://docs.microsoft.com/en-us/dotnet/core/tools/custom-templates) from NuGet:
+
+    [lang=bash]
+    dotnet new -i "MiniScaffold::*"
+
+
+#### I want to build a library
+
+    [lang=bash]
+    dotnet new mini-scaffold -n MyCoolNewLib --githubUsername MyGithubUsername
+
+#### I want to build a console application
+
+    [lang=bash]
+    dotnet new mini-scaffold -n MyCoolNewApp --githubUsername MyGithubUsername -ou console
+
+
+---
+
+<div class="row row-cols-1 row-cols-md-3">
   <div class="col mb-4">
     <div class="card h-100">
       <div class="card-body">
@@ -91,7 +112,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
       </div>
     </div>
   </div>
-  <div class="col mb-4 mb-md-0">
+  <div class="col mb-4">
     <div class="card h-100">
       <div class="card-body">
         <h5 class="card-title">Explanations</h5>
@@ -99,17 +120,6 @@ This takes away the ambiguity that developers face when creating an OSS project.
       </div>
       <div class="card-footer text-right bg-white border-top-0">
         <a href="{{siteBaseUrl}}/Explanations/Background.html" class="btn btn-primary">Dive Deeper</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="card h-100">
-      <div class="card-body">
-        <h5 class="card-title">Api Reference</h5>
-        <p class="card-text">Contain technical reference for APIs.</p>
-      </div>
-      <div class="card-footer text-right bg-white border-top-0">
-        <a href="{{siteBaseUrl}}/Api_Reference/MiniScaffold/MiniScaffold.html" class="btn btn-primary">Read Api Docs</a>
       </div>
     </div>
   </div>

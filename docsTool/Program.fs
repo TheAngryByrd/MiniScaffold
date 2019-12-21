@@ -249,36 +249,39 @@ module GenerateDocs =
                 + doc.FormattedTips
 
 
+        try
+            docSourcePaths
+            |> Array.ofSeq
+            |> Seq.map(fun filePath ->
 
-        docSourcePaths
-        |> Array.ofSeq
-        |> Seq.map(fun filePath ->
+                Fake.Core.Trace.tracefn "Rendering %s" filePath
+                let file = IO.File.ReadAllText filePath
+                let outPath =
+                    let changeExtension ext path = IO.Path.ChangeExtension(path,ext)
+                    filePath.Replace(cfg.DocsSourceDirectory.FullName, cfg.DocsOutputDirectory.FullName)
+                    |> changeExtension ".html"
+                    |> FileInfo
+                let fs =
+                    file
+                    |> parse filePath
+                    |> format
+                let contents =
+                    [div [] [
+                        fs
+                        |> RawText
+                    ]]
 
-            Fake.Core.Trace.tracefn "Rendering %s" filePath
-            let file = IO.File.ReadAllText filePath
-            let outPath =
-                let changeExtension ext path = IO.Path.ChangeExtension(path,ext)
-                filePath.Replace(cfg.DocsSourceDirectory.FullName, cfg.DocsOutputDirectory.FullName)
-                |> changeExtension ".html"
-                |> FileInfo
-            let fs =
-                file
-                |> parse filePath
-                |> format
-            let contents =
-                [div [] [
-                    fs
-                    |> RawText
-                ]]
-
-            {
-                SourcePath = FileInfo filePath |> Some
-                OutputPath = outPath
-                Content = contents
-                Title = sprintf "%s-%s" outPath.Name cfg.ProjectName
-            }
-        )
-        |> Seq.toList
+                {
+                    SourcePath = FileInfo filePath |> Some
+                    OutputPath = outPath
+                    Content = contents
+                    Title = sprintf "%s-%s" outPath.Name cfg.ProjectName
+                }
+            )
+            |> Seq.toList
+        with e ->
+            eprintfn "%A" e
+            []
 
     let buildDocs (projInfos : ProjInfo.ProjInfo array) (cfg : Configuration) =
         let refs = projInfos |> Seq.collect (fun p -> p.References) |> Seq.distinct |> Seq.toArray
