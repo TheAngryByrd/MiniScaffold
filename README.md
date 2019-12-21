@@ -66,7 +66,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
 
 ---
 
-## Getting started
+## Getting started quickly
 
 
 ### Install the [dotnet template](https://docs.microsoft.com/en-us/dotnet/core/tools/custom-templates) from NuGet:
