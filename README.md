@@ -100,6 +100,7 @@ When set to either Console or Library project and the supporting infrastructure 
 
 ## Known issues
 
+### Permission denied
 
 ```
 -bash: ./build.sh: Permission denied
@@ -107,6 +108,12 @@ When set to either Console or Library project and the supporting infrastructure 
 
 This is because dotnet template loses permissions of files. (https://github.com/TheAngryByrd/MiniScaffold/pull/37) added a post hook to address this but this only fixes it for dotnet sdk 2.x users.  dotnet sdk 1.x will need to run `chmod +x ./build.sh`
 
+### Appveyor badge not scaffolded correctly
+
+Appveyor's conventions around generating URLs based on the project name has some nuances.  See [this issue](https://github.com/TheAngryByrd/MiniScaffold/issues/63) for details.
+
+
+---
 
 #### Example Projects using this template:
 * [Chessie.Hopac](https://github.com/TheAngryByrd/Chessie.Hopac)
