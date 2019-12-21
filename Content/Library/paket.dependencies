@@ -4,6 +4,7 @@ storage: none
 clitool dotnet-mono 0.5.2
 nuget FSharp.Core 4.3.4
 nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
+nuget Microsoft.NETFramework.ReferenceAssemblies copy_local: true
 nuget Expecto 8.13.1
 nuget YoloDev.Expecto.TestSdk 0.8.0
 nuget Microsoft.NET.Test.Sdk 15.7.2
