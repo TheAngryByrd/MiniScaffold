@@ -1,4 +1,5 @@
 #load ".fake/build.fsx/intellisense.fsx"
+#load "docsTool/CLI.fs"
 #if !FAKE
 #r "Facades/netstandard"
 #r "netstandard"
@@ -34,12 +35,18 @@ let distGlob = distDir @@ "*.nupkg"
 
 let docsDir = __SOURCE_DIRECTORY__ @@ "docs"
 let docsSrcDir = __SOURCE_DIRECTORY__ @@ "docsSrc"
+let docsToolDir = __SOURCE_DIRECTORY__ @@ "docsTool"
+let docsToolProj = docsToolDir @@ "docsTool.fspro"
 let docsSrcGlob = docsSrcDir @@ "**/*.fsx"
 
 let gitOwner = "TheAngryByrd"
 let gitRepoName = "MiniScaffold"
 
 let contentDir = __SOURCE_DIRECTORY__ @@ "Content"
+
+
+let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
+let docsSiteBaseUrl = sprintf "https://%s.github.io/%s" gitOwner gitRepoName
 
 let isCI =  Environment.environVarAsBool "CI"
 
@@ -95,6 +102,56 @@ type DisposeablePushd (directory : string) =
 let isReleaseBranchCheck () =
     let releaseBranch = "master"
     if Git.Information.getBranchName "" <> releaseBranch then failwithf "Not on %s.  If you want to release please switch to this branch." releaseBranch
+
+let invokeAsync f = async { f () }
+
+open DocsTool.CLIArgs
+
+module dotnet =
+    let watch cmdParam program args =
+        DotNet.exec cmdParam (sprintf "watch %s" program) args
+
+    let run cmdParam args =
+        DotNet.exec cmdParam "run" args
+
+module DocsTool =
+    open Argu
+    let buildparser = ArgumentParser.Create<BuildArgs>(programName = "docstool")
+    let buildCLI =
+        [
+            BuildArgs.SiteBaseUrl docsSiteBaseUrl
+            BuildArgs.ProjectGlob docsToolProj
+            BuildArgs.DocsOutputDirectory docsDir
+            BuildArgs.DocsSourceDirectory docsSrcDir
+            BuildArgs.GitHubRepoUrl gitHubRepoUrl
+            BuildArgs.ProjectName gitRepoName
+            BuildArgs.ReleaseVersion release.NugetVersion
+        ]
+        |> buildparser.PrintCommandLineArgumentsFlat
+
+    let build () =
+        dotnet.run (fun args ->
+            { args with WorkingDirectory = docsToolDir }
+        ) (sprintf " -- build %s" (buildCLI))
+        |> failOnBadExitAndPrint
+
+    let watchparser = ArgumentParser.Create<WatchArgs>(programName = "docstool")
+    let watchCLI =
+        [
+            WatchArgs.ProjectGlob docsToolProj
+            WatchArgs.DocsOutputDirectory docsDir
+            WatchArgs.DocsSourceDirectory docsSrcDir
+            WatchArgs.GitHubRepoUrl gitHubRepoUrl
+            WatchArgs.ProjectName gitRepoName
+            WatchArgs.ReleaseVersion release.NugetVersion
+        ]
+        |> watchparser.PrintCommandLineArgumentsFlat
+
+    let watch projectpath =
+        dotnet.watch (fun args ->
+           { args with WorkingDirectory = docsToolDir }
+        ) "run" (sprintf "-- watch %s" (watchCLI))
+        |> failOnBadExitAndPrint
 
 //-----------------------------------------------------------------------------
 // Target Implementations
@@ -190,6 +247,23 @@ let ``github release`` _ =
     |> GitHub.publishDraft
     |> Async.RunSynchronously
 
+
+let ``build docs`` _ =
+    DocsTool.build ()
+
+let ``watch docs`` _ =
+    DocsTool.watch ()
+
+let ``release docs`` ctx =
+    isReleaseBranchCheck ()
+
+    Git.Staging.stageAll docsDir
+    Git.Commit.exec "" (sprintf "Documentation release of version %s" release.NugetVersion)
+    if isRelease (ctx.Context.AllExecutingTargets) |> not then
+        // We only want to push if we're only calling "ReleaseDocs" target
+        // If we're calling "Release" target, we'll let the "GitRelease" target do the git push
+        Git.Branches.push ""
+
 //-----------------------------------------------------------------------------
 // Target Declaration
 //-----------------------------------------------------------------------------
@@ -202,6 +276,9 @@ Target.create "Publish" publish
 Target.create "GitRelease" ``git release``
 Target.create "GitHubRelease" ``github release``
 Target.create "Release" ignore
+Target.create "BuildDocs" ``build docs``
+Target.create "WatchDocs" ``watch docs``
+Target.create "ReleaseDocs" ``release docs``
 
 //-----------------------------------------------------------------------------
 // Target Dependencies
