@@ -1,3 +1,8 @@
+### 0.21.3 - 2019-12-21
+* DOCUMENTATION: Explain Appveyor badge nuances (https://github.com/TheAngryByrd/MiniScaffold/pull/160)
+* MINOR: Use Microsoft.NETFramework.ReferenceAssemblies instead of netfx.props (https://github.com/TheAngryByrd/MiniScaffold/pull/161)
+
+
 ### 0.21.2 - 2019-12-21
 * MINOR: Updates to depedencies (https://github.com/TheAngryByrd/MiniScaffold/pull/159)
     * FAKE 5.19.0
