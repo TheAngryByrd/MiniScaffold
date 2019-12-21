@@ -1,3 +1,11 @@
+### 0.21.2 - 2019-12-21
+* MINOR: Updates to depedencies (https://github.com/TheAngryByrd/MiniScaffold/pull/159)
+    * FAKE 5.19.0
+    * Paket 5.241.2
+    * Altcover 6.6.747
+    * Fantomas 3.1.0
+    * Packaging.Targets 0.1.155
+
 ### 0.21.1 - 2019-12-16
 * BUGFIX: IsTestProject in Directory.Build.props for Console template should be true (https://github.com/TheAngryByrd/MiniScaffold/pull/157)
 
