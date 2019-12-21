@@ -36,7 +36,7 @@ let distGlob = distDir @@ "*.nupkg"
 let docsDir = __SOURCE_DIRECTORY__ @@ "docs"
 let docsSrcDir = __SOURCE_DIRECTORY__ @@ "docsSrc"
 let docsToolDir = __SOURCE_DIRECTORY__ @@ "docsTool"
-let docsToolProj = docsToolDir @@ "docsTool.fspro"
+let docsToolProj = docsToolDir @@ "docsTool.fsproj"
 let docsSrcGlob = docsSrcDir @@ "**/*.fsx"
 
 let gitOwner = "TheAngryByrd"
@@ -46,7 +46,7 @@ let contentDir = __SOURCE_DIRECTORY__ @@ "Content"
 
 
 let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
-let docsSiteBaseUrl = sprintf "https://%s.github.io/%s" gitOwner gitRepoName
+let docsSiteBaseUrl = "https://www.jimmybyrd.me/miniscaffold"
 
 let isCI =  Environment.environVarAsBool "CI"
 
@@ -283,6 +283,9 @@ Target.create "ReleaseDocs" ``release docs``
 //-----------------------------------------------------------------------------
 // Target Dependencies
 //-----------------------------------------------------------------------------
+"DotnetPack" ==> "BuildDocs"
+"BuildDocs" ==> "ReleaseDocs"
+
 
 "Clean"
   ==> "DotnetRestore"
@@ -290,6 +293,7 @@ Target.create "ReleaseDocs" ``release docs``
 //https://github.com/dotnet/templating/issues/1736#issuecomment-464847242
   =?> ("IntegrationTests", isCI)
   ==> "Publish"
+  ==> "ReleaseDocs"
   ==> "GitRelease"
   ==> "GithubRelease"
   ==> "Release"
