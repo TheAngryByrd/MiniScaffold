@@ -15,6 +15,10 @@ open Fake.Core.TargetOperators
 open Fake.Api
 open Fake.BuildServer
 
+//-----------------------------------------------------------------------------
+// Metadata and Configuration
+//-----------------------------------------------------------------------------
+
 BuildServer.install [
     AppVeyor.Installer
     Travis.Installer
@@ -39,6 +43,11 @@ let contentDir = __SOURCE_DIRECTORY__ @@ "Content"
 
 let isCI =  Environment.environVarAsBool "CI"
 
+
+//-----------------------------------------------------------------------------
+// Helpers
+//-----------------------------------------------------------------------------
+
 let isRelease (targets : Target list) =
     targets
     |> Seq.map(fun t -> t.Name)
@@ -47,56 +56,15 @@ let isRelease (targets : Target list) =
 let configuration (targets : Target list) =
     let defaultVal = if isRelease targets then "Release" else "Debug"
     match Environment.environVarOrDefault "CONFIGURATION" defaultVal with
-     | "Debug" -> DotNet.BuildConfiguration.Debug
-     | "Release" -> DotNet.BuildConfiguration.Release
-     | config -> DotNet.BuildConfiguration.Custom config
-
+    | "Debug" -> DotNet.BuildConfiguration.Debug
+    | "Release" -> DotNet.BuildConfiguration.Release
+    | config -> DotNet.BuildConfiguration.Custom config
 
 let failOnBadExitAndPrint (p : ProcessResult) =
     if p.ExitCode <> 0 then
         p.Errors |> Seq.iter Trace.traceError
         failwithf "failed with exitcode %d" p.ExitCode
 
-Target.create "Clean" <| fun _ ->
-    [ "obj" ;"dist"]
-    |> Shell.cleanDirs
-
-    Git.CommandHelper.directRunGitCommandAndFail contentDir "clean -xfd"
-
-
-Target.create "DotnetRestore" <| fun _ ->
-    !! srcGlob
-    |> Seq.iter(fun dir ->
-        let args =
-            [
-                sprintf "/p:PackageVersion=%s" release.NugetVersion
-            ] |> String.concat " "
-        DotNet.restore(fun c ->
-            { c with
-                 Common =
-                    c.Common
-                    |> DotNet.Options.withCustomParams
-                        (Some(args))
-            }) dir)
-
-
-Target.create "DotnetPack" <| fun _ ->
-    !! srcGlob
-    |> Seq.iter (fun proj ->
-        let args =
-            [
-                sprintf "/p:PackageVersion=%s" release.NugetVersion
-                sprintf "/p:PackageReleaseNotes=\"%s\"" (release.Notes |> String.concat "\n")
-            ] |> String.concat " "
-        DotNet.pack (fun c ->
-            { c with
-                Configuration = DotNet.BuildConfiguration.Release
-                OutputPath = Some distDir
-                Common =
-                    c.Common
-                    |> DotNet.Options.withCustomParams (Some args)
-            }) proj
-    )
 
 let dispose (disposable : #IDisposable) = disposable.Dispose()
 [<AllowNullLiteral>]
@@ -124,8 +92,54 @@ type DisposeablePushd (directory : string) =
         member x.Dispose() =
             Shell.popd()
 
+let isReleaseBranchCheck () =
+    let releaseBranch = "master"
+    if Git.Information.getBranchName "" <> releaseBranch then failwithf "Not on %s.  If you want to release please switch to this branch." releaseBranch
 
-Target.create "IntegrationTests" <| fun ctx ->
+//-----------------------------------------------------------------------------
+// Target Implementations
+//-----------------------------------------------------------------------------
+
+let clean _ =
+    [ "obj" ;"dist"]
+    |> Shell.cleanDirs
+
+    Git.CommandHelper.directRunGitCommandAndFail contentDir "clean -xfd"
+
+let ``dotnet restore`` _ =
+    !! srcGlob
+    |> Seq.iter(fun dir ->
+        let args =
+            [
+                sprintf "/p:PackageVersion=%s" release.NugetVersion
+            ] |> String.concat " "
+        DotNet.restore(fun c ->
+            { c with
+                 Common =
+                    c.Common
+                    |> DotNet.Options.withCustomParams
+                        (Some(args))
+            }) dir)
+
+let ``dotnet pack`` _ =
+    !! srcGlob
+    |> Seq.iter (fun proj ->
+        let args =
+            [
+                sprintf "/p:PackageVersion=%s" release.NugetVersion
+                sprintf "/p:PackageReleaseNotes=\"%s\"" (release.Notes |> String.concat "\n")
+            ] |> String.concat " "
+        DotNet.pack (fun c ->
+            { c with
+                Configuration = DotNet.BuildConfiguration.Release
+                OutputPath = Some distDir
+                Common =
+                    c.Common
+                    |> DotNet.Options.withCustomParams (Some args)
+            }) proj
+    )
+
+let ``integration tests`` ctx =
     !! testsGlob
     |> Seq.iter (fun proj ->
         DotNet.test(fun c ->
@@ -141,8 +155,7 @@ Target.create "IntegrationTests" <| fun ctx ->
                         (Some(args))
                 }) proj)
 
-
-Target.create "Publish" <| fun _ ->
+let publish _ =
     Paket.push(fun c ->
         { c with
             ToolType = ToolType.CreateLocalTool()
@@ -151,13 +164,7 @@ Target.create "Publish" <| fun _ ->
         }
     )
 
-
-let isReleaseBranchCheck () =
-    let releaseBranch = "master"
-    if Git.Information.getBranchName "" <> releaseBranch then failwithf "Not on %s.  If you want to release please switch to this branch." releaseBranch
-
-
-Target.create "GitRelease" <| fun _ ->
+let ``git release`` _ =
     isReleaseBranchCheck ()
 
     let releaseNotesGitCommitFormat = release.Notes |> Seq.map(sprintf "* %s\n") |> String.concat ""
@@ -169,21 +176,36 @@ Target.create "GitRelease" <| fun _ ->
     Git.Branches.tag "" release.NugetVersion
     Git.Branches.pushTag "" "origin" release.NugetVersion
 
-Target.create "GitHubRelease" <| fun _ ->
-   let token =
-       match Environment.environVarOrDefault "GITHUB_TOKEN" "" with
-       | s when not (String.IsNullOrWhiteSpace s) -> s
-       | _ -> failwith "please set the github_token environment variable to a github personal access token with repro access."
+let ``github release`` _ =
+    let token =
+        match Environment.environVarOrDefault "GITHUB_TOKEN" "" with
+        | s when not (String.IsNullOrWhiteSpace s) -> s
+        | _ -> failwith "please set the github_token environment variable to a github personal access token with repro access."
 
-   let files = !! distGlob
+    let files = !! distGlob
 
-   GitHub.createClientWithToken token
-   |> GitHub.draftNewRelease gitOwner gitRepoName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes
-   |> GitHub.uploadFiles files
-   |> GitHub.publishDraft
-   |> Async.RunSynchronously
+    GitHub.createClientWithToken token
+    |> GitHub.draftNewRelease gitOwner gitRepoName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes
+    |> GitHub.uploadFiles files
+    |> GitHub.publishDraft
+    |> Async.RunSynchronously
 
+//-----------------------------------------------------------------------------
+// Target Declaration
+//-----------------------------------------------------------------------------
+
+Target.create "Clean" clean
+Target.create "DotnetRestore" ``dotnet restore``
+Target.create "DotnetPack" ``dotnet pack``
+Target.create "IntegrationTests" ``integration tests``
+Target.create "Publish" publish
+Target.create "GitRelease" ``git release``
+Target.create "GitHubRelease" ``github release``
 Target.create "Release" ignore
+
+//-----------------------------------------------------------------------------
+// Target Dependencies
+//-----------------------------------------------------------------------------
 
 "Clean"
   ==> "DotnetRestore"
@@ -195,5 +217,8 @@ Target.create "Release" ignore
   ==> "GithubRelease"
   ==> "Release"
 
+//-----------------------------------------------------------------------------
+// Target Start
+//-----------------------------------------------------------------------------
 
 Target.runOrDefaultWithArguments (if isCI then "IntegrationTests" else "DotnetPack")
