@@ -21,6 +21,21 @@ group Build
     nuget Fake.Api.GitHub 5.19.0
     nuget Fake.BuildServer.AppVeyor 5.19.0
     nuget Fake.BuildServer.Travis 5.19.0
+    nuget Argu
+
+group Docs
+    storage: none
+    source https://www.nuget.org/api/v2
+    source https://api.nuget.org/v3/index.json
+    nuget Argu
+    nuget FSharp.Core
+    nuget Fake.IO.FileSystem
+    nuget FAKE.Core.Environment
+    nuget Fake.DotNet.Cli
     nuget FSharp.Literate
     nuget Fable.React
-    nuget Paket.Core
+    nuget Microsoft.AspNetCore.StaticFiles
+    nuget Microsoft.AspNetCore.Hosting
+    nuget Microsoft.AspNetCore.Server.Kestrel
+    nuget Microsoft.AspNetCore.WebSockets
+    nuget Dotnet.ProjInfo.Workspace.FCS

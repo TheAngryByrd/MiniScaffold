@@ -1,0 +1,12 @@
+group Docs
+Argu
+FSharp.Core
+Fake.IO.FileSystem
+Fake.DotNet.Cli
+FSharp.Literate
+Fable.React
+Microsoft.AspNetCore.StaticFiles
+Microsoft.AspNetCore.Hosting
+Microsoft.AspNetCore.Server.Kestrel
+Microsoft.AspNetCore.WebSockets
+Dotnet.ProjInfo.Workspace.FCS
