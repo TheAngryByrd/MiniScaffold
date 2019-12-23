@@ -95,7 +95,7 @@ This may look overwhelming, but we don't have to worry about all of these yet.  
 - `build.cmd` or `build.sh` - Platform specific entry points into your `build.fsx` file.
 - `build.fsx` - The main build script of your repository.
 - `README.md` - The text file that introduces and explains a project.
-- `RELEASE_NOTES.md` - contains versioning, date, and release notes.
+- `RELEASE_NOTES.md` - Text file containing versioning, date, and release notes.
 
 ## Building your library
 
