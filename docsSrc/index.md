@@ -94,10 +94,10 @@ This takes away the ambiguity that developers face when creating an OSS project.
     <div class="card h-100">
       <div class="card-body">
         <h5 class="card-title">Tutorials</h5>
-        <p class="card-text">Takes you by the hand through a series of steps to create your first thing. </p>
+        <p class="card-text">Takes you by the hand through a series of steps to create your first library. </p>
       </div>
       <div class="card-footer text-right bg-white border-top-0">
-        <a href="{{siteBaseUrl}}/Tutorials/Getting_Started_With_Libraries.html" class="btn btn-primary">Get started</a>
+        <a href="{{siteBaseUrl}}/Tutorials/index.html" class="btn btn-primary">Get started</a>
       </div>
     </div>
   </div>
@@ -108,7 +108,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
         <p class="card-text">Guides you through the steps involved in addressing key problems and use-cases. </p>
       </div>
       <div class="card-footer text-right bg-white border-top-0">
-        <a href="{{siteBaseUrl}}/How_Tos/Doing_A_Thing.html" class="btn btn-primary">Learn Usecases</a>
+        <a href="{{siteBaseUrl}}/How_Tos/index.html" class="btn btn-primary">Learn Usecases</a>
       </div>
     </div>
   </div>
@@ -119,18 +119,18 @@ This takes away the ambiguity that developers face when creating an OSS project.
         <p class="card-text">Discusses key topics and concepts at a fairly high level and provide useful background information and explanation..</p>
       </div>
       <div class="card-footer text-right bg-white border-top-0">
-        <a href="{{siteBaseUrl}}/Explanations/Background.html" class="btn btn-primary">Dive Deeper</a>
+        <a href="{{siteBaseUrl}}/Explanations/index.html" class="btn btn-primary">Dive Deeper</a>
       </div>
     </div>
   </div>
   <div class="col">
     <div class="card h-100">
       <div class="card-body">
-        <h5 class="card-title">Api Reference</h5>
-        <p class="card-text">Contain technical reference for APIs.</p>
+        <h5 class="card-title">Reference</h5>
+        <p class="card-text">Contain technical references.</p>
       </div>
       <div class="card-footer text-right bg-white border-top-0">
-        <a href="{{siteBaseUrl}}/Api_Reference/MyLib.1/MyLib.1.html" class="btn btn-primary">Read Api Docs</a>
+        <a href="{{siteBaseUrl}}/Reference/index.html" class="btn btn-primary">Read References</a>
       </div>
     </div>
   </div>
