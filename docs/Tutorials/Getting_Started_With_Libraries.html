@@ -1,0 +1,266 @@
+<!doctype html>
+<html data-reactroot="" lang="en"><head><title>MiniScaffold docs / Getting_Started_With_Libraries.html-MiniScaffold</title><link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" /><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" rel="stylesheet" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" /><link href="http://localhost:5000/content/style.css?version=637127125957045540" type="text/css" rel="stylesheet" /></head><body><nav class="navbar navbar-expand-md sticky-top navbar-dark bg-dark"><a class="navbar-brand" href="http://localhost:5000/index.html">MiniScaffold</a><button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="navbarNav"><ul class="navbar-nav mr-auto"><li class="nav-item dropdown"><a id="navbarDropdown-Explanations" href="#" data-toggle="dropdown" aria-haspopup  class="nav-link dropdown-toggle">Explanations</a><ul aria-labelledby="dropdownMenu1" class="dropdown-menu border-0 shadow"><li class="nav-item"><a class="dropdown-item" href="http://localhost:5000/Explanations/index.html">index</a></li></ul></li><li class="nav-item dropdown"><a id="navbarDropdown-How_Tos" href="#" data-toggle="dropdown" aria-haspopup  class="nav-link dropdown-toggle">How Tos</a><ul aria-labelledby="dropdownMenu1" class="dropdown-menu border-0 shadow"><li class="nav-item"><a class="dropdown-item" href="http://localhost:5000/How_Tos/index.html">index</a></li><li class="nav-item"><a class="dropdown-item" href="http://localhost:5000/How_Tos/Doing_Another_Thing.html">Doing Another Thing</a></li><li class="nav-item"><a class="dropdown-item" href="http://localhost:5000/How_Tos/Remove_Full_Framework.html">Remove Full Framework</a></li></ul></li><li class="nav-item dropdown"><a id="navbarDropdown-Reference" href="#" data-toggle="dropdown" aria-haspopup  class="nav-link dropdown-toggle">Reference</a><ul aria-labelledby="dropdownMenu1" class="dropdown-menu border-0 shadow"><li class="nav-item"><a class="dropdown-item" href="http://localhost:5000/Reference/index.html">index</a></li></ul></li><li class="nav-item dropdown"><a id="navbarDropdown-Tutorials" href="#" data-toggle="dropdown" aria-haspopup  class="nav-link dropdown-toggle">Tutorials</a><ul aria-labelledby="dropdownMenu1" class="dropdown-menu border-0 shadow"><li class="nav-item"><a class="dropdown-item" href="http://localhost:5000/Tutorials/index.html">index</a></li><li class="nav-item"><a class="dropdown-item" href="http://localhost:5000/Tutorials/Getting_Started_With_Libraries.html">Getting Started With Libraries</a></li></ul></li></ul><ul class="navbar-nav"><li class="nav-item"><a class="nav-link" aria-label="MiniScaffold Repository on Github" href="https://github.com/TheAngryByrd/MiniScaffold"><i class="fab fa-github fa-lg fa-fw text-light"></i></a></li></ul></div></nav><div class="wrapper d-flex flex-column justify-content-between min-vh-100"><main class="container main mb-4"><div><h1><a name="Getting-Started" class="anchor" href="#Getting-Started">Getting Started</a></h1>
+<p>In this tutorial, we'll take a look at getting started with MiniScaffold and publishing your first library to NuGet and GitHub</p>
+<h2><a name="Prerequisites" class="anchor" href="#Prerequisites">Prerequisites</a></h2>
+<ul>
+<li>Install <a href="https://git-scm.com/download">git</a></li>
+<li>Install <a href="https://dotnet.microsoft.com/download">.Net core</a></li>
+<li>If on macOS or Linux, install <a href="https://www.mono-project.com/download/stable/">Mono</a></li>
+<li>If on Windows <a href="https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/how-to-determine-which-versions-are-installed">ensure</a> you have at least .NET Full Framework 4.6.1 installed</li>
+<li>Recommended IDE is <a href="https://docs.microsoft.com/en-us/dotnet/fsharp/get-started/install-fsharp#install-f-with-visual-studio-code">VSCode with Ionide</a></li>
+<li>Create a <a href="https://www.nuget.org/">NuGet account</a></li>
+<li>Create a <a href="https://github.com/">GitHub account</a></li>
+</ul>
+<h2><a name="Installing-MiniScaffold" class="anchor" href="#Installing-MiniScaffold">Installing MiniScaffold</a></h2>
+<p>Install the <a href="https://docs.microsoft.com/en-us/dotnet/core/tools/custom-templates">dotnet template</a> from NuGet:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">dotnet new -i "MiniScaffold::*"
+</code></pre></td></tr></table>
+<p>Then use the template to create your own library.  Replace <code>MyCoolNewLib</code> with your own library name and <code>MyGithubUsername</code> with your own GitHub name. If you have trouble picking a library name then <a href="https://colinmorris.github.io/rbm/repos/">generate one</a>.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">dotnet new mini-scaffold -n MyCoolNewLib --githubUsername MyGithubUsername
+cd MyCoolNewLib
+</code></pre></td></tr></table>
+<p>This will generate a structure similar to this</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+<span class="l">34: </span>
+<span class="l">35: </span>
+<span class="l">36: </span>
+<span class="l">37: </span>
+<span class="l">38: </span>
+<span class="l">39: </span>
+<span class="l">40: </span>
+<span class="l">41: </span>
+<span class="l">42: </span>
+<span class="l">43: </span>
+<span class="l">44: </span>
+<span class="l">45: </span>
+<span class="l">46: </span>
+<span class="l">47: </span>
+<span class="l">48: </span>
+<span class="l">49: </span>
+<span class="l">50: </span>
+<span class="l">51: </span>
+<span class="l">52: </span>
+<span class="l">53: </span>
+<span class="l">54: </span>
+<span class="l">55: </span>
+<span class="l">56: </span>
+<span class="l">57: </span>
+<span class="l">58: </span>
+<span class="l">59: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">.
+|-- Directory.Build.props
+|-- LICENSE.md
+|-- MyCoolNewLib.sln
+|-- README.md
+|-- RELEASE_NOTES.md
+|-- appveyor.yml
+|-- build.cmd
+|-- build.fsx
+|-- build.sh
+|-- docsSrc
+|   |-- Explanations
+|   |   |-- Background.md
+|   |-- How_Tos
+|   |   |-- Doing_A_Thing.md
+|   |   |-- Doing_Another_Thing.md
+|   |-- Tutorials
+|   |   |-- Getting_Started.md
+|   |-- content
+|   |   |-- hotload.js
+|   |   |-- style.css
+|   |   |-- submenu.js
+|   |   |-- tips.js
+|   |-- files
+|   |   |-- placeholder.md
+|   |-- index.md
+|-- docsTool
+|   |-- CLI.fs
+|   |-- Prelude.fs
+|   |-- Program.fs
+|   |-- README.md
+|   |-- docsTool.fsproj
+|   |-- paket.references
+|   |-- templates
+|       |-- helpers.fs
+|       |-- master.fs
+|       |-- modules.fs
+|       |-- namespaces.fs
+|       |-- nav.fs
+|       |-- partMembers.fs
+|       |-- partNested.fs
+|       |-- types.fs
+|-- paket.dependencies
+|-- paket.lock
+|-- src
+|   |-- Directory.Build.props
+|   |-- MyCoolNewLib
+|       |-- AssemblyInfo.fs
+|       |-- Library.fs
+|       |-- MyCoolNewLib.fsproj
+|       |-- paket.references
+|-- tests
+    |-- Directory.Build.props
+    |-- MyCoolNewLib.Tests
+        |-- AssemblyInfo.fs
+        |-- Main.fs
+        |-- MyCoolNewLib.Tests.fsproj
+        |-- Tests.fs
+        |-- paket.references
+</code></pre></td></tr></table>
+<p>This may look overwhelming, but we don't have to worry about all of these yet.  Let's just focus on the real important ones for this tutorial.</p>
+<ul>
+<li><code>./src/MyCoolNewLib</code> - This is where your library's source code will live.</li>
+<li><code>./tests/MyCoolNewLib.Tests</code> - This is where your library's test code will live.</li>
+<li><code>build.cmd</code> or <code>build.sh</code> - Platform specific entry points into your <code>build.fsx</code> file.</li>
+<li><code>build.fsx</code> - The main build script of your repository.</li>
+<li><code>README.md</code> - The text file that introduces and explains a project.</li>
+<li><code>RELEASE_NOTES.md</code> - contains versioning, date, and release notes.</li>
+</ul>
+<h2><a name="Building-your-library" class="anchor" href="#Building-your-library">Building your library</a></h2>
+<p>To make sure everything is functioning correctly, run the build command for your platform:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">./build.sh //for macOS or Linux
+.\build.cmd \\for Windows
+</code></pre></td></tr></table>
+<p>You'll be flooded with a screen full of text, documenting the build processes at it currently stands. If it completes successfully you should be greeted with something similar:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">---------------------------------------------------------------------
+Build Time Report
+---------------------------------------------------------------------
+Target                   Duration
+------                   --------
+Clean                    00:00:00.0180266
+DotnetRestore            00:00:08.1013232
+DotnetBuild              00:00:09.2786467
+DotnetTest               00:00:07.9084110
+GenerateCoverageReport   00:00:00.8499974
+DotnetPack               00:00:06.3346539
+Total:                   00:00:32.6192299
+Status:                  Ok
+---------------------------------------------------------------------
+</code></pre></td></tr></table>
+<p>This is FAKE telling us everything that ran, how long, and if it completed successfully.</p>
+<p>If it does not complete successfully, either <a href="https://github.com/TheAngryByrd/MiniScaffold/issues">open an issue</a> or ask on <a href="https://fsharp.org/guides/slack/">F# Slack</a>.</p>
+<h2><a name="Fill-out-README-md" class="anchor" href="#Fill-out-README-md">Fill out README.md</a></h2>
+<p>The README.md comes with a lot of information but it's recommended to fill out the introductionary description.</p>
+<h2><a name="Making-a-Release" class="anchor" href="#Making-a-Release">Making a Release</a></h2>
+<p>The release process is streamlined so you only have to start your git repository, set your NuGet and GitHub authorization keys, create release notes, and run the <code>Release</code> build target.</p>
+<ul>
+<li>
+<a href="https://help.github.com/en/github/getting-started-with-github/create-a-repo">Create a GitHub Repository</a> and
+<a href="https://help.github.com/articles/adding-an-existing-project-to-github-using-the-command-line/">Start a git repo with your GitHub repository as a remote</a>
+</li>
+</ul>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">git add .
+git commit -m "Scaffold"
+git remote add origin origin https://github.com/MyGithubUsername/MyCoolNewLib.git
+git push -u origin master
+</code></pre></td></tr></table>
+<ul>
+<li><a href="https://docs.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-api-keys">Create a NuGet API key</a> and <a href="https://fsprojects.github.io/Paket/paket-config.html#Adding-a-NuGet-API-key">Add your NuGet API key to paket</a></li>
+</ul>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9b3a
+</code></pre></td></tr></table>
+<ul>
+<li>
+<a href="https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/">Create a GitHub OAuth Token</a>
+<ul>
+<li>
+You can then set the <code>GITHUB_TOKEN</code> to upload release notes and artifacts to github
+<ul>
+<li>If you're on a linux, you can put this key into your <a href="https://unix.stackexchange.com/questions/129143/what-is-the-purpose-of-bashrc-and-how-does-it-work">.bashrc</a></li>
+</ul>
+</li>
+<li>Otherwise it will fallback to username/password</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>Then append to the top of the <code>RELEASE_NOTES.md</code> with a new version, date, and release notes. See  <a href="https://fsharp.github.io/FAKE/apidocs/fake-releasenoteshelper.html">ReleaseNotesHelper</a> for more details. If appropriate, it's highly recommend adding a link to the Pull Request next to the release note that it affects.</li>
+</ul>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="markdown">#### 0.2.0 - 2017-04-20
+- FEATURE: Does cool stuff!
+- BUGFIX: Fixes that silly oversight (https://github.com/MyGithubUsername/MyCoolNewLib/pull/001)
+</code></pre></td></tr></table>
+<ul>
+<li>
+You can then use the <code>Release</code> target.  This will:
+<ul>
+<li>make a commit bumping the version:  <code>Bump version to 0.2.0</code> and add the release notes to the commit</li>
+<li>publish the package to NuGet</li>
+<li>push a git tag</li>
+</ul>
+</li>
+</ul>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">./build.sh Release
+</code></pre></td></tr></table>
+<h2><a name="Done" class="anchor" href="#Done">Done</a></h2>
+<p>You have now successfully created your first OSS library that has been published to NuGet and GitHub. Congratulations!</p>
+</div></main><footer class="footer font-small m-0 py-4 bg-dark"><div class="container"><div class="row"><div class="col-12 col-md-4 mb-4 mb-md-0"><div class="text-light"><h2 class="h5">Project Resources</h2><ul class="list-group list-group-flush"><li class="list-group-item list-group-item-dark ml-0 pl-0"><a href="https://github.com/TheAngryByrd/MiniScaffold/blob/master/README.md" class="text-white"><i class="fas fa-book-reader fa-fw mr-2"></i>README</a></li><li class="list-group-item list-group-item-dark ml-0 pl-0"><a href="https://github.com/TheAngryByrd/MiniScaffold/blob/master/RELEASE_NOTES.md" class="text-white"><i class="fas fa-sticky-note fa-fw mr-2"></i>Release Notes / Changelog</a></li><li class="list-group-item list-group-item-dark ml-0 pl-0"><a href="https://github.com/TheAngryByrd/MiniScaffold/blob/master/LICENSE.md" class="text-white"><i class="fas fa-id-card fa-fw mr-2"></i>License</a></li></ul></div></div><div class="col-12 col-md-4 mb-4 mb-md-0"><div class="text-light"><h2 class="h5">Other Links</h2><ul class="list-group list-group-flush"><li class="list-group-item list-group-item-dark ml-0 pl-0"><a href="https://docs.microsoft.com/en-us/dotnet/fsharp/" class="text-white"><i class="fab fa-microsoft fa-fw mr-2"></i>F# Documentation</a></li><li class="list-group-item list-group-item-dark ml-0 pl-0"><a href="https://fsharp.org/guides/slack/" class="text-white"><i class="fab fa-slack fa-fw mr-2"></i>F# Slack</a></li><li class="list-group-item list-group-item-dark ml-0 pl-0"><a href="http://foundation.fsharp.org/" class="text-white"><img class="fsharp-footer-logo mr-2" src="https://fsharp.org/img/logo/fsharp.svg" alt="FSharp Logo" />F# Software Foundation</a></li></ul></div></div><div class="col-12 col-md-4 mb-4 mb-md-0"><div class="text-light"><h2 class="h5">Metadata</h2><ul class="list-group list-group-flush"><li class="list-group-item list-group-item-dark ml-0 pl-0">Generated for version <a class="text-white" href="https://github.com/TheAngryByrd/MiniScaffold/releases/tag/0.21.3">0.21.3</a> on 2019/12/23</li><li class="list-group-item list-group-item-dark ml-0 pl-0">Found an issue? <a class="text-white" href="https://github.com/TheAngryByrd/MiniScaffold/edit/master/docsSrc/Tutorials/Getting_Started_With_Libraries.md">Edit this page.</a></li></ul></div></div></div><div class="row"><div class="col text-center"><small class="text-light"><i class="fas fa-copyright mr-1"></i>2019 MiniScaffold, All rights reserved</small></div></div></div></footer></div><script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script><script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script><script src="http://localhost:5000/content/tips.js?version=637127125957045540"></script><script src="http://localhost:5000/content/hotload.js?version=637127125957045540"></script><script src="http://localhost:5000/content/submenu.js?version=637127125957045540"></script></body></html>
