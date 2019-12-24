@@ -100,6 +100,7 @@ let masterTemplate (cfg : MasterTemplateConfig) navBar titletext bodyText pageSo
     html [Lang "en"] [
         head [] [
             title [] [ str (sprintf "%s docs / %s" cfg.ProjectName titletext) ]
+            meta [Name "viewport"; HTMLAttr.Content "width=device-width, initial-scale=1" ]
             link [
                 Href "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
                 Rel "stylesheet"
