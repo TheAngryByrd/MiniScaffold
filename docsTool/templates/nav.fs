@@ -140,17 +140,28 @@ let navTreeFromPaths (rootPath : IO.DirectoryInfo) (files : IO.FileInfo list) =
 let generateNavMenus siteBaseUrl (navTree : NavTree list) =
     let rec innerDo depth (navTree : NavTree list) =
         navTree
-        |> List.map(fun nav ->
+        |> List.collect(fun nav ->
             match nav with
             | File (title, link) when depth = 0 ->
-                navItemText title (siteBaseUrl |> Uri.simpleCombine link)
-            | File (title, link) -> dropDownNavItem title (siteBaseUrl |> Uri.simpleCombine link)
+                [
+                    navItemText title (siteBaseUrl |> Uri.simpleCombine link)
+                    if title = IndexPage then
+                        div [ Class "dropdown-divider" ] []
+                ]
+            | File (title, link) ->
+                [
+                    dropDownNavItem title (siteBaseUrl |> Uri.simpleCombine link)
+                    if title = IndexPage then
+                        div [ Class "dropdown-divider" ] []
+                ]
             | Folder (title, subtree) when depth = 0 ->
                 innerDo (depth + 1) subtree
                 |> dropDownNavMenu title
+                |> List.singleton
             | Folder (title, subtree) ->
                 innerDo (depth + 1) subtree
                 |> dropdownSubMenu title
+                |> List.singleton
         )
     innerDo 0 navTree
 
