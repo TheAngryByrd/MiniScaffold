@@ -12,6 +12,7 @@ type MasterTemplateConfig = {
     ReleaseVersion : string
     ReleaseDate : DateTimeOffset
     RepositoryRoot: IO.DirectoryInfo
+    IsWatchMode : bool
 }
 
 type FAIcon =
@@ -100,6 +101,7 @@ let masterTemplate (cfg : MasterTemplateConfig) navBar titletext bodyText pageSo
     html [Lang "en"] [
         head [] [
             title [] [ str (sprintf "%s docs / %s" cfg.ProjectName titletext) ]
+            meta [Name "viewport"; HTMLAttr.Content "width=device-width, initial-scale=1" ]
             link [
                 Href "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
                 Rel "stylesheet"
@@ -141,7 +143,9 @@ let masterTemplate (cfg : MasterTemplateConfig) navBar titletext bodyText pageSo
                 CrossOrigin "anonymous"
                 ] []
             yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/tips.js?version=%i" cfg.ReleaseDate.Ticks)) ] []
-            yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/hotload.js?version=%i" cfg.ReleaseDate.Ticks)) ] []
+            if cfg.IsWatchMode then
+                yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/hotload.js?version=%i" cfg.ReleaseDate.Ticks)) ] []
             yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/submenu.js?version=%i" cfg.ReleaseDate.Ticks)) ] []
+            yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/cleanups.js?version=%i" cfg.ReleaseDate.Ticks)) ] []
         ]
     ]
