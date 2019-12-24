@@ -1,4 +1,4 @@
-### 0.21.4-beta001 - 2019-12-23
+### 0.21.5 - 2019-12-23
 * MINOR: Cleans up mobile rendering for docs generation tool
 
 ### 0.21.3 - 2019-12-21
