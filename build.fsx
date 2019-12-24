@@ -285,9 +285,10 @@ Target.create "ReleaseDocs" ``release docs``
 //-----------------------------------------------------------------------------
 "DotnetPack" ==> "BuildDocs"
 "BuildDocs" ==> "ReleaseDocs"
+"BuildDocs" ?=> "Publish"
 "IntegrationTests" ?=> "ReleaseDocs"
-"ReleaseDocs" ==> "Release"
 "ReleaseDocs" ?=> "GitRelease"
+"ReleaseDocs" ==> "Release"
 
 "Clean"
   ==> "DotnetRestore"
