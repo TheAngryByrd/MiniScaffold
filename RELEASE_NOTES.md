@@ -1,3 +1,6 @@
+### 0.21.4-beta001 - 2019-12-23
+* MINOR: Cleans up mobile rendering for docs generation tool
+
 ### 0.21.3 - 2019-12-21
 * DOCUMENTATION: Explain Appveyor badge nuances (https://github.com/TheAngryByrd/MiniScaffold/pull/160)
 * MINOR: Use Microsoft.NETFramework.ReferenceAssemblies instead of netfx.props (https://github.com/TheAngryByrd/MiniScaffold/pull/161)
