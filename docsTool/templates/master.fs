@@ -11,7 +11,8 @@ type MasterTemplateConfig = {
     ProjectName : string
     ReleaseVersion : string
     ReleaseDate : DateTimeOffset
-    RepositoryRoot: IO.DirectoryInfo
+    RepositoryRoot : IO.DirectoryInfo
+    IsWatchMode : bool
 }
 
 type FAIcon =
@@ -142,7 +143,9 @@ let masterTemplate (cfg : MasterTemplateConfig) navBar titletext bodyText pageSo
                 CrossOrigin "anonymous"
                 ] []
             yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/tips.js?version=%i" cfg.ReleaseDate.Ticks)) ] []
-            yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/hotload.js?version=%i" cfg.ReleaseDate.Ticks)) ] []
+            if cfg.IsWatchMode then
+                yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/hotload.js?version=%i" cfg.ReleaseDate.Ticks)) ] []
             yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/submenu.js?version=%i" cfg.ReleaseDate.Ticks)) ] []
+            yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/cleanups.js?version=%i" cfg.ReleaseDate.Ticks)) ] []
         ]
     ]

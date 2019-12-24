@@ -171,7 +171,7 @@ module GenerateDocs =
 
         Nav.generateNav navCfg
 
-    let renderGeneratedDocs (cfg : Configuration)  (generatedDocs : GeneratedDoc list) =
+    let renderGeneratedDocs isWatchMode (cfg : Configuration)  (generatedDocs : GeneratedDoc list) =
         let nav = generateNav cfg generatedDocs
         let masterCfg : Master.MasterTemplateConfig = {
             SiteBaseUrl = cfg.SiteBaseUrl
@@ -180,6 +180,7 @@ module GenerateDocs =
             ReleaseVersion = cfg.ReleaseVersion
             ReleaseDate = DateTimeOffset.Now
             RepositoryRoot = cfg.RepositoryRoot
+            IsWatchMode = isWatchMode
         }
         generatedDocs
         |> Seq.iter(fun gd ->
@@ -299,12 +300,12 @@ module GenerateDocs =
     let renderDocs (cfg : Configuration) =
         let projInfos = cfg.ProjectFilesGlob |> Seq.map(ProjInfo.findReferences) |> Seq.toArray
         buildDocs projInfos cfg
-        |> renderGeneratedDocs cfg
+        |> renderGeneratedDocs false cfg
 
     let watchDocs (cfg : Configuration) =
         let projInfos = cfg.ProjectFilesGlob |> Seq.map(ProjInfo.findReferences) |> Seq.toArray
         let initialDocs = buildDocs projInfos cfg
-        initialDocs |> renderGeneratedDocs cfg
+        initialDocs |> renderGeneratedDocs true cfg
 
         let refs = projInfos |> Seq.collect (fun p -> p.References) |> Seq.distinct |> Seq.toArray
         let d1 =
@@ -319,7 +320,7 @@ module GenerateDocs =
                     |> List.filter(fun x -> generated |> List.exists(fun y -> y.OutputPath =  x.OutputPath) |> not )
                     |> List.append generated
                     |> List.distinctBy(fun gd -> gd.OutputPath.FullName)
-                    |> renderGeneratedDocs cfg
+                    |> renderGeneratedDocs true cfg
                 )
                 refreshWebpageEvent.Trigger "m.FullPath"
             )
