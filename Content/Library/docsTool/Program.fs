@@ -171,7 +171,7 @@ module GenerateDocs =
 
         Nav.generateNav navCfg
 
-    let renderGeneratedDocs (cfg : Configuration)  (generatedDocs : GeneratedDoc list) =
+    let renderGeneratedDocs isWatchMode (cfg : Configuration)  (generatedDocs : GeneratedDoc list) =
         let nav = generateNav cfg generatedDocs
         let masterCfg : Master.MasterTemplateConfig = {
             SiteBaseUrl = cfg.SiteBaseUrl
@@ -180,6 +180,7 @@ module GenerateDocs =
             ReleaseVersion = cfg.ReleaseVersion
             ReleaseDate = DateTimeOffset.Now
             RepositoryRoot = cfg.RepositoryRoot
+            IsWatchMode = isWatchMode
         }
         generatedDocs
         |> Seq.iter(fun gd ->
@@ -361,11 +362,12 @@ module GenerateDocs =
     let renderDocs (cfg : Configuration) =
         let projInfos = cfg.ProjectFilesGlob |> Seq.map(ProjInfo.findReferences) |> Seq.toArray
         buildDocs projInfos cfg
-        |> renderGeneratedDocs cfg
+        |> renderGeneratedDocs false cfg
 
     let watchDocs (cfg : Configuration) =
         let projInfos = cfg.ProjectFilesGlob |> Seq.map(ProjInfo.findReferences) |> Seq.toArray
         let initialDocs = buildDocs projInfos cfg
+        let renderGeneratedDocs = renderGeneratedDocs true
         initialDocs |> renderGeneratedDocs cfg
 
         let refs = projInfos |> Seq.collect (fun p -> p.References) |> Seq.distinct |> Seq.toArray
