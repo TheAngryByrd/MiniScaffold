@@ -46,7 +46,7 @@ let contentDir = __SOURCE_DIRECTORY__ @@ "Content"
 
 
 let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
-let docsSiteBaseUrl = "https://www.jimmybyrd.me/miniscaffold"
+let docsSiteBaseUrl = "https://www.jimmybyrd.me/MiniScaffold"
 
 let isCI =  Environment.environVarAsBool "CI"
 
@@ -285,7 +285,7 @@ Target.create "ReleaseDocs" ``release docs``
 //-----------------------------------------------------------------------------
 "DotnetPack" ==> "BuildDocs"
 "BuildDocs" ==> "ReleaseDocs"
-
+"Publish" ?=> "ReleaseDocs"
 
 "Clean"
   ==> "DotnetRestore"
@@ -293,7 +293,6 @@ Target.create "ReleaseDocs" ``release docs``
 //https://github.com/dotnet/templating/issues/1736#issuecomment-464847242
   =?> ("IntegrationTests", isCI)
   ==> "Publish"
-  ==> "ReleaseDocs"
   ==> "GitRelease"
   ==> "GithubRelease"
   ==> "Release"
