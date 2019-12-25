@@ -95,7 +95,7 @@ table.pre td.lines {
   width:30px;
 }
 
-.table thead td.fit, 
+.table thead td.fit,
 .table th.fit {
     white-space: nowrap;
     width: 1%;
@@ -325,11 +325,6 @@ h1.header:visited {
     margin-left: 0px;
 }
 
-.list-group-item-dark {
-    background-color: #343a40;
-    color: #f8f9fa;
-    border: 1px solid rgba(248,249,259,.125);
-}
 
 .fsharp-footer-logo {
     width: 20px;
