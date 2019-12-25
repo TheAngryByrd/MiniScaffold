@@ -2,7 +2,7 @@
 var themes = {
     "light" : {
         "button-text" : "Swap to Dark",
-        "button-classes" : "btn btn-dark",
+        "button-classes" : "btn btn-dark border-light",
         "next-theme" : "dark",
         "body-class" : "bootstrap"
     },
