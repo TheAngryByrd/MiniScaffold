@@ -96,7 +96,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
         <h5 class="card-title">Tutorials</h5>
         <p class="card-text">Takes you by the hand through a series of steps to create your first library. </p>
       </div>
-      <div class="card-footer text-right bg-white border-top-0">
+      <div class="card-footer text-right   border-top-0">
         <a href="{{siteBaseUrl}}/Tutorials/index.html" class="btn btn-primary">Get started</a>
       </div>
     </div>
@@ -107,7 +107,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
         <h5 class="card-title">How-To Guides</h5>
         <p class="card-text">Guides you through the steps involved in addressing key problems and use-cases. </p>
       </div>
-      <div class="card-footer text-right bg-white border-top-0">
+      <div class="card-footer text-right   border-top-0">
         <a href="{{siteBaseUrl}}/How_Tos/index.html" class="btn btn-primary">Learn Usecases</a>
       </div>
     </div>
@@ -118,7 +118,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
         <h5 class="card-title">Explanations</h5>
         <p class="card-text">Discusses key topics and concepts at a fairly high level and provide useful background information and explanation..</p>
       </div>
-      <div class="card-footer text-right bg-white border-top-0">
+      <div class="card-footer text-right   border-top-0">
         <a href="{{siteBaseUrl}}/Explanations/index.html" class="btn btn-primary">Dive Deeper</a>
       </div>
     </div>
@@ -129,7 +129,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
         <h5 class="card-title">Reference</h5>
         <p class="card-text">Contain technical references.</p>
       </div>
-      <div class="card-footer text-right bg-white border-top-0">
+      <div class="card-footer text-right   border-top-0">
         <a href="{{siteBaseUrl}}/Reference/index.html" class="btn btn-primary">Read References</a>
       </div>
     </div>

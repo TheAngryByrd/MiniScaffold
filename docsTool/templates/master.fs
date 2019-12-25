@@ -39,7 +39,7 @@ let linkColumn headerTitle items =
             h2 [Class "h5"] [ str headerTitle ]
             ul [Class "list-group list-group-flush"]
                 (items |> List.choose (function | [] -> None
-                                                | items -> Some(li [Class "list-group-item list-group-item-dark ml-0 pl-0"] items)))
+                                                | items -> Some(li [Class "list-group-item bg-dark border-secondary ml-0 pl-0"] items)))
         ]
     ]
 
