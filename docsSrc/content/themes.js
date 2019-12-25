@@ -1,18 +1,20 @@
 
 var themes = {
     "light" : {
-        "href" : "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css",
+        "href" : "https://raw.githubusercontent.com/ForEvolve/bootstrap-dark/master/dist/css/toggle-bootstrap.min.css",
         "integrity" : "sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh",
         "button-text" : "Swap to Dark",
         "button-classes" : "btn btn-dark",
-        "opposite-theme" : "dark"
+        "opposite-theme" : "dark",
+        "boos" : "bootstrap"
     },
     "dark" : {
         "href" : "https://bootswatch.com/4/darkly/bootstrap.min.css",
         "integrity" : "sha384-Rq9MpH5hKzPKCxKgZouHt2sCwIFdGUK7fcffM75IhDQbxsRGIyisX5Ooi9E8ZrYR",
         "button-text" : "Swap to Light",
         "button-classes" : "btn btn-light",
-        "opposite-theme" : "light"
+        "opposite-theme" : "light",
+        "boos" : "bootstrap-dark"
     }
 };
 
@@ -20,10 +22,10 @@ var themeStorageKey = 'theme';
 
 function swapThemeInDom(theme) {
     var newTheme = themes[theme];
-    var bootstrapCSS = document.getElementById('css-bootstrap');
+    var bootstrapCSS = document.getElementsByTagName('body')[0];
 
-    bootstrapCSS.setAttribute('integrity', newTheme['integrity']);
-    bootstrapCSS.setAttribute('href', newTheme['href'])
+    // bootstrapCSS.setAttribute('integrity', newTheme['integrity']);
+    bootstrapCSS.setAttribute('class', newTheme['boos'])
 
 }
 
@@ -58,7 +60,7 @@ function loadTheme() {
     setTheme(theme);
 }
 
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('readystatechange', (event) => {
     loadTheme()
 });
-loadTheme()
+// loadTheme()
