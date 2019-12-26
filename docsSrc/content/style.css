@@ -305,11 +305,11 @@ h1.header:visited {
     padding: .5em 0em
 }
 
-.dropdown-submenu {
+.bootstrap .dropdown-submenu {
     position: relative;
 }
 
-.dropdown-submenu>a:after {
+.bootstrap .dropdown-submenu>a:after {
     content: "\f0da";
     padding-left: 5px;
     vertical-align: middle;
@@ -318,7 +318,27 @@ h1.header:visited {
     font-family: 'Font Awesome 5 Free';
 }
 
-.dropdown-submenu>.dropdown-menu {
+.bootstrap-dark .dropdown-submenu>.dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: 0px;
+    margin-left: 0px;
+}
+
+.bootstrap-dark .dropdown-submenu {
+    position: relative;
+}
+
+.bootstrap-dark .dropdown-submenu>a:after {
+    content: "\f0da";
+    padding-left: 5px;
+    vertical-align: middle;
+    border: none;
+    font-weight: 900;
+    font-family: 'Font Awesome 5 Free';
+}
+
+.bootstrap .dropdown-submenu>.dropdown-menu {
     top: 0;
     left: 100%;
     margin-top: 0px;
