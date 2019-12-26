@@ -1,18 +1,16 @@
 
 var themes = {
     "light" : {
-        "href" : "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css",
-        "integrity" : "sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh",
         "button-text" : "Swap to Dark",
-        "button-classes" : "btn btn-dark",
-        "opposite-theme" : "dark"
+        "button-classes" : "btn btn-dark border-light",
+        "next-theme" : "dark",
+        "body-class" : "bootstrap"
     },
     "dark" : {
-        "href" : "https://bootswatch.com/4/darkly/bootstrap.min.css",
-        "integrity" : "sha384-Rq9MpH5hKzPKCxKgZouHt2sCwIFdGUK7fcffM75IhDQbxsRGIyisX5Ooi9E8ZrYR",
         "button-text" : "Swap to Light",
         "button-classes" : "btn btn-light",
-        "opposite-theme" : "light"
+        "next-theme" : "light",
+        "body-class" : "bootstrap-dark"
     }
 };
 
@@ -20,11 +18,8 @@ var themeStorageKey = 'theme';
 
 function swapThemeInDom(theme) {
     var newTheme = themes[theme];
-    var bootstrapCSS = document.getElementById('css-bootstrap');
-
-    bootstrapCSS.setAttribute('integrity', newTheme['integrity']);
-    bootstrapCSS.setAttribute('href', newTheme['href'])
-
+    var bootstrapCSS = document.getElementsByTagName('body')[0];
+    bootstrapCSS.setAttribute('class', newTheme['body-class'])
 }
 
 function persistNewTheme(theme) {
@@ -37,28 +32,51 @@ function setToggleButton(theme) {
     themeToggleButton.textContent = newTheme['button-text'];
     themeToggleButton.className = newTheme['button-classes'];
     themeToggleButton.onclick = function() {
-        setTheme(newTheme['opposite-theme']);
+        setTheme(newTheme['next-theme']);
     }
 }
 
 function setTheme(theme) {
-    swapThemeInDom(theme);
+    try {
+        swapThemeInDom(theme);
+    }
+    catch(e){
+    }
+    try {
     persistNewTheme(theme);
+    }
+    catch(e) {
+    }
     try {
         setToggleButton(theme);
     }
     catch (e) {
-
     }
+}
 
+function getThemeFromStorage() {
+    return window.localStorage.getItem(themeStorageKey);
+}
+
+function getThemeFromScheme() {
+    try {
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches){
+            return 'dark';
+        }
+        else {
+            return 'light';
+        }
+    }
+    catch(e) {
+        return null;
+    }
 }
 
 function loadTheme() {
-    var theme = window.localStorage.getItem(themeStorageKey) || 'light';
+    var theme = getThemeFromStorage() || getThemeFromScheme() || 'light';
     setTheme(theme);
 }
 
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('readystatechange', (event) => {
     loadTheme()
 });
-loadTheme()
