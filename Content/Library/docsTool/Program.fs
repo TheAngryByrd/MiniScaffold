@@ -4,6 +4,25 @@
 open System
 open Fake.IO.FileSystemOperators
 open Fake.IO
+open Fake.Core
+
+let dispose (d : #IDisposable) = d.Dispose()
+type DisposableDirectory (directory : string) =
+    do
+        Trace.tracefn "Created disposable directory %s" directory
+    static member Create() =
+        let tempPath = IO.Path.Combine(IO.Path.GetTempPath(), Guid.NewGuid().ToString("n"))
+        IO.Directory.CreateDirectory tempPath |> ignore
+
+        new DisposableDirectory(tempPath)
+    member x.Directory = directory
+    member x.DirectoryInfo = IO.DirectoryInfo(directory)
+
+    interface IDisposable with
+        member x.Dispose() =
+            Trace.tracefn "Deleting directory %s" directory
+            IO.Directory.Delete(x.Directory,true)
+
 
 let refreshWebpageEvent = new Event<string>()
 
@@ -506,12 +525,18 @@ open Fake.IO.Globbing.Operators
 open DocsTool.CLIArgs
 [<EntryPoint>]
 let main argv =
-
+    use tempDocsOutDir = DisposableDirectory.Create()
+    use __ = AppDomain.CurrentDomain.ProcessExit.Subscribe(fun _ ->
+        dispose tempDocsOutDir
+    )
+    use __ = Console.CancelKeyPress.Subscribe(fun _ ->
+        dispose tempDocsOutDir
+    )
     let defaultConfig = {
         SiteBaseUrl = Uri(sprintf "http://%s:%d/" WebServer.hostname WebServer.port )
         GitHubRepoUrl = Uri "https://github.com"
         RepositoryRoot = IO.DirectoryInfo (__SOURCE_DIRECTORY__ @@ "..")
-        DocsOutputDirectory = IO.DirectoryInfo "docs"
+        DocsOutputDirectory = tempDocsOutDir.DirectoryInfo
         DocsSourceDirectory = IO.DirectoryInfo "docsSrc"
         ProjectName = ""
         ProjectFilesGlob = !! ""
@@ -551,7 +576,6 @@ let main argv =
             ||> List.fold(fun state next ->
                 match next with
                 | WatchArgs.ProjectGlob glob -> {state with ProjectFilesGlob = !! glob}
-                | WatchArgs.DocsOutputDirectory outdir -> { state with DocsOutputDirectory = IO.DirectoryInfo outdir}
                 | WatchArgs.DocsSourceDirectory srcdir -> { state with DocsSourceDirectory = IO.DirectoryInfo srcdir}
                 | WatchArgs.GitHubRepoUrl url -> { state with GitHubRepoUrl = Uri url}
                 | WatchArgs.ProjectName repo -> { state with ProjectName = repo}

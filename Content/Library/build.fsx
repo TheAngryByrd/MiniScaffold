@@ -173,7 +173,6 @@ module DocsTool =
     let watchCLI =
         [
             WatchArgs.ProjectGlob srcGlob
-            WatchArgs.DocsOutputDirectory docsDir
             WatchArgs.DocsSourceDirectory docsSrcDir
             WatchArgs.GitHubRepoUrl gitHubRepoUrl
             WatchArgs.ProjectName gitRepoName
