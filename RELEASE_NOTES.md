@@ -1,4 +1,4 @@
-### 0.22.0-beta001 - 2019-12-25
+### 0.22.0 - 2019-12-25
 * FEATURE: docsTool now has a dark mode
 
 ### 0.21.5 - 2019-12-23
@@ -7,7 +7,6 @@
 ### 0.21.3 - 2019-12-21
 * DOCUMENTATION: Explain Appveyor badge nuances (https://github.com/TheAngryByrd/MiniScaffold/pull/160)
 * MINOR: Use Microsoft.NETFramework.ReferenceAssemblies instead of netfx.props (https://github.com/TheAngryByrd/MiniScaffold/pull/161)
-
 
 ### 0.21.2 - 2019-12-21
 * MINOR: Updates to depedencies (https://github.com/TheAngryByrd/MiniScaffold/pull/159)
