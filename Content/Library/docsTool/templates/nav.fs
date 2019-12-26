@@ -175,6 +175,9 @@ let generateNav (navCfg : NavConfig) =
                 yield! navTreeFromPaths navCfg.TopLevelNav.DocsRoot navCfg.TopLevelNav.DocsPages |> sortNavTree |> generateNavMenus navCfg.SiteBaseUrl
             ]
             ul [ Class "navbar-nav"] [
+                button [Id "theme-toggle"; Class ""] [
+                    str ""
+                ]
                 navItemIconOnly (string navCfg.GitHubRepoUrl) (sprintf "%s Repository on Github" navCfg.ProjectName) [
                     i [ Class "fab fa-github fa-lg fa-fw text-light"] []
                 ]
