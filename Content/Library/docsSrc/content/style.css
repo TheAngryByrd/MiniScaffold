@@ -95,7 +95,7 @@ table.pre td.lines {
   width:30px;
 }
 
-.table thead td.fit, 
+.table thead td.fit,
 .table th.fit {
     white-space: nowrap;
     width: 1%;
@@ -207,12 +207,12 @@ td.title, thead {
   Links
 /*--------------------------------------------------------------------------*/
 
-h1 a, h1 a:hover, h1 a:focus,
-h2 a, h2 a:hover, h2 a:focus,
-h3 a, h3 a:hover, h3 a:focus,
-h4 a, h4 a:hover, h4 a:focus,
-h5 a, h5 a:hover, h5 a:focus,
-h6 a, h6 a:hover, h6 a:focus { color : inherit; text-decoration : inherit; outline:none }
+.bootstrap h1 a, .bootstrap h1 a:hover, .bootstrap h1 a:focus,
+.bootstrap h2 a, .bootstrap h2 a:hover, .bootstrap h2 a:focus,
+.bootstrap h3 a, .bootstrap h3 a:hover, .bootstrap h3 a:focus,
+.bootstrap h4 a, .bootstrap h4 a:hover, .bootstrap h4 a:focus,
+.bootstrap h5 a, .bootstrap h5 a:hover, .bootstrap h5 a:focus,
+.bootstrap h6 a, .bootstrap h6 a:hover, .bootstrap h6 a:focus { color : inherit; text-decoration : inherit; outline:none }
 
 /*--------------------------------------------------------------------------
   Additional formatting for the homepage
@@ -323,12 +323,6 @@ h1.header:visited {
     left: 100%;
     margin-top: 0px;
     margin-left: 0px;
-}
-
-.list-group-item-dark {
-    background-color: #343a40;
-    color: #f8f9fa;
-    border: 1px solid rgba(248,249,259,.125);
 }
 
 .fsharp-footer-logo {

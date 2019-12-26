@@ -39,7 +39,7 @@ let linkColumn headerTitle items =
             h2 [Class "h5"] [ str headerTitle ]
             ul [Class "list-group list-group-flush"]
                 (items |> List.choose (function | [] -> None
-                                                | items -> Some(li [Class "list-group-item list-group-item-dark ml-0 pl-0"] items)))
+                                                | items -> Some(li [Class "list-group-item bg-dark ml-0 pl-0"] items)))
         ]
     ]
 
@@ -103,10 +103,14 @@ let masterTemplate (cfg : MasterTemplateConfig) navBar titletext bodyText pageSo
             title [] [ str (sprintf "%s docs / %s" cfg.ProjectName titletext) ]
             meta [Name "viewport"; HTMLAttr.Content "width=device-width, initial-scale=1" ]
             link [
-                Href "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+                Href (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/toggle-bootstrap.min.css?version=%i" cfg.ReleaseDate.Ticks) )
+                Type "text/css"
                 Rel "stylesheet"
-                Integrity "sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-                CrossOrigin "anonymous"
+            ]
+            link [
+                Href (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/toggle-bootstrap-dark.min.css?version=%i" cfg.ReleaseDate.Ticks) )
+                Type "text/css"
+                Rel "stylesheet"
             ]
             link [
                 Href "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css"
@@ -127,6 +131,7 @@ let masterTemplate (cfg : MasterTemplateConfig) navBar titletext bodyText pageSo
                 main [Class "container main mb-4"] bodyText
                 renderFooter cfg pageSource
             ]
+            yield script [Src (cfg.SiteBaseUrl |> Uri.simpleCombine (sprintf "/content/themes.js?version=%i" cfg.ReleaseDate.Ticks)) ] []
             yield script [
                 Src "https://code.jquery.com/jquery-3.4.1.slim.min.js"
                 Integrity "sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
