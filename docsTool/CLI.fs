@@ -6,7 +6,6 @@ module CLIArgs =
 
     type WatchArgs =
         | ProjectGlob of string
-        | DocsOutputDirectory of string
         | DocsSourceDirectory of string
         | GitHubRepoUrl of string
         | ProjectName of string
@@ -16,7 +15,6 @@ module CLIArgs =
             member this.Usage =
                 match this with
                 | ProjectGlob _  -> "The glob for the dlls to generate API documentation."
-                | DocsOutputDirectory _ -> "The docs output directory."
                 | DocsSourceDirectory _ -> "The docs source directory."
                 | GitHubRepoUrl _ -> "The GitHub repository url."
                 | ProjectName _ -> "The project name."
