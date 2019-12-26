@@ -1,3 +1,6 @@
+### 0.22.0-beta001 - 2019-12-25
+* FEATURE: docsTool now has a dark mode
+
 ### 0.21.5 - 2019-12-23
 * MINOR: Cleans up mobile rendering for docs generation tool
 
