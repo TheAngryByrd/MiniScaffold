@@ -1,5 +1,8 @@
+### 0.22.1 - 2019-12-25
+* BUGFIX: docsTool watch mode now uses temporary directory for rendered files (https://github.com/TheAngryByrd/MiniScaffold/pull/166)
+
 ### 0.22.0 - 2019-12-25
-* FEATURE: docsTool now has a dark mode
+* FEATURE: docsTool now has a dark mode (https://github.com/TheAngryByrd/MiniScaffold/pull/165)
 
 ### 0.21.5 - 2019-12-23
 * MINOR: Cleans up mobile rendering for docs generation tool
