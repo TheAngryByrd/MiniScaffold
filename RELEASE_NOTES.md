@@ -1,3 +1,6 @@
+### 0.22.2 - 2020-01-03
+* BUGFIX: Fixup gitlab workflow ci file (https://github.com/TheAngryByrd/MiniScaffold/pull/168)
+
 ### 0.22.1 - 2019-12-25
 * BUGFIX: docsTool watch mode now uses temporary directory for rendered files (https://github.com/TheAngryByrd/MiniScaffold/pull/166)
 
