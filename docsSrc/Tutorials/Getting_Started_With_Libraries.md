@@ -143,7 +143,7 @@ The release process is streamlined so you only have to start your git repository
     [lang=bash]
     git add .
     git commit -m "Scaffold"
-    git remote add origin origin https://github.com/MyGithubUsername/MyCoolNewLib.git
+    git remote add origin https://github.com/MyGithubUsername/MyCoolNewLib.git
     git push -u origin master
 
 - [Create a NuGet API key](https://docs.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-api-keys) and [Add your NuGet API key to paket](https://fsprojects.github.io/Paket/paket-config.html#Adding-a-NuGet-API-key)
