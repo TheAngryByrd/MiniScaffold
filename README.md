@@ -140,6 +140,10 @@ Appveyor's conventions around generating URLs based on the project name has some
 #### Example Projects using this template:
 * [Chessie.Hopac](https://github.com/TheAngryByrd/Chessie.Hopac)
 * [Marten.FSharp](https://github.com/TheAngryByrd/Marten.FSharp)
+* [FSharp.Control.WebSockets](https://github.com/TheAngryByrd/FSharp.Control.WebSockets)
+* [FSharp.Control.Redis.Streams](https://github.com/TheAngryByrd/FSharp.Control.Redis.Streams)
+* [FsLibLog](https://github.com/TheAngryByrd/FsLibLog)
+* [Giraffe.HotReload](https://github.com/baronfel/Giraffe.HotReload)
 
 
 #### This project uses the following projects:
