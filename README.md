@@ -15,7 +15,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
 - How do I structure my project?
 - How do I create repeatable builds?
 - Which test framework should I use?
-- How to I create releases easily?
+- How do I create releases easily?
 - What Issue/Pull Request templates should I use?
 - How should I go about creating documentation?
 - How do I get CI setup easily?
