@@ -147,10 +147,10 @@ Appveyor's conventions around generating URLs based on the project name has some
 
 
 #### This project uses the following projects:
+* Heavily inspired by [Project Scaffold](https://github.com/fsprojects/ProjectScaffold)
 * [Paket](https://fsprojects.github.io/Paket/)
 * [FAKE](https://fsharp.github.io/FAKE/)
 * [Expecto](https://github.com/haf/expecto)
-* Heavily inspired by [Project Scaffold](https://github.com/fsprojects/ProjectScaffold)
 * [Buildstats.info](https://github.com/dustinmoris/CI-BuildStats)
 * [Source Link](https://github.com/ctaggart/SourceLink)
 * [AltCover](https://github.com/SteveGilham/altcover)
@@ -158,3 +158,4 @@ Appveyor's conventions around generating URLs based on the project name has some
 * [Fantomas](https://github.com/fsprojects/fantomas)
 * [Argu](https://github.com/fsprojects/Argu)
 * [dotnet-packaging](https://github.com/qmfrederik/dotnet-packaging)
+* [FSharp.Formatting](https://github.com/fsprojects/FSharp.Formatting)
