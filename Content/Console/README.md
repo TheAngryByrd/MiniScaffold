@@ -86,7 +86,7 @@ $ ./build.sh  <optional buildtarget>// on unix
 ```sh
 git add .
 git commit -m "Scaffold"
-git remote add origin origin https://github.com/user/MyCoolNewLib.git
+git remote add origin https://github.com/user/MyCoolNewApp.git
 git push -u origin master
 ```
 
