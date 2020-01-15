@@ -1,3 +1,6 @@
+### 0.22.3 - 2020-01-14
+* BUGFIX: Typo in README (https://github.com/TheAngryByrd/MiniScaffold/pull/170) (https://github.com/TheAngryByrd/MiniScaffold/pull/171)
+
 ### 0.22.2 - 2020-01-03
 * BUGFIX: Fixup gitlab workflow ci file (https://github.com/TheAngryByrd/MiniScaffold/pull/168)
 
