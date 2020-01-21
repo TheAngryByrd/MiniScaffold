@@ -75,7 +75,8 @@ let gitOwner = "MyGithubUsername"
 let gitRepoName = "MyLib.1"
 
 let releaseBranch = "master"
-let releaseNotes = Fake.Core.ReleaseNotes.load "RELEASE_NOTES.md"
+let changelog = Fake.Core.Changelog.load "CHANGELOG.md"
+let releaseNotes = changelog.LatestEntry
 
 let targetFramework =  "netcoreapp3.1"
 
@@ -166,7 +167,7 @@ let dotnetRestore _ =
     |> Seq.map(fun dir -> fun () ->
         let args =
             [
-                sprintf "/p:PackageVersion=%s" releaseNotes.NugetVersion
+                sprintf "/p:PackageVersion=%s" releaseNotes.NuGetVersion
             ]
         DotNet.restore(fun c ->
             { c with
@@ -179,7 +180,7 @@ let dotnetRestore _ =
 let dotnetBuild ctx =
     let args =
         [
-            sprintf "/p:PackageVersion=%s" releaseNotes.NugetVersion
+            sprintf "/p:PackageVersion=%s" releaseNotes.NuGetVersion
             "--no-restore"
         ]
     DotNet.build(fun c ->
@@ -314,8 +315,8 @@ let createPackages _ =
                 sprintf "/p:CustomTarget=%s" packageType
                 sprintf "/p:RuntimeIdentifier=%s" runtime
                 sprintf "/p:Configuration=%s" "Release"
-                sprintf "/p:PackageVersion=%s" releaseNotes.NugetVersion
-                sprintf "/p:PackagePath=%s" (distDir @@ (sprintf "%s-%s-%s" productName releaseNotes.NugetVersion runtime ))
+                sprintf "/p:PackageVersion=%s" releaseNotes.NuGetVersion
+                sprintf "/p:PackagePath=%s" (distDir @@ (sprintf "%s-%s-%s" productName releaseNotes.NuGetVersion runtime ))
             ] |> String.concat " "
 
         DotNet.exec (fun opt ->
@@ -328,14 +329,14 @@ let createPackages _ =
 let gitRelease _ =
     isReleaseBranchCheck ()
 
-    let releaseNotesGitCommitFormat = releaseNotes.Notes |> Seq.map(sprintf "* %s\n") |> String.concat ""
+    let releaseNotesGitCommitFormat = releaseNotes.ToString()
 
     Git.Staging.stageAll ""
-    Git.Commit.exec "" (sprintf "Bump version to %s \n%s" releaseNotes.NugetVersion releaseNotesGitCommitFormat)
+    Git.Commit.exec "" (sprintf "Bump version to %s \n%s" releaseNotes.NuGetVersion releaseNotesGitCommitFormat)
     Git.Branches.push ""
 
-    Git.Branches.tag "" releaseNotes.NugetVersion
-    Git.Branches.pushTag "" "origin" releaseNotes.NugetVersion
+    Git.Branches.tag "" releaseNotes.NuGetVersion
+    Git.Branches.pushTag "" "origin" releaseNotes.NuGetVersion
 
 let githubRelease _ =
     let token =
@@ -346,7 +347,7 @@ let githubRelease _ =
     let files = distGlob
 
     GitHub.createClientWithToken token
-    |> GitHub.draftNewRelease gitOwner gitRepoName releaseNotes.NugetVersion (releaseNotes.SemVer.PreRelease <> None) releaseNotes.Notes
+    |> GitHub.draftNewRelease gitOwner gitRepoName releaseNotes.NuGetVersion (releaseNotes.SemVer.PreRelease <> None) (releaseNotes.ToString() |> Seq.singleton)
     |> GitHub.uploadFiles files
     |> GitHub.publishDraft
     |> Async.RunSynchronously
