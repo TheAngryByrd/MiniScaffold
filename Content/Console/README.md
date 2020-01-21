@@ -94,16 +94,51 @@ git push -u origin master
   - You can then set the `GITHUB_TOKEN` to upload release notes and artifacts to github
   - Otherwise it will fallback to username/password
 
-- Then update the `RELEASE_NOTES.md` with a new version, date, and release notes [ReleaseNotesHelper](https://fsharp.github.io/FAKE/apidocs/fake-releasenoteshelper.html)
+- Then update the `CHANGELOG.md` and add a new header with a version number and date just under the "Unreleased" header,
+  in [KeepAChangelog](https://keepachangelog.com/en/1.1.0/) format. Don't forget to make the version number
+  a link and update the link reference section at the bottom of the file, too. E.g., change this:
 
 ```markdown
-#### 0.2.0 - 2017-04-20
+## Unreleased
+### Added
 - FEATURE: Does cool stuff!
+
+### Fixed
 - BUGFIX: Fixes that silly oversight
+
+## [0.1.0] - 2017-03-17
+First release
+
+### Added
+- This release already has lots of features
+
+[0.1.0]: https://github.com/user/MyCoolNewApp.git/releases/tag/v0.1.0
+```
+
+to this:
+
+```markdown
+## Unreleased
+
+## [0.2.0] - 2017-04-20
+### Added
+- FEATURE: Does cool stuff!
+
+### Fixed
+- BUGFIX: Fixes that silly oversight
+
+## [0.1.0] - 2017-03-17
+First release
+
+### Added
+- This release already has lots of features
+
+[0.2.0]: https://github.com/user/MyCoolNewApp.git/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/user/MyCoolNewApp.git/releases/tag/v0.1.0
 ```
 
 - You can then use the `Release` target.  This will:
-  - make a commit bumping the version:  `Bump version to 0.2.0` and add the release notes to the commit
+  - make a commit bumping the version:  `Bump version to 0.2.0` and add the changelog to the commit
   - push a git tag
 
 ```sh

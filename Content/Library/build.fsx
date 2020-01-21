@@ -79,7 +79,8 @@ let gitRepoName = "MyLib.1"
 let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
 
 let releaseBranch = "master"
-let releaseNotes = Fake.Core.ReleaseNotes.load "RELEASE_NOTES.md"
+let changelog = Fake.Core.Changelog.load "CHANGELOG.md"
+let releaseNotes = changelog.LatestEntry
 
 let publishUrl = "https://www.nuget.org"
 
@@ -159,7 +160,7 @@ module DocsTool =
             BuildArgs.DocsSourceDirectory docsSrcDir
             BuildArgs.GitHubRepoUrl gitHubRepoUrl
             BuildArgs.ProjectName gitRepoName
-            BuildArgs.ReleaseVersion releaseNotes.NugetVersion
+            BuildArgs.ReleaseVersion releaseNotes.NuGetVersion
         ]
         |> buildparser.PrintCommandLineArgumentsFlat
 
@@ -176,7 +177,7 @@ module DocsTool =
             WatchArgs.DocsSourceDirectory docsSrcDir
             WatchArgs.GitHubRepoUrl gitHubRepoUrl
             WatchArgs.ProjectName gitRepoName
-            WatchArgs.ReleaseVersion releaseNotes.NugetVersion
+            WatchArgs.ReleaseVersion releaseNotes.NuGetVersion
         ]
         |> watchparser.PrintCommandLineArgumentsFlat
 
@@ -211,7 +212,7 @@ let dotnetRestore _ =
     |> Seq.map(fun dir -> fun () ->
         let args =
             [
-                sprintf "/p:PackageVersion=%s" releaseNotes.NugetVersion
+                sprintf "/p:PackageVersion=%s" releaseNotes.NuGetVersion
             ] |> String.concat " "
         DotNet.restore(fun c ->
             { c with
@@ -226,7 +227,7 @@ let dotnetRestore _ =
 let dotnetBuild ctx =
     let args =
         [
-            sprintf "/p:PackageVersion=%s" releaseNotes.NugetVersion
+            sprintf "/p:PackageVersion=%s" releaseNotes.NuGetVersion
             "--no-restore"
         ]
     DotNet.build(fun c ->
@@ -344,8 +345,8 @@ let generateAssemblyInfo _ =
 let dotnetPack ctx =
     let args =
         [
-            sprintf "/p:PackageVersion=%s" releaseNotes.NugetVersion
-            sprintf "/p:PackageReleaseNotes=\"%s\"" (releaseNotes.Notes |> String.concat "\n")
+            sprintf "/p:PackageVersion=%s" releaseNotes.NuGetVersion
+            sprintf "/p:PackageReleaseNotes=\"%s\"" (releaseNotes.ToString())
         ]
     DotNet.pack (fun c ->
         { c with
@@ -375,14 +376,14 @@ let publishToNuget _ =
 let gitRelease _ =
     isReleaseBranchCheck ()
 
-    let releaseNotesGitCommitFormat = releaseNotes.Notes |> Seq.map(sprintf "* %s\n") |> String.concat ""
+    let releaseNotesGitCommitFormat = releaseNotes.ToString()
 
     Git.Staging.stageAll ""
-    Git.Commit.exec "" (sprintf "Bump version to %s \n%s" releaseNotes.NugetVersion releaseNotesGitCommitFormat)
+    Git.Commit.exec "" (sprintf "Bump version to %s \n%s" releaseNotes.NuGetVersion releaseNotesGitCommitFormat)
     Git.Branches.push ""
 
-    Git.Branches.tag "" releaseNotes.NugetVersion
-    Git.Branches.pushTag "" "origin" releaseNotes.NugetVersion
+    Git.Branches.tag "" releaseNotes.NuGetVersion
+    Git.Branches.pushTag "" "origin" releaseNotes.NuGetVersion
 
 let githubRelease _ =
     let token =
@@ -393,7 +394,7 @@ let githubRelease _ =
     let files = !! distGlob
 
     GitHub.createClientWithToken token
-    |> GitHub.draftNewRelease gitOwner gitRepoName releaseNotes.NugetVersion (releaseNotes.SemVer.PreRelease <> None) releaseNotes.Notes
+    |> GitHub.draftNewRelease gitOwner gitRepoName releaseNotes.NuGetVersion (releaseNotes.SemVer.PreRelease <> None) (releaseNotes.ToString() |> Seq.singleton)
     |> GitHub.uploadFiles files
     |> GitHub.publishDraft
     |> Async.RunSynchronously
@@ -439,7 +440,7 @@ let releaseDocs ctx =
     isReleaseBranchCheck ()
 
     Git.Staging.stageAll docsDir
-    Git.Commit.exec "" (sprintf "Documentation release of version %s" releaseNotes.NugetVersion)
+    Git.Commit.exec "" (sprintf "Documentation release of version %s" releaseNotes.NuGetVersion)
     if isRelease (ctx.Context.AllExecutingTargets) |> not then
         // We only want to push if we're only calling "ReleaseDocs" target
         // If we're calling "Release" target, we'll let the "GitRelease" target do the git push
