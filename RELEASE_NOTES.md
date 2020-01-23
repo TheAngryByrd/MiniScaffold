@@ -1,3 +1,8 @@
+### 0.22.4 - 2020-01-22
+* BUGFIX: Ensures github actions run on pull requests (https://github.com/TheAngryByrd/MiniScaffold/pull/177)
+* BUGFIX: Fixes Directory.Build.props inheritance in src and test folders(https://github.com/TheAngryByrd/MiniScaffold/pull/178)
+* BUGFIX: Fixes references with spaces in docsTool and updated to netcoreapp3.1 (https://github.com/TheAngryByrd/MiniScaffold/pull/179)
+
 ### 0.22.3 - 2020-01-14
 * BUGFIX: Typo in README (https://github.com/TheAngryByrd/MiniScaffold/pull/170) (https://github.com/TheAngryByrd/MiniScaffold/pull/171)
 
