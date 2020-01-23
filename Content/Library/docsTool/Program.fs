@@ -586,5 +586,6 @@ let main argv =
             WebServer.serveDocs config.DocsOutputDirectory.FullName
         0
     with e ->
+        printfn "Fatal error: %A" e
         eprintfn "Fatal error: %A" e
         1
