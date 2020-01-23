@@ -5,11 +5,8 @@ namespace MiniScaffold.Tests
 module Tests =
     open System
     open Fake.Core
-    open Fake.DotNet
     open Expecto
     open Infrastructure
-    open Expecto.Logging
-    open Fake.SystemHelper
 
     let logger = Expecto.Logging.Log.create "setup"
     let nugetPkgName =  "MiniScaffold"
@@ -36,54 +33,49 @@ module Tests =
 
         Dotnet.New.uninstall nugetPkgName
         Dotnet.New.install nugetPkgPath
-    let executeBuild workingDir testTarget =
-        let cmd, args =
-            if Environment.isUnix then
-                "bash", [
-                    sprintf "./build.sh"
-                    testTarget
-                ]
-            else
-                "cmd.exe", [
-                    "/c"
-                    ".\\build.cmd"
-                    testTarget
-                ]
-        // printfn "running %s" cmd
-        let result =
-            CreateProcess.fromRawCommand cmd args
-            |> CreateProcess.withWorkingDirectory workingDir
-            |> CreateProcess.ensureExitCode
-            |> Proc.run
-        ()
+
+
+
 
     let commonAsserts = [
+        Assert.``.editorconfig exists``
+        Assert.``.gitattributes exists``
         Assert.``paket.dependencies exists``
         Assert.``paket.lock exists``
     ]
 
     [<Tests>]
     let tests =
-        testSequenced <|
+        // testSequenced <| // uncomment to get better logs
         testList "samples" [
             do setup ()
             yield! [
-                "-n MyCoolLib --githubUsername CoolPersonNo2", "DotnetPack", [yield! commonAsserts]
+                "-n MyCoolLib --githubUsername CoolPersonNo2", [
+                    yield! commonAsserts
+                    Assert.``project can build target`` "DotnetPack"
+                    Assert.``project can build target`` "BuildDocs"
+                    ]
                 // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
-                "-n fsharp-data-sample --githubUsername CoolPersonNo2", "DotnetPack", [yield! commonAsserts]
-                "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console", "CreatePackages", [yield! commonAsserts]
+                "-n fsharp-data-sample --githubUsername CoolPersonNo2", [
+                    yield! commonAsserts
+                    Assert.``project can build target`` "DotnetPack"
+                    ]
+                "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console", [
+                    yield! commonAsserts
+                    Assert.``project can build target`` "CreatePackages"
+                    ]
 
-            ] |> Seq.map(fun (args,target, additionalAsserts) -> testCase args <| fun _ ->
+            ] |> Seq.map(fun (args, additionalAsserts) -> testCase args <| fun _ ->
                 use d = Disposables.DisposableDirectory.Create()
                 let newArgs = [
                     sprintf "mini-scaffold -lang F# %s" args
                 ]
                 Dotnet.New.cmd (fun opt -> { opt with WorkingDirectory = d.Directory}) newArgs
+
+                // The project we just generated is the only one in here
                 let projectDir =
                     d.DirectoryInfo.GetDirectories ()
                     |> Seq.head
-
-                executeBuild projectDir.FullName target
 
                 additionalAsserts
                 |> Seq.iter(fun asserter -> asserter projectDir)
