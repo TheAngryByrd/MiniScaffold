@@ -1,6 +1,7 @@
 namespace Infrastructure
 
 
+
 module Dotnet =
     open Fake.Core
     open Fake.DotNet
@@ -46,3 +47,26 @@ module Disposables =
         interface IDisposable with
             member x.Dispose() =
                 IO.Directory.Delete(x.Directory, true)
+
+module Builds =
+    open Fake.Core
+    let executeBuild workingDir testTarget =
+        let cmd, args =
+            if Environment.isUnix then
+                "bash", [
+                    sprintf "./build.sh"
+                    testTarget
+                ]
+            else
+                "cmd.exe", [
+                    "/c"
+                    ".\\build.cmd"
+                    testTarget
+                ]
+        // printfn "running %s" cmd
+        let result =
+            CreateProcess.fromRawCommand cmd args
+            |> CreateProcess.withWorkingDirectory workingDir
+            |> CreateProcess.ensureExitCode
+            |> Proc.run
+        ()
