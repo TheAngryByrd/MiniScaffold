@@ -525,62 +525,66 @@ open Fake.IO.Globbing.Operators
 open DocsTool.CLIArgs
 [<EntryPoint>]
 let main argv =
-    use tempDocsOutDir = DisposableDirectory.Create()
-    use __ = AppDomain.CurrentDomain.ProcessExit.Subscribe(fun _ ->
-        dispose tempDocsOutDir
-    )
-    use __ = Console.CancelKeyPress.Subscribe(fun _ ->
-        dispose tempDocsOutDir
-    )
-    let defaultConfig = {
-        SiteBaseUrl = Uri(sprintf "http://%s:%d/" WebServer.hostname WebServer.port )
-        GitHubRepoUrl = Uri "https://github.com"
-        RepositoryRoot = IO.DirectoryInfo (__SOURCE_DIRECTORY__ @@ "..")
-        DocsOutputDirectory = tempDocsOutDir.DirectoryInfo
-        DocsSourceDirectory = IO.DirectoryInfo "docsSrc"
-        ProjectName = ""
-        ProjectFilesGlob = !! ""
-        ReleaseVersion = "0.1.0"
-    }
+    try
+        use tempDocsOutDir = DisposableDirectory.Create()
+        use __ = AppDomain.CurrentDomain.ProcessExit.Subscribe(fun _ ->
+            dispose tempDocsOutDir
+        )
+        use __ = Console.CancelKeyPress.Subscribe(fun _ ->
+            dispose tempDocsOutDir
+        )
+        let defaultConfig = {
+            SiteBaseUrl = Uri(sprintf "http://%s:%d/" WebServer.hostname WebServer.port )
+            GitHubRepoUrl = Uri "https://github.com"
+            RepositoryRoot = IO.DirectoryInfo (__SOURCE_DIRECTORY__ @@ "..")
+            DocsOutputDirectory = tempDocsOutDir.DirectoryInfo
+            DocsSourceDirectory = IO.DirectoryInfo "docsSrc"
+            ProjectName = ""
+            ProjectFilesGlob = !! ""
+            ReleaseVersion = "0.1.0"
+        }
 
-    let errorHandler = ProcessExiter(colorizer = function ErrorCode.HelpText -> None | _ -> Some ConsoleColor.Red)
-    let programName =
-        let name = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name
-        if Fake.Core.Environment.isWindows then
-            sprintf "%s.exe" name
-        else
-            name
+        let errorHandler = ProcessExiter(colorizer = function ErrorCode.HelpText -> None | _ -> Some ConsoleColor.Red)
+        let programName =
+            let name = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name
+            if Fake.Core.Environment.isWindows then
+                sprintf "%s.exe" name
+            else
+                name
 
 
 
-    let parser = ArgumentParser.Create<CLIArguments>(programName = programName, errorHandler = errorHandler)
-    let parsedArgs = parser.Parse argv
-    match parsedArgs.GetSubCommand() with
-    | Build args ->
-        let config =
-            (defaultConfig, args.GetAllResults())
-            ||> List.fold(fun state next ->
-                match next with
-                | BuildArgs.SiteBaseUrl url ->  { state with SiteBaseUrl = Uri url }
-                | BuildArgs.ProjectGlob glob -> { state with ProjectFilesGlob = !! glob}
-                | BuildArgs.DocsOutputDirectory outdir -> { state with DocsOutputDirectory = IO.DirectoryInfo outdir}
-                | BuildArgs.DocsSourceDirectory srcdir -> { state with DocsSourceDirectory = IO.DirectoryInfo srcdir}
-                | BuildArgs.GitHubRepoUrl url -> { state with GitHubRepoUrl = Uri url}
-                | BuildArgs.ProjectName repo -> { state with ProjectName = repo}
-                | BuildArgs.ReleaseVersion version -> { state with ReleaseVersion = version}
-            )
-        GenerateDocs.renderDocs config
-    | Watch args ->
-        let config =
-            (defaultConfig, args.GetAllResults())
-            ||> List.fold(fun state next ->
-                match next with
-                | WatchArgs.ProjectGlob glob -> {state with ProjectFilesGlob = !! glob}
-                | WatchArgs.DocsSourceDirectory srcdir -> { state with DocsSourceDirectory = IO.DirectoryInfo srcdir}
-                | WatchArgs.GitHubRepoUrl url -> { state with GitHubRepoUrl = Uri url}
-                | WatchArgs.ProjectName repo -> { state with ProjectName = repo}
-                | WatchArgs.ReleaseVersion version -> { state with ReleaseVersion = version}
-            )
-        use ds = GenerateDocs.watchDocs config
-        WebServer.serveDocs config.DocsOutputDirectory.FullName
-    0 // return an integer exit code
+        let parser = ArgumentParser.Create<CLIArguments>(programName = programName, errorHandler = errorHandler)
+        let parsedArgs = parser.Parse argv
+        match parsedArgs.GetSubCommand() with
+        | Build args ->
+            let config =
+                (defaultConfig, args.GetAllResults())
+                ||> List.fold(fun state next ->
+                    match next with
+                    | BuildArgs.SiteBaseUrl url ->  { state with SiteBaseUrl = Uri url }
+                    | BuildArgs.ProjectGlob glob -> { state with ProjectFilesGlob = !! glob}
+                    | BuildArgs.DocsOutputDirectory outdir -> { state with DocsOutputDirectory = IO.DirectoryInfo outdir}
+                    | BuildArgs.DocsSourceDirectory srcdir -> { state with DocsSourceDirectory = IO.DirectoryInfo srcdir}
+                    | BuildArgs.GitHubRepoUrl url -> { state with GitHubRepoUrl = Uri url}
+                    | BuildArgs.ProjectName repo -> { state with ProjectName = repo}
+                    | BuildArgs.ReleaseVersion version -> { state with ReleaseVersion = version}
+                )
+            GenerateDocs.renderDocs config
+        | Watch args ->
+            let config =
+                (defaultConfig, args.GetAllResults())
+                ||> List.fold(fun state next ->
+                    match next with
+                    | WatchArgs.ProjectGlob glob -> {state with ProjectFilesGlob = !! glob}
+                    | WatchArgs.DocsSourceDirectory srcdir -> { state with DocsSourceDirectory = IO.DirectoryInfo srcdir}
+                    | WatchArgs.GitHubRepoUrl url -> { state with GitHubRepoUrl = Uri url}
+                    | WatchArgs.ProjectName repo -> { state with ProjectName = repo}
+                    | WatchArgs.ReleaseVersion version -> { state with ReleaseVersion = version}
+                )
+            use ds = GenerateDocs.watchDocs config
+            WebServer.serveDocs config.DocsOutputDirectory.FullName
+        0
+    with e ->
+        eprintfn "Fatal error: %A" e
+        1
