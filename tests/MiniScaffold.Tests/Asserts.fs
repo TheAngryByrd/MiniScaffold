@@ -13,21 +13,51 @@ module Assert =
         | None -> failtest msg
 
     let private tryFindFile file (d : DirectoryInfo) =
-        d.GetFiles()
-        |> Seq.tryFind(fun x -> x.Name = file)
-        |> failIfNoneWithMsg (sprintf "Could not find %s in %s" file d.FullName)
+        let filepath = Path.Combine(d.FullName, file)
+        if  filepath |> File.Exists |> not then
+            failtestf "Could not find %s" filepath
 
     let ``project can build target`` target (d : DirectoryInfo) =
         Builds.executeBuild d.FullName target
 
-    let ``.editorconfig exists`` (d : DirectoryInfo) =
-        tryFindFile ".editorconfig" d
+    let ``.config/dotnet-tools.json exists`` =
+        tryFindFile ".config/dotnet-tools.json"
 
-    let ``.gitattributes exists`` (d : DirectoryInfo) =
-        tryFindFile ".gitattributes" d
+    let ``.github ISSUE_TEMPLATE bug_report exists`` =
+        tryFindFile ".github/ISSUE_TEMPLATE/bug_report.md"
 
-    let ``paket.lock exists`` (d : DirectoryInfo) =
-        tryFindFile "paket.lock" d
+    let ``.github ISSUE_TEMPLATE feature_request exists`` =
+        tryFindFile ".github/ISSUE_TEMPLATE/feature_request.md"
 
-    let ``paket.dependencies exists`` (d : DirectoryInfo) =
-        tryFindFile "paket.dependencies" d
+    let ``.github workflows build exists`` =
+        tryFindFile ".github/workflows/build.yml"
+
+    let ``.github ISSUE_TEMPLATE exists`` =
+        tryFindFile ".github/ISSUE_TEMPLATE.md"
+
+    let ``.github PULL_REQUEST_TEMPLATE exists`` =
+        tryFindFile ".github/PULL_REQUEST_TEMPLATE.md"
+
+    let ``.editorconfig exists`` =
+        tryFindFile ".editorconfig"
+
+    let ``.gitattributes exists`` =
+        tryFindFile ".gitattributes"
+
+    let ``.gitignore exists`` =
+        tryFindFile ".gitignore"
+
+    let ``LICENSE exists`` =
+        tryFindFile "LICENSE.md"
+
+    let ``paket.lock exists`` =
+        tryFindFile "paket.lock"
+
+    let ``paket.dependencies exists`` =
+        tryFindFile "paket.dependencies"
+
+    let ``README exists`` =
+        tryFindFile "README.md"
+
+    let ``RELEASE_NOTES exists`` =
+        tryFindFile "RELEASE_NOTES.md"

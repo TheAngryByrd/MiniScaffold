@@ -37,11 +37,21 @@ module Tests =
 
 
 
-    let commonAsserts = [
+    let projectStructureAsserts = [
+        Assert.``.config/dotnet-tools.json exists``
+        Assert.``.github ISSUE_TEMPLATE bug_report exists``
+        Assert.``.github ISSUE_TEMPLATE feature_request exists``
+        Assert.``.github workflows build exists``
+        Assert.``.github ISSUE_TEMPLATE exists``
+        Assert.``.github PULL_REQUEST_TEMPLATE exists``
         Assert.``.editorconfig exists``
         Assert.``.gitattributes exists``
+        Assert.``.gitignore exists``
+        Assert.``LICENSE exists``
         Assert.``paket.dependencies exists``
         Assert.``paket.lock exists``
+        Assert.``README exists``
+        Assert.``RELEASE_NOTES exists``
     ]
 
     [<Tests>]
@@ -51,17 +61,17 @@ module Tests =
             do setup ()
             yield! [
                 "-n MyCoolLib --githubUsername CoolPersonNo2", [
-                    yield! commonAsserts
+                    yield! projectStructureAsserts
                     Assert.``project can build target`` "DotnetPack"
                     Assert.``project can build target`` "BuildDocs"
                     ]
                 // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
                 "-n fsharp-data-sample --githubUsername CoolPersonNo2", [
-                    yield! commonAsserts
+                    yield! projectStructureAsserts
                     Assert.``project can build target`` "DotnetPack"
                     ]
                 "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console", [
-                    yield! commonAsserts
+                    yield! projectStructureAsserts
                     Assert.``project can build target`` "CreatePackages"
                     ]
 
