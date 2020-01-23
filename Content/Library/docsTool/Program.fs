@@ -234,7 +234,7 @@ module GenerateDocs =
                     libDirs
                     |> Array.map(fun fi -> fi.DirectoryName)
                     |> Array.distinct
-                    |> Array.map(sprintf "-I:%s")
+                    |> Array.map(sprintf "-I:\"%s\"")
                 let runtimeDeps =
                     [|
                         "-r:System.Runtime"
@@ -305,8 +305,7 @@ module GenerateDocs =
         let generate (projInfo :  ProjInfo.ProjInfo) =
             Trace.tracefn "Generating API Docs for %s" projInfo.TargetPath.FullName
             let mscorlibDir =
-                (Uri(typedefof<System.Runtime.MemoryFailPoint>.GetType().Assembly.CodeBase)) //Find runtime dll
-                    .AbsolutePath // removes file protocol from path
+                (typedefof<System.Runtime.MemoryFailPoint>.GetType().Assembly.Location) //Find runtime dll]
                     |> Path.GetDirectoryName
             let references =
                 projInfo.References
@@ -315,7 +314,6 @@ module GenerateDocs =
                 |> List.distinct
             let libDirs = mscorlibDir :: references
             let targetApiDir = docsApiDir cfg.DocsOutputDirectory.FullName @@ IO.Path.GetFileNameWithoutExtension(projInfo.TargetPath.Name)
-
             let generatorOutput =
                 MetadataFormat.Generate(
                     projInfo.TargetPath.FullName,
@@ -586,6 +584,5 @@ let main argv =
             WebServer.serveDocs config.DocsOutputDirectory.FullName
         0
     with e ->
-        printfn "Fatal error: %A" e
         eprintfn "Fatal error: %A" e
         1
