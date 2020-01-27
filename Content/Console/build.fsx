@@ -4,6 +4,7 @@
 #r "netstandard"
 #endif
 open System
+open System.Text.RegularExpressions
 open Fake.SystemHelper
 open Fake.Core
 open Fake.DotNet
@@ -74,9 +75,13 @@ let coverageReportDir =  __SOURCE_DIRECTORY__  @@ "docs" @@ "coverage"
 let gitOwner = "MyGithubUsername"
 let gitRepoName = "MyLib.1"
 
+let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
+
 let releaseBranch = "master"
-let changelog = Fake.Core.Changelog.load "CHANGELOG.md"
-let releaseNotes = changelog.LatestEntry
+
+let changelogFilename = "CHANGELOG.md"
+let changelog = Fake.Core.Changelog.load changelogFilename
+let mutable latestEntry = changelog.LatestEntry
 
 let targetFramework =  "netcoreapp3.1"
 
@@ -167,7 +172,7 @@ let dotnetRestore _ =
     |> Seq.map(fun dir -> fun () ->
         let args =
             [
-                sprintf "/p:PackageVersion=%s" releaseNotes.NuGetVersion
+                sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
             ]
         DotNet.restore(fun c ->
             { c with
@@ -180,7 +185,7 @@ let dotnetRestore _ =
 let dotnetBuild ctx =
     let args =
         [
-            sprintf "/p:PackageVersion=%s" releaseNotes.NuGetVersion
+            sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
             "--no-restore"
         ]
     DotNet.build(fun c ->
@@ -273,16 +278,16 @@ let generateAssemblyInfo _ =
         | _                           -> failwith (sprintf "Project file %s not supported. Unknown project type." projFileName)
 
     let releaseChannel =
-        match releaseNotes.SemVer.PreRelease with
+        match latestEntry.SemVer.PreRelease with
         | Some pr -> pr.Name
         | _ -> "release"
     let getAssemblyInfoAttributes projectName =
         [ AssemblyInfo.Title (projectName)
           AssemblyInfo.Product productName
-          AssemblyInfo.Version releaseNotes.AssemblyVersion
-          AssemblyInfo.Metadata("ReleaseDate", releaseNotes.Date.Value.ToString("o"))
-          AssemblyInfo.FileVersion releaseNotes.AssemblyVersion
-          AssemblyInfo.InformationalVersion releaseNotes.AssemblyVersion
+          AssemblyInfo.Version latestEntry.AssemblyVersion
+          AssemblyInfo.Metadata("ReleaseDate", latestEntry.Date.Value.ToString("o"))
+          AssemblyInfo.FileVersion latestEntry.AssemblyVersion
+          AssemblyInfo.InformationalVersion latestEntry.AssemblyVersion
           AssemblyInfo.Metadata("ReleaseChannel", releaseChannel)
           AssemblyInfo.Metadata("GitHash", Git.Information.getCurrentSHA1(null))
         ]
@@ -315,8 +320,8 @@ let createPackages _ =
                 sprintf "/p:CustomTarget=%s" packageType
                 sprintf "/p:RuntimeIdentifier=%s" runtime
                 sprintf "/p:Configuration=%s" "Release"
-                sprintf "/p:PackageVersion=%s" releaseNotes.NuGetVersion
-                sprintf "/p:PackagePath=%s" (distDir @@ (sprintf "%s-%s-%s" productName releaseNotes.NuGetVersion runtime ))
+                sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
+                sprintf "/p:PackagePath=%s" (distDir @@ (sprintf "%s-%s-%s" productName latestEntry.NuGetVersion runtime ))
             ] |> String.concat " "
 
         DotNet.exec (fun opt ->
@@ -329,14 +334,14 @@ let createPackages _ =
 let gitRelease _ =
     isReleaseBranchCheck ()
 
-    let releaseNotesGitCommitFormat = releaseNotes.ToString()
+    let releaseNotesGitCommitFormat = latestEntry.ToString()
 
     Git.Staging.stageAll ""
-    Git.Commit.exec "" (sprintf "Bump version to %s \n%s" releaseNotes.NuGetVersion releaseNotesGitCommitFormat)
+    Git.Commit.exec "" (sprintf "Bump version to %s \n%s" latestEntry.NuGetVersion releaseNotesGitCommitFormat)
     Git.Branches.push ""
 
-    Git.Branches.tag "" releaseNotes.NuGetVersion
-    Git.Branches.pushTag "" "origin" releaseNotes.NuGetVersion
+    Git.Branches.tag "" latestEntry.NuGetVersion
+    Git.Branches.pushTag "" "origin" latestEntry.NuGetVersion
 
 let githubRelease _ =
     let token =
@@ -347,7 +352,7 @@ let githubRelease _ =
     let files = distGlob
 
     GitHub.createClientWithToken token
-    |> GitHub.draftNewRelease gitOwner gitRepoName releaseNotes.NuGetVersion (releaseNotes.SemVer.PreRelease <> None) (releaseNotes.ToString() |> Seq.singleton)
+    |> GitHub.draftNewRelease gitOwner gitRepoName latestEntry.NuGetVersion (latestEntry.SemVer.PreRelease <> None) (latestEntry.ToString() |> Seq.singleton)
     |> GitHub.uploadFiles files
     |> GitHub.publishDraft
     |> Async.RunSynchronously
@@ -369,6 +374,129 @@ let formatCode _ =
             Trace.logfn "Formatted %s" original
         | _ -> ()
     )
+
+let getLinkReference s =
+        let m = Regex.Match(s, @"^\[(.+)\]:\s?([a-z]+://.*)$")
+        if m.Success && m.Groups.Count > 2 then
+            let versionStr = m.Groups.[1].Value
+            let url = m.Groups.[2].Value
+            Some url  // Could be Some (versionStr, url) if we end up wanting to preserve the associated version, but probably not
+        else
+            None
+
+let findLinkReferences (change : Changelog.Change) =
+    let parts = change.ToString().Split([|": "|], 2, StringSplitOptions.None)
+    Trace.tracefn "Parts: %A" parts
+    if parts.Length < 2 then None
+    else
+        let header = parts.[0]
+        parts.[1] |> getLinkReference |> Option.map (fun s -> Some header, s)
+
+let addLinkReferenceToChangesOrDescription (linkReference : string) (changes : Changelog.Change list) (description : string option) =
+    let links =
+        if not (changes |> List.isEmpty) then
+            changes |> List.choose findLinkReferences
+        else
+            match description with
+            | Some s ->
+                let lines = s.Split([|String.WindowsLineBreaks; String.LinuxLineBreaks; String.MacLineBreaks|], StringSplitOptions.None)
+                lines |> Array.choose getLinkReference |> List.ofArray |> List.map (fun link -> (None, link))
+            | None ->
+                []  // A completely empty entry means we won't find any links here
+    if links |> List.isEmpty then
+        changes, description  // If we can't tell whereChangelog.Change.New to add the links, don't add them
+    else
+        // Find the header with the most links, which should be the one to add the new one to
+        let header = links |> List.countBy fst |> List.sortByDescending snd |> List.tryHead |> Option.bind fst
+        match header with
+        | Some section ->
+            let newChanges = changes @ [Changelog.Change.New(section, linkReference)]
+            newChanges, description
+        | None ->  // No header means it was in the description
+            let newDescription =
+                match description with
+                | Some desc -> sprintf "%s\n%s" (desc.TrimEnd()) linkReference
+                | None -> linkReference
+            changes, Some newDescription
+
+let isEmptyChange = function
+    | Changelog.Change.Added s
+    | Changelog.Change.Changed s
+    | Changelog.Change.Deprecated s
+    | Changelog.Change.Fixed s
+    | Changelog.Change.Removed s
+    | Changelog.Change.Security s
+    | Changelog.Change.Custom (_, s) ->
+        String.IsNullOrWhiteSpace s.CleanedText
+
+let addLinkReference (newVersion : SemVerInfo) (changelog : Changelog.Changelog) =
+    if changelog.Entries |> List.isEmpty then
+        // No actual changelog entries yet: Add the link reference to the Unreleased section, if one exists; if one doesn't, then create one with a "## Changed" section
+        let linkReference = sprintf "[%s]: %s/releases/tag/v%s" newVersion.AsString gitHubRepoUrl newVersion.AsString
+        match changelog.Unreleased with
+        | None ->
+            { changelog with Unreleased = Changelog.Unreleased.New(None, [Changelog.Change.New("Changed", linkReference)]) }
+        | Some u ->
+            let changes, description = addLinkReferenceToChangesOrDescription linkReference u.Changes u.Description
+            { changelog with Unreleased = Changelog.Unreleased.New(description, changes) }
+    else
+        let versionTuple version = (version.Major, version.Minor, version.Patch)
+        // Changelog entries come already sorted, most-recent first, by the Changelog module
+        let prevEntry = changelog.Entries |> List.skipWhile (fun entry -> entry.SemVer.PreRelease.IsSome && versionTuple entry.SemVer = versionTuple newVersion) |> List.tryHead
+        let linkTarget =
+            match prevEntry with
+            | Some entry -> sprintf "%s/compare/v%s...v%s" gitHubRepoUrl entry.SemVer.AsString newVersion.AsString
+            | None -> sprintf "%s/releases/tag/v%s" gitHubRepoUrl newVersion.AsString
+        let linkReference = sprintf "[%s]: %s" newVersion.AsString linkTarget
+        let oldestEntry = changelog.Entries |> List.last
+        let changes, description = addLinkReferenceToChangesOrDescription linkReference oldestEntry.Changes oldestEntry.Description
+        let newEntry = { oldestEntry with Changes = changes; Description = description }
+        let entries = (newEntry :: (changelog.Entries |> List.rev |> List.tail)) |> List.rev  // This replaces the last entry
+        { changelog with Entries = entries }
+
+let getVersionNumber envVarName ctx =
+    let args = ctx.Context.Arguments
+    let verArg =
+        args
+        |> List.tryHead
+        |> Option.defaultWith (fun () -> Environment.environVarOrDefault envVarName "")
+    if SemVer.isValid verArg then verArg
+    elif verArg.StartsWith("v") && SemVer.isValid verArg.[1..] then
+        let target = ctx.Context.FinalTarget
+        Trace.traceImportantfn "Please specify a version number without leading 'v' next time, e.g. \"./build.sh %s %s\" rather than \"./build.sh %s %s\"" target verArg.[1..] target verArg
+        verArg.[1..]
+    elif String.isNullOrEmpty verArg then
+        let target = ctx.Context.FinalTarget
+        Trace.traceErrorfn "Please specify a version number, either at the command line (\"./build.sh %s 1.0.0\") or in the VERSION_NUMBER environment variable" target
+        failwith "No version number found"
+    else
+        Trace.traceErrorfn "Please specify a valid version number: %A could not be recognized as a version number" verArg
+        failwith "Invalid version number"
+
+let promoteChangelog ctx =
+    let verStr = ctx |> getVersionNumber "VERSION_NUMBER" // TODO: Pick a name for the environment variable
+    let newVersion = SemVer.parse verStr
+    let entries = changelog.Entries
+    let versionTuple version = (version.Major, version.Minor, version.Patch)
+    let entriesMatchingThis = entries |> List.filter (fun entry -> entry.SemVer.PreRelease.IsSome && versionTuple entry.SemVer = versionTuple newVersion)
+    let desciption, changesForThisVersion =
+        match changelog.Unreleased with
+        | None -> None, []
+        | Some u -> u.Description, u.Changes
+        // Or:
+        // match changelog.Unreleased with
+        // | None -> sprintf "Released version %s" newVersion.AsString |> Some, []
+        // | Some u -> sprintf "Released version %s\n\n%s" newVersion.AsString u.Description.Value |> Some, u.Changes
+    let allChanges = entriesMatchingThis |> List.collect (fun entry -> entry.Changes |> List.filter (not << isEmptyChange))
+    let assemblyVersion, nugetVersion = Changelog.parseVersions newVersion.AsString
+    let newMinimalEntry = Changelog.ChangelogEntry.New(assemblyVersion.Value, nugetVersion.Value, Some System.DateTime.Today, desciption, changesForThisVersion, false)
+    let newVerboseEntry = Changelog.ChangelogEntry.New(assemblyVersion.Value, nugetVersion.Value, Some System.DateTime.Today, desciption, changesForThisVersion @ allChanges, false)
+    let newChangelog = Changelog.Changelog.New(changelog.Header, changelog.Description, None, newMinimalEntry :: changelog.Entries)
+    // Or: let newChangelog = Changelog.Changelog.New(changelog.Header, changelog.Description, None, newVerboseEntry :: changelog.Entries)
+    latestEntry <- newVerboseEntry
+    newChangelog
+    |> addLinkReference newVersion
+    |> Changelog.save changelogFilename
 
 //-----------------------------------------------------------------------------
 // Target Declaration
