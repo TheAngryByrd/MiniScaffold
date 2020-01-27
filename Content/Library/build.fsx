@@ -5,7 +5,6 @@
 #r "netstandard"
 #endif
 open System
-open System.Text.RegularExpressions
 open Fake.SystemHelper
 open Fake.Core
 open Fake.DotNet
@@ -449,50 +448,6 @@ let releaseDocs ctx =
         // If we're calling "Release" target, we'll let the "GitRelease" target do the git push
         Git.Branches.push ""
 
-let getLinkReference s =
-        let m = Regex.Match(s, @"^\[(.+)\]:\s?([a-z]+://.*)$")
-        if m.Success && m.Groups.Count > 2 then
-            let versionStr = m.Groups.[1].Value
-            let url = m.Groups.[2].Value
-            Some url  // Could be Some (versionStr, url) if we end up wanting to preserve the associated version, but probably not
-        else
-            None
-
-let findLinkReferences (change : Changelog.Change) =
-    let parts = change.ToString().Split([|": "|], 2, StringSplitOptions.None)
-    Trace.tracefn "Parts: %A" parts
-    if parts.Length < 2 then None
-    else
-        let header = parts.[0]
-        parts.[1] |> getLinkReference |> Option.map (fun s -> Some header, s)
-
-let addLinkReferenceToChangesOrDescription (linkReference : string) (changes : Changelog.Change list) (description : string option) =
-    let links =
-        if not (changes |> List.isEmpty) then
-            changes |> List.choose findLinkReferences
-        else
-            match description with
-            | Some s ->
-                let lines = s.Split([|String.WindowsLineBreaks; String.LinuxLineBreaks; String.MacLineBreaks|], StringSplitOptions.None)
-                lines |> Array.choose getLinkReference |> List.ofArray |> List.map (fun link -> (None, link))
-            | None ->
-                []  // A completely empty entry means we won't find any links here
-    if links |> List.isEmpty then
-        changes, description  // If we can't tell whereChangelog.Change.New to add the links, don't add them
-    else
-        // Find the header with the most links, which should be the one to add the new one to
-        let header = links |> List.countBy fst |> List.sortByDescending snd |> List.tryHead |> Option.bind fst
-        match header with
-        | Some section ->
-            let newChanges = changes @ [Changelog.Change.New(section, linkReference)]
-            newChanges, description
-        | None ->  // No header means it was in the description
-            let newDescription =
-                match description with
-                | Some desc -> sprintf "%s\n%s" (desc.TrimEnd()) linkReference
-                | None -> linkReference
-            changes, Some newDescription
-
 let isEmptyChange = function
     | Changelog.Change.Added s
     | Changelog.Change.Changed s
@@ -503,16 +458,10 @@ let isEmptyChange = function
     | Changelog.Change.Custom (_, s) ->
         String.IsNullOrWhiteSpace s.CleanedText
 
-let addLinkReference (newVersion : SemVerInfo) (changelog : Changelog.Changelog) =
+let mkLinkReference (newVersion : SemVerInfo) (changelog : Changelog.Changelog) =
     if changelog.Entries |> List.isEmpty then
         // No actual changelog entries yet: Add the link reference to the Unreleased section, if one exists; if one doesn't, then create one with a "## Changed" section
-        let linkReference = sprintf "[%s]: %s/releases/tag/v%s" newVersion.AsString gitHubRepoUrl newVersion.AsString
-        match changelog.Unreleased with
-        | None ->
-            { changelog with Unreleased = Changelog.Unreleased.New(None, [Changelog.Change.New("Changed", linkReference)]) }
-        | Some u ->
-            let changes, description = addLinkReferenceToChangesOrDescription linkReference u.Changes u.Description
-            { changelog with Unreleased = Changelog.Unreleased.New(description, changes) }
+        sprintf "[%s]: %s/releases/tag/v%s" newVersion.AsString gitHubRepoUrl newVersion.AsString
     else
         let versionTuple version = (version.Major, version.Minor, version.Patch)
         // Changelog entries come already sorted, most-recent first, by the Changelog module
@@ -521,12 +470,7 @@ let addLinkReference (newVersion : SemVerInfo) (changelog : Changelog.Changelog)
             match prevEntry with
             | Some entry -> sprintf "%s/compare/v%s...v%s" gitHubRepoUrl entry.SemVer.AsString newVersion.AsString
             | None -> sprintf "%s/releases/tag/v%s" gitHubRepoUrl newVersion.AsString
-        let linkReference = sprintf "[%s]: %s" newVersion.AsString linkTarget
-        let oldestEntry = changelog.Entries |> List.last
-        let changes, description = addLinkReferenceToChangesOrDescription linkReference oldestEntry.Changes oldestEntry.Description
-        let newEntry = { oldestEntry with Changes = changes; Description = description }
-        let entries = (newEntry :: (changelog.Entries |> List.rev |> List.tail)) |> List.rev  // This replaces the last entry
-        { changelog with Entries = entries }
+        sprintf "[%s]: %s" newVersion.AsString linkTarget
 
 let getVersionNumber envVarName ctx =
     let args = ctx.Context.Arguments
@@ -563,14 +507,16 @@ let promoteChangelog ctx =
         // | Some u -> sprintf "Released version %s\n\n%s" newVersion.AsString u.Description.Value |> Some, u.Changes
     let allChanges = entriesMatchingThis |> List.collect (fun entry -> entry.Changes |> List.filter (not << isEmptyChange))
     let assemblyVersion, nugetVersion = Changelog.parseVersions newVersion.AsString
+    let linkReference = mkLinkReference newVersion changelog
     let newMinimalEntry = Changelog.ChangelogEntry.New(assemblyVersion.Value, nugetVersion.Value, Some System.DateTime.Today, desciption, changesForThisVersion, false)
     let newVerboseEntry = Changelog.ChangelogEntry.New(assemblyVersion.Value, nugetVersion.Value, Some System.DateTime.Today, desciption, changesForThisVersion @ allChanges, false)
     let newChangelog = Changelog.Changelog.New(changelog.Header, changelog.Description, None, newMinimalEntry :: changelog.Entries)
     // Or: let newChangelog = Changelog.Changelog.New(changelog.Header, changelog.Description, None, newVerboseEntry :: changelog.Entries)
     latestEntry <- newVerboseEntry
     newChangelog
-    |> addLinkReference newVersion
     |> Changelog.save changelogFilename
+    // Changelog.save doesn't write a final newline, so we add one when writing out the new link reference
+    sprintf "\n%s\n" linkReference |> File.writeString true changelogFilename
 
 
 //-----------------------------------------------------------------------------
