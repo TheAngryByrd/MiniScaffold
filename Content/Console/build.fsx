@@ -78,6 +78,8 @@ let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
 
 let releaseBranch = "master"
 
+let tagFromVersionNumber versionNumber = sprintf "v%s" versionNumber
+
 let changelogFilename = "CHANGELOG.md"
 let changelog = Fake.Core.Changelog.load changelogFilename
 let mutable latestEntry =
@@ -150,15 +152,15 @@ let isEmptyChange = function
 let mkLinkReference (newVersion : SemVerInfo) (changelog : Changelog.Changelog) =
     if changelog.Entries |> List.isEmpty then
         // No actual changelog entries yet: link reference will just point to the Git tag
-        sprintf "[%s]: %s/releases/tag/v%s" newVersion.AsString gitHubRepoUrl newVersion.AsString
+        sprintf "[%s]: %s/releases/tag/%s" newVersion.AsString gitHubRepoUrl (tagFromVersionNumber newVersion.AsString)
     else
         let versionTuple version = (version.Major, version.Minor, version.Patch)
         // Changelog entries come already sorted, most-recent first, by the Changelog module
         let prevEntry = changelog.Entries |> List.skipWhile (fun entry -> entry.SemVer.PreRelease.IsSome && versionTuple entry.SemVer = versionTuple newVersion) |> List.tryHead
         let linkTarget =
             match prevEntry with
-            | Some entry -> sprintf "%s/compare/v%s...v%s" gitHubRepoUrl entry.SemVer.AsString newVersion.AsString
-            | None -> sprintf "%s/releases/tag/v%s" gitHubRepoUrl newVersion.AsString
+            | Some entry -> sprintf "%s/compare/%s...%s" gitHubRepoUrl (tagFromVersionNumber entry.SemVer.AsString) (tagFromVersionNumber newVersion.AsString)
+            | None -> sprintf "%s/releases/tag/%s" gitHubRepoUrl (tagFromVersionNumber newVersion.AsString)
         sprintf "[%s]: %s" newVersion.AsString linkTarget
 
 let mkReleaseNotes (linkReference : string) (latestEntry : Changelog.ChangelogEntry) =
@@ -417,8 +419,10 @@ let gitRelease _ =
     Git.Commit.exec "" (sprintf "Bump version to %s\n%s" latestEntry.NuGetVersion releaseNotesGitCommitFormat)
     Git.Branches.push ""
 
-    Git.Branches.tag "" latestEntry.NuGetVersion
-    Git.Branches.pushTag "" "origin" latestEntry.NuGetVersion
+    let tag = tagFromVersionNumber latestEntry.NuGetVersion
+
+    Git.Branches.tag "" tag
+    Git.Branches.pushTag "" "origin" tag
 
 let githubRelease _ =
     let token =
