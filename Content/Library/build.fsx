@@ -83,6 +83,7 @@ let releaseBranch = "master"
 let changelogFilename = "CHANGELOG.md"
 let changelog = Fake.Core.Changelog.load changelogFilename
 let mutable latestEntry = changelog.LatestEntry
+let mutable linkReferenceForLatestEntry = ""
 
 let publishUrl = "https://www.nuget.org"
 
@@ -344,11 +345,24 @@ let generateAssemblyInfo _ =
         | Vbproj -> AssemblyInfoFile.createVisualBasic ((folderName @@ "My Project") @@ "AssemblyInfo.vb") attributes
         )
 
+let mkReleaseNotes (linkReference : string) (latestEntry : Changelog.ChangelogEntry) =
+    if String.isNullOrEmpty linkReference then latestEntry.ToString()
+    else
+        // Add link reference target to description before building release notes, since in main changelog file it's at the bottom of the file
+        let description =
+            match latestEntry.Description with
+            | None -> linkReference
+            | Some desc when desc.Contains(linkReference) -> desc
+            | Some desc -> sprintf "%s\n\n%s" (desc.Trim()) linkReference
+        { latestEntry with Description = Some description }.ToString()
+
 let dotnetPack ctx =
+    // Get release notes with properly-linked version number
+    let releaseNotes = latestEntry |> mkReleaseNotes linkReferenceForLatestEntry
     let args =
         [
             sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
-            sprintf "/p:PackageReleaseNotes=\"%s\"" (latestEntry.ToString())
+            sprintf "/p:PackageReleaseNotes=\"%s\"" releaseNotes
         ]
     DotNet.pack (fun c ->
         { c with
@@ -381,7 +395,7 @@ let gitRelease _ =
     let releaseNotesGitCommitFormat = latestEntry.ToString()
 
     Git.Staging.stageAll ""
-    Git.Commit.exec "" (sprintf "Bump version to %s \n%s" latestEntry.NuGetVersion releaseNotesGitCommitFormat)
+    Git.Commit.exec "" (sprintf "Bump version to %s\n%s" latestEntry.NuGetVersion releaseNotesGitCommitFormat)
     Git.Branches.push ""
 
     Git.Branches.tag "" latestEntry.NuGetVersion
@@ -391,12 +405,14 @@ let githubRelease _ =
     let token =
         match Environment.environVarOrDefault "GITHUB_TOKEN" "" with
         | s when not (String.IsNullOrWhiteSpace s) -> s
-        | _ -> failwith "please set the github_token environment variable to a github personal access token with repro access."
+        | _ -> failwith "please set the github_token environment variable to a github personal access token with repo access."
 
     let files = !! distGlob
+    // Get release notes with properly-linked version number
+    let releaseNotes = latestEntry |> mkReleaseNotes linkReferenceForLatestEntry
 
     GitHub.createClientWithToken token
-    |> GitHub.draftNewRelease gitOwner gitRepoName latestEntry.NuGetVersion (latestEntry.SemVer.PreRelease <> None) (latestEntry.ToString() |> Seq.singleton)
+    |> GitHub.draftNewRelease gitOwner gitRepoName latestEntry.NuGetVersion (latestEntry.SemVer.PreRelease <> None) (releaseNotes |> Seq.singleton)
     |> GitHub.uploadFiles files
     |> GitHub.publishDraft
     |> Async.RunSynchronously
@@ -485,38 +501,31 @@ let getVersionNumber envVarName ctx =
         verArg.[1..]
     elif String.isNullOrEmpty verArg then
         let target = ctx.Context.FinalTarget
-        Trace.traceErrorfn "Please specify a version number, either at the command line (\"./build.sh %s 1.0.0\") or in the VERSION_NUMBER environment variable" target
+        Trace.traceErrorfn "Please specify a version number, either at the command line (\"./build.sh %s 1.0.0\") or in the %s environment variable" target envVarName
         failwith "No version number found"
     else
         Trace.traceErrorfn "Please specify a valid version number: %A could not be recognized as a version number" verArg
         failwith "Invalid version number"
 
-let promoteChangelog ctx =
-    let verStr = ctx |> getVersionNumber "VERSION_NUMBER" // TODO: Pick a name for the environment variable
-    let newVersion = SemVer.parse verStr
-    let entries = changelog.Entries
-    let versionTuple version = (version.Major, version.Minor, version.Patch)
-    let entriesMatchingThis = entries |> List.filter (fun entry -> entry.SemVer.PreRelease.IsSome && versionTuple entry.SemVer = versionTuple newVersion)
-    let desciption, changesForThisVersion =
+let updateChangelog ctx =
+    let description, unreleasedChanges =
         match changelog.Unreleased with
         | None -> None, []
         | Some u -> u.Description, u.Changes
-        // Or:
-        // match changelog.Unreleased with
-        // | None -> sprintf "Released version %s" newVersion.AsString |> Some, []
-        // | Some u -> sprintf "Released version %s\n\n%s" newVersion.AsString u.Description.Value |> Some, u.Changes
-    let allChanges = entriesMatchingThis |> List.collect (fun entry -> entry.Changes |> List.filter (not << isEmptyChange))
+    let verStr = ctx |> getVersionNumber "RELEASE_VERSION"
+    let newVersion = SemVer.parse verStr
+    let versionTuple version = (version.Major, version.Minor, version.Patch)
+    let prereleaseEntries = changelog.Entries |> List.filter (fun entry -> entry.SemVer.PreRelease.IsSome && versionTuple entry.SemVer = versionTuple newVersion)
+    let prereleaseChanges = prereleaseEntries |> List.collect (fun entry -> entry.Changes |> List.filter (not << isEmptyChange))
     let assemblyVersion, nugetVersion = Changelog.parseVersions newVersion.AsString
-    let linkReference = mkLinkReference newVersion changelog
-    let newMinimalEntry = Changelog.ChangelogEntry.New(assemblyVersion.Value, nugetVersion.Value, Some System.DateTime.Today, desciption, changesForThisVersion, false)
-    let newVerboseEntry = Changelog.ChangelogEntry.New(assemblyVersion.Value, nugetVersion.Value, Some System.DateTime.Today, desciption, changesForThisVersion @ allChanges, false)
-    let newChangelog = Changelog.Changelog.New(changelog.Header, changelog.Description, None, newVerboseEntry :: changelog.Entries)
-    // Or: let newChangelog = Changelog.Changelog.New(changelog.Header, changelog.Description, None, newMinimalEntry :: changelog.Entries)
-    latestEntry <- newVerboseEntry
+    linkReferenceForLatestEntry <- mkLinkReference newVersion changelog
+    let newEntry = Changelog.ChangelogEntry.New(assemblyVersion.Value, nugetVersion.Value, Some System.DateTime.Today, description, unreleasedChanges @ prereleaseChanges, false)
+    let newChangelog = Changelog.Changelog.New(changelog.Header, changelog.Description, None, newEntry :: changelog.Entries)
+    latestEntry <- newEntry
     newChangelog
     |> Changelog.save changelogFilename
     // Changelog.save doesn't write a final newline, so we add one when writing out the new link reference
-    sprintf "\n%s\n" linkReference |> File.writeString true changelogFilename
+    sprintf "\n%s\n" linkReferenceForLatestEntry |> File.writeString true changelogFilename
 
 
 //-----------------------------------------------------------------------------
