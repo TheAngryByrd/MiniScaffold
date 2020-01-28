@@ -38,6 +38,7 @@ module Tests =
 
 
     let projectStructureAsserts = [
+        Assert.``CHANGELOG exists``
         Assert.``.config/dotnet-tools.json exists``
         Assert.``.github ISSUE_TEMPLATE bug_report exists``
         Assert.``.github ISSUE_TEMPLATE feature_request exists``
@@ -51,7 +52,6 @@ module Tests =
         Assert.``paket.dependencies exists``
         Assert.``paket.lock exists``
         Assert.``README exists``
-        Assert.``RELEASE_NOTES exists``
     ]
 
     [<Tests>]
