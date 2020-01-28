@@ -468,7 +468,7 @@ let gitRelease _ =
     let releaseNotesGitCommitFormat = latestEntry.ToString()
 
     Git.Staging.stageAll ""
-    Git.Commit.exec "" (sprintf "Bump version to %s\n%s" latestEntry.NuGetVersion releaseNotesGitCommitFormat)
+    Git.Commit.exec "" (sprintf "Bump version to %s\n\n%s" latestEntry.NuGetVersion releaseNotesGitCommitFormat)
     Git.Branches.push ""
 
     let tag = tagFromVersionNumber latestEntry.NuGetVersion
