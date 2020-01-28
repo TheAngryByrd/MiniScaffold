@@ -233,6 +233,14 @@ let updateChangelog ctx =
         | Some u -> u.Description, u.Changes
     let verStr = ctx |> getVersionNumber "RELEASE_VERSION"
     let newVersion = SemVer.parse verStr
+    if changelog.Entries |> List.exists (fun entry -> entry.SemVer = newVersion) then
+        let entry = changelog.Entries |> List.find (fun entry -> entry.SemVer = newVersion)
+        Trace.traceErrorfn "Version %s already exists in %s, released on %s" verStr changelogFilename (if entry.Date.IsSome then entry.Date.Value.ToString("yyyy-MM-dd") else "(no date specified)")
+        failwith "Can't release with a duplicate version number"
+    if changelog.Entries |> List.exists (fun entry -> entry.SemVer > newVersion) then
+        let entry = changelog.Entries |> List.find (fun entry -> entry.SemVer > newVersion)
+        Trace.traceErrorfn "You're trying to release version %s, but a later version %s already exists, released on %s" verStr entry.SemVer.AsString (if entry.Date.IsSome then entry.Date.Value.ToString("yyyy-MM-dd") else "(no date specified)")
+        failwith "Can't release with a version number older than an existing release"
     let versionTuple version = (version.Major, version.Minor, version.Patch)
     let prereleaseEntries = changelog.Entries |> List.filter (fun entry -> entry.SemVer.PreRelease.IsSome && versionTuple entry.SemVer = versionTuple newVersion)
     let prereleaseChanges = prereleaseEntries |> List.collect (fun entry -> entry.Changes |> List.filter (not << isEmptyChange))
