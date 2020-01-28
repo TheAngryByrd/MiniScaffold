@@ -510,8 +510,8 @@ let promoteChangelog ctx =
     let linkReference = mkLinkReference newVersion changelog
     let newMinimalEntry = Changelog.ChangelogEntry.New(assemblyVersion.Value, nugetVersion.Value, Some System.DateTime.Today, desciption, changesForThisVersion, false)
     let newVerboseEntry = Changelog.ChangelogEntry.New(assemblyVersion.Value, nugetVersion.Value, Some System.DateTime.Today, desciption, changesForThisVersion @ allChanges, false)
-    let newChangelog = Changelog.Changelog.New(changelog.Header, changelog.Description, None, newMinimalEntry :: changelog.Entries)
-    // Or: let newChangelog = Changelog.Changelog.New(changelog.Header, changelog.Description, None, newVerboseEntry :: changelog.Entries)
+    let newChangelog = Changelog.Changelog.New(changelog.Header, changelog.Description, None, newVerboseEntry :: changelog.Entries)
+    // Or: let newChangelog = Changelog.Changelog.New(changelog.Header, changelog.Description, None, newMinimalEntry :: changelog.Entries)
     latestEntry <- newVerboseEntry
     newChangelog
     |> Changelog.save changelogFilename
