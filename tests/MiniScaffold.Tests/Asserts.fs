@@ -20,6 +20,9 @@ module Assert =
     let ``project can build target`` target (d : DirectoryInfo) =
         Builds.executeBuild d.FullName target
 
+    let ``CHANGELOG exists`` =
+        tryFindFile "CHANGELOG.md"
+
     let ``.config/dotnet-tools.json exists`` =
         tryFindFile ".config/dotnet-tools.json"
 
@@ -58,6 +61,3 @@ module Assert =
 
     let ``README exists`` =
         tryFindFile "README.md"
-
-    let ``RELEASE_NOTES exists`` =
-        tryFindFile "RELEASE_NOTES.md"
