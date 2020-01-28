@@ -80,7 +80,10 @@ let releaseBranch = "master"
 
 let changelogFilename = "CHANGELOG.md"
 let changelog = Fake.Core.Changelog.load changelogFilename
-let mutable latestEntry = changelog.LatestEntry
+let mutable latestEntry =
+    if Seq.isEmpty changelog.Entries
+    then Changelog.ChangelogEntry.New("0.0.1", "0.0.1-alpha.1", Some DateTime.Today, None, [], false)
+    else changelog.LatestEntry
 let mutable linkReferenceForLatestEntry = ""
 
 let targetFramework =  "netcoreapp3.1"
