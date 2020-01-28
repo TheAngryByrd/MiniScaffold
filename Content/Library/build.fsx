@@ -487,7 +487,7 @@ let githubRelease _ =
     let releaseNotes = latestEntry |> mkReleaseNotes linkReferenceForLatestEntry
 
     GitHub.createClientWithToken token
-    |> GitHub.draftNewRelease gitOwner gitRepoName latestEntry.NuGetVersion (latestEntry.SemVer.PreRelease <> None) (releaseNotes |> Seq.singleton)
+    |> GitHub.draftNewRelease gitOwner gitRepoName (tagFromVersionNumber latestEntry.NuGetVersion) (latestEntry.SemVer.PreRelease <> None) (releaseNotes |> Seq.singleton)
     |> GitHub.uploadFiles files
     |> GitHub.publishDraft
     |> Async.RunSynchronously
