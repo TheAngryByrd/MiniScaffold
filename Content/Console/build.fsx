@@ -226,6 +226,20 @@ let clean _ =
     ]
     |> Seq.iter Shell.rm
 
+let dotnetRestore _ =
+    [sln]
+    |> Seq.map(fun dir -> fun () ->
+        let args =
+            [
+            ]
+        DotNet.restore(fun c ->
+            { c with
+                Common =
+                    c.Common
+                    |> DotNet.Options.withAdditionalArgs args
+            }) dir)
+    |> Seq.iter(retryIfInCI 10)
+
 let updateChangelog ctx =
     let description, unreleasedChanges =
         match changelog.Unreleased with
@@ -262,20 +276,6 @@ let updateChangelog ctx =
 
 let revertChangelog _ =
     Git.Reset.hard "" "HEAD" changelogFilename
-
-let dotnetRestore _ =
-    [sln]
-    |> Seq.map(fun dir -> fun () ->
-        let args =
-            [
-            ]
-        DotNet.restore(fun c ->
-            { c with
-                Common =
-                    c.Common
-                    |> DotNet.Options.withAdditionalArgs args
-            }) dir)
-    |> Seq.iter(retryIfInCI 10)
 
 let dotnetBuild ctx =
     let args =
