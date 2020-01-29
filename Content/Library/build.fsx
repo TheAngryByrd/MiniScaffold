@@ -581,16 +581,16 @@ Target.create "ReleaseDocs" releaseDocs
 "Clean" ?=> "DotnetRestore"
 "Clean" ==> "DotnetPack"
 
-// Only call AssemblyInfo if Publish was in the call chain
-// Ensure AssemblyInfo is called after DotnetRestore and before DotnetBuild
+// Only call GenerateAssemblyInfo if Publish was in the call chain
+// Ensure GenerateAssemblyInfo is called after DotnetRestore and before DotnetBuild
 "DotnetRestore" ?=> "GenerateAssemblyInfo"
 "GenerateAssemblyInfo" ?=> "DotnetBuild"
 "GenerateAssemblyInfo" ==> "PublishToNuGet"
 
 // Only call UpdateChangelog if Publish was in the call chain
-// Ensure UpdateChangelog is called after DotnetRestore and before AssemblyInfo
+// Ensure UpdateChangelog is called after DotnetRestore and before GenerateAssemblyInfo
 "DotnetRestore" ?=> "UpdateChangelog"
-"UpdateChangelog" ?=> "AssemblyInfo"
+"UpdateChangelog" ?=> "GenerateAssemblyInfo"
 "UpdateChangelog" ==> "PublishToNuGet"
 
 "DotnetBuild" ==> "BuildDocs"
