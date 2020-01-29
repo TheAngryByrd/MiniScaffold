@@ -310,8 +310,34 @@ let updateChangelog ctx =
     latestEntry <- newEntry
     newChangelog
     |> Changelog.save changelogFilename
-    // Changelog.save doesn't write a final newline, so we add one when writing out the new link reference
-    sprintf "\n%s\n" linkReferenceForLatestEntry |> File.writeString true changelogFilename
+
+    // Now update the link references at the end of the file
+    linkReferenceForLatestEntry <- mkLinkReference newVersion changelog
+    let linkReferenceForUnreleased = sprintf "[Unreleased]: %s/compare/%s...%s" gitHubRepoUrl (tagFromVersionNumber newVersion.AsString) "HEAD"
+    let tailLines = File.read changelogFilename |> List.ofSeq |> List.rev
+
+    let isRef line = System.Text.RegularExpressions.Regex.IsMatch(line, @"^\[.+?\]:\s?[a-z]+://.*$")
+    let linkReferenceTargets =
+        tailLines
+        |> List.skipWhile String.isNullOrWhiteSpace
+        |> List.takeWhile isRef
+        |> List.rev  // Now most recent entry is at the head of the list
+
+    let newLinkReferenceTargets =
+        match linkReferenceTargets with
+        | [] ->
+            [linkReferenceForUnreleased; linkReferenceForLatestEntry]
+        | first :: rest when first |> String.startsWith "[Unreleased]:" ->
+            linkReferenceForUnreleased :: linkReferenceForLatestEntry :: rest
+        | first :: rest ->
+            linkReferenceForUnreleased :: linkReferenceForLatestEntry :: first :: rest
+
+    let blankLineCount = tailLines |> Seq.takeWhile String.isNullOrWhiteSpace |> Seq.length
+    let linkRefCount = linkReferenceTargets |> List.length
+    let skipCount = blankLineCount + linkRefCount
+    let updatedLines = List.rev (tailLines |> List.skip skipCount) @ newLinkReferenceTargets
+    File.write false changelogFilename updatedLines
+
     // If build fails after this point but before a Git commit happens, undo our modifications
     Target.activateBuildFailure "RevertChangelog"
 
