@@ -87,6 +87,7 @@ let mutable latestEntry =
     then Changelog.ChangelogEntry.New("0.0.1", "0.0.1-alpha.1", Some DateTime.Today, None, [], false)
     else changelog.LatestEntry
 let mutable linkReferenceForLatestEntry = ""
+let mutable changelogBackupFilename = ""
 
 let targetFramework =  "netcoreapp3.1"
 
@@ -267,6 +268,12 @@ let updateChangelog ctx =
     let newEntry = Changelog.ChangelogEntry.New(assemblyVersion.Value, nugetVersion.Value, Some System.DateTime.Today, description, unreleasedChanges @ prereleaseChanges, false)
     let newChangelog = Changelog.Changelog.New(changelog.Header, changelog.Description, None, newEntry :: changelog.Entries)
     latestEntry <- newEntry
+
+    // Save changelog to temporary file before making any edits
+    changelogBackupFilename <- System.IO.Path.GetTempFileName()
+    changelogFilename |> Shell.copyFile changelogBackupFilename
+    Target.activateFinal "DeleteChangelogBackupFile"
+
     newChangelog
     |> Changelog.save changelogFilename
 
@@ -301,7 +308,12 @@ let updateChangelog ctx =
     Target.activateBuildFailure "RevertChangelog"
 
 let revertChangelog _ =
-    Git.Reset.hard "" "HEAD" changelogFilename
+    if String.isNotNullOrEmpty changelogBackupFilename then
+        changelogBackupFilename |> Shell.copyFile changelogFilename
+
+let deleteChangelogBackupFile _ =
+    if String.isNotNullOrEmpty changelogBackupFilename then
+        Shell.rm changelogBackupFilename
 
 let dotnetBuild ctx =
     let args =
@@ -465,6 +477,7 @@ let gitRelease _ =
 
     Git.Branches.tag "" tag
     Git.Branches.pushTag "" "origin" tag
+    Target.deactivateBuildFailure "RevertChangelog"
 
 let githubRelease _ =
     let token =
@@ -507,7 +520,8 @@ let formatCode _ =
 Target.create "Clean" clean
 Target.create "DotnetRestore" dotnetRestore
 Target.create "UpdateChangelog" updateChangelog
-Target.create "RevertChangelog" revertChangelog  // Runs on build failure; do NOT put this in the dependency chain
+Target.createBuildFailure "RevertChangelog" revertChangelog  // Do NOT put this in the dependency chain
+Target.createFinal "DeleteChangelogBackupFile" deleteChangelogBackupFile  // Do NOT put this in the dependency chain
 Target.create "DotnetBuild" dotnetBuild
 Target.create "DotnetTest" dotnetTest
 Target.create "GenerateCoverageReport" generateCoverageReport
