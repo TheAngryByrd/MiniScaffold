@@ -87,6 +87,7 @@ let mutable latestEntry =
     then Changelog.ChangelogEntry.New("0.0.1", "0.0.1-alpha.1", Some DateTime.Today, None, [], false)
     else changelog.LatestEntry
 let mutable linkReferenceForLatestEntry = ""
+let mutable changelogBackupFilename = ""
 
 let publishUrl = "https://www.nuget.org"
 
@@ -308,6 +309,12 @@ let updateChangelog ctx =
     let newEntry = Changelog.ChangelogEntry.New(assemblyVersion.Value, nugetVersion.Value, Some System.DateTime.Today, description, unreleasedChanges @ prereleaseChanges, false)
     let newChangelog = Changelog.Changelog.New(changelog.Header, changelog.Description, None, newEntry :: changelog.Entries)
     latestEntry <- newEntry
+
+    // Save changelog to temporary file before making any edits
+    changelogBackupFilename <- System.IO.Path.GetTempFileName()
+    changelogFilename |> Shell.copyFile changelogBackupFilename
+    Target.activateFinal "DeleteChangelogBackupFile"
+
     newChangelog
     |> Changelog.save changelogFilename
 
@@ -338,11 +345,16 @@ let updateChangelog ctx =
     let updatedLines = List.rev (tailLines |> List.skip skipCount) @ newLinkReferenceTargets
     File.write false changelogFilename updatedLines
 
-    // If build fails after this point but before a Git commit happens, undo our modifications
+    // If build fails after this point but before we push the release out, undo our modifications
     Target.activateBuildFailure "RevertChangelog"
 
 let revertChangelog _ =
-    Git.Reset.hard "" "HEAD" changelogFilename
+    if String.isNotNullOrEmpty changelogBackupFilename then
+        changelogBackupFilename |> Shell.copyFile changelogFilename
+
+let deleteChangelogBackupFile _ =
+    if String.isNotNullOrEmpty changelogBackupFilename then
+        Shell.rm changelogBackupFilename
 
 let dotnetBuild ctx =
     let args =
@@ -494,6 +506,7 @@ let publishToNuget _ =
             WorkingDir = "dist"
         }
     )
+    Target.deactivateBuildFailure "RevertChangelog"
 
 let gitRelease _ =
     isReleaseBranchCheck ()
@@ -580,7 +593,8 @@ let releaseDocs ctx =
 Target.create "Clean" clean
 Target.create "DotnetRestore" dotnetRestore
 Target.create "UpdateChangelog" updateChangelog
-Target.create "RevertChangelog" revertChangelog  // Runs on build failure; do NOT put this in the dependency chain
+Target.createBuildFailure "RevertChangelog" revertChangelog  // Do NOT put this in the dependency chain
+Target.createFinal "DeleteChangelogBackupFile" deleteChangelogBackupFile  // Do NOT put this in the dependency chain
 Target.create "DotnetBuild" dotnetBuild
 Target.create "DotnetTest" dotnetTest
 Target.create "GenerateCoverageReport" generateCoverageReport
