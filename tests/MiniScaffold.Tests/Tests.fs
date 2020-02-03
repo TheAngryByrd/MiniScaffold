@@ -74,6 +74,15 @@ module Tests =
                     yield! projectStructureAsserts
                     Assert.``project can build target`` "CreatePackages"
                     ]
+                "-n MyCoolLib --githubUsername SomeoneElse", [
+                    yield! projectStructureAsserts
+                    Assert.``CHANGELOG contains Unreleased section``
+                    Effect.``build target with failure in`` "DotnetPack" "publishToNuget"
+                    Assert.``CHANGELOG contains Unreleased section``
+                    Effect.``set environment variable`` "RELEASE_VERSION" "2.0.0"
+                    Assert.``project can build target`` "UpdateChangelog"
+                    Assert.``CHANGELOG does not contain Unreleased section``
+                    ]
 
             ] |> Seq.map(fun (args, additionalAsserts) -> testCase args <| fun _ ->
                 use d = Disposables.DisposableDirectory.Create()
