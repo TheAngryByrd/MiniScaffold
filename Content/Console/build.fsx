@@ -477,6 +477,7 @@ let gitRelease _ =
 
     Git.Branches.tag "" tag
     Git.Branches.pushTag "" "origin" tag
+    // If build fails after this point, we've pushed a release out with this version of CHANGELOG.md so we should keep it around
     Target.deactivateBuildFailure "RevertChangelog"
 
 let githubRelease _ =
