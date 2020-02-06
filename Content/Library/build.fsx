@@ -506,6 +506,7 @@ let publishToNuget _ =
             WorkingDir = "dist"
         }
     )
+    // If build fails after this point, we've pushed a release out with this version of CHANGELOG.md so we should keep it around
     Target.deactivateBuildFailure "RevertChangelog"
 
 let gitRelease _ =
