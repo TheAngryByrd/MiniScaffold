@@ -141,6 +141,8 @@ module Effect =
 
     let ``git init`` (d : DirectoryInfo) =
         Git.CommandHelper.runGitCommand d.FullName "init" |> ignore
+        Git.CommandHelper.runGitCommand d.FullName "config --local user.email nobody@example.org" |> ignore
+        Git.CommandHelper.runGitCommand d.FullName "config --local user.name TestUser" |> ignore
 
     let ``git commit all`` message (d : DirectoryInfo) =
         Git.Staging.stageAll d.FullName
