@@ -134,7 +134,7 @@ The README.md comes with a lot of information but it's recommended to fill out t
 
 ## Making a Release
 
-The release process is streamlined so you only have to start your git repository, set your NuGet and GitHub authorization keys, create release notes, and run the `Release` build target.
+The release process is streamlined so you only have to start your git repository, set your NuGet and GitHub authorization keys, create `CHANGELOG` notes, and run the `Release` build target.
 
 - [Create a GitHub Repository](https://help.github.com/en/github/getting-started-with-github/create-a-repo) and
 [Start a git repo with your GitHub repository as a remote](https://help.github.com/articles/adding-an-existing-project-to-github-using-the-command-line/)
@@ -153,28 +153,54 @@ The release process is streamlined so you only have to start your git repository
     paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9b3a
 
 - [Create a GitHub OAuth Token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
-  - You can then set the `GITHUB_TOKEN` to upload release notes and artifacts to github
+  - You can then set the `GITHUB_TOKEN` to upload `CHANGELOG` notes and artifacts to github
     - If you're on a linux, you can put this key into your [.bashrc](https://unix.stackexchange.com/questions/129143/what-is-the-purpose-of-bashrc-and-how-does-it-work)
   - Otherwise it will fallback to username/password
 
+Then update the `CHANGELOG.md` with an "Unreleased" section containing release notes for this version, in [KeepAChangelog](https://keepachangelog.com/en/1.1.0/) format.
 
-- Then append to the top of the `RELEASE_NOTES.md` with a new version, date, and release notes. See  [ReleaseNotesHelper](https://fsharp.github.io/FAKE/apidocs/fake-releasenoteshelper.html) for more details. If appropriate, it's highly recommend adding a link to the Pull Request next to the release note that it affects.
+<div class="alert alert-primary" role="alert">
+    NOTE: Its highly recommend to add a link to the Pull Request next to the release note that it affects. The reason for this is when the <code>RELEASE</code> target is run, it will add these new notes into the body of git commit. GitHub will notice the links and will update the Pull Request with what commit referenced it saying <a href="https://github.com/TheAngryByrd/MiniScaffold/pull/179#ref-commit-837ad59">"added a commit that referenced this pull request"</a>. Since we automate the commit message, it will say "Bump Version to x.y.z". The benefit of this is when users goto a Pull Request, it will be clear when and which version those code changes released. Also when reading the <code>CHANGELOG</code>, if someone is curious about how or why those changes were made, they can easily discover the work and discussions.
+</div>
 
+Here's an example of adding an "Unreleased" section to a `CHANGELOG.md` with a `0.1.0` section already released.
 
     [lang=markdown]
-    #### 0.2.0 - 2017-04-20
-    - FEATURE: Does cool stuff!
-    - BUGFIX: Fixes that silly oversight (https://github.com/MyGithubUsername/MyCoolNewLib/pull/001)
+    ## [Unreleased]
 
+    ### Added
+    - Does cool stuff! (https://github.com/MyGithubUsername/MyCoolNewLib/pull/001)
 
-- You can then use the `Release` target.  This will:
-  - make a commit bumping the version:  `Bump version to 0.2.0` and add the release notes to the commit
+    ### Fixed
+    - Fixes that silly oversight (https://github.com/MyGithubUsername/MyCoolNewLib/pull/002)
+
+    ## [0.1.0] - 2017-03-17
+    First release
+
+    ### Added
+    - This release already has lots of features
+
+    [Unreleased]: https://github.com/user/MyCoolNewLib.git/compare/v0.1.0...HEAD
+    [0.1.0]: https://github.com/user/MyCoolNewLib.git/releases/tag/v0.1.0
+
+- You can then use the `Release` target, specifying the version number either in the `RELEASE_VERSION` environment
+  variable, or else as a parameter after the target name.  This will:
+  - update `CHANGELOG.md`, moving changes from the `Unreleased` section into a new `0.2.0` section
+    - if there were any prerelease versions of 0.2.0 in the changelog, it will also collect their changes into the final 0.2.0 entry
+  - make a commit bumping the version:  `Bump version to 0.2.0` and adds the new changelog section to the commit's body
   - publish the package to NuGet
   - push a git tag
+  - create a GitHub release for that git tag
 
+macOS/Linux Parameter:
 
     [lang=bash]
-    ./build.sh Release
+    ./build.sh Release 0.2.0
+
+macOS/Linux Environment Variable:
+
+    [lang=bash]
+    RELEASE_VERSION=0.2.0 ./build.sh Release
 
 ## Done
 

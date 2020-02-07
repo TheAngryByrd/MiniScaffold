@@ -119,6 +119,10 @@ paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9
 
 - Then update the `CHANGELOG.md` with an "Unreleased" section containing release notes for this version, in [KeepAChangelog](https://keepachangelog.com/en/1.1.0/) format.
 
+NOTE: Its highly recommend to add a link to the Pull Request next to the release note that it affects. The reason for this is when the `RELEASE` target is run, it will add these new notes into the body of git commit. GitHub will notice the links and will update the Pull Request with what commit referenced it saying ["added a commit that referenced this pull request"](https://github.com/TheAngryByrd/MiniScaffold/pull/179#ref-commit-837ad59). Since the build script automates the commit message, it will say "Bump Version to x.y.z". The benefit of this is when users goto a Pull Request, it will be clear when and which version those code changes released. Also when reading the `CHANGELOG`, if someone is curious about how or why those changes were made, they can easily discover the work and discussions.
+
+Here's an example of adding an "Unreleased" section to a `CHANGELOG.md` with a `0.1.0` section already released.
+
 ```markdown
 ## [Unreleased]
 
@@ -142,11 +146,21 @@ First release
   variable, or else as a parameter after the target name.  This will:
   - update `CHANGELOG.md`, moving changes from the `Unreleased` section into a new `0.2.0` section
     - if there were any prerelease versions of 0.2.0 in the changelog, it will also collect their changes into the final 0.2.0 entry
-  - make a commit bumping the version:  `Bump version to 0.2.0` and add the changelog to the commit
+  - make a commit bumping the version:  `Bump version to 0.2.0` and adds the new changelog section to the commit's body
   - publish the package to NuGet
   - push a git tag
   - create a GitHub release for that git tag
 
+macOS/Linux Parameter:
+
 ```sh
 ./build.sh Release 0.2.0
 ```
+
+macOS/Linux Environment Variable:
+
+```sh
+RELEASE_VERSION=0.2.0 ./build.sh Release
+```
+
+
