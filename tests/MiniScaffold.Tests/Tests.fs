@@ -76,63 +76,63 @@ module Tests =
                     ]
                 // Test that CHANGELOG.md is not modified during build failures,
                 // *unless* at least one step has pushed a release to the outside world.
-                "-n DotnetRestoreFailureDuringLibraryRelease --githubUsername TestAccount", [
+                "-n DotnetRestoreFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "dotnetRestore"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n GenerateAssemblyInfoFailureDuringLibraryRelease --githubUsername TestAccount", [
+                "-n AssemblyInfoFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "generateAssemblyInfo"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n DotnetBuildFailureDuringLibraryRelease --githubUsername TestAccount", [
+                "-n DotnetBuildFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "dotnetBuild"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n DotnetTestFailureDuringLibraryRelease --githubUsername TestAccount", [
+                "-n DotnetTestFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "dotnetTest"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n GenerateCoverageReportFailureDuringLibraryRelease --githubUsername TestAccount", [
+                "-n CoverageReportFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "generateCoverageReport"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n DotnetPackFailureDuringLibraryRelease --githubUsername TestAccount", [
+                "-n DotnetPackFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "dotnetPack"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n SourceLinkTestFailureDuringLibraryRelease --githubUsername TestAccount", [
+                "-n SourceLinkTestFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "sourceLinkTest"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n PublishToNugetFailureDuringLibraryRelease --githubUsername TestAccount", [
+                "-n PublishToNugetFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "publishToNuget"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n PublishToNugetSuccessForLibrary --githubUsername TestAccount", [
+                "-n PublishToNugetSuccess --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``disable publishToNuget function`` // Simulates success, since it would fail due to NUGET_API being unset
                     Assert.``CHANGELOG contains Unreleased section``
@@ -140,7 +140,7 @@ module Tests =
                     // Since the PublishToNuget step "succeeded", we no longer revert the changelog from that point on
                     Assert.``CHANGELOG does not contain Unreleased section``
                     ]
-                "-n GitReleaseFailureDuringLibraryRelease --githubUsername TestAccount", [
+                "-n GitReleaseFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``disable publishToNuget function`` // Simulates success, since it would fail due to NUGET_API being unset
                     Effect.``make build function fail`` "gitRelease"
@@ -149,7 +149,7 @@ module Tests =
                     // Since the PublishToNuget step "succeeded", we no longer revert the changelog from that point on
                     Assert.``CHANGELOG does not contain Unreleased section``
                     ]
-                "-n GitHubReleaseFailureDuringLibraryRelease --githubUsername TestAccount", [
+                "-n GitHubReleaseFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``disable publishToNuget function`` // Simulates success, since it would fail due to NUGET_API being unset
                     Effect.``make build function fail`` "githubRelease"
@@ -160,56 +160,56 @@ module Tests =
                     Assert.``CHANGELOG does not contain Unreleased section``
                     ]
 
-                "-n DotnetRestoreFailureDuringConsoleRelease --githubUsername TestAccount --outputType Console", [
+                "-n DotnetRestoreFail --githubUsername TestAccount --outputType Console", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "dotnetRestore"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n AssemblyInfoFailureDuringConsoleRelease --githubUsername TestAccount --outputType Console", [
+                "-n AssemblyInfoFail --githubUsername TestAccount --outputType Console", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "generateAssemblyInfo"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n DotnetBuildFailureDuringConsoleRelease --githubUsername TestAccount --outputType Console", [
+                "-n DotnetBuildFail --githubUsername TestAccount --outputType Console", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "dotnetBuild"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n DotnetTestFailureDuringConsoleRelease --githubUsername TestAccount --outputType Console", [
+                "-n DotnetTestFail --githubUsername TestAccount --outputType Console", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "dotnetTest"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n GenerateCoverageReportFailureDuringConsoleRelease --githubUsername TestAccount --outputType Console", [
+                "-n CoverageReportFail --githubUsername TestAccount --outputType Console", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "generateCoverageReport"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n CreatePackagesFailureDuringConsoleRelease --githubUsername TestAccount --outputType Console", [
+                "-n CreatePackagesFail --githubUsername TestAccount --outputType Console", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "createPackages"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n GitReleaseFailureDuringConsoleRelease --githubUsername TestAccount --outputType Console", [
+                "-n GitReleaseFail --githubUsername TestAccount --outputType Console", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "gitRelease"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n GitHubReleaseFailureDuringConsoleRelease --githubUsername TestAccount --outputType Console", [
+                "-n GitHubReleaseFail --githubUsername TestAccount --outputType Console", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "githubRelease"
                     Effect.``disable pushing in gitRelease function``
