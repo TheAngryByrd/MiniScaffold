@@ -443,6 +443,7 @@ Target.create "ReleaseDocs" ``release docs``
 // Only call UpdateChangelog if Publish was in the call chain
 // Ensure UpdateChangelog is called after DotnetRestore and before GenerateAssemblyInfo
 "DotnetRestore" ?=> "UpdateChangelog"
+"UpdateChangelog" ==> "DotnetPack"
 "UpdateChangelog" ==> "PublishToNuGet"
 
 "Clean"
