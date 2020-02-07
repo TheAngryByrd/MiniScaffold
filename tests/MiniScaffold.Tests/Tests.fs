@@ -54,6 +54,8 @@ module Tests =
         Assert.``README exists``
     ]
 
+    let random = Random()
+
     [<Tests>]
     let tests =
         testSequenced <| // uncomment to get better logs
@@ -220,7 +222,7 @@ module Tests =
                     ]
 
             ] |> Seq.map(fun (args, additionalAsserts) -> testCase args <| fun _ ->
-                use d = Disposables.DisposableDirectory.Create()
+                use d = Disposables.DisposableDirectory.Create random
                 let newArgs = [
                     sprintf "mini-scaffold -lang F# %s" args
                 ]
