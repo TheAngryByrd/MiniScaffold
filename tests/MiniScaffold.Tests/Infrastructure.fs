@@ -36,8 +36,8 @@ module Disposables =
     [<AllowNullLiteral>]
     type DisposableDirectory (directory : string) =
 
-        static member Create() =
-            let tempPath = IO.Path.Combine(IO.Path.GetTempPath(), Guid.NewGuid().ToString("n"))
+        static member Create (random : Random) =
+            let tempPath = IO.Path.Combine(IO.Path.GetTempPath(), random.Next().ToString("x"))
             IO.Directory.CreateDirectory tempPath |> ignore
 
             new DisposableDirectory(tempPath)
