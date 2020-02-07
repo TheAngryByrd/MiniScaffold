@@ -171,7 +171,7 @@
 * FEATURE: Use expecto's --log-name to specify targetframework when running tests.  Bumps Expecto to 6.0.0 and dotnet-mono to 0.5.1. (https://github.com/TheAngryByrd/MiniScaffold/pull/60)
 
 ### 0.5.2 - 2018-03-01
-* BUGFUX: AssemblyVersion not showing (https://github.com/TheAngryByrd/MiniScaffold/pull/57)
+* BUGFIX: AssemblyVersion not showing (https://github.com/TheAngryByrd/MiniScaffold/pull/57)
 * MINOR:  Added documentation to template's README/md (https://github.com/TheAngryByrd/MiniScaffold/pull/56)
 
 ### 0.5.1 - 2018-02-25
@@ -205,7 +205,7 @@
 
 ### 0.3.2 - 2017-05-01
 * MINOR: Appveyor template and badges (https://github.com/TheAngryByrd/MiniScaffold/pull/17)
-* MONOR: Using buildstats.info for badges (https://github.com/TheAngryByrd/MiniScaffold/pull/15)
+* MINOR: Using buildstats.info for badges (https://github.com/TheAngryByrd/MiniScaffold/pull/15)
 
 ### 0.3.1 - 2017-04-30
 * MINOR: Add NuGet Config Defaults (https://github.com/TheAngryByrd/MiniScaffold/pull/13)
@@ -219,4 +219,4 @@
 * MINOR: Better travis ci defaults (https://github.com/TheAngryByrd/MiniScaffold/pull/2)
 
 #### 0.1.0 - 2017-04-14
-* Initial release
+* FEATURE: Initial release
