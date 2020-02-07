@@ -46,6 +46,9 @@ module Disposables =
 
         interface IDisposable with
             member x.Dispose() =
+                // Git objects are created read-only, so on Windows we have to mark them read-write before deleting them
+                x.DirectoryInfo.EnumerateFiles("*", IO.SearchOption.AllDirectories)
+                |> Seq.iter (fun fileInfo -> if fileInfo.IsReadOnly then fileInfo.IsReadOnly <- false)
                 IO.Directory.Delete(x.Directory, true)
 
 module Builds =
