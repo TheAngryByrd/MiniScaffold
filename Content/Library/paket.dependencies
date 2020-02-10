@@ -27,7 +27,7 @@ group Build
     nuget Fake.Api.GitHub 5.19.0
     nuget Fake.BuildServer.AppVeyor 5.19.0
     nuget Fake.BuildServer.Travis 5.19.0
-    nuget Fantomas 3.1.0
+    nuget Fantomas
     nuget Argu
 
 group Docs

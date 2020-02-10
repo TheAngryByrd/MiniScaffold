@@ -806,7 +806,7 @@ NUGET
       Fake.IO.FileSystem (>= 5.19) - restriction: || (>= net462) (>= netstandard2.0)
       FSharp.Core (>= 4.7) - restriction: || (>= net462) (>= netstandard2.0)
       System.ValueTuple (>= 4.4) - restriction: >= net462
-    Fantomas (3.1)
+    Fantomas (3.2)
       FSharp.Compiler.Service (>= 33.0) - restriction: >= netstandard2.0
     FParsec (1.0.3) - restriction: || (>= net462) (>= netstandard2.0)
       FSharp.Core (>= 4.0.0.1) - restriction: >= net40
