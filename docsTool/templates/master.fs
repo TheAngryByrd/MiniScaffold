@@ -60,7 +60,7 @@ let renderFooter (cfg : MasterTemplateConfig) (pageSource : string option) =
             div [Class "row"] [
                 linkColumn "Project Resources" [
                     repoFileLink "README.md" (Solid "book-reader") "README"
-                    repoFileLink "RELEASE_NOTES.md" (Solid "sticky-note") "Release Notes / Changelog"
+                    repoFileLink "CHANGELOG.md" (Solid "sticky-note") "Release Notes / Changelog"
                     repoFileLink "LICENSE.md" (Solid "id-card") "License"
                     repoFileLink "CONTRIBUTING.md" (Solid "directions") "Contributing"
                     repoFileLink "CODE_OF_CONDUCT.md" (Solid "users") "Code of Conduct"
