@@ -183,7 +183,7 @@ module dotnet =
 module DocsTool =
     open Argu
     let buildparser = ArgumentParser.Create<BuildArgs>(programName = "docstool")
-    let buildCLI =
+    let buildCLI () =
         [
             BuildArgs.SiteBaseUrl docsSiteBaseUrl
             BuildArgs.ProjectGlob docsToolProj
@@ -198,11 +198,11 @@ module DocsTool =
     let build () =
         dotnet.run (fun args ->
             { args with WorkingDirectory = docsToolDir }
-        ) (sprintf " -- build %s" (buildCLI))
+        ) (sprintf " -- build %s" (buildCLI ()))
         |> failOnBadExitAndPrint
 
     let watchparser = ArgumentParser.Create<WatchArgs>(programName = "docstool")
-    let watchCLI =
+    let watchCLI () =
         [
             WatchArgs.ProjectGlob docsToolProj
             WatchArgs.DocsSourceDirectory docsSrcDir
@@ -215,7 +215,7 @@ module DocsTool =
     let watch projectpath =
         dotnet.watch (fun args ->
            { args with WorkingDirectory = docsToolDir }
-        ) "run" (sprintf "-- watch %s" (watchCLI))
+        ) "run" (sprintf "-- watch %s" (watchCLI ()))
         |> failOnBadExitAndPrint
 
 //-----------------------------------------------------------------------------
