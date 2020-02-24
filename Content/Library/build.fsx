@@ -144,6 +144,17 @@ let isEmptyChange = function
     | Changelog.Change.Custom (_, s) ->
         String.IsNullOrWhiteSpace s.CleanedText
 
+let isChangelogEmpty () =
+    let isEmpty =
+        (latestEntry.Changes |> Seq.forall isEmptyChange)
+        || latestEntry.Changes |> Seq.isEmpty
+    if isEmpty then failwith "No changes in CHANGELOG. Please add your changes under a heading specified in https://keepachangelog.com/"
+
+let allReleaseChecks () =
+    isReleaseBranchCheck ()
+    isChangelogEmpty ()
+
+
 let mkLinkReference (newVersion : SemVerInfo) (changelog : Changelog.Changelog) =
     if changelog.Entries |> List.isEmpty then
         // No actual changelog entries yet: link reference will just point to the Git tag
@@ -498,7 +509,7 @@ let sourceLinkTest _ =
     )
 
 let publishToNuget _ =
-    isReleaseBranchCheck ()
+    allReleaseChecks ()
     Paket.push(fun c ->
         { c with
             ToolType = ToolType.CreateLocalTool()
@@ -510,7 +521,7 @@ let publishToNuget _ =
     Target.deactivateBuildFailure "RevertChangelog"
 
 let gitRelease _ =
-    isReleaseBranchCheck ()
+    allReleaseChecks ()
 
     let releaseNotesGitCommitFormat = latestEntry.ToString()
 
@@ -524,6 +535,7 @@ let gitRelease _ =
     Git.Branches.pushTag "" "origin" tag
 
 let githubRelease _ =
+    allReleaseChecks ()
     let token =
         match Environment.environVarOrDefault "GITHUB_TOKEN" "" with
         | s when not (String.IsNullOrWhiteSpace s) -> s
@@ -577,7 +589,7 @@ let watchDocs _ =
     DocsTool.watch ()
 
 let releaseDocs ctx =
-    isReleaseBranchCheck ()
+    isReleaseBranchCheck () // Docs changes don't need a full release to the library
 
     Git.Staging.stageAll docsDir
     Git.Commit.exec "" (sprintf "Documentation release of version %s" latestEntry.NuGetVersion)
