@@ -34,9 +34,9 @@ This takes away the ambiguity that developers face when creating an OSS project.
 - [Code Coverage](https://en.wikipedia.org/wiki/Code_coverage) via [Altcover](https://github.com/SteveGilham/altcover)
     - Also builds an html report with [ReportGenerator](https://github.com/danielpalme/ReportGenerator)
 - [Code formatting](https://en.wikipedia.org/wiki/Programming_style) style via [Fantomas](https://github.com/fsprojects/fantomas)
-- `Release` build step commits latest [RELEASE_NOTES.md](https://fake.build/apidocs/v5/fake-core-releasenotes.html) in the body and creates a [git tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging).
-    - If you [reference a Pull Request](https://github.com/TheAngryByrd/FSharp.Control.WebSockets/blob/master/RELEASE_NOTES.md#021---2019-09-12) in the `RELEASE_NOTES.md` it will [update that Pull Request](https://github.com/TheAngryByrd/FSharp.Control.WebSockets/pull/3#ref-commit-142baba) with the version it was released in.
-- `Release` build step publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) via the  [RELEASE_NOTES.md](https://fake.build/apidocs/v5/fake-core-releasenotes.html) and adds any artifacts (nuget/zip/targz/etc).
+- `Release` build step commits latest [CHANGELOG.md](https://keepachangelog.com/en/1.0.0/) in the body and creates a [git tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging).
+    - If you [reference a Pull Request](https://github.com/TheAngryByrd/MiniScaffold/blob/master/CHANGELOG.md#0230-beta001---2020-02-07) in the `CHANGELOG.md` it will [update that Pull Request](https://github.com/TheAngryByrd/MiniScaffold/pull/186#ref-commit-b343218) with the version it was released in.
+- `Release` build step publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) via the  [CHANGELOG.md](https://keepachangelog.com/en/1.0.0/) and adds any artifacts (nuget/zip/targz/etc).
 - [Continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) via [AppVeyor](https://www.appveyor.com/docs/) (Windows) and [TravisCI](https://docs.travis-ci.com/) (Linux) or [GitHub Actions](https://github.com/features/actions)
 
 
@@ -50,8 +50,8 @@ This takes away the ambiguity that developers face when creating an OSS project.
 - [Sourcelink](https://github.com/dotnet/sourcelink) which enables a great source debugging experience for your users, by adding source control metadata to your built assets
 - [Documentation Generation](https://github.com/fsprojects/FSharp.Formatting) - Generates Documentation from markdown files, fsx files, and the [XML Documentation Comments](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/) from your library.
 - [Release](Content/Library/README.md#Releasing) build step pushes NuGet packages to [NuGet](https://docs.microsoft.com/en-us/nuget/what-is-nuget)
-    - Generates [Package Version](https://docs.microsoft.com/en-us/nuget/reference/nuspec#version) from `RELEASE_NOTES.md`
-    - Adds [Package Release Notes](https://docs.microsoft.com/en-us/nuget/reference/nuspec#releasenotes) metadata from `RELEASE_NOTES.md`
+    - Generates [Package Version](https://docs.microsoft.com/en-us/nuget/reference/nuspec#version) from `CHANGELOG.md`
+    - Adds [Package Release Notes](https://docs.microsoft.com/en-us/nuget/reference/nuspec#releasenotes) metadata from `CHANGELOG.md`
 
 
 ### For [Applications](Content/Console/README.md)

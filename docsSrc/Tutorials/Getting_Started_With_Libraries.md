@@ -33,7 +33,7 @@ This will generate a structure similar to this
     |-- LICENSE.md
     |-- MyCoolNewLib.sln
     |-- README.md
-    |-- RELEASE_NOTES.md
+    |-- CHANGELOG.md
     |-- appveyor.yml
     |-- build.cmd
     |-- build.fsx
@@ -95,7 +95,7 @@ This may look overwhelming, but we don't have to worry about all of these yet.  
 - `build.cmd` or `build.sh` - Platform specific entry points into your `build.fsx` file.
 - `build.fsx` - The main build script of your repository.
 - `README.md` - The text file that introduces and explains a project.
-- `RELEASE_NOTES.md` - Text file containing versioning, date, and release notes.
+- `CHANGELOG.md` - Text file containing versioning, date, and release notes.
 
 ## Building your library
 

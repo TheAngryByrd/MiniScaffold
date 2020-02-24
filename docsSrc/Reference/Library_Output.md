@@ -32,7 +32,7 @@ When you do an initial scaffold, your folder will be filled with this set of fil
     |-- LICENSE.md
     |-- MyCoolNewLib.sln
     |-- README.md
-    |-- RELEASE_NOTES.md
+    |-- CHANGELOG.md
     |-- appveyor.yml
     |-- build.cmd
     |-- build.fsx
@@ -100,7 +100,7 @@ When you do an initial scaffold, your folder will be filled with this set of fil
 - `LICENSE.md` - Your repositories license. Starts with MIT. [Choose a license](https://choosealicense.com/) if you're looking for more choices.
 - `MyCoolNewLib.sln` - Solution file for your repository. See [Microsoft Docs](https://docs.microsoft.com/en-us/visualstudio/extensibility/internals/solution-dot-sln-file?view=vs-2019) for more info.
 - `README.md` - The text file that introduces and explains a project.
-- `RELEASE_NOTES.md` - The text file containing versioning, date, and release notes.
+- `CHANGELOG.md` - The text file containing versioning, date, and release notes.
 - `appveyor.yml` File contained default CI setup for [AppVeyor](https://www.appveyor.com/). Used for Windows builds.
 - `build.cmd` - Windows specific entry point for building the repository.
 - `build.sh` - Nix specific entry point for building the repository.
