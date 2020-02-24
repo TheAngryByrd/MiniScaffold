@@ -3,6 +3,25 @@ open System.IO
 open Expecto
 open Infrastructure
 
+module Array =
+    let insert v i (l : 'a array) =
+        let newArray = Array.zeroCreate (l.Length + 1)
+        let mutable newPointer = 0
+        l
+        |> Array.iteri(fun j y ->
+            if i = j then
+                newArray.[newPointer] <- v
+                newPointer <- newPointer + 1
+                newArray.[newPointer] <- y
+                newPointer <- newPointer + 1
+            else
+                newArray.[newPointer] <- y
+                newPointer <- newPointer + 1
+        )
+        newArray
+
+
+
 module Assert =
     open System
 
@@ -128,7 +147,7 @@ module Effect =
         match lines |> Array.tryFindIndex (fun line -> line.Contains "let gitRelease") with
         | None -> ()
         | Some startIdx ->
-            let mutable i = startIdx+1
+            let mutable i = startIdx + 1
             let mutable keepGoing = true
             while keepGoing && i < Array.length lines do
                 if lines.[i].StartsWith("let githubRelease") then
@@ -160,6 +179,18 @@ module Effect =
     let ``set environment variable`` name value (d : DirectoryInfo) =
         Environment.SetEnvironmentVariable(name, value)
 
+    let ``add change to CHANGELOG`` (d : DirectoryInfo) =
+        let changelog = Path.combine d.FullName "CHANGELOG.md"
+        let lines = File.ReadAllLines changelog
+        match lines |> Array.tryFindIndex (fun line -> line.Contains "## [Unreleased]") with
+        | None -> ()
+        | Some startIdx ->
+            let newLines =
+                lines
+                |> Array.insert "### Changed" (startIdx + 1)
+                |> Array.insert "- This is a test change from (@TheAngryByrd)" (startIdx + 2)
+            newLines |> File.writeNew changelog
+
     let ``setup for release tests`` (d : DirectoryInfo) =
         ``git init`` d
         ``git commit all`` "Initial commit" d
@@ -169,3 +200,4 @@ module Effect =
         // We don't want to actually release anything during integration tests!
         ``set environment variable`` "NUGET_KEY" "" d
         ``set environment variable`` "GITHUB_TOKEN" "" d
+        ``add change to CHANGELOG`` d
