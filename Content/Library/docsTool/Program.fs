@@ -440,6 +440,7 @@ module WebServer =
     open Microsoft.AspNetCore.Http
     open System.Net.WebSockets
     open System.Diagnostics
+    open System.Runtime.InteropServices
 
     let hostname = "localhost"
     let port = 5000
@@ -504,11 +505,28 @@ module WebServer =
             .Run()
 
     let openBrowser url =
-        //https://github.com/dotnet/corefx/issues/10361
-        let psi = ProcessStartInfo(FileName = url, UseShellExecute = true)
-        let proc = Process.Start psi
-        proc.WaitForExit()
-        if proc.ExitCode <> 0 then failwithf "opening browser failed"
+        let waitForExit (proc : Process) =
+            proc.WaitForExit()
+            if proc.ExitCode <> 0 then failwithf "opening browser failed"
+        try
+            let psi = ProcessStartInfo(FileName = url, UseShellExecute = true)
+            Process.Start psi
+            |> waitForExit
+        with e ->
+            //https://github.com/dotnet/corefx/issues/10361
+            if RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
+                let url = url.Replace("&", "&^")
+                let psi = ProcessStartInfo("cmd", (sprintf "/c %s" url), CreateNoWindow=true)
+                Process.Start psi
+                |> waitForExit
+            elif RuntimeInformation.IsOSPlatform(OSPlatform.Linux) then
+                Process.Start("xdg-open", url)
+                |> waitForExit
+            elif RuntimeInformation.IsOSPlatform(OSPlatform.OSX) then
+                Process.Start("open", url)
+                |> waitForExit
+            else
+                failwithf "failed to open browser on current OS"
 
     let serveDocs docsDir =
         async {
