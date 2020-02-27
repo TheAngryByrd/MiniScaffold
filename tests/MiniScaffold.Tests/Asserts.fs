@@ -20,11 +20,8 @@ module Array =
         )
         newArray
 
-
-
 module Assert =
     open System
-
 
     let private failIfNoneWithMsg msg opt =
         match opt with
@@ -97,7 +94,6 @@ module Assert =
 
     let ``README exists`` =
         tryFindFile "README.md"
-
 
 module Effect =
     open System
