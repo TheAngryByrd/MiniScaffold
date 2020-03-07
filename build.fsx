@@ -379,7 +379,12 @@ let ``git release`` _ =
 
     let releaseNotesGitCommitFormat = latestEntry.ToString()
 
-    Git.Staging.stageAll ""
+    Git.Staging.stageFile "" "CHANGELOG.md"
+        |> ignore
+
+    !! "Content/**/AssemblyInfo.fs"
+        |> Seq.iter (Git.Staging.stageFile "" >> ignore)
+
     Git.Commit.exec "" (sprintf "Bump version to %s\n\n%s" latestEntry.NuGetVersion releaseNotesGitCommitFormat)
     Git.Branches.push ""
 
