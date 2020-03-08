@@ -3,7 +3,7 @@
         "ionide.ionide-paket",
         "ionide.ionide-fsharp",
         "ionide.ionide-fake",
-        "ms-vscode.csharp",
+        "ms-dotnettools.csharp",
         "editorConfig.editorConfig"
     ]
 }
