@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.4] - 2020-03-08
+
+### Fixed
+- Fixed issues of opening the browser with the docs generation tool from [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/TheAngryByrd/MiniScaffold/pull/195)
+- Fixed staging too many files during Release mode from [@ominestre](https://github.com/ominestre) - (https://github.com/TheAngryByrd/MiniScaffold/pull/196)
+- Fixed an issue with extension recommendations. Microsoft changed their CSharp tooling identifier from [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/TheAngryByrd/MiniScaffold/pull/198)
+
 ## [0.23.3] - 2020-02-24
 
 ### Fixed
@@ -401,7 +408,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.23.3...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.23.4...HEAD
+[0.23.4]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.23.3...0.23.4
 [0.23.3]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.23.2...0.23.3
 [0.23.2]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.23.1...0.23.2
 [0.23.1]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.23.0...0.23.1
