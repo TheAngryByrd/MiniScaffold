@@ -1,4 +1,4 @@
-FROM fsharp:10.2.3-netcore
+FROM fsharp:netcore
 
 # Copy endpoint specific user settings into container to specify
 # .NET Core should be used as the runtime.
