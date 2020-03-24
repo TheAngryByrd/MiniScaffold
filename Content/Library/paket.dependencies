@@ -42,3 +42,8 @@ group Docs
     nuget FSharp.Literate
     nuget Fable.React
     nuget Dotnet.ProjInfo.Workspace.FCS
+
+group Analyzers
+  source https://www.nuget.org/api/v2
+  source https://api.nuget.org/v3/index.json
+  nuget FSharp.Analyzers.Sample
