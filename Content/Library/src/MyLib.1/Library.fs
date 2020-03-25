@@ -1,5 +1,7 @@
 namespace MyLib._1
 open System
+open System.Security.Cryptography
+open System.Text
 
 /// <summary> Initial module </summary>
 module Say =
@@ -24,6 +26,9 @@ module Say =
 
     /// <summary>Says hello to a specific person</summary>
     let helloPerson (person : Person) =
+        use sha1 = SHA1.Create()
+        sha1.ComputeHash(UTF8Encoding().GetBytes("foo"))
+        |> printfn "%A"
         sprintf
             "Hello %s. You were born on %s and your favorite number is %d. You like %A."
             person.Name
