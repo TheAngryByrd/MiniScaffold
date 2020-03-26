@@ -31,7 +31,11 @@ module Assert =
     let private tryFindFile file (d : DirectoryInfo) =
         let filepath = Path.Combine(d.FullName, file)
         if  filepath |> File.Exists |> not then
-            failtestf "Could not find %s" filepath
+            let message = sprintf "Could not find %s, all files currently in folder are:" filepath
+            let message = (message, d.EnumerateFiles()) ||> Seq.fold(fun state next ->
+                sprintf "%s%s%s" state Environment.NewLine next.FullName
+            )
+            failtest message
 
     let ``project can build target`` target (d : DirectoryInfo) =
         Builds.executeBuild d.FullName target
