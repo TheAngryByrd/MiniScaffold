@@ -407,11 +407,10 @@ let fsharpAnalyzers ctx =
     |> Seq.iter(fun proj ->
         let args  =
             [
-                // FSharpAnalyzers.Analyzers_Path (__SOURCE_DIRECTORY__ </> "packages/analyzers")
-                FSharpAnalyzers.Analyzers_Path ""
+                FSharpAnalyzers.Analyzers_Path (__SOURCE_DIRECTORY__ </> "packages/analyzers")
                 FSharpAnalyzers.Arguments.Project proj
                 FSharpAnalyzers.Arguments.Fail_On_Warnings [
-                    "BDH0001"
+                    "BDH0002"
                 ]
                 FSharpAnalyzers.Verbose
             ]
