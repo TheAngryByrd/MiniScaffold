@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.0] - 2020-03-26
+
+### Added
+- Fsharp Analyzers from [@TheAngryByrd](https://github.com/TheAngryByrd) - (https://github.com/TheAngryByrd/MiniScaffold/pull/200)
+
 ## [0.23.5] - 2020-03-24
 
 ### Fixed
@@ -413,7 +418,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.23.5...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.24.0...HEAD
+[0.24.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.23.5...0.24.0
 [0.23.5]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.23.4...0.23.5
 [0.23.4]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.23.3...0.23.4
 [0.23.3]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.23.2...0.23.3
