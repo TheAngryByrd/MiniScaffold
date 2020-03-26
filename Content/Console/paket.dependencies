@@ -14,6 +14,7 @@ group Build
     storage: none
     source https://www.nuget.org/api/v2
     source https://api.nuget.org/v3/index.json
+    nuget Argu
     nuget Fake.IO.FileSystem 5.19.0
     nuget Fake.Core.Target 5.19.0
     nuget Fake.Core.ReleaseNotes 5.19.0
@@ -27,3 +28,8 @@ group Build
     nuget Fake.BuildServer.AppVeyor 5.19.0
     nuget Fake.BuildServer.Travis 5.19.0
     nuget Fantomas
+
+group Analyzers
+  source https://www.nuget.org/api/v2
+  source https://api.nuget.org/v3/index.json
+  nuget BinaryDefense.FSharp.Analyzers.Hashing 0.1.0

@@ -3,6 +3,7 @@
 #r "Facades/netstandard"
 #r "netstandard"
 #endif
+open Argu
 open System
 open Fake.SystemHelper
 open Fake.Core
@@ -139,70 +140,71 @@ let rec retryIfInCI times fn =
         else
             fn()
     | _ -> fn()
+module Changelog =
 
-let isEmptyChange = function
-    | Changelog.Change.Added s
-    | Changelog.Change.Changed s
-    | Changelog.Change.Deprecated s
-    | Changelog.Change.Fixed s
-    | Changelog.Change.Removed s
-    | Changelog.Change.Security s
-    | Changelog.Change.Custom (_, s) ->
-        String.IsNullOrWhiteSpace s.CleanedText
+    let isEmptyChange = function
+        | Changelog.Change.Added s
+        | Changelog.Change.Changed s
+        | Changelog.Change.Deprecated s
+        | Changelog.Change.Fixed s
+        | Changelog.Change.Removed s
+        | Changelog.Change.Security s
+        | Changelog.Change.Custom (_, s) ->
+            String.IsNullOrWhiteSpace s.CleanedText
 
-let isChangelogEmpty () =
-    let isEmpty =
-        (latestEntry.Changes |> Seq.forall isEmptyChange)
-        || latestEntry.Changes |> Seq.isEmpty
-    if isEmpty then failwith "No changes in CHANGELOG. Please add your changes under a heading specified in https://keepachangelog.com/"
+    let isChangelogEmpty () =
+        let isEmpty =
+            (latestEntry.Changes |> Seq.forall isEmptyChange)
+            || latestEntry.Changes |> Seq.isEmpty
+        if isEmpty then failwith "No changes in CHANGELOG. Please add your changes under a heading specified in https://keepachangelog.com/"
+
+    let mkLinkReference (newVersion : SemVerInfo) (changelog : Changelog.Changelog) =
+        if changelog.Entries |> List.isEmpty then
+            // No actual changelog entries yet: link reference will just point to the Git tag
+            sprintf "[%s]: %s/releases/tag/%s" newVersion.AsString gitHubRepoUrl (tagFromVersionNumber newVersion.AsString)
+        else
+            let versionTuple version = (version.Major, version.Minor, version.Patch)
+            // Changelog entries come already sorted, most-recent first, by the Changelog module
+            let prevEntry = changelog.Entries |> List.skipWhile (fun entry -> entry.SemVer.PreRelease.IsSome && versionTuple entry.SemVer = versionTuple newVersion) |> List.tryHead
+            let linkTarget =
+                match prevEntry with
+                | Some entry -> sprintf "%s/compare/%s...%s" gitHubRepoUrl (tagFromVersionNumber entry.SemVer.AsString) (tagFromVersionNumber newVersion.AsString)
+                | None -> sprintf "%s/releases/tag/%s" gitHubRepoUrl (tagFromVersionNumber newVersion.AsString)
+            sprintf "[%s]: %s" newVersion.AsString linkTarget
+
+    let mkReleaseNotes (linkReference : string) (latestEntry : Changelog.ChangelogEntry) =
+        if String.isNullOrEmpty linkReference then latestEntry.ToString()
+        else
+            // Add link reference target to description before building release notes, since in main changelog file it's at the bottom of the file
+            let description =
+                match latestEntry.Description with
+                | None -> linkReference
+                | Some desc when desc.Contains(linkReference) -> desc
+                | Some desc -> sprintf "%s\n\n%s" (desc.Trim()) linkReference
+            { latestEntry with Description = Some description }.ToString()
+
+    let getVersionNumber envVarName ctx =
+        let args = ctx.Context.Arguments
+        let verArg =
+            args
+            |> List.tryHead
+            |> Option.defaultWith (fun () -> Environment.environVarOrDefault envVarName "")
+        if SemVer.isValid verArg then verArg
+        elif verArg.StartsWith("v") && SemVer.isValid verArg.[1..] then
+            let target = ctx.Context.FinalTarget
+            Trace.traceImportantfn "Please specify a version number without leading 'v' next time, e.g. \"./build.sh %s %s\" rather than \"./build.sh %s %s\"" target verArg.[1..] target verArg
+            verArg.[1..]
+        elif String.isNullOrEmpty verArg then
+            let target = ctx.Context.FinalTarget
+            Trace.traceErrorfn "Please specify a version number, either at the command line (\"./build.sh %s 1.0.0\") or in the %s environment variable" target envVarName
+            failwith "No version number found"
+        else
+            Trace.traceErrorfn "Please specify a valid version number: %A could not be recognized as a version number" verArg
+            failwith "Invalid version number"
 
 let allReleaseChecks () =
     isReleaseBranchCheck ()
-    isChangelogEmpty ()
-
-let mkLinkReference (newVersion : SemVerInfo) (changelog : Changelog.Changelog) =
-    if changelog.Entries |> List.isEmpty then
-        // No actual changelog entries yet: link reference will just point to the Git tag
-        sprintf "[%s]: %s/releases/tag/%s" newVersion.AsString gitHubRepoUrl (tagFromVersionNumber newVersion.AsString)
-    else
-        let versionTuple version = (version.Major, version.Minor, version.Patch)
-        // Changelog entries come already sorted, most-recent first, by the Changelog module
-        let prevEntry = changelog.Entries |> List.skipWhile (fun entry -> entry.SemVer.PreRelease.IsSome && versionTuple entry.SemVer = versionTuple newVersion) |> List.tryHead
-        let linkTarget =
-            match prevEntry with
-            | Some entry -> sprintf "%s/compare/%s...%s" gitHubRepoUrl (tagFromVersionNumber entry.SemVer.AsString) (tagFromVersionNumber newVersion.AsString)
-            | None -> sprintf "%s/releases/tag/%s" gitHubRepoUrl (tagFromVersionNumber newVersion.AsString)
-        sprintf "[%s]: %s" newVersion.AsString linkTarget
-
-let mkReleaseNotes (linkReference : string) (latestEntry : Changelog.ChangelogEntry) =
-    if String.isNullOrEmpty linkReference then latestEntry.ToString()
-    else
-        // Add link reference target to description before building release notes, since in main changelog file it's at the bottom of the file
-        let description =
-            match latestEntry.Description with
-            | None -> linkReference
-            | Some desc when desc.Contains(linkReference) -> desc
-            | Some desc -> sprintf "%s\n\n%s" (desc.Trim()) linkReference
-        { latestEntry with Description = Some description }.ToString()
-
-let getVersionNumber envVarName ctx =
-    let args = ctx.Context.Arguments
-    let verArg =
-        args
-        |> List.tryHead
-        |> Option.defaultWith (fun () -> Environment.environVarOrDefault envVarName "")
-    if SemVer.isValid verArg then verArg
-    elif verArg.StartsWith("v") && SemVer.isValid verArg.[1..] then
-        let target = ctx.Context.FinalTarget
-        Trace.traceImportantfn "Please specify a version number without leading 'v' next time, e.g. \"./build.sh %s %s\" rather than \"./build.sh %s %s\"" target verArg.[1..] target verArg
-        verArg.[1..]
-    elif String.isNullOrEmpty verArg then
-        let target = ctx.Context.FinalTarget
-        Trace.traceErrorfn "Please specify a version number, either at the command line (\"./build.sh %s 1.0.0\") or in the %s environment variable" target envVarName
-        failwith "No version number found"
-    else
-        Trace.traceErrorfn "Please specify a valid version number: %A could not be recognized as a version number" verArg
-        failwith "Invalid version number"
+    Changelog.isChangelogEmpty ()
 
 module dotnet =
     let watch cmdParam program args =
@@ -214,6 +216,20 @@ module dotnet =
 
     let reportgenerator optionConfig args =
         tool optionConfig "reportgenerator" args
+
+    let fsharpAnalyzer optionConfig args =
+        tool optionConfig "fsharp-analyzers" args
+
+module FSharpAnalyzers =
+    type Arguments =
+    | Project of string
+    | Analyzers_Path of string
+    | Fail_On_Warnings of string list
+    | Ignore_Files of string list
+    | Verbose
+    with
+        interface IArgParserTemplate with
+            member s.Usage = ""
 
 //-----------------------------------------------------------------------------
 // Target Implementations
@@ -256,7 +272,7 @@ let updateChangelog ctx =
         match changelog.Unreleased with
         | None -> None, []
         | Some u -> u.Description, u.Changes
-    let verStr = ctx |> getVersionNumber "RELEASE_VERSION"
+    let verStr = ctx |> Changelog.getVersionNumber "RELEASE_VERSION"
     let newVersion = SemVer.parse verStr
     changelog.Entries
     |> List.tryFind (fun entry -> entry.SemVer = newVersion)
@@ -272,9 +288,9 @@ let updateChangelog ctx =
     )
     let versionTuple version = (version.Major, version.Minor, version.Patch)
     let prereleaseEntries = changelog.Entries |> List.filter (fun entry -> entry.SemVer.PreRelease.IsSome && versionTuple entry.SemVer = versionTuple newVersion)
-    let prereleaseChanges = prereleaseEntries |> List.collect (fun entry -> entry.Changes |> List.filter (not << isEmptyChange))
+    let prereleaseChanges = prereleaseEntries |> List.collect (fun entry -> entry.Changes |> List.filter (not << Changelog.isEmptyChange))
     let assemblyVersion, nugetVersion = Changelog.parseVersions newVersion.AsString
-    linkReferenceForLatestEntry <- mkLinkReference newVersion changelog
+    linkReferenceForLatestEntry <- Changelog.mkLinkReference newVersion changelog
     let newEntry = Changelog.ChangelogEntry.New(assemblyVersion.Value, nugetVersion.Value, Some System.DateTime.Today, description, unreleasedChanges @ prereleaseChanges, false)
     let newChangelog = Changelog.Changelog.New(changelog.Header, changelog.Description, None, newEntry :: changelog.Entries)
     latestEntry <- newEntry
@@ -288,7 +304,7 @@ let updateChangelog ctx =
     |> Changelog.save changelogFilename
 
     // Now update the link references at the end of the file
-    linkReferenceForLatestEntry <- mkLinkReference newVersion changelog
+    linkReferenceForLatestEntry <- Changelog.mkLinkReference newVersion changelog
     let linkReferenceForUnreleased = sprintf "[Unreleased]: %s/compare/%s...%s" gitHubRepoUrl (tagFromVersionNumber newVersion.AsString) "HEAD"
     let tailLines = File.read changelogFilename |> List.ofSeq |> List.rev
 
@@ -338,6 +354,23 @@ let dotnetBuild ctx =
                 c.Common
                 |> DotNet.Options.withAdditionalArgs args
         }) sln
+
+let fsharpAnalyzers ctx =
+    let argParser = ArgumentParser.Create<FSharpAnalyzers.Arguments>(programName = "fsharp-analyzers")
+    !! srcGlob
+    |> Seq.iter(fun proj ->
+        let args  =
+            [
+                FSharpAnalyzers.Analyzers_Path (__SOURCE_DIRECTORY__ </> "packages/analyzers")
+                FSharpAnalyzers.Arguments.Project proj
+                FSharpAnalyzers.Arguments.Fail_On_Warnings [
+                    "BDH0002"
+                ]
+                FSharpAnalyzers.Verbose
+            ]
+            |> argParser.PrintCommandLineArgumentsFlat
+        dotnet.fsharpAnalyzer id args
+    )
 
 let dotnetTest ctx =
     let excludeCoverage =
@@ -504,7 +537,7 @@ let githubRelease _ =
 
     let files = distGlob
     // Get release notes with properly-linked version number
-    let releaseNotes = latestEntry |> mkReleaseNotes linkReferenceForLatestEntry
+    let releaseNotes = latestEntry |> Changelog.mkReleaseNotes linkReferenceForLatestEntry
 
     GitHub.createClientWithToken token
     |> GitHub.draftNewRelease gitOwner gitRepoName (tagFromVersionNumber latestEntry.NuGetVersion) (latestEntry.SemVer.PreRelease <> None) (releaseNotes |> Seq.singleton)
@@ -540,6 +573,7 @@ Target.create "UpdateChangelog" updateChangelog
 Target.createBuildFailure "RevertChangelog" revertChangelog  // Do NOT put this in the dependency chain
 Target.createFinal "DeleteChangelogBackupFile" deleteChangelogBackupFile  // Do NOT put this in the dependency chain
 Target.create "DotnetBuild" dotnetBuild
+Target.create "FSharpAnalyzers" fsharpAnalyzers
 Target.create "DotnetTest" dotnetTest
 Target.create "GenerateCoverageReport" generateCoverageReport
 Target.create "WatchApp" watchApp
@@ -573,16 +607,17 @@ Target.create "Release" ignore
 "UpdateChangelog" ==> "GitRelease"
 
 "DotnetRestore"
-  ==> "DotnetBuild"
-  ==> "DotnetTest"
-  =?> ("GenerateCoverageReport", not disableCodeCoverage)
-  ==> "CreatePackages"
-  ==> "GitRelease"
-  ==> "GitHubRelease"
-  ==> "Release"
+    ==> "DotnetBuild"
+    ==> "FSharpAnalyzers"
+    ==> "DotnetTest"
+    =?> ("GenerateCoverageReport", not disableCodeCoverage)
+    ==> "CreatePackages"
+    ==> "GitRelease"
+    ==> "GitHubRelease"
+    ==> "Release"
 
 "DotnetRestore"
- ==> "WatchTests"
+    ==> "WatchTests"
 
 //-----------------------------------------------------------------------------
 // Target Start
