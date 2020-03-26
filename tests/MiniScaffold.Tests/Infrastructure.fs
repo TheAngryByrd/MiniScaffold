@@ -37,7 +37,7 @@ module Disposables =
     type DisposableDirectory (directory : string) =
 
         static member Create() =
-            let tempPath = IO.Path.Combine(IO.Path.GetTempPath(), Guid.NewGuid().ToString("n"))
+            let tempPath = IO.Path.Combine(IO.Path.GetTempPath(), IO.Path.GetTempFileName())
             IO.Directory.CreateDirectory tempPath |> ignore
 
             new DisposableDirectory(tempPath)
