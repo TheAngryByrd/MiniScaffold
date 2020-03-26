@@ -12,9 +12,6 @@ module Say =
     | Yellow
     | Blue
 
-    type ColorMode =
-    | RGBA of r: int * g: int * b: int * a: int
-
     /// <summary> A person with many different field types </summary>
     type Person = {
         Name : string
@@ -23,12 +20,8 @@ module Say =
         DateOfBirth : DateTimeOffset
     }
 
-
     /// <summary>Says hello to a specific person</summary>
     let helloPerson (person : Person) =
-        use sha1 = SHA1.Create()
-        sha1.ComputeHash(UTF8Encoding().GetBytes("foo"))
-        |> printfn "%A"
         sprintf
             "Hello %s. You were born on %s and your favorite number is %d. You like %A."
             person.Name

@@ -624,7 +624,7 @@ NUGET
 GROUP Analyzers
 NUGET
   remote: https://www.nuget.org/api/v2
-    BinaryDefense.FSharp.Analyzers.Hashing (0.1.0-beta005)
+    BinaryDefense.FSharp.Analyzers.Hashing (0.1)
       FSharp.Analyzers.SDK (>= 0.4) - restriction: >= netcoreapp2.0
       FSharp.Core (>= 4.7.1) - restriction: >= netcoreapp2.0
     FSharp.Analyzers.SDK (0.4) - restriction: >= netcoreapp2.0
