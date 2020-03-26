@@ -11,6 +11,7 @@
     <NoBuild>true</NoBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <NoDefaultExcludes>true</NoDefaultExcludes> <!-- So nuget will include .files -->
     <TargetFramework>netstandard0.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
