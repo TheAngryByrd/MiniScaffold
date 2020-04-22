@@ -221,6 +221,7 @@ module Tests =
 
             ] |> Seq.map(fun (args, additionalAsserts) -> testCase args <| fun _ ->
                 use d = Disposables.DisposableDirectory.Create()
+                printfn "dir -> %s" d.Directory
                 let newArgs = [
                     sprintf "mini-scaffold -lang F# %s" args
                 ]
