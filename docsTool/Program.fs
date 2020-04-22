@@ -101,7 +101,8 @@ module ProjInfo =
         loader.LoadProjects [ projPath ]
         let fcsBinder = FCSBinder(netFwInfo, loader, fcs)
         match fcsBinder.GetProjectOptions(projPath) with
-        | Some options ->
+        | Ok options ->
+            // printfn "OtherOptions -> %A" options
             let references =
                 options.OtherOptions
                 |> Array.filter(fun s ->
@@ -112,7 +113,6 @@ module ProjInfo =
                     s.Remove(0,RefPrefix.Length)
                     |> FileInfo
                 )
-
             let dpwPo =
                 match options.ExtraProjectInfo with
                 | Some (:? ProjectOptions as dpwPo) -> dpwPo
@@ -120,8 +120,8 @@ module ProjInfo =
             let targetPath = findTargetPath dpwPo.ExtraProjectInfo.TargetPath
             { References = references ; TargetPath = targetPath}
 
-        | None ->
-            failwithf "Couldn't read project %s" projPath
+        | Error e ->
+            failwithf "Couldn't read project %s - %A" projPath e
 
 
 module GenerateDocs =
@@ -226,34 +226,51 @@ module GenerateDocs =
             Text.RegularExpressions.Regex.Replace(state, pattern, replacement)
         )
 
+    let stringContainsInsenstive (filter : string) (textToSearch : string) =
+        textToSearch.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0
+
     let generateDocs (libDirs : ProjInfo.References) (docSourcePaths : IGlobbingPattern) (cfg : Configuration) =
         let parse (fileName : string) source =
             let doc =
-                let references =
+                let rref =
+                    libDirs
+                    |> Array.map(fun fi -> fi.FullName)
+                    |> Array.distinct
+                    |> Array.map(sprintf "-r:%s")
+
+                let iref =
                     libDirs
                     |> Array.map(fun fi -> fi.DirectoryName)
                     |> Array.distinct
-                    |> Array.map(sprintf "-I:%s")
-                let runtimeDeps =
+                    |> Array.map(sprintf "-I:\"%s\"")
+
+                let fsiArgs =
                     [|
-                        "-r:System.Runtime"
-                        "-r:System.Net.WebClient"
+                        yield "--noframework" // error FS1222: When mscorlib.dll or FSharp.Core.dll is explicitly referenced the --noframework option must also be passed
+                        yield! iref
                     |]
-                let compilerOptions = String.Join(' ', Array.concat [runtimeDeps; references])
-                let fsiEvaluator = FSharp.Literate.FsiEvaluator(references)
+                let compilerOptions =
+                    [|
+                        yield "--targetprofile:netstandard"
+                        yield!
+                            rref
+                            |> Seq.filter(stringContainsInsenstive "fsharp.core.dll" >> not)
+                            |> Seq.filter(stringContainsInsenstive "NETStandard.Library.Ref" >> not) // --targetprofile:netstandard will find the "BCL" libraries
+                    |]
+                let fsiEvaluator = FSharp.Literate.FsiEvaluator(fsiArgs)
                 match Path.GetExtension fileName with
                 | ".fsx" ->
                     Literate.ParseScriptString(
                         source,
                         path = fileName,
-                        compilerOptions = compilerOptions,
+                        compilerOptions = (compilerOptions |> String.concat " "),
                         fsiEvaluator = fsiEvaluator)
                 | ".md" ->
                     let source = regexReplace cfg source
                     Literate.ParseMarkdownString(
                         source,
                         path = fileName,
-                        compilerOptions = compilerOptions,
+                        compilerOptions = (compilerOptions |> String.concat " "),
                         fsiEvaluator = fsiEvaluator
                     )
                 | others -> failwithf "FSharp.Literal does not support %s file extensions" others
@@ -303,7 +320,11 @@ module GenerateDocs =
             []
 
     let buildDocs (projInfos : ProjInfo.ProjInfo array) (cfg : Configuration) =
-        let refs = projInfos |> Seq.collect (fun p -> p.References) |> Seq.distinct |> Seq.toArray
+        let refs =
+            [|
+                yield! projInfos |> Array.collect (fun p -> p.References) |> Array.distinct
+                yield! projInfos |> Array.map(fun p -> p.TargetPath)
+            |]
         copyAssets cfg
         let generateDocs =
             async {
@@ -325,7 +346,11 @@ module GenerateDocs =
         let initialDocs = buildDocs projInfos cfg
         initialDocs |> renderGeneratedDocs true cfg
 
-        let refs = projInfos |> Seq.collect (fun p -> p.References) |> Seq.distinct |> Seq.toArray
+        let refs =
+            [|
+                yield! projInfos |> Array.collect (fun p -> p.References) |> Array.distinct
+                yield! projInfos |> Array.map(fun p -> p.TargetPath)
+            |]
         let d1 =
             docsFileGlob cfg.DocsSourceDirectory.FullName
             |> ChangeWatcher.run (fun changes ->
@@ -457,6 +482,22 @@ module WebServer =
         } |> Async.Start
         startWebserver docsDir (sprintf "http://%s:%d" hostname port)
 
+open FSharp.Formatting.Common
+open System.Diagnostics
+
+let setupFsharpFormattingLogging () =
+    let setupListener listener =
+        [
+            FSharp.Formatting.Common.Log.source
+            Yaaf.FSharp.Scripting.Log.source
+        ]
+        |> Seq.iter (fun source ->
+            source.Switch.Level <- System.Diagnostics.SourceLevels.All
+            Log.AddListener listener source)
+    let noTraceOptions = TraceOptions.None
+    Log.ConsoleListener()
+    |> Log.SetupListener noTraceOptions System.Diagnostics.SourceLevels.Verbose
+    |> setupListener
 
 open Argu
 open Fake.IO.Globbing.Operators
