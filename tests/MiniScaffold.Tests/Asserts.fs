@@ -104,12 +104,116 @@ module Effect =
     open Fake.IO
     open Fake.Tools
 
+    let ``replace section with`` startIdx endIdx replace (data : string array) =
+        printfn "replacing lines %i to %i with %s" startIdx endIdx replace
+        for i = startIdx to endIdx do
+            data.[i] <- sprintf "// %s" data.[i]
+        Array.insert replace (endIdx + 1) data
+
+    let ``find section`` startPredicate endPredicate data =
+        let datai = data |> Array.indexed
+        match datai |> Array.tryFind (startPredicate) with
+        | None -> None
+        | Some (startIdx, _ ) ->
+            let (endIdx, _) =
+                datai
+                |> Array.skip (startIdx + 1)
+                |> Array.takeWhile (endPredicate)
+                |> Array.last
+            Some (startIdx, endIdx)
+
+    let ``get build.fsx``  (d : DirectoryInfo) =
+        Path.combine d.FullName "build.fsx"
+
+
     let ``transform build script with`` (replaceFn : string -> string) (d : DirectoryInfo) =
-        let buildScript = Path.combine d.FullName "build.fsx"
+        let buildScript = ``get build.fsx`` d
         buildScript |> File.applyReplace replaceFn
 
+    let ``disable restore`` (d : DirectoryInfo) =
+        let buildScript = ``get build.fsx`` d
+        let lines = File.ReadAllLines buildScript
+        let startPred =  (fun (idx, line : string) -> line.Contains "let dotnetRestore")
+        let endPred = (snd >> (fun (x : string) -> x.StartsWith "let ") >> not)
+        match ``find section`` startPred endPred lines with
+        | None -> ()
+        | Some (startIdx, endIdx ) ->
+            ``replace section with`` (startIdx + 1) endIdx "    ()" lines
+            |> File.writeNew buildScript
+
+    let ``disable build`` (d : DirectoryInfo) =
+        let buildScript = ``get build.fsx`` d
+        let lines = File.ReadAllLines buildScript
+        let startPred =  (fun (idx, line : string) -> line.Contains "let dotnetBuild")
+        let endPred = (snd >> (fun (x : string) -> x.StartsWith "let ") >> not)
+        match ``find section`` startPred endPred lines with
+        | None -> ()
+        | Some (startIdx, endIdx ) ->
+            ``replace section with`` (startIdx + 1) endIdx "    ()" lines
+            |> File.writeNew buildScript
+
+    let ``disable fsharpAnalyzers`` (d : DirectoryInfo) =
+        let buildScript = ``get build.fsx`` d
+        let lines = File.ReadAllLines buildScript
+        let startPred =  (fun (idx, line : string) -> line.Contains "let fsharpAnalyzers")
+        let endPred = (snd >> (fun (x : string) -> x.StartsWith "let ") >> not)
+        match ``find section`` startPred endPred lines with
+        | None -> ()
+        | Some (startIdx, endIdx ) ->
+            ``replace section with`` (startIdx + 1) endIdx "    ()" lines
+            |> File.writeNew buildScript
+
+
+    let ``disable tests`` (d : DirectoryInfo) =
+        let buildScript = ``get build.fsx`` d
+        let lines = File.ReadAllLines buildScript
+        let startPred =  (fun (idx, line : string) -> line.Contains "let dotnetTest")
+        let endPred = (snd >> (fun (x : string) -> x.StartsWith "let ") >> not)
+        match ``find section`` startPred endPred lines with
+        | None -> ()
+        | Some (startIdx, endIdx ) ->
+            ``replace section with`` (startIdx + 1) endIdx "    ()" lines
+            |> File.writeNew buildScript
+
+
+
+    let ``disable generateCoverage`` (d : DirectoryInfo) =
+        let buildScript = ``get build.fsx`` d
+        let lines = File.ReadAllLines buildScript
+        let startPred =  (fun (idx, line : string) -> line.Contains "let generateCoverageReport")
+        let endPred = (snd >> (fun (x : string) -> x.StartsWith "let ") >> not)
+        match ``find section`` startPred endPred lines with
+        | None -> ()
+        | Some (startIdx, endIdx ) ->
+            ``replace section with`` (startIdx + 1) endIdx "    ()" lines
+            |> File.writeNew buildScript
+
+
+    let ``disable createPackages`` (d : DirectoryInfo) =
+        let buildScript = ``get build.fsx`` d
+        let lines = File.ReadAllLines buildScript
+        let startPred =  (fun (idx, line : string) -> line.Contains "let createPackages")
+        let endPred = (snd >> (fun (x : string) -> x.StartsWith "let ") >> not)
+        match ``find section`` startPred endPred lines with
+        | None -> ()
+        | Some (startIdx, endIdx ) ->
+            ``replace section with`` (startIdx + 1) endIdx "    ()" lines
+            |> File.writeNew buildScript
+
+
+    let ``disable dotnetPack`` (d : DirectoryInfo) =
+        let buildScript = ``get build.fsx`` d
+        let lines = File.ReadAllLines buildScript
+        let startPred =  (fun (idx, line : string) -> line.Contains "let dotnetPack")
+        let endPred = (snd >> (fun (x : string) -> x.StartsWith "let ") >> not)
+        match ``find section`` startPred endPred lines with
+        | None -> ()
+        | Some (startIdx, endIdx ) ->
+            ``replace section with`` (startIdx + 1) endIdx "    ()" lines
+            |> File.writeNew buildScript
+
     let ``disable sourceLinkTest function`` (d : DirectoryInfo) =
-        let buildScript = Path.combine d.FullName "build.fsx"
+        let buildScript = ``get build.fsx`` d
         let lines = File.ReadAllLines buildScript
         match lines |> Array.tryFindIndex (fun line -> line.Contains "let sourceLinkTest") with
         | None -> ()
@@ -126,7 +230,7 @@ module Effect =
             lines |> File.writeNew buildScript
 
     let ``disable publishToNuget function`` (d : DirectoryInfo) =
-        let buildScript = Path.combine d.FullName "build.fsx"
+        let buildScript = ``get build.fsx`` d
         let lines = File.ReadAllLines buildScript
         match lines |> Array.tryFindIndex (fun line -> line.Contains "Paket.push(") with
         | None -> ()
@@ -142,7 +246,7 @@ module Effect =
             lines |> File.writeNew buildScript
 
     let ``disable pushing in gitRelease function`` (d : DirectoryInfo) =
-        let buildScript = Path.combine d.FullName "build.fsx"
+        let buildScript = ``get build.fsx`` d
         let lines = File.ReadAllLines buildScript
         match lines |> Array.tryFindIndex (fun line -> line.Contains "let gitRelease") with
         | None -> ()
@@ -168,7 +272,7 @@ module Effect =
         Git.Commit.exec d.FullName message
 
     let ``make build function fail`` (failureFunction : string) (d : DirectoryInfo) =
-        let buildScript = Path.combine d.FullName "build.fsx"
+        let buildScript = ``get build.fsx`` d
         buildScript |> File.applyReplace (fun text ->
             text.Replace(sprintf "let %s _ =\n" failureFunction,
                          sprintf "let %s _ =\n    failwith \"Deliberate failure in unit test\"\n" failureFunction)
@@ -193,6 +297,13 @@ module Effect =
 
     let ``setup for release tests`` (d : DirectoryInfo) =
         ``git init`` d
+        ``disable restore`` d
+        ``disable build`` d
+        ``disable fsharpAnalyzers`` d
+        ``disable tests`` d
+        ``disable generateCoverage`` d
+        ``disable createPackages`` d
+        ``disable dotnetPack`` d
         ``git commit all`` "Initial commit" d
         ``set environment variable`` "RELEASE_VERSION" "2.0.0" d
         // SourceLinkTest requires an actual repo to exist, which we won't have in these tests
