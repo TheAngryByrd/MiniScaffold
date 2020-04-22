@@ -351,18 +351,24 @@ let ``dotnet pack`` ctx =
 let ``integration tests`` ctx =
     !! testsGlob
     |> Seq.iter (fun proj ->
-        DotNet.test(fun c ->
+
+        dotnet.run(fun c ->
             let args =
                 [
-
+                    // sprintf "-C %A" (configuration (ctx.Context.AllExecutingTargets))
+                    sprintf "-p %s" proj
                 ] |> String.concat " "
             { c with
-                Configuration = configuration (ctx.Context.AllExecutingTargets)
-                Common =
-                    c.Common
-                    |> DotNet.Options.withCustomParams
-                        (Some(args))
-                }) proj)
+                CustomParams = Some args
+                // Configuration = configuration (ctx.Context.AllExecutingTargets)
+                // Common =
+                //     c.Common
+                //     |> DotNet.Options.withCustomParams
+                //         (Some(args))
+                }) ""
+            |> failOnBadExitAndPrint
+        )
+
 
 let publish _ =
     allReleaseChecks ()

@@ -273,12 +273,13 @@ module Effect =
 
     let ``make build function fail`` (failureFunction : string) (d : DirectoryInfo) =
         let buildScript = ``get build.fsx`` d
-        buildScript |> File.applyReplace (fun text ->
-            text.Replace(sprintf "let %s _ =\n" failureFunction,
-                         sprintf "let %s _ =\n    failwith \"Deliberate failure in unit test\"\n" failureFunction)
-                .Replace(sprintf "let %s ctx =\n" failureFunction,
-                         sprintf "let %s ctx =\n    failwith \"Deliberate failure in unit test\"\n" failureFunction)
-        )
+        let lines = File.ReadAllLines buildScript
+        let idx = lines |> Array.findIndex (fun line -> line.Contains failureFunction)
+        let msg = sprintf "    failwith \"Deliberate failure in unit test for %s\"\n" failureFunction
+        Array.insert msg (idx + 1)  lines
+        // |> fun lines -> lines |> Seq.iter(printfn "%s") ; lines
+        |> File.writeNew buildScript
+
 
     let ``set environment variable`` name value (d : DirectoryInfo) =
         Environment.SetEnvironmentVariable(name, value)
