@@ -4,6 +4,8 @@
 #r "Facades/netstandard"
 #r "netstandard"
 #endif
+#nowarn "52"
+
 open System
 open Fake.SystemHelper
 open Fake.Core
@@ -222,7 +224,7 @@ module DocsTool =
         ]
         |> watchparser.PrintCommandLineArgumentsFlat
 
-    let watch projectpath =
+    let watch () =
         dotnet.watch (fun args ->
            { args with WorkingDirectory = docsToolDir }
         ) "run" (sprintf "-- watch %s" (watchCLI ()))
