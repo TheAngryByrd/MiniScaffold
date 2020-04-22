@@ -253,6 +253,7 @@ module GenerateDocs =
                 let compilerOptions =
                     [|
                         yield "--targetprofile:netstandard"
+                        yield "-r:System.Net.WebClient" // FSharp.Formatting on Windows requires this to render fsharp sections in markdown for some reason
                         yield!
                             rref
                             |> Seq.filter(stringContainsInsenstive "fsharp.core.dll" >> not)
