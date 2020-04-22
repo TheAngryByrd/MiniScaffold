@@ -60,74 +60,74 @@ module Tests =
         testList "samples" [
             do setup ()
             yield! [
-                "-n MyCoolLib --githubUsername CoolPersonNo2", [
-                    yield! projectStructureAsserts
-                    Assert.``project can build target`` "DotnetPack"
-                    Assert.``project can build target`` "BuildDocs"
-                    ]
-                // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
-                "-n fsharp-data-sample --githubUsername CoolPersonNo2", [
-                    yield! projectStructureAsserts
-                    Assert.``project can build target`` "DotnetPack"
-                    ]
-                "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console", [
-                    yield! projectStructureAsserts
-                    Assert.``project can build target`` "CreatePackages"
-                    ]
+                // "-n MyCoolLib --githubUsername CoolPersonNo2", [
+                //     yield! projectStructureAsserts
+                //     Assert.``project can build target`` "DotnetPack"
+                //     Assert.``project can build target`` "BuildDocs"
+                //     ]
+                // // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
+                // "-n fsharp-data-sample --githubUsername CoolPersonNo2", [
+                //     yield! projectStructureAsserts
+                //     Assert.``project can build target`` "DotnetPack"
+                //     ]
+                // "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console", [
+                //     yield! projectStructureAsserts
+                //     Assert.``project can build target`` "CreatePackages"
+                //     ]
                 // Test that CHANGELOG.md is not modified during build failures,
                 // *unless* at least one step has pushed a release to the outside world.
                 "-n DotnetRestoreFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
-                    Effect.``make build function fail`` "dotnetRestore"
+                    Effect.``make build function fail`` "let generateAssemblyInfo"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
                 "-n AssemblyInfoFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
-                    Effect.``make build function fail`` "generateAssemblyInfo"
+                    Effect.``make build function fail`` "let generateAssemblyInfo"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
                 "-n DotnetBuildFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
-                    Effect.``make build function fail`` "dotnetBuild"
+                    Effect.``make build function fail`` "let generateAssemblyInfo"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
                 "-n DotnetTestFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
-                    Effect.``make build function fail`` "dotnetTest"
+                    Effect.``make build function fail`` "let generateAssemblyInfo"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
                 "-n CoverageReportFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
-                    Effect.``make build function fail`` "generateCoverageReport"
+                    Effect.``make build function fail`` "let generateAssemblyInfo"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
                 "-n DotnetPackFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
-                    Effect.``make build function fail`` "dotnetPack"
+                    Effect.``make build function fail`` "let generateAssemblyInfo"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
                 "-n SourceLinkTestFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
-                    Effect.``make build function fail`` "sourceLinkTest"
+                    Effect.``make build function fail`` "let generateAssemblyInfo"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
                 "-n PublishToNugetFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
-                    Effect.``make build function fail`` "publishToNuget"
+                    Effect.``make build function fail`` "let generateAssemblyInfo"
                     Assert.``CHANGELOG contains Unreleased section``
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
