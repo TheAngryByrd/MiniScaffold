@@ -402,10 +402,10 @@ let generateCoverageReport _ =
         |> String.concat ";"
     let independentArgs =
             [
-                sprintf "-reports:%s"  coverageReports
-                sprintf "-targetdir:%s" coverageReportDir
+                sprintf "-reports:\"%s\""  coverageReports
+                sprintf "-targetdir:\"%s\"" coverageReportDir
                 // Add source dir
-                sprintf "-sourcedirs:%s" sourceDirs
+                sprintf "-sourcedirs:\"%s\"" sourceDirs
                 // Ignore Tests and if AltCover.Recorder.g sneaks in
                 sprintf "-assemblyfilters:\"%s\"" "-*.Tests;-AltCover.Recorder.g"
                 sprintf "-Reporttypes:%s" "Html"
@@ -497,7 +497,7 @@ let createPackages _ =
                 sprintf "/p:RuntimeIdentifier=%s" runtime
                 sprintf "/p:Configuration=%s" "Release"
                 sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
-                sprintf "/p:PackagePath=%s" (distDir @@ (sprintf "%s-%s-%s" productName latestEntry.NuGetVersion runtime ))
+                sprintf "/p:PackagePath=\"%s\"" (distDir @@ (sprintf "%s-%s-%s" productName latestEntry.NuGetVersion runtime ))
             ] |> String.concat " "
 
         DotNet.exec (fun opt ->
