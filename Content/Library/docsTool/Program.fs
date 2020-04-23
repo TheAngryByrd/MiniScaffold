@@ -330,7 +330,7 @@ module GenerateDocs =
                 |> Array.toList
                 |> List.map(fun fi -> fi.DirectoryName)
                 |> List.distinct
-            let libDirs = mscorlibDir :: references
+            let libDirs = references
             let targetApiDir = docsApiDir cfg.DocsOutputDirectory.FullName @@ IO.Path.GetFileNameWithoutExtension(projInfo.TargetPath.Name)
             let generatorOutput =
                 MetadataFormat.Generate(
