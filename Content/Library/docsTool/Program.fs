@@ -322,9 +322,6 @@ module GenerateDocs =
     let generateAPI (projInfos : ProjInfo.ProjInfo array) (cfg : Configuration) =
         let generate (projInfo :  ProjInfo.ProjInfo) =
             Trace.tracefn "Generating API Docs for %s" projInfo.TargetPath.FullName
-            let mscorlibDir =
-                (typedefof<System.Runtime.MemoryFailPoint>.GetType().Assembly.Location) //Find runtime dll]
-                    |> Path.GetDirectoryName
             let references =
                 projInfo.References
                 |> Array.toList
