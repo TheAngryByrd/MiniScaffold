@@ -60,20 +60,15 @@ module Tests =
         testList "samples" [
             do setup ()
             yield! [
-                // "-n MyCoolLib --githubUsername CoolPersonNo2", [
-                //     yield! projectStructureAsserts
-                //     Assert.``project can build target`` "DotnetPack"
-                //     Assert.``project can build target`` "BuildDocs"
-                //     ]
-                // // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
-                // "-n fsharp-data-sample --githubUsername CoolPersonNo2", [
-                //     yield! projectStructureAsserts
-                //     Assert.``project can build target`` "DotnetPack"
-                //     ]
-                // "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console", [
-                //     yield! projectStructureAsserts
-                //     Assert.``project can build target`` "CreatePackages"
-                //     ]
+                // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
+                "-n fsharp-data-sample --githubUsername CoolPersonNo2", [
+                    yield! projectStructureAsserts
+                    Assert.``project can build target`` "DotnetPack"
+                    ]
+                "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console", [
+                    yield! projectStructureAsserts
+                    Assert.``project can build target`` "CreatePackages"
+                    ]
                 // Test that CHANGELOG.md is not modified during build failures,
                 // *unless* at least one step has pushed a release to the outside world.
                 "-n DotnetRestoreFail --githubUsername TestAccount", [
