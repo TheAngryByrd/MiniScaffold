@@ -441,7 +441,7 @@ let dotnetTest ctx =
 
 let generateCoverageReport _ =
     let coverageReports =
-        !!"tests/**/coverage.*.xml"
+        !!"tests/**/coverage*.xml"
         |> String.concat ";"
     let sourceDirs =
         !! srcGlob
