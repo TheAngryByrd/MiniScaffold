@@ -535,7 +535,7 @@ module WebServer =
     let openBrowser url =
         let waitForExit (proc : Process) =
             proc.WaitForExit()
-            if proc.ExitCode <> 0 then failwithf "opening browser failed"
+            if proc.ExitCode <> 0 then eprintf "opening browser failed, open your browser and navigate to url to see the docs site."
         try
             let psi = ProcessStartInfo(FileName = url, UseShellExecute = true)
             Process.Start psi
