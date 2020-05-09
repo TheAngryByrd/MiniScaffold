@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.3] - 2020-05-09
+
+### Changed
+- Updated FAKE to 5.20.0 and Paket to 5.245.1 from [@TheAngryByrd](https://github.com/TheAngryByrd) - https://github.com/TheAngryByrd/MiniScaffold/pull/214
+
 ## [0.24.2] - 2020-05-01
 
 ### Fixed
@@ -428,7 +433,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.24.2...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.24.3...HEAD
+[0.24.3]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.24.2...0.24.3
 [0.24.2]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.24.1...0.24.2
 [0.24.1]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.24.0...0.24.1
 [0.24.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.23.5...0.24.0
