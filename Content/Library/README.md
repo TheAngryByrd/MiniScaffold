@@ -107,14 +107,18 @@ git remote add origin https://github.com/user/MyCoolNewLib.git
 git push -u origin master
 ```
 
-- [Add your NuGet API key to paket](https://fsprojects.github.io/Paket/paket-config.html#Adding-a-NuGet-API-key)
+- [Create your NuGeT API key](https://docs.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-api-keys)
+    - [Add your NuGet API key to paket](https://fsprojects.github.io/Paket/paket-config.html#Adding-a-NuGet-API-key)
 
-```sh
-paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9b3a
-```
+    ```sh
+    paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9b3a
+    ```
+
+    - or set the environment variable `NUGET_TOKEN` to your key
+
 
 - [Create a GitHub OAuth Token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
-  - You can then set the `GITHUB_TOKEN` to upload release notes and artifacts to github
+  - You can then set the environment variable `GITHUB_TOKEN` to upload release notes and artifacts to github
   - Otherwise it will fallback to username/password
 
 - Then update the `CHANGELOG.md` with an "Unreleased" section containing release notes for this version, in [KeepAChangelog](https://keepachangelog.com/en/1.1.0/) format.

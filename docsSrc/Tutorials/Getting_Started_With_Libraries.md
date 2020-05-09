@@ -146,11 +146,10 @@ The release process is streamlined so you only have to start your git repository
     git remote add origin https://github.com/MyGithubUsername/MyCoolNewLib.git
     git push -u origin master
 
-- [Create a NuGet API key](https://docs.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-api-keys) and [Add your NuGet API key to paket](https://fsprojects.github.io/Paket/paket-config.html#Adding-a-NuGet-API-key)
+- [Create a NuGet API key](https://docs.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-api-keys)
 
-
-    [lang=bash]
-    paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9b3a
+    - [Add your NuGet API key to paket](https://fsprojects.github.io/Paket/paket-config.html#Adding-a-NuGet-API-key)
+    - or set the environment variable `NUGET_TOKEN` to your key
 
 - [Create a GitHub OAuth Token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
   - You can then set the `GITHUB_TOKEN` to upload `CHANGELOG` notes and artifacts to github
