@@ -100,7 +100,7 @@ let githubToken = Environment.environVarOrDefault "GITHUB_TOKEN" ""
 TraceSecrets.register "<GITHUB_TOKEN>" githubToken
 
 let nugetToken = Environment.environVarOrDefault "NUGET_TOKEN" ""
-TraceSecrets.register "<NUGET_TOKEN>" githubToken
+TraceSecrets.register "<NUGET_TOKEN>" nugetToken
 
 //-----------------------------------------------------------------------------
 // Helpers

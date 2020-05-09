@@ -102,6 +102,8 @@ let runtimes = [
 
 let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
 
+let githubToken = Environment.environVarOrDefault "GITHUB_TOKEN" ""
+TraceSecrets.register "<GITHUB_TOKEN>" githubToken
 
 //-----------------------------------------------------------------------------
 // Helpers
@@ -113,6 +115,9 @@ let isRelease (targets : Target list) =
     |> Seq.map(fun t -> t.Name)
     |> Seq.exists ((=)"Release")
 
+let (|NonEmptyString|_|) (s : string) =
+    if String.IsNullOrWhiteSpace s then None
+    else Some s
 
 let isReleaseBranchCheck () =
     if Git.Information.getBranchName "" <> releaseBranch then failwithf "Not on %s.  If you want to release please switch to this branch." releaseBranch
@@ -531,8 +536,8 @@ let gitRelease _ =
 let githubRelease _ =
     allReleaseChecks ()
     let token =
-        match Environment.environVarOrDefault "GITHUB_TOKEN" "" with
-        | s when not (String.IsNullOrWhiteSpace s) -> s
+        match githubToken with
+        | NonEmptyString s -> s
         | _ -> failwith "please set the github_token environment variable to a github personal access token with repo access."
 
     let files = distGlob
