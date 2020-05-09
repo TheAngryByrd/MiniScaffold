@@ -96,11 +96,12 @@ let docsSiteBaseUrl = sprintf "https://%s.github.io/%s" gitOwner gitRepoName
 
 let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
 
-let githubToken = Environment.environVarOrDefault "GITHUB_TOKEN" ""
-TraceSecrets.register "<GITHUB_TOKEN>" githubToken
+let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
+Option.iter(TraceSecrets.register "<GITHUB_TOKEN>" )
 
-let nugetToken = Environment.environVarOrDefault "NUGET_TOKEN" ""
-TraceSecrets.register "<NUGET_TOKEN>" nugetToken
+
+let nugetToken = Environment.environVarOrNone "NUGET_TOKEN"
+Option.iter(TraceSecrets.register "<NUGET_TOKEN>")
 
 //-----------------------------------------------------------------------------
 // Helpers
@@ -112,10 +113,6 @@ let isRelease (targets : Target list) =
     |> Seq.exists ((=)"Release")
 
 let invokeAsync f = async { f () }
-
-let (|NonEmptyString|_|) (s : string) =
-    if String.IsNullOrWhiteSpace s then None
-    else Some s
 
 let configuration (targets : Target list) =
     let defaultVal = if isRelease targets then "Release" else "Debug"
@@ -562,7 +559,7 @@ let publishToNuget _ =
             PublishUrl = publishUrl
             WorkingDir = "dist"
             ApiKey = match nugetToken with
-                     | NonEmptyString s -> s
+                     | Some s -> s
                      | _ -> c.ApiKey // assume paket-config was set properly
         }
     )
@@ -592,7 +589,7 @@ let githubRelease _ =
     allReleaseChecks ()
     let token =
         match githubToken with
-        | NonEmptyString s -> s
+        | Some s -> s
         | _ -> failwith "please set the github_token environment variable to a github personal access token with repo access."
 
     let files = !! distGlob
