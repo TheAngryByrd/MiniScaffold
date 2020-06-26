@@ -37,7 +37,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
 - `Release` build step commits latest [CHANGELOG.md](https://keepachangelog.com/en/1.0.0/) in the body and creates a [git tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging).
     - If you [reference a Pull Request](https://github.com/TheAngryByrd/MiniScaffold/blob/master/CHANGELOG.md#0230-beta001---2020-02-07) in the `CHANGELOG.md` it will [update that Pull Request](https://github.com/TheAngryByrd/MiniScaffold/pull/186#ref-commit-b343218) with the version it was released in.
 - `Release` build step publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) via the  [CHANGELOG.md](https://keepachangelog.com/en/1.0.0/) and adds any artifacts (nuget/zip/targz/etc).
-- [Continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) via [AppVeyor](https://www.appveyor.com/docs/) (Windows) and [TravisCI](https://docs.travis-ci.com/) (Linux) or [GitHub Actions](https://github.com/features/actions)
+- [Continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) via [GitHub Actions](https://github.com/features/actions)
 
 
 ### For [Libraries](Content/Library/README.md)
@@ -93,10 +93,11 @@ dotnet new mini-scaffold -n MyCoolNewApp --githubUsername MyGithubUsername -ou c
 
 ## Builds
 
-macOS/Linux | Windows
-:---: | :---:
-[![Travis Badge](https://travis-ci.org/TheAngryByrd/MiniScaffold.svg?branch=master)](https://travis-ci.org/TheAngryByrd/MiniScaffold) | [![Build status](https://ci.appveyor.com/api/projects/status/rvwrjthtnew2digr/branch/master?svg=true)](https://ci.appveyor.com/project/TheAngryByrd/miniscaffold/branch/master)
-[![Build History](https://buildstats.info/travisci/chart/TheAngryByrd/MiniScaffold)](https://travis-ci.org/TheAngryByrd/MiniScaffold/builds) | [![Build History](https://buildstats.info/appveyor/chart/TheAngryByrd/MiniScaffold)](https://ci.appveyor.com/project/TheAngryByrd/MiniScaffold)
+GitHub Actions |
+:---: |
+[![GitHub Actions](https://github.com/TheAngryByrd/MiniScaffold/workflows/Build%20master/badge.svg)](https://github.com/TheAngryByrd/MiniScaffold/actions?query=branch%3Amaster) |
+[![Build History](https://buildstats.info/github/chart/TheAngryByrd/MiniScaffold)](https://github.com/TheAngryByrd/MiniScaffold/actions?query=branch%3Amaster) |
+
 
 ## NuGet
 

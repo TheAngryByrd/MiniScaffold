@@ -6,10 +6,10 @@
 
 ## Builds
 
-macOS/Linux | Windows
---- | ---
-[![Travis Badge](https://travis-ci.org/MyGithubUsername/MyLib.1.svg?branch=master)](https://travis-ci.org/MyGithubUsername/MyLib.1) | [![Build status](https://ci.appveyor.com/api/projects/status/github/MyGithubUsername/MyLib.1?svg=true)](https://ci.appveyor.com/project/MyGithubUsername/MyLib.1)
-[![Build History](https://buildstats.info/travisci/chart/MyGithubUsername/MyLib.1)](https://travis-ci.org/MyGithubUsername/MyLib.1/builds) | [![Build History](https://buildstats.info/appveyor/chart/MyGithubUsername/MyLib.1)](https://ci.appveyor.com/project/MyGithubUsername/MyLib.1)  
+GitHub Actions |
+:---: |
+[![GitHub Actions](https://github.com/MyGithubUsername/MyLib.1/workflows/Build%20master/badge.svg)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3Amaster) |
+[![Build History](https://buildstats.info/github/chart/MyGithubUsername/MyLib.1)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3Amaster) |
 
 ## NuGet 
 

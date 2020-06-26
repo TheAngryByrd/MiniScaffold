@@ -34,7 +34,6 @@ This will generate a structure similar to this
     |-- MyCoolNewLib.sln
     |-- README.md
     |-- CHANGELOG.md
-    |-- appveyor.yml
     |-- build.cmd
     |-- build.fsx
     |-- build.sh

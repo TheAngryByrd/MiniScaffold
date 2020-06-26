@@ -24,7 +24,6 @@ When you do an initial scaffold, your folder will be filled with this set of fil
     |-- .gitignore
     |-- .paket
     |   |-- Paket.Restore.targets
-    |-- .travis.yml
     |-- .vscode
     |   |-- extensions.json
     |   |-- settings.json
@@ -33,7 +32,6 @@ When you do an initial scaffold, your folder will be filled with this set of fil
     |-- MyCoolNewLib.sln
     |-- README.md
     |-- CHANGELOG.md
-    |-- appveyor.yml
     |-- build.cmd
     |-- build.fsx
     |-- build.sh
@@ -93,7 +91,6 @@ When you do an initial scaffold, your folder will be filled with this set of fil
 - `.github\` - Holds all [GitHub] related templates.
 - `.gitignore` - Good set of defaults for dotnet related repositories.
 - `.paket\Paket.Restore.targets` - Needed for paket to interact with MSBuild. See [paket](https://fsprojects.github.io/Paket/).
-- `.travis.yml` - File containing default CI setup for [TravisCI](https://travis-ci.org/). Used for Linux/macOS builds.
 - `.vscode\extensions.json` - File containing all recommended VSCode plugins for this repository.
 - `.vscode\settings.json` - File containing all VSCode settings for this repository.
 - `Directory.Build.props` - Top level configuration for project files. See [Microsoft Docs](https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2019#directorybuildprops-and-directorybuildtargets) for more info.
@@ -101,7 +98,6 @@ When you do an initial scaffold, your folder will be filled with this set of fil
 - `MyCoolNewLib.sln` - Solution file for your repository. See [Microsoft Docs](https://docs.microsoft.com/en-us/visualstudio/extensibility/internals/solution-dot-sln-file?view=vs-2019) for more info.
 - `README.md` - The text file that introduces and explains a project.
 - `CHANGELOG.md` - The text file containing versioning, date, and release notes.
-- `appveyor.yml` File contained default CI setup for [AppVeyor](https://www.appveyor.com/). Used for Windows builds.
 - `build.cmd` - Windows specific entry point for building the repository.
 - `build.sh` - Nix specific entry point for building the repository.
 - `build.fsx` - Build script for building the repository. See [FAKE Docs](https://fake.build/) for more info.
