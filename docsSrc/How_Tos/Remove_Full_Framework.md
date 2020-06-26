@@ -30,22 +30,4 @@ The resulting fsproj should look like:
     <Import Project="..\..\.paket\Paket.Restore.targets" />
     </Project>
 
-- Remove the `mono` section from your `.travis.yml` file.
-    - Remove any mono keys from your `allow_failures` section.
 
-The resulting `.travis.yml` should look like:
-
-    [lang=yml]
-    language: csharp
-    sudo: required
-    dist: xenial
-
-    dotnet: 3.1.100
-    os:
-    - linux
-
-    script:
-    - ./build.sh
-
-    matrix:
-    fast_finish: true
