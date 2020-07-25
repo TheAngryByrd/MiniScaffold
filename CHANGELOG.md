@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.0] - 2020-07-25
+
+### Fixed
+- Code coverage will only include what we have the source code for from [@simontaite](https://github.com/simontaite) - https://github.com/TheAngryByrd/MiniScaffold/pull/218
+
+### Removed
+- Travis and AppVeyor CI scripts in favor of GitHub Actions from [@TheAngryByrd](https://github.com/TheAngryByrd) - https://github.com/TheAngryByrd/MiniScaffold/pull/217
+
 ## [0.25.0-beta001] - 2020-07-25
 
 ### Fixed
@@ -449,7 +457,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.25.0-beta001...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.25.0...HEAD
+[0.25.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.24.4...0.25.0
 [0.25.0-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.24.4...0.25.0-beta001
 [0.24.4]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.24.3...0.24.4
 [0.24.3]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.24.2...0.24.3
