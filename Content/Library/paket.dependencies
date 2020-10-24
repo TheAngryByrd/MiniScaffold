@@ -42,8 +42,6 @@ group Docs
     nuget FSharp.Formatting 4.0.0-rc1
     nuget FSharp.Literate 4.0.0-rc1
     nuget Fable.React
-    nuget Dotnet.ProjInfo.Workspace.FCS
-    nuget FSharp.Compiler.Service 34.1.1
 
 group Analyzers
   source https://www.nuget.org/api/v2

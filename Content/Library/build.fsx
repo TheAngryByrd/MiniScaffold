@@ -626,18 +626,6 @@ let buildDocs _ =
     DocsTool.build ()
 
 let watchDocs _ =
-    let watchBuild () =
-        !! srcGlob
-        |> Seq.map(fun proj -> fun () ->
-            dotnet.watch
-                (fun opt ->
-                    opt |> DotNet.Options.withWorkingDirectory (IO.Path.GetDirectoryName proj))
-                "build"
-                ""
-            |> ignore
-        )
-        |> Seq.iter (invokeAsync >> Async.Catch >> Async.Ignore >> Async.Start)
-    watchBuild ()
     DocsTool.watch ()
 
 let releaseDocs ctx =
@@ -699,13 +687,11 @@ Target.create "ReleaseDocs" releaseDocs
 "UpdateChangelog" ?=> "GenerateAssemblyInfo"
 "UpdateChangelog" ==> "PublishToNuGet"
 
-"DotnetBuild" ==> "BuildDocs"
 "BuildDocs" ==> "ReleaseDocs"
 "BuildDocs" ?=> "PublishToNuget"
 "DotnetPack" ?=> "BuildDocs"
 "GenerateCoverageReport" ?=> "ReleaseDocs"
 
-"DotnetBuild" ==> "WatchDocs"
 
 "DotnetRestore"
     ==> "DotnetBuild"
