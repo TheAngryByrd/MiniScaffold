@@ -10,10 +10,24 @@ module Uri =
         | (true, v) -> v
         | _ -> failwithf "Bad url %s" url
 
-module Directory =
+
+
+module Diposeable =
     open System
     open Fake.Core
     let dispose (d : #IDisposable) = d.Dispose()
+
+    type DisposableList =
+        {
+            Disposables : IDisposable list
+        } interface IDisposable with
+            member x.Dispose () =
+                x.Disposables |> List.iter(dispose)
+          static member Create(disposables) =
+            {
+                Disposables = disposables
+            } :> IDisposable
+
     type DisposableDirectory (directory : string) =
         do
             Trace.tracefn "Created disposable directory %s" directory

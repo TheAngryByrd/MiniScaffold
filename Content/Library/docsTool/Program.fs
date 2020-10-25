@@ -1,12 +1,7 @@
-﻿// Learn more about F# at http://fsharp.org
-
-
-open System
+﻿open System
 open Fake.IO.FileSystemOperators
 open Fake.IO
 open Fake.Core
-
-let refreshWebpageEvent = new Event<string>()
 
 type Configuration = {
     SiteBaseUrl         : Uri
@@ -20,15 +15,6 @@ type Configuration = {
     PublishPath         : IO.DirectoryInfo
 }
 
-let docsApiDir docsDir = docsDir @@ "Api_Reference"
-
-type DisposableList =
-        {
-            disposables : IDisposable list
-        } interface IDisposable with
-            member x.Dispose () =
-                x.disposables |> List.iter(fun s -> s.Dispose())
-
 module GenerateDocs =
     open DocsTool
     open Fake.IO.Globbing.Operators
@@ -37,6 +23,7 @@ module GenerateDocs =
     open System.IO
     open FSharp.MetadataFormat
 
+    let docsApiDir docsDir = docsDir @@ "Api_Reference"
 
     type GeneratedDoc = {
         SourcePath : FileInfo option
@@ -44,7 +31,6 @@ module GenerateDocs =
         Content : ReactElement list
         Title : string
     }
-
 
     let docsFileGlob docsSrcDir =
         !! (docsSrcDir @@ "**/*.fsx")
@@ -210,7 +196,8 @@ module GenerateDocs =
         )
         |> Seq.toList
 
-    let publish (cfg : Configuration) =
+    /// The reason we do dotnet publish is because it will put all the referenced dlls into one folder. This makes it easy for tools to find the reference and we don't have to use FCS or any dotnet tools to try to analyze the project file and find where all the references are.
+    let dotnetPublish (cfg : Configuration) =
         cfg.ProjectFilesGlob
         |> Seq.iter(fun p ->
             Fake.DotNet.DotNet.publish
@@ -274,8 +261,9 @@ module GenerateDocs =
                 )
             [ indexDoc ] @ moduleDocs @ typeDocs
         cfg.ProjectFilesGlob
-        |> Seq.collect(generate)
-        |> Seq.toList
+        |> Seq.toArray
+        |> Array.Parallel.collect(generate >> List.toArray)
+        |> Array.toList
 
     let renderDocs (cfg : Configuration) =
         copyAssets cfg
@@ -287,13 +275,13 @@ module GenerateDocs =
                     eprintfn "generateDocs failure %A" e
                     return raise e
             }
+
         let generateAPI =
             async {
-                return (generateAPI cfg)
+                return generateAPI cfg
             }
 
-
-        publish cfg
+        dotnetPublish cfg
         Async.Parallel [generateDocs; generateAPI]
         |> Async.RunSynchronously
         |> Array.toList
@@ -303,7 +291,7 @@ module GenerateDocs =
         renderDocs cfg
         |> renderGeneratedDocs false cfg
 
-    let watchDocs (cfg : Configuration) =
+    let watchDocs (refreshWebpageEvent : Event<_>) (cfg : Configuration) =
         let initialDocs = renderDocs cfg
         let renderGeneratedDocs = renderGeneratedDocs true
         initialDocs |> renderGeneratedDocs cfg
@@ -344,7 +332,7 @@ module GenerateDocs =
             let glob =
                 cfg.ProjectFilesGlob // Get all src projects
                 |> Seq.map(fun p -> (FileInfo p).Directory.FullName </> "**") // Create glob for all files in fsproj folder
-                |> Seq.fold ((++)) (!! "") //Expand to get all files
+                |> Seq.fold ((++)) (!! "") // Expand to get all files
                 |> Seq.filter(fun file -> typesToWatch |> Seq.exists file.EndsWith) // Filter for only F# style files
                 |> Seq.fold ((++)) (!! "") // Turn into glob for ChangeWatcher
             glob
@@ -352,7 +340,7 @@ module GenerateDocs =
               (fun changes ->
                 changes
                 |> Seq.iter(fun c -> Trace.logf "Regenerating API docs due to %s" c.FullPath )
-                publish cfg
+                dotnetPublish cfg
                 let generated = generateAPI cfg
                 initialDocs
                 |> List.filter(fun x -> generated |> List.exists(fun y -> y.OutputPath =  x.OutputPath) |> not )
@@ -362,118 +350,12 @@ module GenerateDocs =
                 refreshWebpageEvent.Trigger "Api"
             )
 
-
-
-        let ds =
-            [
-                docsSrcWatcher
-                contentWatcher
-                apiDocsWatcher
-            ]
-        { disposables = ds } :> IDisposable
-
-
-module WebServer =
-    open Microsoft.AspNetCore.Hosting
-    open Microsoft.AspNetCore.Builder
-    open Microsoft.Extensions.FileProviders
-    open Microsoft.AspNetCore.Http
-    open System.Net.WebSockets
-    open System.Diagnostics
-    open System.Runtime.InteropServices
-
-    let hostname = "localhost"
-    let port = 5000
-
-    /// Helper to determine if port is in use
-    let waitForPortInUse (hostname : string) port =
-        let mutable portInUse = false
-        while not portInUse do
-            Async.Sleep(10) |> Async.RunSynchronously
-            use client = new Net.Sockets.TcpClient()
-            try
-                client.Connect(hostname,port)
-                portInUse <- client.Connected
-                client.Close()
-            with e ->
-                client.Close()
-
-    /// Async version of IApplicationBuilder.Use
-    let useAsync (middlware : HttpContext -> (unit -> Async<unit>) -> Async<unit>) (app:IApplicationBuilder) =
-        app.Use(fun env next ->
-            middlware env (next.Invoke >> Async.AwaitTask)
-            |> Async.StartAsTask
-            :> System.Threading.Tasks.Task
-        )
-
-    let createWebsocketForLiveReload (httpContext : HttpContext) (next : unit -> Async<unit>) = async {
-        if httpContext.WebSockets.IsWebSocketRequest then
-            let! websocket = httpContext.WebSockets.AcceptWebSocketAsync() |> Async.AwaitTask
-            use d =
-                refreshWebpageEvent.Publish
-                |> Observable.subscribe (fun m ->
-                    let segment = ArraySegment<byte>(m |> Text.Encoding.UTF8.GetBytes)
-                    websocket.SendAsync(segment, WebSocketMessageType.Text, true, httpContext.RequestAborted)
-                    |> Async.AwaitTask
-                    |> Async.Start
-
-                )
-            while websocket.State <> WebSocketState.Closed do
-                do! Async.Sleep(1000)
-        else
-            do! next ()
-    }
-
-    let configureWebsocket (appBuilder : IApplicationBuilder) =
-        appBuilder.UseWebSockets()
-        |> useAsync (createWebsocketForLiveReload)
-        |> ignore
-
-    let startWebserver docsDir (url : string) =
-        WebHostBuilder()
-            .UseKestrel()
-            .UseUrls(url)
-            .Configure(fun app ->
-                let opts =
-                    StaticFileOptions(
-                        FileProvider =  new PhysicalFileProvider(docsDir)
-                    )
-                app.UseStaticFiles(opts) |> ignore
-                configureWebsocket app
-            )
-            .Build()
-            .Run()
-
-    let openBrowser url =
-        let waitForExit (proc : Process) =
-            proc.WaitForExit()
-            if proc.ExitCode <> 0 then eprintf "opening browser failed, open your browser and navigate to url to see the docs site."
-        try
-            let psi = ProcessStartInfo(FileName = url, UseShellExecute = true)
-            Process.Start psi
-            |> waitForExit
-        with e ->
-            //https://github.com/dotnet/corefx/issues/10361
-            if RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
-                let url = url.Replace("&", "&^")
-                let psi = ProcessStartInfo("cmd", (sprintf "/c %s" url), CreateNoWindow=true)
-                Process.Start psi
-                |> waitForExit
-            elif RuntimeInformation.IsOSPlatform(OSPlatform.Linux) then
-                Process.Start("xdg-open", url)
-                |> waitForExit
-            elif RuntimeInformation.IsOSPlatform(OSPlatform.OSX) then
-                Process.Start("open", url)
-                |> waitForExit
-            else
-                failwithf "failed to open browser on current OS"
-
-    let serveDocs docsDir =
-        async {
-            waitForPortInUse hostname port
-            sprintf "http://%s:%d/index.html" hostname port |> openBrowser
-        } |> Async.Start
-        startWebserver docsDir (sprintf "http://%s:%d" hostname port)
+        [
+            docsSrcWatcher
+            contentWatcher
+            apiDocsWatcher
+        ]
+        |> Diposeable.DisposableList.Create
 
 
 open FSharp.Formatting.Common
@@ -493,10 +375,15 @@ let setupFsharpFormattingLogging () =
     |> Log.SetupListener noTraceOptions System.Diagnostics.SourceLevels.Verbose
     |> setupListener
 
+
+
+let refreshWebpageEvent = new Event<string>()
+
 open Argu
 open Fake.IO.Globbing.Operators
+open DocsTool
 open DocsTool.CLIArgs
-open DocsTool.Directory
+open DocsTool.Diposeable
 [<EntryPoint>]
 let main argv =
     try
@@ -504,9 +391,11 @@ let main argv =
         use publishPath = DisposableDirectory.Create()
         use __ = AppDomain.CurrentDomain.ProcessExit.Subscribe(fun _ ->
             dispose tempDocsOutDir
+            dispose publishPath
         )
         use __ = Console.CancelKeyPress.Subscribe(fun _ ->
             dispose tempDocsOutDir
+            dispose publishPath
         )
         let defaultConfig = {
             SiteBaseUrl = Uri(sprintf "http://%s:%d/" WebServer.hostname WebServer.port )
@@ -556,8 +445,8 @@ let main argv =
                     | WatchArgs.ProjectName repo -> { state with ProjectName = repo}
                     | WatchArgs.ReleaseVersion version -> { state with ReleaseVersion = version}
                 )
-            use ds = GenerateDocs.watchDocs config
-            WebServer.serveDocs config.DocsOutputDirectory.FullName
+            use ds = GenerateDocs.watchDocs refreshWebpageEvent config
+            WebServer.serveDocs refreshWebpageEvent config.DocsOutputDirectory.FullName
         0
     with e ->
         eprintfn "Fatal error: %A" e
