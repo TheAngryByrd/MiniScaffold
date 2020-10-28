@@ -30,7 +30,8 @@ module Tests =
         // debug ()
         // ensure we're installing the one from our dist folder
         // printfn "nugetPkgPath %s" nugetPkgPath
-
+        Fake.DotNet.DotNet.getSDKVersionFromGlobalJson () |> printfn "dotnet global.json version %s"
+        Fake.DotNet.DotNet.getVersion id |> printfn "dotnet --version %s"
         Dotnet.New.uninstall nugetPkgName
         Dotnet.New.install nugetPkgPath
 
