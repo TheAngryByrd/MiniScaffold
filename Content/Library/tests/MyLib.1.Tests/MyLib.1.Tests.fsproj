@@ -3,14 +3,16 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFrameworks>net5.0</TargetFrameworks>
+        <GenerateProgramFile>false</GenerateProgramFile>
     </PropertyGroup>
     <ItemGroup>
+        <ProjectReference Include="../../src/MyLib.1/MyLib.1.fsproj" />
+    </ItemGroup>
+        <ItemGroup>
         <Compile Include="AssemblyInfo.fs" />
         <Compile Include="Tests.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="../../src/MyLib.1/MyLib.1.fsproj" />
-    </ItemGroup>
     <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
+
