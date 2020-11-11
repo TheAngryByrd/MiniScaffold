@@ -2,7 +2,7 @@ source https://www.nuget.org/api/v2
 source https://api.nuget.org/v3/index.json
 storage: none
 nuget FSharp.Core 5.0
-nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
+nuget Microsoft.SourceLink.GitHub 1.0.0 copy_local: true
 nuget Expecto 9.0.2
 nuget YoloDev.Expecto.TestSdk 0.9.2
 nuget Microsoft.NET.Test.Sdk 16.8.0

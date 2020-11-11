@@ -273,7 +273,7 @@ module DocsTool =
         ]
         |> watchparser.PrintCommandLineArgumentsFlat
 
-    let watch projectpath =
+    let watch () =
         dotnet.watch (fun args ->
            { args with WorkingDirectory = docsToolDir }
         ) "run" (sprintf "-- watch %s" (watchCLI()))
@@ -408,7 +408,7 @@ let dotnetBuild ctx =
 
         }) sln
 
-let fsharpAnalyzers ctx =
+let fsharpAnalyzers _ =
     let argParser = ArgumentParser.Create<FSharpAnalyzers.Arguments>(programName = "fsharp-analyzers")
     !! srcGlob
     |> Seq.iter(fun proj ->
