@@ -4,17 +4,17 @@ on: [push, pull_request]
 
 jobs:
   build:
-
     strategy:
       matrix:
-        # macOS-latest has issues with always using the latest sdk even when global.json is provided
         os: [ubuntu-latest, windows-latest, macOS-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
-    # Side by side workaround: https://github.com/actions/setup-dotnet/issues/25#issuecomment-646925506
-        # Side by side workaround: https://github.com/actions/setup-dotnet/issues/25#issuecomment-646925506
     - uses: actions/checkout@v2
+    - name: Use .NET Core 2.1 SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '2.1.x'
     - name: Use .NET Core 3.1 SDK
       uses: actions/setup-dotnet@v1
       with:
@@ -22,19 +22,8 @@ jobs:
     - name: Use .NET Core 5.0 SDK
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '5.0.100'
-    - name: .NET Side-by-side
-      shell: pwsh
-      run: |
-        $version = Split-Path (Split-Path $ENV:DOTNET_ROOT -Parent) -Leaf;
-        $root = Split-Path (Split-Path $ENV:DOTNET_ROOT -Parent) -Parent;
-        $directories = Get-ChildItem $root | Where-Object { $_.Name -ne $version };
-        foreach ($dir in $directories) {
-          $from = $dir.FullName;
-          $to = "$root/$version";
-          Write-Host Copying from $from to $to;
-          Copy-Item "$from\*" $to -Recurse -Force;
-          }
+        dotnet-version: '5.0.x'
+
     - name: Build
       if: runner.os != 'Windows'
       run: |
