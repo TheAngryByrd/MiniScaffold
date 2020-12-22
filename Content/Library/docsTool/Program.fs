@@ -205,7 +205,7 @@ module GenerateDocs =
                     { opts
                         with
                             OutputPath = Some cfg.PublishPath.FullName
-                            Framework = Some "netstandard2.1"
+                            Framework = Some "net5.0"
                     })
                 p
         )
