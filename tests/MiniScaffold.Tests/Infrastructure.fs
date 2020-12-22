@@ -12,20 +12,26 @@ module Dotnet =
 
 
     module New =
-        let cmd opt args =
-            let args = args |> String.concat " "
+        let cmd (opt : DotNet.Options -> DotNet.Options) args =
+            printfn "dotnet new %s" args
+            // let args = args |> String.concat " "
             DotNet.exec opt "new" args
             |> failOnBadExitAndPrint
         let install name =
-            let args = [
-                sprintf "-i %s" name
-            ]
-            cmd id args
+            let args =
+                Arguments.Empty
+                |> Arguments.appendNotEmpty "-i" name
+                |> Arguments.appendRaw "--dev:install"
+            //     |>
+            // let args = [
+            //     sprintf "-i \"%s\"" name
+            // ]
+            cmd id args.ToStartInfo
         let uninstall name =
-            let args = [
-                sprintf "-u %s" name
-            ]
-            cmd id args
+            let args =
+                Arguments.Empty
+                |> Arguments.appendNotEmpty "-u" name
+            cmd id args.ToStartInfo
 
 
 module Disposables =

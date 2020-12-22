@@ -350,11 +350,16 @@ let ``dotnet pack`` ctx =
             }) proj
     )
 
+let getPkgPath () =
+    !! distGlob
+    |> Seq.head
+
 let ``integration tests`` ctx =
     !! testsGlob
     |> Seq.iter (fun proj ->
 
         dotnet.run(fun c ->
+
             let args =
                 [
                     // sprintf "-C %A" (configuration (ctx.Context.AllExecutingTargets))
@@ -363,6 +368,7 @@ let ``integration tests`` ctx =
                 ] |> String.concat " "
             { c with
                 CustomParams = Some args
+                Environment = c.Environment |> Map.add "MINISCAFFOLD_NUPKG_LOCATION" (getPkgPath ())
                 // Configuration = configuration (ctx.Context.AllExecutingTargets)
                 // Common =
                 //     c.Common
