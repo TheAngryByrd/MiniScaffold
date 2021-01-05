@@ -41,12 +41,9 @@ This takes away the ambiguity that developers face when creating an OSS project.
 
 
 ### For [Libraries](Content/Library/README.md)
-- Builds for both `net461` and `netstandard2.1` - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
-    - To build for `net461`
-        - On windows: Have at least .NET Framework 4.6.1 installed
-        - On macOS/linux: Have [mono](https://www.mono-project.com/download/stable/) installed
-    - To build for `netstandard2.1`
-        - Have [.NET core 3.1](https://dotnet.microsoft.com/download) installed
+### For [Libraries](Content/Library/README.md)
+- Builds for `net50` - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
+    - To build for `net5.0` [.NET 5.0 ](https://dotnet.microsoft.com/download) installed
 - [Sourcelink](https://github.com/dotnet/sourcelink) which enables a great source debugging experience for your users, by adding source control metadata to your built assets
 - [Documentation Generation](https://github.com/fsprojects/FSharp.Formatting) - Generates Documentation from markdown files, fsx files, and the [XML Documentation Comments](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/) from your library.
 - [Release](Content/Library/README.md#Releasing) build step pushes NuGet packages to [NuGet](https://docs.microsoft.com/en-us/nuget/what-is-nuget)
@@ -58,7 +55,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
 - Basic argument parsing example via [Argu](https://fsprojects.github.io/Argu/)
 - Builds a `net5.0` application - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
     - To build for `net5.0`
-        - Have [.NET core 3.1](https://dotnet.microsoft.com/download) installed
+        - Have [.NET 5.0](https://dotnet.microsoft.com/download) installed
 - Builds for `win-x64`, `osx-x64` and `linux-x64` - [Runtime Identifiers](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog).  Bundles the application via [dotnet-packaging](https://github.com/qmfrederik/dotnet-packaging)
     - Bundles the `win-x64` application in a .zip file.
     - Bundles the `osx-x64` application in a .tar.gz file.

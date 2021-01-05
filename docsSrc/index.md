@@ -57,7 +57,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
 - Basic argument parsing example via [Argu](https://fsprojects.github.io/Argu/)
 - Builds a `net5.0` application - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
     - To build for `net5.0`
-        - Have [.NET core 3.1](https://dotnet.microsoft.com/download) installed
+        - Have [.NET core 5.0](https://dotnet.microsoft.com/download) installed
 - Builds for `win-x64`, `osx-x64` and `linux-x64` - [Runtime Identifiers](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog).  Bundles the application via [dotnet-packaging](https://github.com/qmfrederik/dotnet-packaging)
     - Bundles the `win-x64` application in a .zip file.
     - Bundles the `osx-x64` application in a .tar.gz file.
