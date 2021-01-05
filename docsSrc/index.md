@@ -7,8 +7,8 @@
 
 This is an [F# Template](https://docs.microsoft.com/en-us/dotnet/core/tools/custom-templates) for:
 
-- creating and publishing [libraries](https://docs.microsoft.com/en-us/dotnet/standard/glossary#library) targeting .NET Full `net461` and Core `netstandard2.1`
-- creating and publishing [applications](https://docs.microsoft.com/en-us/dotnet/core/tutorials/cli-create-console-app#hello-console-app) targeting .NET  Core `netcoreapp3.1`
+- creating and publishing [libraries](https://docs.microsoft.com/en-us/dotnet/standard/glossary#library) targeting .NET 5.0 `net5.0`
+- creating and publishing [applications](https://docs.microsoft.com/en-us/dotnet/core/tutorials/cli-create-console-app#hello-console-app) targeting .NET 5.0 `net5.0`
 
 
 ## Why use MiniScaffold?
@@ -44,12 +44,8 @@ This takes away the ambiguity that developers face when creating an OSS project.
 
 
 ### For [Libraries](Content/Library/README.md)
-- Builds for both `net461` and `netstandard2.1` - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
-    - To build for `net461`
-        - On windows: Have at least .NET Framework 4.6.1 installed
-        - On macOS/linux: Have [mono](https://www.mono-project.com/download/stable/) installed
-    - To build for `netstandard2.1`
-        - Have [.NET core 3.1](https://dotnet.microsoft.com/download) installed
+- Builds for `net50` - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
+    - To build for `net5.0` [.NET 5.0 ](https://dotnet.microsoft.com/download) installed
 - [Sourcelink](https://github.com/dotnet/sourcelink) which enables a great source debugging experience for your users, by adding source control metadata to your built assets
 - [Documentation Generation](https://github.com/fsprojects/FSharp.Formatting) - Generates Documentation from markdown files, fsx files, and the [XML Documentation Comments](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/) from your library.
 - [Release](Content/Library/README.md#Releasing) build step pushes NuGet packages to [NuGet](https://docs.microsoft.com/en-us/nuget/what-is-nuget)

@@ -59,12 +59,7 @@ The bin of your library should look similar to:
 $ tree src/MyCoolNewLib/bin/
 src/MyCoolNewLib/bin/
 └── Debug
-    ├── net461
-    │   ├── FSharp.Core.dll
-    │   ├── MyCoolNewLib.dll
-    │   ├── MyCoolNewLib.pdb
-    │   ├── MyCoolNewLib.xml
-    └── netstandard2.1
+    └── net50
         ├── MyCoolNewLib.deps.json
         ├── MyCoolNewLib.dll
         ├── MyCoolNewLib.pdb
