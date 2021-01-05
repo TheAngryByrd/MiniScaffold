@@ -5,11 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
-## [0.26.0-beta001] - 2020-12-20
+## [0.26.0-beta001] - 2021-01-05
 
 ### Breaking
-- Updated to net50
+- Updated to net5.0 from  [@TheAngryByrd](https://github.com/TheAngryByrd)- https://github.com/TheAngryByrd/MiniScaffold/pull/222
 
 ## [0.25.1] - 2020-11-11
 
@@ -468,7 +467,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.25.1...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.0-beta001...HEAD
+[0.26.0-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.25.1...0.26.0-beta001
 [0.25.1]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.25.0...0.25.1
 [0.25.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.24.4...0.25.0
 [0.25.0-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.24.4...0.25.0-beta001
