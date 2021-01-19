@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.26.1] - 2021-01-19
+
+### Fixed
+- Hot-reload not working from [@halcwb](https://github.com/halcwb) - https://github.com/TheAngryByrd/MiniScaffold/pull/227
+
 ## [0.26.1-beta001] - 2021-01-19
 
 ### Fixed
@@ -477,7 +482,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.1-beta001...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.1...HEAD
+[0.26.1]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.0...0.26.1
 [0.26.1-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.0...0.26.1-beta001
 [0.26.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.25.1...0.26.0
 [0.26.0-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.25.1...0.26.0-beta001
