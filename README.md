@@ -4,8 +4,8 @@
 
 This is an [F# Template](https://docs.microsoft.com/en-us/dotnet/core/tools/custom-templates) for:
 
-- creating and publishing [libraries](https://docs.microsoft.com/en-us/dotnet/standard/glossary#library) targeting .NET Full `net461` and Core `netstandard2.1`
-- creating and publishing [applications](https://docs.microsoft.com/en-us/dotnet/core/tutorials/cli-create-console-app#hello-console-app) targeting .NET  Core `netcoreapp3.1`
+- creating and publishing [libraries](https://docs.microsoft.com/en-us/dotnet/standard/glossary#library) targeting .NET 5.0 `net5.0`
+- creating and publishing [applications](https://docs.microsoft.com/en-us/dotnet/core/tutorials/cli-create-console-app#hello-console-app) targeting .NET 5.0 `net5.0`
 
 
 ## Why use MiniScaffold
@@ -37,16 +37,13 @@ This takes away the ambiguity that developers face when creating an OSS project.
 - `Release` build step commits latest [CHANGELOG.md](https://keepachangelog.com/en/1.0.0/) in the body and creates a [git tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging).
     - If you [reference a Pull Request](https://github.com/TheAngryByrd/MiniScaffold/blob/master/CHANGELOG.md#0230-beta001---2020-02-07) in the `CHANGELOG.md` it will [update that Pull Request](https://github.com/TheAngryByrd/MiniScaffold/pull/186#ref-commit-b343218) with the version it was released in.
 - `Release` build step publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) via the  [CHANGELOG.md](https://keepachangelog.com/en/1.0.0/) and adds any artifacts (nuget/zip/targz/etc).
-- [Continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) via [AppVeyor](https://www.appveyor.com/docs/) (Windows) and [TravisCI](https://docs.travis-ci.com/) (Linux) or [GitHub Actions](https://github.com/features/actions)
+- [Continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) via [GitHub Actions](https://github.com/features/actions)
 
 
 ### For [Libraries](Content/Library/README.md)
-- Builds for both `net461` and `netstandard2.1` - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
-    - To build for `net461`
-        - On windows: Have at least .NET Framework 4.6.1 installed
-        - On macOS/linux: Have [mono](https://www.mono-project.com/download/stable/) installed
-    - To build for `netstandard2.1`
-        - Have [.NET core 3.1](https://dotnet.microsoft.com/download) installed
+### For [Libraries](Content/Library/README.md)
+- Builds for `net50` - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
+    - To build for `net5.0` [.NET 5.0 ](https://dotnet.microsoft.com/download) installed
 - [Sourcelink](https://github.com/dotnet/sourcelink) which enables a great source debugging experience for your users, by adding source control metadata to your built assets
 - [Documentation Generation](https://github.com/fsprojects/FSharp.Formatting) - Generates Documentation from markdown files, fsx files, and the [XML Documentation Comments](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/) from your library.
 - [Release](Content/Library/README.md#Releasing) build step pushes NuGet packages to [NuGet](https://docs.microsoft.com/en-us/nuget/what-is-nuget)
@@ -56,9 +53,9 @@ This takes away the ambiguity that developers face when creating an OSS project.
 
 ### For [Applications](Content/Console/README.md)
 - Basic argument parsing example via [Argu](https://fsprojects.github.io/Argu/)
-- Builds a `netcoreapp3.1` application - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
-    - To build for `netcoreapp3.1`
-        - Have [.NET core 3.1](https://dotnet.microsoft.com/download) installed
+- Builds a `net5.0` application - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
+    - To build for `net5.0`
+        - Have [.NET 5.0](https://dotnet.microsoft.com/download) installed
 - Builds for `win-x64`, `osx-x64` and `linux-x64` - [Runtime Identifiers](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog).  Bundles the application via [dotnet-packaging](https://github.com/qmfrederik/dotnet-packaging)
     - Bundles the `win-x64` application in a .zip file.
     - Bundles the `osx-x64` application in a .tar.gz file.
@@ -93,10 +90,11 @@ dotnet new mini-scaffold -n MyCoolNewApp --githubUsername MyGithubUsername -ou c
 
 ## Builds
 
-macOS/Linux | Windows
-:---: | :---:
-[![Travis Badge](https://travis-ci.org/TheAngryByrd/MiniScaffold.svg?branch=master)](https://travis-ci.org/TheAngryByrd/MiniScaffold) | [![Build status](https://ci.appveyor.com/api/projects/status/rvwrjthtnew2digr/branch/master?svg=true)](https://ci.appveyor.com/project/TheAngryByrd/miniscaffold/branch/master)
-[![Build History](https://buildstats.info/travisci/chart/TheAngryByrd/MiniScaffold)](https://travis-ci.org/TheAngryByrd/MiniScaffold/builds) | [![Build History](https://buildstats.info/appveyor/chart/TheAngryByrd/MiniScaffold)](https://ci.appveyor.com/project/TheAngryByrd/MiniScaffold)
+GitHub Actions |
+:---: |
+[![GitHub Actions](https://github.com/TheAngryByrd/MiniScaffold/workflows/Build%20master/badge.svg)](https://github.com/TheAngryByrd/MiniScaffold/actions?query=branch%3Amaster) |
+[![Build History](https://buildstats.info/github/chart/TheAngryByrd/MiniScaffold)](https://github.com/TheAngryByrd/MiniScaffold/actions?query=branch%3Amaster) |
+
 
 ## NuGet
 

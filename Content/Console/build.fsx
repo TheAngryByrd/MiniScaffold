@@ -90,7 +90,7 @@ let mutable latestEntry =
 let mutable linkReferenceForLatestEntry = ""
 let mutable changelogBackupFilename = ""
 
-let targetFramework =  "netcoreapp3.1"
+let targetFramework =  "net5.0"
 
 // RuntimeIdentifiers: https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
 // dotnet-packaging Tasks: https://github.com/qmfrederik/dotnet-packaging/blob/0c8e063ada5ba0de2b194cd3fad8308671b48092/Packaging.Targets/build/Packaging.Targets.targets
@@ -102,6 +102,8 @@ let runtimes = [
 
 let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
 
+let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
+Option.iter(TraceSecrets.register "<GITHUB_TOKEN>")
 
 //-----------------------------------------------------------------------------
 // Helpers
@@ -112,7 +114,6 @@ let isRelease (targets : Target list) =
     targets
     |> Seq.map(fun t -> t.Name)
     |> Seq.exists ((=)"Release")
-
 
 let isReleaseBranchCheck () =
     if Git.Information.getBranchName "" <> releaseBranch then failwithf "Not on %s.  If you want to release please switch to this branch." releaseBranch
@@ -355,7 +356,7 @@ let dotnetBuild ctx =
                 |> DotNet.Options.withAdditionalArgs args
         }) sln
 
-let fsharpAnalyzers ctx =
+let fsharpAnalyzers _ =
     let argParser = ArgumentParser.Create<FSharpAnalyzers.Arguments>(programName = "fsharp-analyzers")
     !! srcGlob
     |> Seq.iter(fun proj ->
@@ -384,6 +385,7 @@ let dotnetTest ctx =
                 sprintf "/p:AltCover=%b" (not disableCodeCoverage)
                 sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
                 sprintf "/p:AltCoverAssemblyExcludeFilter=%s" excludeCoverage
+                "/p:AltCoverLocalSource=true"
             ]
         { c with
             Configuration = configuration (ctx.Context.AllExecutingTargets)
@@ -531,8 +533,8 @@ let gitRelease _ =
 let githubRelease _ =
     allReleaseChecks ()
     let token =
-        match Environment.environVarOrDefault "GITHUB_TOKEN" "" with
-        | s when not (String.IsNullOrWhiteSpace s) -> s
+        match githubToken with
+        | Some s -> s
         | _ -> failwith "please set the github_token environment variable to a github personal access token with repo access."
 
     let files = distGlob

@@ -96,6 +96,13 @@ let docsSiteBaseUrl = sprintf "https://%s.github.io/%s" gitOwner gitRepoName
 
 let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
 
+let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
+Option.iter(TraceSecrets.register "<GITHUB_TOKEN>" )
+
+
+let nugetToken = Environment.environVarOrNone "NUGET_TOKEN"
+Option.iter(TraceSecrets.register "<NUGET_TOKEN>")
+
 //-----------------------------------------------------------------------------
 // Helpers
 //-----------------------------------------------------------------------------
@@ -266,7 +273,7 @@ module DocsTool =
         ]
         |> watchparser.PrintCommandLineArgumentsFlat
 
-    let watch projectpath =
+    let watch () =
         dotnet.watch (fun args ->
            { args with WorkingDirectory = docsToolDir }
         ) "run" (sprintf "-- watch %s" (watchCLI()))
@@ -401,7 +408,7 @@ let dotnetBuild ctx =
 
         }) sln
 
-let fsharpAnalyzers ctx =
+let fsharpAnalyzers _ =
     let argParser = ArgumentParser.Create<FSharpAnalyzers.Arguments>(programName = "fsharp-analyzers")
     !! srcGlob
     |> Seq.iter(fun proj ->
@@ -429,6 +436,7 @@ let dotnetTest ctx =
             sprintf "/p:AltCover=%b" (not disableCodeCoverage)
             sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
             sprintf "/p:AltCoverAssemblyExcludeFilter=%s" excludeCoverage
+            "/p:AltCoverLocalSource=true"
         ]
     DotNet.test(fun c ->
 
@@ -551,6 +559,9 @@ let publishToNuget _ =
             ToolType = ToolType.CreateLocalTool()
             PublishUrl = publishUrl
             WorkingDir = "dist"
+            ApiKey = match nugetToken with
+                     | Some s -> s
+                     | _ -> c.ApiKey // assume paket-config was set properly
         }
     )
     // If build fails after this point, we've pushed a release out with this version of CHANGELOG.md so we should keep it around
@@ -578,8 +589,8 @@ let gitRelease _ =
 let githubRelease _ =
     allReleaseChecks ()
     let token =
-        match Environment.environVarOrDefault "GITHUB_TOKEN" "" with
-        | s when not (String.IsNullOrWhiteSpace s) -> s
+        match githubToken with
+        | Some s -> s
         | _ -> failwith "please set the github_token environment variable to a github personal access token with repo access."
 
     let files = !! distGlob
@@ -615,18 +626,6 @@ let buildDocs _ =
     DocsTool.build ()
 
 let watchDocs _ =
-    let watchBuild () =
-        !! srcGlob
-        |> Seq.map(fun proj -> fun () ->
-            dotnet.watch
-                (fun opt ->
-                    opt |> DotNet.Options.withWorkingDirectory (IO.Path.GetDirectoryName proj))
-                "build"
-                ""
-            |> ignore
-        )
-        |> Seq.iter (invokeAsync >> Async.Catch >> Async.Ignore >> Async.Start)
-    watchBuild ()
     DocsTool.watch ()
 
 let releaseDocs ctx =
@@ -688,13 +687,11 @@ Target.create "ReleaseDocs" releaseDocs
 "UpdateChangelog" ?=> "GenerateAssemblyInfo"
 "UpdateChangelog" ==> "PublishToNuGet"
 
-"DotnetBuild" ==> "BuildDocs"
 "BuildDocs" ==> "ReleaseDocs"
 "BuildDocs" ?=> "PublishToNuget"
 "DotnetPack" ?=> "BuildDocs"
 "GenerateCoverageReport" ?=> "ReleaseDocs"
 
-"DotnetBuild" ==> "WatchDocs"
 
 "DotnetRestore"
     ==> "DotnetBuild"

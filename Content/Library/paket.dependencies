@@ -1,32 +1,30 @@
 source https://www.nuget.org/api/v2
 source https://api.nuget.org/v3/index.json
 storage: none
-clitool dotnet-mono 0.5.2
-nuget FSharp.Core 4.3.4
-nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
-nuget Microsoft.NETFramework.ReferenceAssemblies copy_local: true
-nuget Expecto 8.13.1
-nuget YoloDev.Expecto.TestSdk 0.8.0
-nuget Microsoft.NET.Test.Sdk 15.7.2
-nuget altcover ~> 6
+nuget FSharp.Core 5.0
+nuget Microsoft.SourceLink.GitHub 1.0.0 copy_local: true
+nuget Expecto 9.0.2
+nuget YoloDev.Expecto.TestSdk 0.9.2
+nuget Microsoft.NET.Test.Sdk 16.8.0
+nuget altcover ~> 7
 
 // [ FAKE GROUP ]
 group Build
     storage: none
     source https://www.nuget.org/api/v2
     source https://api.nuget.org/v3/index.json
-    nuget Fake.IO.FileSystem 5.19.0
-    nuget Fake.Core.Target 5.19.0
-    nuget Fake.Core.ReleaseNotes 5.19.0
-    nuget FAKE.Core.Environment 5.19.0
-    nuget Fake.DotNet.Cli 5.19.0
-    nuget FAKE.Core.Process 5.19.0
-    nuget Fake.DotNet.AssemblyInfoFile 5.19.0
-    nuget Fake.Tools.Git 5.19.0
-    nuget Fake.DotNet.Paket 5.19.0
-    nuget Fake.Api.GitHub 5.19.0
-    nuget Fake.BuildServer.AppVeyor 5.19.0
-    nuget Fake.BuildServer.Travis 5.19.0
+    nuget Fake.IO.FileSystem 5.20.4-alpha.1642
+    nuget Fake.Core.Target 5.20.4-alpha.1642
+    nuget Fake.Core.ReleaseNotes 5.20.4-alpha.1642
+    nuget FAKE.Core.Environment 5.20.4-alpha.1642
+    nuget Fake.DotNet.Cli 5.20.4-alpha.1642
+    nuget FAKE.Core.Process 5.20.4-alpha.1642
+    nuget Fake.DotNet.AssemblyInfoFile 5.20.4-alpha.1642
+    nuget Fake.Tools.Git 5.20.4-alpha.1642
+    nuget Fake.DotNet.Paket 5.20.4-alpha.1642
+    nuget Fake.Api.GitHub 5.20.4-alpha.1642
+    nuget Fake.BuildServer.AppVeyor 5.20.4-alpha.1642
+    nuget Fake.BuildServer.Travis 5.20.4-alpha.1642
     nuget Fantomas
     nuget Argu
 
@@ -36,14 +34,12 @@ group Docs
     source https://api.nuget.org/v3/index.json
     nuget Argu
     nuget FSharp.Core
-    nuget Fake.IO.FileSystem
-    nuget FAKE.Core.Environment
-    nuget Fake.DotNet.Cli
+    nuget Fake.IO.FileSystem 5.20.4-alpha.1642
+    nuget FAKE.Core.Environment 5.20.4-alpha.1642
+    nuget Fake.DotNet.Cli 5.20.4-alpha.1642
     nuget FSharp.Formatting 4.0.0-rc1
     nuget FSharp.Literate 4.0.0-rc1
     nuget Fable.React
-    nuget Dotnet.ProjInfo.Workspace.FCS
-    nuget FSharp.Compiler.Service 34.1.1
 
 group Analyzers
   source https://www.nuget.org/api/v2

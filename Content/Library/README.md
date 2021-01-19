@@ -6,10 +6,10 @@
 
 ## Builds
 
-macOS/Linux | Windows
---- | ---
-[![Travis Badge](https://travis-ci.org/MyGithubUsername/MyLib.1.svg?branch=master)](https://travis-ci.org/MyGithubUsername/MyLib.1) | [![Build status](https://ci.appveyor.com/api/projects/status/github/MyGithubUsername/MyLib.1?svg=true)](https://ci.appveyor.com/project/MyGithubUsername/MyLib.1)
-[![Build History](https://buildstats.info/travisci/chart/MyGithubUsername/MyLib.1)](https://travis-ci.org/MyGithubUsername/MyLib.1/builds) | [![Build History](https://buildstats.info/appveyor/chart/MyGithubUsername/MyLib.1)](https://ci.appveyor.com/project/MyGithubUsername/MyLib.1)  
+GitHub Actions |
+:---: |
+[![GitHub Actions](https://github.com/MyGithubUsername/MyLib.1/workflows/Build%20master/badge.svg)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3Amaster) |
+[![Build History](https://buildstats.info/github/chart/MyGithubUsername/MyLib.1)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3Amaster) |
 
 ## NuGet 
 
@@ -59,12 +59,7 @@ The bin of your library should look similar to:
 $ tree src/MyCoolNewLib/bin/
 src/MyCoolNewLib/bin/
 └── Debug
-    ├── net461
-    │   ├── FSharp.Core.dll
-    │   ├── MyCoolNewLib.dll
-    │   ├── MyCoolNewLib.pdb
-    │   ├── MyCoolNewLib.xml
-    └── netstandard2.1
+    └── net50
         ├── MyCoolNewLib.deps.json
         ├── MyCoolNewLib.dll
         ├── MyCoolNewLib.pdb
@@ -107,14 +102,18 @@ git remote add origin https://github.com/user/MyCoolNewLib.git
 git push -u origin master
 ```
 
-- [Add your NuGet API key to paket](https://fsprojects.github.io/Paket/paket-config.html#Adding-a-NuGet-API-key)
+- [Create your NuGeT API key](https://docs.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-api-keys)
+    - [Add your NuGet API key to paket](https://fsprojects.github.io/Paket/paket-config.html#Adding-a-NuGet-API-key)
 
-```sh
-paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9b3a
-```
+    ```sh
+    paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9b3a
+    ```
+
+    - or set the environment variable `NUGET_TOKEN` to your key
+
 
 - [Create a GitHub OAuth Token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
-  - You can then set the `GITHUB_TOKEN` to upload release notes and artifacts to github
+  - You can then set the environment variable `GITHUB_TOKEN` to upload release notes and artifacts to github
   - Otherwise it will fallback to username/password
 
 - Then update the `CHANGELOG.md` with an "Unreleased" section containing release notes for this version, in [KeepAChangelog](https://keepachangelog.com/en/1.1.0/) format.

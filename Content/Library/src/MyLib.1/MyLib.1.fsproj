@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net461</TargetFrameworks>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TargetFrameworks>net5.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <Title>MyLib.1</Title>
@@ -20,3 +19,4 @@
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
+ 

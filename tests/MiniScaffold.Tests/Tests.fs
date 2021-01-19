@@ -10,9 +10,12 @@ module Tests =
 
     let logger = Expecto.Logging.Log.create "setup"
     let nugetPkgName =  "MiniScaffold"
+    let templateName = "mini-scaffold"
     let nugetPkgPath =
         match Environment.environVarOrNone "MINISCAFFOLD_NUPKG_LOCATION" with
-        | Some v -> v
+        | Some v ->
+            printfn "using MINISCAFFOLD_NUPKG_LOCATION"
+            v
         | None ->
             let dist = IO.Path.Combine(__SOURCE_DIRECTORY__, "../../dist") |> IO.DirectoryInfo
             dist.EnumerateFiles("*.nupkg")
@@ -26,15 +29,45 @@ module Tests =
             System.Threading.Thread.Sleep(100)
         System.Diagnostics.Debugger.Break()
         ()
+
+    let showTemplateHelp directory =
+        let newArgs =
+            Arguments.Empty
+            |> Arguments.append [
+                templateName
+                "--help"
+            ]
+        let opts =
+            match directory with
+            | Some d -> (fun (opt : Fake.DotNet.DotNet.Options) -> { opt with WorkingDirectory = d})
+            | None -> id
+        Fake.DotNet.DotNet.getVersion (fun vOpt -> vOpt.WithCommon opts) |> printfn "dotnet --version %s"
+        Dotnet.New.cmd opts newArgs.ToStartInfo
     let setup () =
         // debug ()
         // ensure we're installing the one from our dist folder
-        // printfn "nugetPkgPath %s" nugetPkgPath
+        printfn "nugetPkgPath %s" nugetPkgPath
+        Fake.DotNet.DotNet.getSDKVersionFromGlobalJson () |> printfn "dotnet global.json version %s"
+        Fake.DotNet.DotNet.getVersion id |> printfn "dotnet --version %s"
+        printfn "Uninstalling template..."
+        try Dotnet.New.uninstall nugetPkgName with e -> printfn "Uninstall failing is fine: %A" e
 
-        Dotnet.New.uninstall nugetPkgName
+        printfn "Installing template..."
         Dotnet.New.install nugetPkgPath
+        printfn "Installed template..."
 
+        showTemplateHelp None
 
+    let runTemplate (directory) args =
+        let newArgs =
+            Arguments.Empty
+            |> Arguments.append [
+                templateName
+            ]
+            // |> Arguments.appendNotEmpty "-lang" "F#"
+            |> Arguments.appendRaw args
+
+        Dotnet.New.cmd (fun opt -> { opt with WorkingDirectory = directory}) newArgs.ToStartInfo
 
 
     let projectStructureAsserts = [
@@ -221,10 +254,9 @@ module Tests =
 
             ] |> Seq.map(fun (args, additionalAsserts) -> testCase args <| fun _ ->
                 use d = Disposables.DisposableDirectory.Create()
-                let newArgs = [
-                    sprintf "mini-scaffold -lang F# %s" args
-                ]
-                Dotnet.New.cmd (fun opt -> { opt with WorkingDirectory = d.Directory}) newArgs
+                showTemplateHelp <| Some d.Directory
+
+                runTemplate d.Directory args
 
                 // The project we just generated is the only one in here
                 let projectDir =

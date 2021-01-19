@@ -4,23 +4,30 @@ on: [push, pull_request]
 
 jobs:
   build:
-
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        dotnet: [3.1.100]
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Setup .NET Core
+    - uses: actions/checkout@v2
+    - name: Use .NET Core 2.1 SDK
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ matrix.dotnet }}
+        dotnet-version: '2.1.x'
+    - name: Use .NET Core 3.1 SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.x'
+    - name: Use .NET Core 5.0 SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0.x'
+        
     - name: Build
       if: runner.os != 'Windows'
       run: |
-        chmod +x ./build.sh
+        chmod +x ./build.sh 
         ./build.sh
       env:
         # Work around https://github.com/actions/setup-dotnet/issues/29

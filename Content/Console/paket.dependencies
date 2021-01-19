@@ -1,13 +1,13 @@
 source https://www.nuget.org/api/v2
 source https://api.nuget.org/v3/index.json
 storage: none
-nuget Argu 6.0
-nuget FSharp.Core 4.3.4
-nuget Expecto 8.13.1
-nuget YoloDev.Expecto.TestSdk 0.8.0
-nuget Microsoft.NET.Test.Sdk 15.7.2
-nuget altcover ~> 6
-nuget Packaging.Targets 0.1.155
+nuget Argu 6.1.1
+nuget FSharp.Core 5.0
+nuget Expecto 9.0.2
+nuget YoloDev.Expecto.TestSdk 0.9.2
+nuget Microsoft.NET.Test.Sdk 16.8.0
+nuget altcover ~> 7
+nuget Packaging.Targets 0.1.189
 
 // [ FAKE GROUP ]
 group Build
@@ -15,18 +15,18 @@ group Build
     source https://www.nuget.org/api/v2
     source https://api.nuget.org/v3/index.json
     nuget Argu
-    nuget Fake.IO.FileSystem 5.19.0
-    nuget Fake.Core.Target 5.19.0
-    nuget Fake.Core.ReleaseNotes 5.19.0
-    nuget FAKE.Core.Environment 5.19.0
-    nuget Fake.DotNet.Cli 5.19.0
-    nuget FAKE.Core.Process 5.19.0
-    nuget Fake.DotNet.AssemblyInfoFile 5.19.0
-    nuget Fake.Tools.Git 5.19.0
-    nuget Fake.DotNet.Paket 5.19.0
-    nuget Fake.Api.GitHub 5.19.0
-    nuget Fake.BuildServer.AppVeyor 5.19.0
-    nuget Fake.BuildServer.Travis 5.19.0
+    nuget Fake.IO.FileSystem 5.20.4-alpha.1642
+    nuget Fake.Core.Target 5.20.4-alpha.1642
+    nuget Fake.Core.ReleaseNotes 5.20.4-alpha.1642
+    nuget FAKE.Core.Environment 5.20.4-alpha.1642
+    nuget Fake.DotNet.Cli 5.20.4-alpha.1642
+    nuget FAKE.Core.Process 5.20.4-alpha.1642
+    nuget Fake.DotNet.AssemblyInfoFile 5.20.4-alpha.1642
+    nuget Fake.Tools.Git 5.20.4-alpha.1642
+    nuget Fake.DotNet.Paket 5.20.4-alpha.1642
+    nuget Fake.Api.GitHub 5.20.4-alpha.1642
+    nuget Fake.BuildServer.AppVeyor 5.20.4-alpha.1642
+    nuget Fake.BuildServer.Travis 5.20.4-alpha.1642
     nuget Fantomas
 
 group Analyzers

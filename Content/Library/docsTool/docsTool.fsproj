@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -16,6 +16,7 @@
     <Compile Include="templates/types.fs" />
     <Compile Include="templates/master.fs" />
     <Compile Include="templates/nav.fs" />
+    <Compile Include="WebServer.fs" />
     <Compile Include="CLI.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
