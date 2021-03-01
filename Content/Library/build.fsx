@@ -20,8 +20,7 @@ open Fantomas
 open Fantomas.FakeHelpers
 
 BuildServer.install [
-    AppVeyor.Installer
-    Travis.Installer
+    GitHubActions.Installer
 ]
 
 let environVarAsBoolOrDefault varName defaultValue =

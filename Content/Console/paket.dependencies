@@ -25,8 +25,7 @@ group Build
     nuget Fake.Tools.Git 5.20.4-alpha.1642
     nuget Fake.DotNet.Paket 5.20.4-alpha.1642
     nuget Fake.Api.GitHub 5.20.4-alpha.1642
-    nuget Fake.BuildServer.AppVeyor 5.20.4-alpha.1642
-    nuget Fake.BuildServer.Travis 5.20.4-alpha.1642
+    nuget Fake.BuildServer.GitHubActions 5.20.4-alpha.1642
     nuget Fantomas
 
 group Analyzers
