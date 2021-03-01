@@ -23,8 +23,7 @@ open Fake.BuildServer
 //-----------------------------------------------------------------------------
 
 BuildServer.install [
-    AppVeyor.Installer
-    Travis.Installer
+    GitHubActions.Installer
 ]
 
 let srcGlob = "*.csproj"

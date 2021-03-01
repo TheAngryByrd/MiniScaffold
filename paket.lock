@@ -17,19 +17,11 @@ NUGET
     Fake.Api.GitHub (5.20.4-alpha.1642)
       FSharp.Core (>= 4.7.2) - restriction: >= netstandard2.0
       Octokit (>= 0.48) - restriction: >= netstandard2.0
-    Fake.BuildServer.AppVeyor (5.20.4-alpha.1642)
-      Fake.Core.Environment (>= 5.20.4-alpha.1642) - restriction: >= netstandard2.0
-      Fake.Core.Process (>= 5.20.4-alpha.1642) - restriction: >= netstandard2.0
-      Fake.Core.String (>= 5.20.4-alpha.1642) - restriction: >= netstandard2.0
-      Fake.Core.Trace (>= 5.20.4-alpha.1642) - restriction: >= netstandard2.0
-      Fake.IO.FileSystem (>= 5.20.4-alpha.1642) - restriction: >= netstandard2.0
-      Fake.Net.Http (>= 5.20.4-alpha.1642) - restriction: >= netstandard2.0
-      FSharp.Core (>= 4.7.2) - restriction: >= netstandard2.0
-    Fake.BuildServer.Travis (5.20.4-alpha.1642)
-      Fake.Core.Environment (>= 5.20.4-alpha.1642) - restriction: >= netstandard2.0
-      Fake.Core.Trace (>= 5.20.4-alpha.1642) - restriction: >= netstandard2.0
-      Fake.IO.FileSystem (>= 5.20.4-alpha.1642) - restriction: >= netstandard2.0
-      FSharp.Core (>= 4.7.2) - restriction: >= netstandard2.0
+    Fake.BuildServer.GitHubActions (5.20.4-alpha.1642)
+      Fake.Core.Environment (>= 5.20.4-alpha.1642) - restriction: || (>= net462) (>= netstandard2.0)
+      Fake.Core.Trace (>= 5.20.4-alpha.1642) - restriction: || (>= net462) (>= netstandard2.0)
+      Fake.IO.FileSystem (>= 5.20.4-alpha.1642) - restriction: || (>= net462) (>= netstandard2.0)
+      FSharp.Core (>= 4.7.2) - restriction: && (< net462) (>= netstandard2.0)
     Fake.Core.CommandLineParsing (5.20.4-alpha.1642) - restriction: >= netstandard2.0
       FParsec (>= 1.1.1) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.2) - restriction: >= netstandard2.0
@@ -69,7 +61,7 @@ NUGET
     Fake.Core.Tasks (5.20.4-alpha.1642) - restriction: >= netstandard2.0
       Fake.Core.Trace (>= 5.20.4-alpha.1642) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.2) - restriction: >= netstandard2.0
-    Fake.Core.Trace (5.20.4-alpha.1642) - restriction: >= netstandard2.0
+    Fake.Core.Trace (5.20.4-alpha.1642) - restriction: || (>= net462) (>= netstandard2.0)
       Fake.Core.Environment (>= 5.20.4-alpha.1642) - restriction: >= netstandard2.0
       Fake.Core.FakeVar (>= 5.20.4-alpha.1642) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.2) - restriction: >= netstandard2.0
