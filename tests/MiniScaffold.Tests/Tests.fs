@@ -69,6 +69,10 @@ module Tests =
 
         Dotnet.New.cmd (fun opt -> { opt with WorkingDirectory = directory}) newArgs.ToStartInfo
 
+    let copyGlobalJson (directory : IO.DirectoryInfo) =
+        let globalJson = IO.Path.Join(__SOURCE_DIRECTORY__, "../../global.json")
+        let destination = IO.Path.Join(directory.FullName, "global.json")
+        IO.File.Copy(globalJson, destination)
 
     let projectStructureAsserts = [
         Assert.``CHANGELOG exists``
@@ -254,6 +258,7 @@ module Tests =
 
             ] |> Seq.map(fun (args, additionalAsserts) -> testCase args <| fun _ ->
                 use d = Disposables.DisposableDirectory.Create()
+                copyGlobalJson d.DirectoryInfo
                 showTemplateHelp <| Some d.Directory
 
                 runTemplate d.Directory args
