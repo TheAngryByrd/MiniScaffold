@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.26.3] - 2021-03-14
+
+### Fixed
+- Fixes GitHub Workflow FAKE integration from [@TheAngryByrd](https://github.com/TheAngryByrd) - https://github.com/TheAngryByrd/MiniScaffold/pull/232
+- Makes devcontainers more flexible with dotnet versions from [@TheAngryByrd](https://github.com/TheAngryByrd) - https://github.com/TheAngryByrd/MiniScaffold/pull/233
+- Makes github workflow install dotnet from global.json from [@TheAngryByrd](https://github.com/TheAngryByrd) - https://github.com/TheAngryByrd/MiniScaffold/pull/234
+
 ## [0.26.3-beta001] - 2021-03-14
 
 ### Fixed
@@ -494,7 +501,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.3-beta001...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.3...HEAD
+[0.26.3]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.2...0.26.3
 [0.26.3-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.2...0.26.3-beta001
 [0.26.2]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.1...0.26.2
 [0.26.1]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.0...0.26.1
