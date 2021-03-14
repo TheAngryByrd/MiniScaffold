@@ -62,6 +62,13 @@ let docsSiteBaseUrl = "https://www.jimmybyrd.me/MiniScaffold"
 let isCI =  Environment.environVarAsBool "CI"
 
 
+let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
+Option.iter(TraceSecrets.register "<GITHUB_TOKEN>" )
+
+
+let nugetToken = Environment.environVarOrNone "NUGET_TOKEN"
+Option.iter(TraceSecrets.register "<NUGET_TOKEN>")
+
 //-----------------------------------------------------------------------------
 // Helpers
 //-----------------------------------------------------------------------------
@@ -385,6 +392,9 @@ let publish _ =
             ToolType = ToolType.CreateLocalTool()
             PublishUrl = "https://www.nuget.org"
             WorkingDir = "dist"
+            ApiKey = match nugetToken with
+                     | Some s -> s
+                     | _ -> c.ApiKey // assume paket-config was set properly
         }
     )
 
@@ -412,8 +422,8 @@ let ``github release`` _ =
     allReleaseChecks ()
 
     let token =
-        match Environment.environVarOrDefault "GITHUB_TOKEN" "" with
-        | s when not (String.IsNullOrWhiteSpace s) -> s
+        match githubToken with
+        | Some s -> s
         | _ -> failwith "please set the github_token environment variable to a github personal access token with repo access."
 
     let files = !! distGlob
