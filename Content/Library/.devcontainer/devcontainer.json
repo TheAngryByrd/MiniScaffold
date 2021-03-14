@@ -1,12 +1,16 @@
 {
-	"name": "MiniScaffold",
+	"name": "dotnet",
+	// Set the build context one level higher so we can grab metadata like global.json
+	"context": "..",
 	"dockerFile": "Dockerfile",
-	"appPort": [8080],
+	"forwardPorts": [
+		0
+	],
 	"extensions": [
 		"ionide.ionide-fsharp",
-        "ms-dotnettools.csharp",
-        "editorconfig.editorconfig",        
-        "ionide.ionide-paket",
-        "ionide.ionide-fake"
+		"ms-dotnettools.csharp",
+		"editorconfig.editorconfig",
+		"ionide.ionide-paket",
+		"ionide.ionide-fake"
 	]
-} 
+}
