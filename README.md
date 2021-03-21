@@ -142,6 +142,7 @@ Appveyor's conventions around generating URLs based on the project name has some
 * [FSharp.Control.Redis.Streams](https://github.com/TheAngryByrd/FSharp.Control.Redis.Streams)
 * [FsLibLog](https://github.com/TheAngryByrd/FsLibLog)
 * [Giraffe.HotReload](https://github.com/baronfel/Giraffe.HotReload)
+* [EFCore.FSharp](https://github.com/efcore/EFCore.FSharp)
 
 
 #### This project uses the following projects:
