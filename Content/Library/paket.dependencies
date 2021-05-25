@@ -4,7 +4,7 @@ storage: none
 nuget FSharp.Core 5.0
 nuget Microsoft.SourceLink.GitHub 1.0.0 copy_local: true
 nuget Expecto 9.0.2
-nuget YoloDev.Expecto.TestSdk 0.9.2
+nuget YoloDev.Expecto.TestSdk 0.11.1
 nuget Microsoft.NET.Test.Sdk 16.8.0
 nuget altcover ~> 7
 
@@ -24,7 +24,7 @@ group Build
     nuget Fake.DotNet.Paket 5.20.4-alpha.1642
     nuget Fake.Api.GitHub 5.20.4-alpha.1642
     nuget Fake.BuildServer.GitHubActions 5.20.4-alpha.1642
-    nuget Fantomas
+    nuget Fantomas 3.2
     nuget Argu
 
 group Docs
@@ -32,7 +32,8 @@ group Docs
     source https://www.nuget.org/api/v2
     source https://api.nuget.org/v3/index.json
     nuget Argu
-    nuget FSharp.Core
+    nuget FSharp.Compiler.Service 34.1.0
+    nuget FSharp.Core ~> 4.6
     nuget Fake.IO.FileSystem 5.20.4-alpha.1642
     nuget FAKE.Core.Environment 5.20.4-alpha.1642
     nuget Fake.DotNet.Cli 5.20.4-alpha.1642
@@ -43,4 +44,4 @@ group Docs
 group Analyzers
   source https://www.nuget.org/api/v2
   source https://api.nuget.org/v3/index.json
-  nuget BinaryDefense.FSharp.Analyzers.Hashing 0.2.1
+  nuget BinaryDefense.FSharp.Analyzers.Hashing 0.2.2
