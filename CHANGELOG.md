@@ -5,17 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.27.0-beta002] - 2021-05-28
+## [0.27.0] - 2021-05-28
 
 ### Changed
-- FSharp-Analyzers updated to 0.9.0, global.json version update to 5.0.300, MSBuild.StructuredLogger pinned to 2.1.500 from[@TheAngryByrd](https://github.com/TheAngryByrd)) -
-- https://github.com/TheAngryByrd/MiniScaffold/pull/244
+- FSharp-Analyzers updated to 0.9.0, global.json version update to 5.0.300, MSBuild.StructuredLogger pinned to 2.1.500 from[@TheAngryByrd](https://github.com/TheAngryByrd) - https://github.com/TheAngryByrd/MiniScaffold/pull/244
 - Octokit pinned to 0.48 from [@enovales](https://github.com/enovales) - https://github.com/TheAngryByrd/MiniScaffold/pull/243
-
 - Using TargetFramework in projects because we're only targeting net5.0 from [@TheAngryByrd](https://github.com/TheAngryByrd)) - https://github.com/TheAngryByrd/MiniScaffold/pull/241
 
 ### Added
 - Adds README to nuget package which will be displayed on nuget.org from [@TheAngryByrd](https://github.com/TheAngryByrd)) - https://github.com/TheAngryByrd/MiniScaffold/pull/242
+
+## [0.27.0-beta002] - 2021-05-28
+
+### Changed
+- FSharp-Analyzers updated to 0.9.0, global.json version update to 5.0.300, MSBuild.StructuredLogger pinned to 2.1.500 from[@TheAngryByrd](https://github.com/TheAngryByrd) - https://github.com/TheAngryByrd/MiniScaffold/pull/244
+- Octokit pinned to 0.48 from [@enovales](https://github.com/enovales) - https://github.com/TheAngryByrd/MiniScaffold/pull/243
 
 ## [0.27.0-beta001] - 2021-05-28
 
@@ -531,7 +535,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.27.0-beta002...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.27.0...HEAD
+[0.27.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.4...0.27.0
 [0.27.0-beta002]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.4...0.27.0-beta002
 [0.27.0-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.4...0.27.0-beta001
 [0.26.4]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.3...0.26.4
