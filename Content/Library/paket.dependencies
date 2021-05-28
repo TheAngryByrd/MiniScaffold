@@ -26,6 +26,7 @@ group Build
     nuget Fake.BuildServer.GitHubActions 5.20.4-alpha.1642
     nuget Fantomas 3.2
     nuget Argu
+    nuget Octokit 0.48
 
 group Docs
     storage: none
