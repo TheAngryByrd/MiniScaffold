@@ -1040,7 +1040,7 @@ NUGET
     NuGet.Protocol (5.9.1) - restriction: >= netstandard2.0
       NuGet.Packaging (>= 5.9.1) - restriction: >= netstandard2.0
     NuGet.Versioning (5.9.1) - restriction: >= netstandard2.0
-    Octokit (0.50) - restriction: >= netstandard2.0
+    Octokit (0.48)
     runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3) - restriction: && (< monoandroid) (< net46) (>= netstandard2.0) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
     runtime.debian.9-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3) - restriction: && (< monoandroid) (< net46) (>= netstandard2.0) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
     runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3) - restriction: && (< monoandroid) (< net46) (>= netstandard2.0) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)

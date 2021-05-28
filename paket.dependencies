@@ -21,6 +21,7 @@ group Build
     nuget Fake.Api.GitHub 5.20.4-alpha.1642
     nuget Fake.BuildServer.GitHubActions 5.20.4-alpha.1642
     nuget Argu
+    nuget Octokit 0.48
 
 group Docs
     storage: none

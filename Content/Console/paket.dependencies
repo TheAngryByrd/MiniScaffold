@@ -27,6 +27,7 @@ group Build
     nuget Fake.Api.GitHub 5.20.4-alpha.1642
     nuget Fake.BuildServer.GitHubActions 5.20.4-alpha.1642
     nuget Fantomas 3.2
+    nuget Octokit 0.48
 
 group Analyzers
   source https://www.nuget.org/api/v2
