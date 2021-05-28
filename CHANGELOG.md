@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.0-beta001] - 2021-05-28
+
+### Added
+- Adds README to nuget package which will be displayed on nuget.org from [@TheAngryByrd](https://github.com/TheAngryByrd)) - https://github.com/TheAngryByrd/MiniScaffold/pull/242
+
+### Changed
+- Using TargetFramework in projects because we're only targeting net5.0 from [@TheAngryByrd](https://github.com/TheAngryByrd)) - https://github.com/TheAngryByrd/MiniScaffold/pull/241
+
 ## [0.26.4] - 2021-05-25
 
 ### Changed
@@ -511,7 +519,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.4...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.27.0-beta001...HEAD
+[0.27.0-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.4...0.27.0-beta001
 [0.26.4]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.3...0.26.4
 [0.26.4-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.3...0.26.4-beta001
 [0.26.3]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.2...0.26.3
