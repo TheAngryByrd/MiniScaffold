@@ -134,7 +134,7 @@ NUGET
     FSharp.Control.Reactive (4.4.2) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.2) - restriction: || (>= net46) (>= netstandard2.0)
       System.Reactive (>= 4.4.1) - restriction: || (>= net46) (>= netstandard2.0)
-    FSharp.Core (4.7.2) - restriction: || (>= net461) (>= netstandard2.0)
+    FSharp.Core (5.0.1)
     Microsoft.Build (16.5) - restriction: >= netstandard2.0
       Microsoft.Build.Framework (>= 16.5) - restriction: || (>= net472) (>= netcoreapp2.1)
       Microsoft.VisualStudio.Setup.Configuration.Interop (>= 1.16.30) - restriction: >= net472
@@ -165,7 +165,6 @@ NUGET
       System.Resources.Extensions (>= 4.6) - restriction: >= netstandard2.0
       System.Resources.Writer (>= 4.0) - restriction: && (< net472) (>= netstandard2.0)
       System.Threading.Tasks.Dataflow (>= 4.9) - restriction: >= netstandard2.0
-    Microsoft.Build.Tasks.Git (1.0) - restriction: >= netstandard2.0
     Microsoft.Build.Utilities.Core (16.5) - restriction: >= netstandard2.0
       Microsoft.Build.Framework (>= 16.5) - restriction: >= netstandard2.0
       Microsoft.VisualStudio.Setup.Configuration.Interop (>= 1.16.30) - restriction: >= net472
@@ -182,10 +181,6 @@ NUGET
       System.Runtime.InteropServices.RuntimeInformation (>= 4.0) - restriction: >= uap10.0
     Microsoft.NETCore.Platforms (3.1) - restriction: || (&& (>= monoandroid) (>= netcoreapp2.1)) (&& (< monoandroid) (< net45) (< netstandard1.2) (>= netstandard2.0) (< win8)) (&& (< monoandroid) (< net45) (< netstandard1.3) (>= netstandard2.0) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (< netstandard1.5) (>= netstandard2.0) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (< netstandard1.6) (>= netstandard2.0) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (>= netstandard2.0) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (>= netcoreapp2.1)) (&& (>= monotouch) (>= netcoreapp2.1)) (&& (>= net461) (>= netcoreapp2.1)) (>= netcoreapp2.0) (&& (>= netcoreapp2.1) (< netcoreapp3.0)) (&& (>= netcoreapp3.0) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (>= netcoreapp3.1) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
     Microsoft.NETCore.Targets (3.1) - restriction: || (&& (< monoandroid) (< net45) (< netstandard1.2) (>= netstandard2.0) (< win8)) (&& (< monoandroid) (< net45) (< netstandard1.3) (>= netstandard2.0) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (< netstandard1.5) (>= netstandard2.0) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (>= netstandard2.0) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (>= netcoreapp2.1) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
-    Microsoft.SourceLink.Common (1.0) - restriction: >= netstandard2.0
-    Microsoft.SourceLink.GitHub (1.0) - restriction: >= netstandard2.0
-      Microsoft.Build.Tasks.Git (>= 1.0)
-      Microsoft.SourceLink.Common (>= 1.0)
     Microsoft.TestPlatform.ObjectModel (16.6.1) - restriction: || (&& (>= netcoreapp1.0) (>= uap10.0)) (>= netcoreapp2.1)
       NuGet.Frameworks (>= 5.0) - restriction: || (>= net451) (>= netstandard2.0)
     Microsoft.TestPlatform.TestHost (16.6.1) - restriction: >= netcoreapp1.0
@@ -210,7 +205,6 @@ NUGET
       Microsoft.Build.Framework (>= 16.4) - restriction: >= netstandard2.0
       Microsoft.Build.Tasks.Core (>= 16.4) - restriction: >= netstandard2.0
       Microsoft.Build.Utilities.Core (>= 16.4) - restriction: >= netstandard2.0
-      Microsoft.SourceLink.GitHub (>= 1.0) - restriction: >= netstandard2.0
     Newtonsoft.Json (12.0.3) - restriction: || (>= netstandard2.0) (>= uap10.0)
     NuGet.Common (5.6) - restriction: >= netstandard2.0
       NuGet.Frameworks (>= 5.6) - restriction: >= netstandard2.0

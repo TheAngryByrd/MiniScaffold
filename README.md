@@ -86,6 +86,8 @@ dotnet new mini-scaffold -n MyCoolNewLib --githubUsername MyGithubUsername
 dotnet new mini-scaffold -n MyCoolNewApp --githubUsername MyGithubUsername -ou console
 ```
 
+The scaffold defaults to using the `main` branch for releases. If you release from a different branch, you can use the `--releaseBranch <branch name>` parameter to use your release branch instead of the default.
+
 ---
 
 ## Builds

@@ -262,8 +262,28 @@ module Effect =
                 i <- i + 1
             lines |> File.writeNew buildScript
 
-    let ``git init`` (d : DirectoryInfo) =
-        Git.CommandHelper.runGitCommand d.FullName "init" |> ignore
+    let ``change githubRelease function to only run release checks`` (d : DirectoryInfo) = 
+        let buildScript = ``get build.fsx`` d
+        let lines = File.ReadAllLines buildScript
+        let githubReleaseStartIndexOpt = lines |> Array.tryFindIndex (fun line -> line.Contains "let githubRelease")
+        let githubReleaseEndIndexOpt =
+            githubReleaseStartIndexOpt
+            |> Option.bind (fun startIndex ->
+                lines
+                |> Array.skip startIndex
+                |> Array.tryFindIndex (fun line -> line.Contains "|> Async.RunSynchronously")
+                |> Option.map (fun endIndex -> endIndex + startIndex)
+            )
+
+        match (githubReleaseStartIndexOpt, githubReleaseEndIndexOpt) with
+        | Some startIdx, Some endIdx ->
+            lines
+            |> ``replace section with`` startIdx endIdx "let githubRelease _ = allReleaseChecks ()"
+            |> File.writeNew buildScript
+        | _ -> failwith "couldn't find bounds of `let githubRelease` function in build.fsx"
+
+    let ``git init`` (d : DirectoryInfo) (branchName : string) =
+        Git.CommandHelper.runGitCommand d.FullName $"init --initial-branch={branchName}" |> ignore
         Git.CommandHelper.runGitCommand d.FullName "config --local user.email nobody@example.org" |> ignore
         Git.CommandHelper.runGitCommand d.FullName "config --local user.name TestUser" |> ignore
 
@@ -296,8 +316,8 @@ module Effect =
                 |> Array.insert "- This is a test change from (@TheAngryByrd)" (startIdx + 2)
             newLines |> File.writeNew changelog
 
-    let ``setup for release tests`` (d : DirectoryInfo) =
-        ``git init`` d
+    let private ``internal setup for release tests`` (branchName : string) (d : DirectoryInfo) =
+        ``git init`` d branchName
         ``disable restore`` d
         ``disable build`` d
         ``disable fsharpAnalyzers`` d
@@ -313,3 +333,9 @@ module Effect =
         ``set environment variable`` "NUGET_KEY" "" d
         ``set environment variable`` "GITHUB_TOKEN" "" d
         ``add change to CHANGELOG`` d
+
+    let ``setup for release tests`` (d : DirectoryInfo) =
+        ``internal setup for release tests`` "main" d
+
+    let ``setup for branch tests`` (branchName : string) (d : DirectoryInfo) =
+        ``internal setup for release tests`` branchName d

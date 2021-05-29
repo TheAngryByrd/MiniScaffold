@@ -76,7 +76,7 @@ let gitRepoName = "MyLib.1"
 
 let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
 
-let releaseBranch = "master"
+let releaseBranch = "MyReleaseBranch"
 
 let tagFromVersionNumber versionNumber = sprintf "v%s" versionNumber
 
