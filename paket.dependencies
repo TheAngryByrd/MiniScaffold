@@ -7,6 +7,7 @@ group Build
     source https://www.nuget.org/api/v2
     storage: none
     nuget Expecto
+    nuget FSharp.Core ~> 5.0
     nuget YoloDev.Expecto.TestSdk
     nuget Microsoft.NET.Test.Sdk 15.7.2
     nuget Fake.IO.FileSystem 5.20.4-alpha.1642

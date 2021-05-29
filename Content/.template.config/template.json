@@ -32,7 +32,12 @@
                     "description": "Creates a template for console projects"
                 }
             ]
-        }
+        },
+	"releaseBranch": {
+	    "type": "parameter",
+	    "replaces": "MyReleaseBranch",
+	    "defaultValue": "main"
+	}
     },
     "sources": [
         {

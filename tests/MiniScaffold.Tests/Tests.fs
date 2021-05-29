@@ -256,6 +256,25 @@ module Tests =
                     Assert.``CHANGELOG does not contain Unreleased section``
                     ]
 
+                // Try to run a release on an alternate release branch name.
+                "-n AlternateReleaseBranch --githubUsername TestAccount --releaseBranch alternateBranch", [
+                    Effect.``setup for branch tests`` "alternateBranch"
+                    Effect.``disable pushing in gitRelease function``
+                    Effect.``change githubRelease function to only run release checks``
+                    Effect.``disable publishToNuget function`` // Simulates success, since it would fail due to NUGET_API being unset
+                    Assert.``project can build target`` "Release"
+                ]
+
+                // This should fail since the release branch specified in the build script doesn't match the
+                // branch from which the script is executed.
+                "-n ReleaseBranchMissingFailure --githubUsername TestAccount --releaseBranch notExist", [
+                    Effect.``setup for branch tests`` "anotherBranch"
+                    Effect.``disable pushing in gitRelease function``
+                    Effect.``change githubRelease function to only run release checks``
+                    Effect.``disable publishToNuget function`` // Simulates success, since it would fail due to NUGET_API being unset
+                    Assert.``build target with failure expected`` "Release"
+                ]
+
             ] |> Seq.map(fun (args, additionalAsserts) -> testCase args <| fun _ ->
                 use d = Disposables.DisposableDirectory.Create()
                 copyGlobalJson d.DirectoryInfo
