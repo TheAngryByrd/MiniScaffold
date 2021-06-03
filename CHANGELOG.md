@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.0] - 2021-06-03
+
+### Changed
+- Default release branch is now main from [@enovales](https://github.com/enovales) - https://github.com/TheAngryByrd/MiniScaffold/pull/245
+
 ## [0.27.0] - 2021-05-28
 
 ### Changed
@@ -535,7 +540,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.27.0...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.28.0...HEAD
+[0.28.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.27.0...0.28.0
+[0.28.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.27.0...0.28.0
+[0.28.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.27.0...0.28.0
 [0.27.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.4...0.27.0
 [0.27.0-beta002]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.4...0.27.0-beta002
 [0.27.0-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.26.4...0.27.0-beta001
