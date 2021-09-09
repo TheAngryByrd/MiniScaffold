@@ -1,13 +1,4 @@
-#load ".fake/build.fsx/intellisense.fsx"
-#load "docsTool/CLI.fs"
-#if !FAKE
-#r "Facades/netstandard"
-#r "netstandard"
-#endif
-#nowarn "52"
-
 open System
-open Fake.SystemHelper
 open Fake.Core
 open Fake.DotNet
 open Fake.Tools
@@ -22,31 +13,29 @@ open Fake.BuildServer
 // Metadata and Configuration
 //-----------------------------------------------------------------------------
 
-BuildServer.install [
-    GitHubActions.Installer
-]
 
 let srcGlob = "*.csproj"
 
-let testsGlob = __SOURCE_DIRECTORY__  @@ "tests/**/*.??proj"
+let testsGlob = __SOURCE_DIRECTORY__ </> ".."  </> "tests/**/*.??proj"
 
-let distDir = __SOURCE_DIRECTORY__  @@ "dist"
-let distGlob = distDir @@ "*.nupkg"
+let distDir = __SOURCE_DIRECTORY__ </> ".."  </> "dist"
+let distGlob = distDir </> "*.nupkg"
 
-let docsDir = __SOURCE_DIRECTORY__ @@ "docs"
-let docsSrcDir = __SOURCE_DIRECTORY__ @@ "docsSrc"
-let docsToolDir = __SOURCE_DIRECTORY__ @@ "docsTool"
-let docsToolProj = docsToolDir @@ "docsTool.fsproj"
-let docsSrcGlob = docsSrcDir @@ "**/*.fsx"
+let docsDir = __SOURCE_DIRECTORY__ </> ".." </> "docs"
+let docsSrcDir = __SOURCE_DIRECTORY__ </> ".." </> "docsSrc"
+let docsToolDir = __SOURCE_DIRECTORY__ </> ".." </> "docsTool"
+let docsToolProj = docsToolDir </> "docsTool.fsproj"
+let docsSrcGlob = docsSrcDir </> "**/*.fsx"
 
 let gitOwner = "TheAngryByrd"
 let gitRepoName = "MiniScaffold"
 
-let contentDir = __SOURCE_DIRECTORY__ @@ "Content"
+let contentDir = __SOURCE_DIRECTORY__ </> ".." </> "Content"
+
 
 
 let tagFromVersionNumber versionNumber = sprintf "%s" versionNumber
-let changelogFilename = "CHANGELOG.md"
+let changelogFilename = __SOURCE_DIRECTORY__ </> ".." </> "CHANGELOG.md"
 let changelog = Fake.Core.Changelog.load changelogFilename
 let mutable latestEntry =
     if Seq.isEmpty changelog.Entries
@@ -61,13 +50,8 @@ let docsSiteBaseUrl = "https://www.jimmybyrd.me/MiniScaffold"
 
 let isCI =  Environment.environVarAsBool "CI"
 
-
 let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
-Option.iter(TraceSecrets.register "<GITHUB_TOKEN>" )
-
-
 let nugetToken = Environment.environVarOrNone "NUGET_TOKEN"
-Option.iter(TraceSecrets.register "<NUGET_TOKEN>")
 
 //-----------------------------------------------------------------------------
 // Helpers
@@ -453,53 +437,75 @@ let ``release docs`` ctx =
         // If we're calling "Release" target, we'll let the "GitRelease" target do the git push
         Git.Branches.push ""
 
+let initTargets () =
+    BuildServer.install [
+        GitHubActions.Installer
+    ]
+    /// Defines a dependency - y is dependent on x
+    let (==>!) x y = x ==> y |> ignore
+    /// Defines a soft dependency. x must run before y, if it is present, but y does not require x to be run.
+    let (?=>!) x y = x ?=> y |> ignore
+//-----------------------------------------------------------------------------
+// Hide Secrets in Logger
+//-----------------------------------------------------------------------------
+    Option.iter(TraceSecrets.register "<GITHUB_TOKEN>" ) githubToken
+    Option.iter(TraceSecrets.register "<NUGET_TOKEN>") nugetToken
 //-----------------------------------------------------------------------------
 // Target Declaration
 //-----------------------------------------------------------------------------
+    Target.create "Clean" clean
+    Target.create "DotnetRestore" ``dotnet restore``
+    Target.create "UpdateChangelog" ``update changelog``
+    Target.createBuildFailure "RevertChangelog" ``revert changelog``  // Do NOT put this in the dependency chain
+    Target.createFinal "DeleteChangelogBackupFile" ``delete changelogBackupFile``  // Do NOT put this in the dependency chain
+    Target.create "DotnetPack" ``dotnet pack``
+    Target.create "IntegrationTests" ``integration tests``
+    Target.create "PublishToNuGet" publish
+    Target.create "GitRelease" ``git release``
+    Target.create "GitHubRelease" ``github release``
+    Target.create "Release" ignore
+    Target.create "BuildDocs" ``build docs``
+    Target.create "WatchDocs" ``watch docs``
+    Target.create "ReleaseDocs" ``release docs``
 
-Target.create "Clean" clean
-Target.create "DotnetRestore" ``dotnet restore``
-Target.create "UpdateChangelog" ``update changelog``
-Target.createBuildFailure "RevertChangelog" ``revert changelog``  // Do NOT put this in the dependency chain
-Target.createFinal "DeleteChangelogBackupFile" ``delete changelogBackupFile``  // Do NOT put this in the dependency chain
-Target.create "DotnetPack" ``dotnet pack``
-Target.create "IntegrationTests" ``integration tests``
-Target.create "PublishToNuGet" publish
-Target.create "GitRelease" ``git release``
-Target.create "GitHubRelease" ``github release``
-Target.create "Release" ignore
-Target.create "BuildDocs" ``build docs``
-Target.create "WatchDocs" ``watch docs``
-Target.create "ReleaseDocs" ``release docs``
+    //-----------------------------------------------------------------------------
+    // Target Dependencies
+    //-----------------------------------------------------------------------------
+    "DotnetPack" ==>! "BuildDocs"
+    "BuildDocs" ==>! "ReleaseDocs"
+    "BuildDocs" ?=>! "PublishToNuGet"
+    "IntegrationTests" ?=>! "ReleaseDocs"
+    "ReleaseDocs" ?=>! "GitRelease"
+    "ReleaseDocs" ==>! "Release"
 
-//-----------------------------------------------------------------------------
-// Target Dependencies
-//-----------------------------------------------------------------------------
-"DotnetPack" ==> "BuildDocs"
-"BuildDocs" ==> "ReleaseDocs"
-"BuildDocs" ?=> "PublishToNuGet"
-"IntegrationTests" ?=> "ReleaseDocs"
-"ReleaseDocs" ?=> "GitRelease"
-"ReleaseDocs" ==> "Release"
+    // Only call UpdateChangelog if Publish was in the call chain
+    // Ensure UpdateChangelog is called after DotnetRestore and before GenerateAssemblyInfo
+    "DotnetRestore" ?=>! "UpdateChangelog"
+    "UpdateChangelog" ?=>! "DotnetPack"
+    "UpdateChangelog" ==>! "PublishToNuGet"
 
-// Only call UpdateChangelog if Publish was in the call chain
-// Ensure UpdateChangelog is called after DotnetRestore and before GenerateAssemblyInfo
-"DotnetRestore" ?=> "UpdateChangelog"
-"UpdateChangelog" ?=> "DotnetPack"
-"UpdateChangelog" ==> "PublishToNuGet"
-
-"Clean"
-  ==> "DotnetRestore"
-  ==> "DotnetPack"
-//https://github.com/dotnet/templating/issues/1736#issuecomment-464847242
-  =?> ("IntegrationTests", isCI)
-  ==> "PublishToNuGet"
-  ==> "GitRelease"
-  ==> "GithubRelease"
-  ==> "Release"
+    "Clean"
+        ==> "DotnetRestore"
+        ==> "DotnetPack"
+        =?> ("IntegrationTests", isCI)
+        ==> "PublishToNuGet"
+        ==> "GitRelease"
+        ==> "GithubRelease"
+        ==>! "Release"
 
 //-----------------------------------------------------------------------------
 // Target Start
 //-----------------------------------------------------------------------------
 
-Target.runOrDefaultWithArguments (if isCI then "IntegrationTests" else "DotnetPack")
+
+[<EntryPoint>]
+let main argv =
+    argv
+    |> Array.toList
+    |> Context.FakeExecutionContext.Create false "build.fsx"
+    |> Context.RuntimeContext.Fake
+    |> Context.setExecutionContext
+    initTargets ()
+    Target.runOrDefaultWithArguments (if isCI then "IntegrationTests" else "DotnetPack")
+
+    0 // return an integer exit code
