@@ -1,8 +1,4 @@
-#load ".fake/build.fsx/intellisense.fsx"
-#if !FAKE
-#r "Facades/netstandard"
-#r "netstandard"
-#endif
+
 open Argu
 open System
 open Fake.SystemHelper
@@ -18,9 +14,6 @@ open Fake.BuildServer
 open Fantomas
 open Fantomas.FakeHelpers
 
-BuildServer.install [
-    GitHubActions.Installer
-]
 
 let environVarAsBoolOrDefault varName defaultValue =
     let truthyConsts = [
@@ -41,20 +34,20 @@ let environVarAsBoolOrDefault varName defaultValue =
 //-----------------------------------------------------------------------------
 
 let productName = "MyLib.1"
-let sln = "MyLib.1.sln"
+let sln = __SOURCE_DIRECTORY__ </> ".." </> "MyLib.1.sln"
 
-let src = __SOURCE_DIRECTORY__  @@ "src"
+let src = __SOURCE_DIRECTORY__ </> ".." </> "src"
 
 let srcCodeGlob =
     !! ( src  @@ "**/*.fs")
     ++ ( src  @@ "**/*.fsx")
 
 let testsCodeGlob =
-    !! (__SOURCE_DIRECTORY__  @@ "tests/**/*.fs")
-    ++ (__SOURCE_DIRECTORY__  @@ "tests/**/*.fsx")
+    !! (__SOURCE_DIRECTORY__ </> ".." </> "tests/**/*.fs")
+    ++ (__SOURCE_DIRECTORY__ </> ".." </> "tests/**/*.fsx")
 
 let srcGlob = src @@ "**/*.??proj"
-let testsGlob = __SOURCE_DIRECTORY__  @@ "tests/**/*.??proj"
+let testsGlob = __SOURCE_DIRECTORY__ </> ".." </> "tests/**/*.??proj"
 
 let mainApp = src @@ productName
 
@@ -62,14 +55,14 @@ let srcAndTest =
     !! srcGlob
     ++ testsGlob
 
-let distDir = __SOURCE_DIRECTORY__  @@ "dist"
+let distDir = __SOURCE_DIRECTORY__ </> ".." </> "dist"
 let distGlob =
     !! (distDir @@ "*.zip")
     ++ (distDir @@ "*.tgz")
     ++ (distDir @@ "*.tar.gz")
 
 let coverageThresholdPercent = 1
-let coverageReportDir =  __SOURCE_DIRECTORY__  @@ "docs" @@ "coverage"
+let coverageReportDir =  __SOURCE_DIRECTORY__ </> ".." </> "docs" @@ "coverage"
 
 let gitOwner = "MyGithubUsername"
 let gitRepoName = "MyLib.1"
@@ -80,7 +73,7 @@ let releaseBranch = "MyReleaseBranch"
 
 let tagFromVersionNumber versionNumber = sprintf "v%s" versionNumber
 
-let changelogFilename = "CHANGELOG.md"
+let changelogFilename = __SOURCE_DIRECTORY__ </> ".." </> "CHANGELOG.md"
 let changelog = Fake.Core.Changelog.load changelogFilename
 let mutable latestEntry =
     if Seq.isEmpty changelog.Entries
@@ -102,7 +95,7 @@ let runtimes = [
 let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
 
 let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
-Option.iter(TraceSecrets.register "<GITHUB_TOKEN>")
+
 
 //-----------------------------------------------------------------------------
 // Helpers
@@ -361,7 +354,7 @@ let fsharpAnalyzers _ =
     |> Seq.iter(fun proj ->
         let args  =
             [
-                FSharpAnalyzers.Analyzers_Path (__SOURCE_DIRECTORY__ </> "packages/analyzers")
+                FSharpAnalyzers.Analyzers_Path (__SOURCE_DIRECTORY__ </> ".." </> "packages/analyzers")
                 FSharpAnalyzers.Arguments.Project proj
                 FSharpAnalyzers.Arguments.Fail_On_Warnings [
                     "BDH0002"
@@ -469,7 +462,7 @@ let generateAssemblyInfo _ =
           AssemblyInfo.Metadata("GitHash", Git.Information.getCurrentSHA1(null))
         ]
 
-    let getProjectDetails projectPath =
+    let getProjectDetails (projectPath : string) =
         let projectName = IO.Path.GetFileNameWithoutExtension(projectPath)
         (
             projectPath,
@@ -563,65 +556,89 @@ let formatCode _ =
             Trace.logfn "Formatted %s" original
         | _ -> ()
     )
-
+let initTargets () =
+    BuildServer.install [
+        GitHubActions.Installer
+    ]
+    /// Defines a dependency - y is dependent on x
+    let (==>!) x y = x ==> y |> ignore
+    /// Defines a soft dependency. x must run before y, if it is present, but y does not require x to be run.
+    let (?=>!) x y = x ?=> y |> ignore
 //-----------------------------------------------------------------------------
-// Target Declaration
+// Hide Secrets in Logger
 //-----------------------------------------------------------------------------
+    Option.iter(TraceSecrets.register "<GITHUB_TOKEN>" ) githubToken
 
-Target.create "Clean" clean
-Target.create "DotnetRestore" dotnetRestore
-Target.create "UpdateChangelog" updateChangelog
-Target.createBuildFailure "RevertChangelog" revertChangelog  // Do NOT put this in the dependency chain
-Target.createFinal "DeleteChangelogBackupFile" deleteChangelogBackupFile  // Do NOT put this in the dependency chain
-Target.create "DotnetBuild" dotnetBuild
-Target.create "FSharpAnalyzers" fsharpAnalyzers
-Target.create "DotnetTest" dotnetTest
-Target.create "GenerateCoverageReport" generateCoverageReport
-Target.create "WatchApp" watchApp
-Target.create "WatchTests" watchTests
-Target.create "AssemblyInfo" generateAssemblyInfo
-Target.create "CreatePackages" createPackages
-Target.create "GitRelease" gitRelease
-Target.create "GitHubRelease" githubRelease
-Target.create "FormatCode" formatCode
-Target.create "Release" ignore
+    //-----------------------------------------------------------------------------
+    // Target Declaration
+    //-----------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
-// Target Dependencies
-//-----------------------------------------------------------------------------
+    Target.create "Clean" clean
+    Target.create "DotnetRestore" dotnetRestore
+    Target.create "UpdateChangelog" updateChangelog
+    Target.createBuildFailure "RevertChangelog" revertChangelog  // Do NOT put this in the dependency chain
+    Target.createFinal "DeleteChangelogBackupFile" deleteChangelogBackupFile  // Do NOT put this in the dependency chain
+    Target.create "DotnetBuild" dotnetBuild
+    Target.create "FSharpAnalyzers" fsharpAnalyzers
+    Target.create "DotnetTest" dotnetTest
+    Target.create "GenerateCoverageReport" generateCoverageReport
+    Target.create "WatchApp" watchApp
+    Target.create "WatchTests" watchTests
+    Target.create "AssemblyInfo" generateAssemblyInfo
+    Target.create "CreatePackages" createPackages
+    Target.create "GitRelease" gitRelease
+    Target.create "GitHubRelease" githubRelease
+    Target.create "FormatCode" formatCode
+    Target.create "Release" ignore
 
-// Only call Clean if DotnetPack was in the call chain
-// Ensure Clean is called before DotnetRestore
-"Clean" ?=> "DotnetRestore"
-"Clean" ==> "CreatePackages"
+    //-----------------------------------------------------------------------------
+    // Target Dependencies
+    //-----------------------------------------------------------------------------
 
-// Only call AssemblyInfo if there is a release target in the call chain
-// Ensure AssemblyInfo is called after DotnetRestore and before DotnetBuild
-"DotnetRestore" ?=> "AssemblyInfo"
-"AssemblyInfo" ?=> "DotnetBuild"
-"AssemblyInfo" ==> "GitRelease"
+    // Only call Clean if DotnetPack was in the call chain
+    // Ensure Clean is called before DotnetRestore
+    "Clean" ?=>! "DotnetRestore"
+    "Clean" ==>! "CreatePackages"
 
-// Only call UpdateChangelog if there is a release target in the call chain
-// Ensure UpdateChangelog is called after DotnetRestore and before AssemblyInfo
-"DotnetRestore" ?=> "UpdateChangelog"
-"UpdateChangelog" ?=> "AssemblyInfo"
-"UpdateChangelog" ==> "GitRelease"
+    // Only call AssemblyInfo if there is a release target in the call chain
+    // Ensure AssemblyInfo is called after DotnetRestore and before DotnetBuild
+    "DotnetRestore" ?=>! "AssemblyInfo"
+    "AssemblyInfo" ?=>! "DotnetBuild"
+    "AssemblyInfo" ==>! "GitRelease"
 
-"DotnetRestore"
-    ==> "DotnetBuild"
-    ==> "FSharpAnalyzers"
-    ==> "DotnetTest"
-    =?> ("GenerateCoverageReport", not disableCodeCoverage)
-    ==> "CreatePackages"
-    ==> "GitRelease"
-    ==> "GitHubRelease"
-    ==> "Release"
+    // Only call UpdateChangelog if there is a release target in the call chain
+    // Ensure UpdateChangelog is called after DotnetRestore and before AssemblyInfo
+    "DotnetRestore" ?=>! "UpdateChangelog"
+    "UpdateChangelog" ?=>! "AssemblyInfo"
+    "UpdateChangelog" ==>! "GitRelease"
 
-"DotnetRestore"
-    ==> "WatchTests"
+    "DotnetRestore"
+        ==> "DotnetBuild"
+        ==> "FSharpAnalyzers"
+        ==> "DotnetTest"
+        =?> ("GenerateCoverageReport", not disableCodeCoverage)
+        ==> "CreatePackages"
+        ==> "GitRelease"
+        ==> "GitHubRelease"
+        ==>! "Release"
+
+    "DotnetRestore"
+        ==>! "WatchTests"
 
 //-----------------------------------------------------------------------------
 // Target Start
 //-----------------------------------------------------------------------------
 
-Target.runOrDefaultWithArguments "CreatePackages"
+[<EntryPoint>]
+let main argv =
+    argv
+    |> Array.toList
+    |> Context.FakeExecutionContext.Create false "build.fsx"
+    |> Context.RuntimeContext.Fake
+    |> Context.setExecutionContext
+    initTargets ()
+    Target.runOrDefaultWithArguments "CreatePackages"
+
+    0
+
+
