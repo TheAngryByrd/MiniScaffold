@@ -2,7 +2,7 @@ namespace MiniScaffold.Tests
 open System.IO
 open Expecto
 open Infrastructure
-
+open Fake.IO.FileSystemOperators
 module Array =
     let insert v i (l : 'a array) =
         let newArray = Array.zeroCreate (l.Length + 1)
@@ -123,7 +123,7 @@ module Effect =
             Some (startIdx, endIdx)
 
     let ``get build.fsx``  (d : DirectoryInfo) =
-        Path.combine d.FullName "build.fsx"
+        d.FullName </> "build" </> "build.fsx"
 
 
     let ``transform build script with`` (replaceFn : string -> string) (d : DirectoryInfo) =
@@ -262,7 +262,7 @@ module Effect =
                 i <- i + 1
             lines |> File.writeNew buildScript
 
-    let ``change githubRelease function to only run release checks`` (d : DirectoryInfo) = 
+    let ``change githubRelease function to only run release checks`` (d : DirectoryInfo) =
         let buildScript = ``get build.fsx`` d
         let lines = File.ReadAllLines buildScript
         let githubReleaseStartIndexOpt = lines |> Array.tryFindIndex (fun line -> line.Contains "let githubRelease")
