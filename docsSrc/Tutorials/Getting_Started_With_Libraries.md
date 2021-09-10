@@ -29,72 +29,81 @@ This will generate a structure similar to this
 
     [lang=bash]
     .
-    |-- Directory.Build.props
-    |-- LICENSE.md
-    |-- MyCoolNewLib.sln
-    |-- README.md
-    |-- CHANGELOG.md
-    |-- build.cmd
-    |-- build.fsx
-    |-- build.sh
-    |-- docsSrc
-    |   |-- Explanations
-    |   |   |-- Background.md
-    |   |-- How_Tos
-    |   |   |-- Doing_A_Thing.md
-    |   |   |-- Doing_Another_Thing.md
-    |   |-- Tutorials
-    |   |   |-- Getting_Started.md
-    |   |-- content
-    |   |   |-- hotload.js
-    |   |   |-- style.css
-    |   |   |-- submenu.js
-    |   |   |-- tips.js
-    |   |-- files
-    |   |   |-- placeholder.md
-    |   |-- index.md
-    |-- docsTool
-    |   |-- CLI.fs
-    |   |-- Prelude.fs
-    |   |-- Program.fs
-    |   |-- README.md
-    |   |-- docsTool.fsproj
-    |   |-- paket.references
-    |   |-- templates
-    |       |-- helpers.fs
-    |       |-- master.fs
-    |       |-- modules.fs
-    |       |-- namespaces.fs
-    |       |-- nav.fs
-    |       |-- partMembers.fs
-    |       |-- partNested.fs
-    |       |-- types.fs
-    |-- paket.dependencies
-    |-- paket.lock
-    |-- src
-    |   |-- Directory.Build.props
-    |   |-- MyCoolNewLib
-    |       |-- AssemblyInfo.fs
-    |       |-- Library.fs
-    |       |-- MyCoolNewLib.fsproj
-    |       |-- paket.references
-    |-- tests
-        |-- Directory.Build.props
-        |-- MyCoolNewLib.Tests
-            |-- AssemblyInfo.fs
-            |-- Main.fs
-            |-- MyCoolNewLib.Tests.fsproj
-            |-- Tests.fs
-            |-- paket.references
+    ├── CHANGELOG.md
+    ├── Directory.Build.props
+    ├── LICENSE.md
+    ├── MyLib.1.sln
+    ├── README.md
+    ├── build
+    │   ├── build.fs
+    │   ├── build.fsproj
+    │   └── paket.references
+    ├── build.cmd
+    ├── build.sh
+    ├── docsSrc
+    │   ├── Explanations
+    │   │   └── Background.md
+    │   ├── How_Tos
+    │   │   ├── Doing_A_Thing.md
+    │   │   └── Doing_Another_Thing.md
+    │   ├── Tutorials
+    │   │   └── Getting_Started.md
+    │   ├── content
+    │   │   ├── cleanups.js
+    │   │   ├── hotload.js
+    │   │   ├── style.css
+    │   │   ├── submenu.js
+    │   │   ├── themes.js
+    │   │   ├── tips.js
+    │   │   ├── toggle-bootstrap-dark.min.css
+    │   │   └── toggle-bootstrap.min.css
+    │   ├── files
+    │   │   └── placeholder.md
+    │   └── index.md
+    ├── docsTool
+    │   ├── CLI.fs
+    │   ├── Prelude.fs
+    │   ├── Program.fs
+    │   ├── README.md
+    │   ├── WebServer.fs
+    │   ├── docsTool.fsproj
+    │   ├── paket.references
+    │   └── templates
+    │       ├── helpers.fs
+    │       ├── master.fs
+    │       ├── modules.fs
+    │       ├── namespaces.fs
+    │       ├── nav.fs
+    │       ├── partMembers.fs
+    │       ├── partNested.fs
+    │       └── types.fs
+    ├── global.json
+    ├── paket.dependencies
+    ├── paket.lock
+    ├── src
+    │   ├── Directory.Build.props
+    │   └── MyLib.1
+    │       ├── AssemblyInfo.fs
+    │       ├── Library.fs
+    │       ├── MyLib.1.fsproj
+    │       └── paket.references
+    └── tests
+        ├── Directory.Build.props
+        └── MyLib.1.Tests
+            ├── AssemblyInfo.fs
+            ├── Main.fs
+            ├── MyLib.1.Tests.fsproj
+            ├── Tests.fs
+            └── paket.references
 
 This may look overwhelming, but we don't have to worry about all of these yet.  Let's just focus on the real important ones for this tutorial.
 
 - `./src/MyCoolNewLib` - This is where your library's source code will live.
 - `./tests/MyCoolNewLib.Tests` - This is where your library's test code will live.
-- `build.cmd` or `build.sh` - Platform specific entry points into your `build.fsx` file.
-- `build.fsx` - The main build script of your repository.
-- `README.md` - The text file that introduces and explains a project.
-- `CHANGELOG.md` - Text file containing versioning, date, and release notes.
+- `.\build.cmd` or `./build.sh` - Platform specific entry points into your `build` project.
+- `./build/` - The main build script of your repository.
+- `./README.md` - The text file that introduces and explains a project.
+- `./CHANGELOG.md` - Text file containing versioning, date, and release notes.
 
 ## Building your library
 
