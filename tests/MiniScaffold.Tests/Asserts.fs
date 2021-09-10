@@ -122,16 +122,16 @@ module Effect =
                 |> Array.last
             Some (startIdx, endIdx)
 
-    let ``get build.fsx``  (d : DirectoryInfo) =
-        d.FullName </> "build" </> "build.fsx"
+    let ``get build.fs``  (d : DirectoryInfo) =
+        d.FullName </> "build" </> "build.fs"
 
 
     let ``transform build script with`` (replaceFn : string -> string) (d : DirectoryInfo) =
-        let buildScript = ``get build.fsx`` d
+        let buildScript = ``get build.fs`` d
         buildScript |> File.applyReplace replaceFn
 
     let ``disable restore`` (d : DirectoryInfo) =
-        let buildScript = ``get build.fsx`` d
+        let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
         let startPred =  (fun (idx, line : string) -> line.Contains "let dotnetRestore")
         let endPred = (snd >> (fun (x : string) -> x.StartsWith "let ") >> not)
@@ -142,7 +142,7 @@ module Effect =
             |> File.writeNew buildScript
 
     let ``disable build`` (d : DirectoryInfo) =
-        let buildScript = ``get build.fsx`` d
+        let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
         let startPred =  (fun (idx, line : string) -> line.Contains "let dotnetBuild")
         let endPred = (snd >> (fun (x : string) -> x.StartsWith "let ") >> not)
@@ -153,7 +153,7 @@ module Effect =
             |> File.writeNew buildScript
 
     let ``disable fsharpAnalyzers`` (d : DirectoryInfo) =
-        let buildScript = ``get build.fsx`` d
+        let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
         let startPred =  (fun (idx, line : string) -> line.Contains "let fsharpAnalyzers")
         let endPred = (snd >> (fun (x : string) -> x.StartsWith "let ") >> not)
@@ -165,7 +165,7 @@ module Effect =
 
 
     let ``disable tests`` (d : DirectoryInfo) =
-        let buildScript = ``get build.fsx`` d
+        let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
         let startPred =  (fun (idx, line : string) -> line.Contains "let dotnetTest")
         let endPred = (snd >> (fun (x : string) -> x.StartsWith "let ") >> not)
@@ -178,7 +178,7 @@ module Effect =
 
 
     let ``disable generateCoverage`` (d : DirectoryInfo) =
-        let buildScript = ``get build.fsx`` d
+        let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
         let startPred =  (fun (idx, line : string) -> line.Contains "let generateCoverageReport")
         let endPred = (snd >> (fun (x : string) -> x.StartsWith "let ") >> not)
@@ -190,7 +190,7 @@ module Effect =
 
 
     let ``disable createPackages`` (d : DirectoryInfo) =
-        let buildScript = ``get build.fsx`` d
+        let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
         let startPred =  (fun (idx, line : string) -> line.Contains "let createPackages")
         let endPred = (snd >> (fun (x : string) -> x.StartsWith "let ") >> not)
@@ -202,7 +202,7 @@ module Effect =
 
 
     let ``disable dotnetPack`` (d : DirectoryInfo) =
-        let buildScript = ``get build.fsx`` d
+        let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
         let startPred =  (fun (idx, line : string) -> line.Contains "let dotnetPack")
         let endPred = (snd >> (fun (x : string) -> x.StartsWith "let ") >> not)
@@ -213,7 +213,7 @@ module Effect =
             |> File.writeNew buildScript
 
     let ``disable sourceLinkTest function`` (d : DirectoryInfo) =
-        let buildScript = ``get build.fsx`` d
+        let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
         match lines |> Array.tryFindIndex (fun line -> line.Contains "let sourceLinkTest") with
         | None -> ()
@@ -230,7 +230,7 @@ module Effect =
             lines |> File.writeNew buildScript
 
     let ``disable publishToNuget function`` (d : DirectoryInfo) =
-        let buildScript = ``get build.fsx`` d
+        let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
         match lines |> Array.tryFindIndex (fun line -> line.Contains "Paket.push(") with
         | None -> ()
@@ -246,7 +246,7 @@ module Effect =
             lines |> File.writeNew buildScript
 
     let ``disable pushing in gitRelease function`` (d : DirectoryInfo) =
-        let buildScript = ``get build.fsx`` d
+        let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
         match lines |> Array.tryFindIndex (fun line -> line.Contains "let gitRelease") with
         | None -> ()
@@ -263,7 +263,7 @@ module Effect =
             lines |> File.writeNew buildScript
 
     let ``change githubRelease function to only run release checks`` (d : DirectoryInfo) =
-        let buildScript = ``get build.fsx`` d
+        let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
         let githubReleaseStartIndexOpt = lines |> Array.tryFindIndex (fun line -> line.Contains "let githubRelease")
         let githubReleaseEndIndexOpt =
@@ -280,7 +280,7 @@ module Effect =
             lines
             |> ``replace section with`` startIdx endIdx "let githubRelease _ = allReleaseChecks ()"
             |> File.writeNew buildScript
-        | _ -> failwith "couldn't find bounds of `let githubRelease` function in build.fsx"
+        | _ -> failwith "couldn't find bounds of `let githubRelease` function in build.fs"
 
     let ``git init`` (d : DirectoryInfo) (branchName : string) =
         Git.CommandHelper.runGitCommand d.FullName $"init --initial-branch={branchName}" |> ignore
@@ -292,7 +292,7 @@ module Effect =
         Git.Commit.exec d.FullName message
 
     let ``make build function fail`` (failureFunction : string) (d : DirectoryInfo) =
-        let buildScript = ``get build.fsx`` d
+        let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
         let idx = lines |> Array.findIndex (fun line -> line.Contains failureFunction)
         let msg = sprintf "    failwith \"Deliberate failure in unit test for %s\"\n" failureFunction

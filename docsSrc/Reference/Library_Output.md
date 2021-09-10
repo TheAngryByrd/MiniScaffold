@@ -4,86 +4,72 @@ When you do an initial scaffold, your folder will be filled with this set of fil
 
     [lang=bash]
     .
-    |-- .config
-    |   |-- dotnet-tools.json
-    |-- .devcontainer
-    |   |-- Dockerfile
-    |   |-- devcontainer.json
-    |   |-- settings.vscode.json
-    |-- .editorconfig
-    |-- .gitattributes
-    |-- .github
-    |   |-- ISSUE_TEMPLATE
-    |   |   |-- bug_report.md
-    |   |   |-- feature_request.md
-    |   |-- ISSUE_TEMPLATE.md
-    |   |-- PULL_REQUEST_TEMPLATE.md
-    |   |-- build.yml
-    |   |-- workflows
-    |       |-- build.yml
-    |-- .gitignore
-    |-- .paket
-    |   |-- Paket.Restore.targets
-    |-- .vscode
-    |   |-- extensions.json
-    |   |-- settings.json
-    |-- Directory.Build.props
-    |-- LICENSE.md
-    |-- MyCoolNewLib.sln
-    |-- README.md
-    |-- CHANGELOG.md
-    |-- build.cmd
-    |-- build.fsx
-    |-- build.sh
-    |-- docsSrc
-    |   |-- Explanations
-    |   |   |-- Background.md
-    |   |-- How_Tos
-    |   |   |-- Doing_A_Thing.md
-    |   |   |-- Doing_Another_Thing.md
-    |   |-- Tutorials
-    |   |   |-- Getting_Started.md
-    |   |-- content
-    |   |   |-- hotload.js
-    |   |   |-- style.css
-    |   |   |-- submenu.js
-    |   |   |-- tips.js
-    |   |-- files
-    |   |   |-- placeholder.md
-    |   |-- index.md
-    |-- docsTool
-    |   |-- CLI.fs
-    |   |-- Prelude.fs
-    |   |-- Program.fs
-    |   |-- README.md
-    |   |-- docsTool.fsproj
-    |   |-- paket.references
-    |   |-- templates
-    |       |-- helpers.fs
-    |       |-- master.fs
-    |       |-- modules.fs
-    |       |-- namespaces.fs
-    |       |-- nav.fs
-    |       |-- partMembers.fs
-    |       |-- partNested.fs
-    |       |-- types.fs
-    |-- paket.dependencies
-    |-- paket.lock
-    |-- src
-    |   |-- Directory.Build.props
-    |   |-- MyCoolNewLib
-    |       |-- AssemblyInfo.fs
-    |       |-- Library.fs
-    |       |-- MyCoolNewLib.fsproj
-    |       |-- paket.references
-    |-- tests
-        |-- Directory.Build.props
-        |-- MyCoolNewLib.Tests
-            |-- AssemblyInfo.fs
-            |-- Main.fs
-            |-- MyCoolNewLib.Tests.fsproj
-            |-- Tests.fs
-            |-- paket.references
+    ├── CHANGELOG.md
+    ├── Directory.Build.props
+    ├── LICENSE.md
+    ├── MyLib.1.sln
+    ├── README.md
+    ├── build
+    │   ├── build.fs
+    │   ├── build.fsproj
+    │   └── paket.references
+    ├── build.cmd
+    ├── build.sh
+    ├── docsSrc
+    │   ├── Explanations
+    │   │   └── Background.md
+    │   ├── How_Tos
+    │   │   ├── Doing_A_Thing.md
+    │   │   └── Doing_Another_Thing.md
+    │   ├── Tutorials
+    │   │   └── Getting_Started.md
+    │   ├── content
+    │   │   ├── cleanups.js
+    │   │   ├── hotload.js
+    │   │   ├── style.css
+    │   │   ├── submenu.js
+    │   │   ├── themes.js
+    │   │   ├── tips.js
+    │   │   ├── toggle-bootstrap-dark.min.css
+    │   │   └── toggle-bootstrap.min.css
+    │   ├── files
+    │   │   └── placeholder.md
+    │   └── index.md
+    ├── docsTool
+    │   ├── CLI.fs
+    │   ├── Prelude.fs
+    │   ├── Program.fs
+    │   ├── README.md
+    │   ├── WebServer.fs
+    │   ├── docsTool.fsproj
+    │   ├── paket.references
+    │   └── templates
+    │       ├── helpers.fs
+    │       ├── master.fs
+    │       ├── modules.fs
+    │       ├── namespaces.fs
+    │       ├── nav.fs
+    │       ├── partMembers.fs
+    │       ├── partNested.fs
+    │       └── types.fs
+    ├── global.json
+    ├── paket.dependencies
+    ├── paket.lock
+    ├── src
+    │   ├── Directory.Build.props
+    │   └── MyLib.1
+    │       ├── AssemblyInfo.fs
+    │       ├── Library.fs
+    │       ├── MyLib.1.fsproj
+    │       └── paket.references
+    └── tests
+        ├── Directory.Build.props
+        └── MyLib.1.Tests
+            ├── AssemblyInfo.fs
+            ├── Main.fs
+            ├── MyLib.1.Tests.fsproj
+            ├── Tests.fs
+            └── paket.references
 
 - `.config\dotnet-tools.json` - Holds [dotnet tools](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-tool-install) manifest.
 - `.devcontainer\` - Holds all files necessary for [VSCode Dev Container](https://code.visualstudio.com/docs/remote/containers) feature.
@@ -100,7 +86,7 @@ When you do an initial scaffold, your folder will be filled with this set of fil
 - `CHANGELOG.md` - The text file containing versioning, date, and release notes.
 - `build.cmd` - Windows specific entry point for building the repository.
 - `build.sh` - Nix specific entry point for building the repository.
-- `build.fsx` - Build script for building the repository. See [FAKE Docs](https://fake.build/) for more info.
+- `build\` - Build script for building the repository. See [FAKE Docs](https://fake.build/) for more info.
 - `docsSrc\` - Contains the source files for your [GitHub documentation](https://help.github.com/en/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
 - `docsTool\` - Contains the tool for generating your [GitHub documentation](https://help.github.com/en/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
 - `paket.dependencies` - File containing your repositories dependencies.  See [Paket Docs](https://fsprojects.github.io/Paket/dependencies-file.html) for more info.
