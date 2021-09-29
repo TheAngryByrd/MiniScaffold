@@ -39,8 +39,6 @@ This takes away the ambiguity that developers face when creating an OSS project.
 - `Release` build step publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) via the  [CHANGELOG.md](https://keepachangelog.com/en/1.0.0/) and adds any artifacts (nuget/zip/targz/etc).
 - [Continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) via [GitHub Actions](https://github.com/features/actions)
 
-
-### For [Libraries](Content/Library/README.md)
 ### For [Libraries](Content/Library/README.md)
 - Builds for `net50` - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
     - To build for `net5.0` [.NET 5.0 ](https://dotnet.microsoft.com/download) installed
