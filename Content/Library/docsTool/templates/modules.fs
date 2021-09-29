@@ -2,15 +2,15 @@ module Modules
 open System
 open Fable.React
 open Fable.React.Props
-open FSharp.MetadataFormat
+open FSharp.Formatting.ApiDocs
 open PartNested
 open PartMembers
 open Helpers
 
 
-let generateModuleDocs (moduleInfo : ModuleInfo) (props) =
-    let members = moduleInfo.Module.AllMembers
-    let comment = moduleInfo.Module.Comment
+let generateModuleDocs (moduleInfo : ApiDocEntityInfo) =
+    let members = moduleInfo.Entity.AllMembers
+    let comment = moduleInfo.Entity.Comment
 
     let byCategory =
         members
@@ -22,16 +22,16 @@ let generateModuleDocs (moduleInfo : ModuleInfo) (props) =
             Members = value |> List.sortBy(fun m -> m.Name)
             Name = if String.IsNullOrEmpty key then "Other module members" else key
         })
-    let nestModules = moduleInfo.Module.NestedModules
-    let nestTypes = moduleInfo.Module.NestedTypes
+    let nestModules = moduleInfo.Entity.NestedEntities
+    let nestTypes = moduleInfo.Entity.NestedEntities
     [
         yield div [ Class "container-fluid py-3" ] [
             yield div [ Class "row" ] [
                 yield div [ Class "col-12" ] [
                     yield h1 [] [
-                        str moduleInfo.Module.Name
+                        str moduleInfo.Entity.Name
                     ]
-                    yield! renderObsoleteMessage moduleInfo.Module
+                    yield! renderObsoleteMessage moduleInfo.Entity
                     yield! renderNamespace moduleInfo.Namespace
                     yield dl [] [
                         if moduleInfo.ParentModule.IsSome then
@@ -40,33 +40,33 @@ let generateModuleDocs (moduleInfo : ModuleInfo) (props) =
                             ]
                             yield dd [] [
                                 a [
-                                    Href (sprintf "%s.html" moduleInfo.ParentModule.Value.UrlName)
+                                    Href (sprintf "%s.html" moduleInfo.ParentModule.Value.UrlBaseName)
                                 ] [
                                     str moduleInfo.ParentModule.Value.Name
                                 ]
                             ]
-                        if moduleInfo.Module.Attributes |> Seq.isEmpty |> not then
+                        if moduleInfo.Entity.Attributes |> Seq.isEmpty |> not then
                             yield dt [] [
                                 str "Attributes"
                             ]
                             yield dd [] [
-                                for attr in moduleInfo.Module.Attributes do
+                                for attr in moduleInfo.Entity.Attributes do
                                     yield str (attr.Format())
                                     yield br []
                             ]
                     ]
 
-                    yield div [
-                        Class "xmldoc"
-                    ] [
-                        for sec in comment.Sections do
-                            if byCategory |> Seq.exists (fun g -> g.GroupKey = sec.Key) |> not then
-                                if sec.Key <> "<default>" then
-                                    yield h2 [] [
-                                        RawText sec.Key
-                                    ]
-                                yield RawText sec.Value
-                    ]
+                    // yield div [
+                    //     Class "xmldoc"
+                    // ] [
+                    //     for sec in comment.Sections do
+                    //         if byCategory |> Seq.exists (fun g -> g.GroupKey = sec.Key) |> not then
+                    //             if sec.Key <> "<default>" then
+                    //                 yield h2 [] [
+                    //                     RawText sec.Key
+                    //                 ]
+                    //             yield RawText sec.Value
+                    // ]
 
 
                     if byCategory |> Seq.length > 1 then
@@ -103,23 +103,23 @@ let generateModuleDocs (moduleInfo : ModuleInfo) (props) =
                                 ]
                             ]
 
-                        let info = comment.Sections |> Seq.tryFind(fun kvp -> kvp.Key = g.GroupKey)
+                        // let info = comment.Sections |> Seq.tryFind(fun kvp -> kvp.Key = g.GroupKey)
 
-                        match info with
-                        | Some info ->
-                            yield div [
-                                Class "xmldoc"
-                            ] [
-                                str info.Value
-                            ]
-                        | None ->
-                            yield nothing
+                        // match info with
+                        // | Some info ->
+                        //     yield div [
+                        //         Class "xmldoc"
+                        //     ] [
+                        //         str info.Value
+                        //     ]
+                        // | None ->
+                        //     yield nothing
 
-                        yield! partMembers "Functions and values" "Function or value" (g.Members |> Seq.filter(fun m -> m.Kind = MemberKind.ValueOrFunction))
+                        yield! partMembers "Functions and values" "Function or value" (g.Members |> Seq.filter(fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction))
 
-                        yield! partMembers "Type extensions" "Type extension" (g.Members |> Seq.filter(fun m -> m.Kind = MemberKind.TypeExtension))
+                        yield! partMembers "Type extensions" "Type extension" (g.Members |> Seq.filter(fun m -> m.Kind = ApiDocMemberKind.TypeExtension))
 
-                        yield! partMembers "Active patterns" "Active pattern" (g.Members |> Seq.filter(fun m -> m.Kind = MemberKind.ActivePattern))
+                        yield! partMembers "Active patterns" "Active pattern" (g.Members |> Seq.filter(fun m -> m.Kind = ApiDocMemberKind.ActivePattern))
                 ]
             ]
         ]

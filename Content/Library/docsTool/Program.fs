@@ -19,9 +19,9 @@ module GenerateDocs =
     open DocsTool
     open Fake.IO.Globbing.Operators
     open Fable.React
-    open FSharp.Literate
+    open FSharp.Formatting.Literate
     open System.IO
-    open FSharp.MetadataFormat
+    open FSharp.Formatting.ApiDocs
 
     let docsApiDir docsDir = docsDir @@ "Api_Reference"
 
@@ -122,8 +122,8 @@ module GenerateDocs =
             let doc =
                 let fsiArgs =
                     [|
-                        yield "--noframework" // error FS1222: When mscorlib.dll or FSharp.Core.dll is explicitly referenced the --noframework option must also be passed
-                        yield sprintf "-I:\"%s\"" cfg.PublishPath.FullName
+                        // yield "--noframework" // error FS1222: When mscorlib.dll or FSharp.Core.dll is explicitly referenced the --noframework option must also be passed
+                        // yield sprintf "-I:\"%s\"" cfg.PublishPath.FullName
                     |]
 
                 let dlls =
@@ -137,32 +137,34 @@ module GenerateDocs =
                         yield "--targetprofile:netstandard"
                         yield! dlls
                     |]
-                let fsiEvaluator = FSharp.Literate.FsiEvaluator(fsiArgs)
+                let fsiEvaluator = Evaluation.FsiEvaluator(fsiArgs)
                 match Path.GetExtension fileName with
                 | ".fsx" ->
                     Literate.ParseScriptString(
                         source,
                         path = fileName,
-                        compilerOptions = (compilerOptions |> String.concat " "),
+                        fscOptions = (compilerOptions |> String.concat " "),
                         fsiEvaluator = fsiEvaluator)
                 | ".md" ->
                     let source = regexReplace cfg source
                     Literate.ParseMarkdownString(
                         source,
                         path = fileName,
-                        compilerOptions = (compilerOptions |> String.concat " "),
+                        fscOptions = (compilerOptions |> String.concat " "),
                         fsiEvaluator = fsiEvaluator
                     )
                 | others -> failwithf "FSharp.Literal does not support %s file extensions" others
-            FSharp.Literate.Literate.FormatLiterateNodes(doc, OutputKind.Html, "", true, true)
+            // Literate.TransformAndOutputDocument
+            Literate.ToHtml(doc, prefix="", lineNumbers=true, generateAnchors=false)
 
-        let format (doc: LiterateDocument) =
-            if not <| Seq.isEmpty doc.Errors
-            then
-                failwithf "error while formatting file %s. Errors are:\n%A" doc.SourceFile doc.Errors
-            else
-                Formatting.format doc.MarkdownDocument true OutputKind.Html
-                + doc.FormattedTips
+        // let format (doc: LiterateDocument) =
+
+        //     if not <| Seq.isEmpty doc.Errors
+        //     then
+        //         failwithf "error while formatting file %s. Errors are:\n%A" doc.SourceFile doc.Errors
+        //     else
+        //         Formatting.format doc.MarkdownDocument true OutputKind.Html
+        //         + doc.FormattedTips
 
 
 
@@ -180,7 +182,7 @@ module GenerateDocs =
             let fs =
                 file
                 |> parse filePath
-                |> format
+                // |> format
             let contents =
                 [div [] [
                     fs
@@ -218,45 +220,46 @@ module GenerateDocs =
             let projName = IO.Path.GetFileNameWithoutExtension(projInfo)
             let targetApiDir = docsApiDir cfg.DocsOutputDirectory.FullName @@ projName
             let projDll = cfg.PublishPath.FullName @@ sprintf "%s.dll" projName
+            let libraries = [ApiDocInput.FromFile(projDll, sourceFolder = cfg.RepositoryRoot.FullName, sourceRepo = (cfg.GitHubRepoUrl |> Uri.simpleCombine "tree/master" |> string))]
             let generatorOutput =
-                MetadataFormat.Generate(
-                    projDll,
-                    libDirs = libDirs,
-                    sourceFolder = cfg.RepositoryRoot.FullName,
-                    sourceRepo = (cfg.GitHubRepoUrl |> Uri.simpleCombine "tree/master" |> string),
-                    markDownComments = false
+                ApiDocs.GenerateModel(
+                    libraries,
+                    cfg.ProjectName,
+                    [],
+                    libDirs = libDirs
                     )
-
-            let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" generatorOutput.AssemblyGroup.Name)
+            let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" (generatorOutput.Collection.Assemblies.Head.Name))
             let indexDoc = {
                 SourcePath = None
                 OutputPath = fi
-                Content = [Namespaces.generateNamespaceDocs generatorOutput.AssemblyGroup generatorOutput.Properties]
+                Content = [Namespaces.generateNamespaceDocs generatorOutput.Collection ]
                 Title = sprintf "%s-%s" fi.Name cfg.ProjectName
             }
 
             let moduleDocs =
-                generatorOutput.ModuleInfos
+                generatorOutput.EntityInfos
+                |> List.filter(fun t ->  not t.Entity.IsTypeDefinition)
                 |> List.map (fun m ->
-                    let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" m.Module.UrlName)
-                    let content = Modules.generateModuleDocs m generatorOutput.Properties
+                    let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" m.Entity.UrlBaseName)
+                    let content = Modules.generateModuleDocs m
                     {
                         SourcePath = None
                         OutputPath = fi
                         Content = content
-                        Title = sprintf "%s-%s" m.Module.Name cfg.ProjectName
+                        Title = sprintf "%s-%s" m.Entity.Name cfg.ProjectName
                     }
                 )
             let typeDocs =
-                generatorOutput.TypesInfos
+                generatorOutput.EntityInfos
+                |> List.filter(fun t -> t.Entity.IsTypeDefinition)
                 |> List.map (fun m ->
-                    let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" m.Type.UrlName)
-                    let content = Types.generateTypeDocs m generatorOutput.Properties
+                    let fi = FileInfo <| targetApiDir @@ (sprintf "%s.html" m.Entity.UrlBaseName)
+                    let content = Types.generateTypeDocs m
                     {
                         SourcePath = None
                         OutputPath = fi
                         Content = content
-                        Title = sprintf "%s-%s" m.Type.Name cfg.ProjectName
+                        Title = sprintf "%s-%s" m.Entity.Name cfg.ProjectName
                     }
                 )
             [ indexDoc ] @ moduleDocs @ typeDocs
@@ -361,19 +364,19 @@ module GenerateDocs =
 open FSharp.Formatting.Common
 open System.Diagnostics
 
-let setupFsharpFormattingLogging () =
-    let setupListener listener =
-        [
-            FSharp.Formatting.Common.Log.source
-            Yaaf.FSharp.Scripting.Log.source
-        ]
-        |> Seq.iter (fun source ->
-            source.Switch.Level <- System.Diagnostics.SourceLevels.All
-            Log.AddListener listener source)
-    let noTraceOptions = TraceOptions.None
-    Log.ConsoleListener()
-    |> Log.SetupListener noTraceOptions System.Diagnostics.SourceLevels.Verbose
-    |> setupListener
+// let setupFsharpFormattingLogging () =
+//     let setupListener listener =
+//         [
+//             FSharp.Formatting.Common.Log.source
+//             Yaaf.FSharp.Scripting.Log.source
+//         ]
+//         |> Seq.iter (fun source ->
+//             source.Switch.Level <- System.Diagnostics.SourceLevels.All
+//             Log.AddListener listener source)
+//     let noTraceOptions = TraceOptions.None
+//     Log.ConsoleListener()
+//     |> Log.SetupListener noTraceOptions System.Diagnostics.SourceLevels.Verbose
+//     |> setupListener
 
 
 

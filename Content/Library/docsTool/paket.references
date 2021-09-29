@@ -4,5 +4,5 @@ FSharp.Core
 Fake.IO.FileSystem
 Fake.DotNet.Cli
 FSharp.Formatting
-FSharp.Literate
+FSharp.Formatting.Literate
 Fable.React

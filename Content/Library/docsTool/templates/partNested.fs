@@ -3,10 +3,10 @@ module PartNested
 open System
 open Fable.React
 open Fable.React.Props
-open FSharp.MetadataFormat
+open FSharp.Formatting.ApiDocs
 open Helpers
 
-let partNested (types : Type array) (modules : Module array) =
+let partNested (types : ApiDocEntity array) (modules : ApiDocEntity array) =
     [
         if types.Length > 0 then
             yield table [ Class "table" ] [
@@ -30,13 +30,13 @@ let partNested (types : Type array) (modules : Module array) =
                                 Helpers.createAnchorIcon t.Name
                             ]
                             td [Class "type-name"] [
-                                a [Href (sprintf "%s.html" t.UrlName)] [
+                                a [Href (sprintf "%s.html" t.UrlBaseName)] [
                                     str t.Name
                                 ]
                             ]
                             td [Class "xmldoc"] [
                                 yield! renderObsoleteMessage t
-                                yield RawText t.Comment.Blurb
+                                yield RawText t.Comment.Summary.HtmlText
                             ]
                         ]
                 ]
@@ -63,13 +63,13 @@ let partNested (types : Type array) (modules : Module array) =
                                 Helpers.createAnchorIcon t.Name
                             ]
                             td [Class "Modules-name"] [
-                                a [Href (sprintf "%s.html" t.UrlName)] [
+                                a [Href (sprintf "%s.html" t.UrlBaseName)] [
                                     str t.Name
                                 ]
                             ]
                             td [Class "xmldoc"] [
                                 yield! renderObsoleteMessage t
-                                yield RawText t.Comment.Blurb
+                                yield RawText t.Comment.Summary.HtmlText
                             ]
                         ]
                 ]

@@ -2,7 +2,7 @@ module Helpers
 open System
 open Fable.React
 open Fable.React.Props
-open FSharp.MetadataFormat
+open FSharp.Formatting.ApiDocs
 
 
 let createAnchorIcon name =
@@ -22,7 +22,7 @@ let createAnchor fullName name =
         str name
     ]
 
-let renderNamespace (ns: Namespace) = [
+let renderNamespace (ns: ApiDocNamespace) = [
     h3 [] [ str "Namespace" ]
     str ns.Name
 ]
