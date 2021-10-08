@@ -26,7 +26,6 @@ group Build
     nuget Fake.DotNet.Paket 5.20.4
     nuget Fake.Api.GitHub 5.20.4
     nuget Fake.BuildServer.GitHubActions 5.20.4
-    nuget Fantomas 3.2
     nuget Octokit 0.48
 
 group Analyzers
