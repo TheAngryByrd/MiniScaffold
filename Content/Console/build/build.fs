@@ -39,10 +39,12 @@ let src = __SOURCE_DIRECTORY__ </> ".." </> "src"
 let srcCodeGlob =
     !! ( src  @@ "**/*.fs")
     ++ ( src  @@ "**/*.fsx")
+    -- ( src  @@ "**/obj/**/*.fs")
 
 let testsCodeGlob =
     !! (__SOURCE_DIRECTORY__ </> ".." </> "tests/**/*.fs")
     ++ (__SOURCE_DIRECTORY__ </> ".." </> "tests/**/*.fsx")
+    -- (__SOURCE_DIRECTORY__ </> ".." </> "tests/**/obj/**/*.fs")
 
 let srcGlob = src @@ "**/*.??proj"
 let testsGlob = __SOURCE_DIRECTORY__ </> ".." </> "tests/**/*.??proj"
@@ -210,6 +212,9 @@ module dotnet =
 
     let fsharpAnalyzer optionConfig args =
         tool optionConfig "fsharp-analyzers" args
+
+    let fantomas args =
+        DotNet.exec id "fantomas" args
 
 module FSharpAnalyzers =
     type Arguments =
@@ -547,7 +552,7 @@ let formatCode _ =
         // Ignore AssemblyInfo
         |> Seq.filter(fun f -> f.EndsWith("AssemblyInfo.fs") |> not)
         |> String.concat " "
-        |> DotNet.exec id "fantomas"
+        |> dotnet.fantomas
 
     if not result.OK then
         printfn "Errors while formatting all files: %A" result.Messages
@@ -563,7 +568,7 @@ let checkFormatCode _ =
         |> Seq.filter(fun f -> f.EndsWith("AssemblyInfo.fs") |> not)
         |> String.concat " "
         |> sprintf "%s --check"
-        |> DotNet.exec id "fantomas"
+        |> dotnet.fantomas
 
     if result.ExitCode = 0 then
         Trace.log "No files need formatting"

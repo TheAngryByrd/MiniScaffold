@@ -9,8 +9,6 @@ open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
 open Fake.Api
 open Fake.BuildServer
-open Fantomas
-open Fantomas.FakeHelpers
 open Argu
 
 let environVarAsBoolOrDefault varName defaultValue =
@@ -38,10 +36,12 @@ let sln = __SOURCE_DIRECTORY__ </> ".." </> "MyLib.1.sln"
 let srcCodeGlob =
     !! (__SOURCE_DIRECTORY__ </> ".." </> "src/**/*.fs")
     ++ (__SOURCE_DIRECTORY__ </> ".." </> "src/**/*.fsx")
+    -- (__SOURCE_DIRECTORY__ </> ".." </> "src/**/obj/**/*.fs")
 
 let testsCodeGlob =
     !! (__SOURCE_DIRECTORY__ </> ".." </> "tests/**/*.fs")
     ++ (__SOURCE_DIRECTORY__ </> ".." </> "tests/**/*.fsx")
+    -- (__SOURCE_DIRECTORY__ </> ".." </> "tests/**/obj/**/*.fs")
 
 let srcGlob =__SOURCE_DIRECTORY__ </> ".." </> "src/**/*.??proj"
 let testsGlob = __SOURCE_DIRECTORY__ </> ".." </> "tests/**/*.??proj"
@@ -214,6 +214,9 @@ module dotnet =
 
     let fsharpAnalyzer optionConfig args =
         tool optionConfig "fsharp-analyzers" args
+
+    let fantomas args =
+        DotNet.exec id "fantomas" args
 
 module FSharpAnalyzers =
     type Arguments =
@@ -591,23 +594,39 @@ let githubRelease _ =
     |> Async.RunSynchronously
 
 let formatCode _ =
-    [
-        srcCodeGlob
-        testsCodeGlob
-    ]
-    |> Seq.collect id
-    // Ignore AssemblyInfo
-    |> Seq.filter(fun f -> f.EndsWith("AssemblyInfo.fs") |> not)
-    |> formatFilesAsync FormatConfig.FormatConfig.Default
-    |> Async.RunSynchronously
-    |> Seq.iter(fun result ->
-        match result with
-        | Formatted(original, tempfile) ->
-            tempfile |> Shell.copyFile original
-            Trace.logfn "Formatted %s" original
-        | _ -> ()
-    )
+    let result =
+        [
+            srcCodeGlob
+            testsCodeGlob
+        ]
+        |> Seq.collect id
+        // Ignore AssemblyInfo
+        |> Seq.filter(fun f -> f.EndsWith("AssemblyInfo.fs") |> not)
+        |> String.concat " "
+        |> dotnet.fantomas
 
+    if not result.OK then
+        printfn "Errors while formatting all files: %A" result.Messages
+
+let checkFormatCode _ =
+    let result =
+        [
+            srcCodeGlob
+            testsCodeGlob
+        ]
+        |> Seq.collect id
+        // Ignore AssemblyInfo
+        |> Seq.filter(fun f -> f.EndsWith("AssemblyInfo.fs") |> not)
+        |> String.concat " "
+        |> sprintf "%s --check"
+        |> dotnet.fantomas
+
+    if result.ExitCode = 0 then
+        Trace.log "No files need formatting"
+    elif result.ExitCode = 99 then
+        failwith "Some files need formatting, check output for more info"
+    else
+        Trace.logf "Errors while formatting: %A" result.Errors
 
 let buildDocs _ =
     DocsTool.build ()
@@ -660,6 +679,7 @@ let initTargets () =
     Target.create "GitRelease" gitRelease
     Target.create "GitHubRelease" githubRelease
     Target.create "FormatCode" formatCode
+    Target.create "CheckFormatCode" checkFormatCode
     Target.create "Release" ignore
     Target.create "BuildDocs" buildDocs
     Target.create "WatchDocs" watchDocs
@@ -694,6 +714,7 @@ let initTargets () =
 
 
     "DotnetRestore"
+        ==> "CheckFormatCode"
         ==> "DotnetBuild"
         ==> "FSharpAnalyzers"
         ==> "DotnetTest"
