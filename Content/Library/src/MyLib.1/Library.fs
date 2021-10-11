@@ -1,4 +1,5 @@
 namespace MyLib._1
+
 open System
 open System.Security.Cryptography
 open System.Text
@@ -8,20 +9,19 @@ module Say =
 
     /// <summary> Finite list of Colors </summary>
     type FavoriteColor =
-    | Red
-    | Yellow
-    | Blue
+        | Red
+        | Yellow
+        | Blue
 
     /// <summary> A person with many different field types </summary>
-    type Person = {
-        Name : string
-        FavoriteNumber : int
-        FavoriteColor : FavoriteColor
-        DateOfBirth : DateTimeOffset
-    }
+    type Person =
+        { Name: string
+          FavoriteNumber: int
+          FavoriteColor: FavoriteColor
+          DateOfBirth: DateTimeOffset }
 
     /// <summary>Says hello to a specific person</summary>
-    let helloPerson (person : Person) =
+    let helloPerson (person: Person) =
         sprintf
             "Hello %s. You were born on %s and your favorite number is %d. You like %A."
             person.Name
@@ -46,11 +46,8 @@ module Say =
     ///
     /// <exceptions cref="M:System.OverflowException">Thrown when one parameter is max
     /// and the other is greater than 0.</exceptions>
-    let add a b =
-        a + b
+    let add a b = a + b
 
 
     /// I do nothing
-    let nothing name =
-        name |> ignore
-
+    let nothing name = name |> ignore
