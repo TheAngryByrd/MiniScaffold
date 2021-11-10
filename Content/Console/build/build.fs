@@ -378,7 +378,7 @@ let dotnetTest ctx =
             [
                 "--no-build"
                 sprintf "/p:AltCover=%b" (not disableCodeCoverage)
-                sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
+                // sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
                 sprintf "/p:AltCoverAssemblyExcludeFilter=%s" excludeCoverage
                 "/p:AltCoverLocalSource=true"
             ]
