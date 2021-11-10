@@ -353,7 +353,7 @@ let ``integration tests`` ctx =
             let args =
                 [
                     // sprintf "-C %A" (configuration (ctx.Context.AllExecutingTargets))
-                    sprintf "-p %s" proj
+                    sprintf "--project %s" proj
                     "--summary"
                 ] |> String.concat " "
             { c with

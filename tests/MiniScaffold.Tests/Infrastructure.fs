@@ -21,7 +21,7 @@ module Dotnet =
             let args =
                 Arguments.Empty
                 |> Arguments.appendNotEmpty "-i" name
-                |> Arguments.appendRaw "--dev:install"
+                // |> Arguments.appendRaw "--dev:install"
             //     |>
             // let args = [
             //     sprintf "-i \"%s\"" name
