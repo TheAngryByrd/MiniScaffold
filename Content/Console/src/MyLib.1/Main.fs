@@ -47,7 +47,7 @@ module Say =
 
     let hello name = sprintf "Hello %s" name
 
-    let colorizeIn color str =
+    let colorizeIn (color: string) str =
         let oldColor = Console.ForegroundColor
         Console.ForegroundColor <- (Enum.Parse(typedefof<ConsoleColor>, color) :?> ConsoleColor)
         printfn "%s" str

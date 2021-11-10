@@ -637,7 +637,7 @@ let initTargets () =
     "DotnetRestore"
         ==> "CheckFormatCode"
         ==> "DotnetBuild"
-        ==> "FSharpAnalyzers"
+        // ==> "FSharpAnalyzers"
         ==> "DotnetTest"
         =?> ("GenerateCoverageReport", not disableCodeCoverage)
         ==> "CreatePackages"
