@@ -141,13 +141,13 @@ module Tests =
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n CoverageReportFail --githubUsername TestAccount", [
-                    Effect.``setup for release tests``
-                    Effect.``make build function fail`` "let generateCoverageReport"
-                    Assert.``CHANGELOG contains Unreleased section``
-                    Assert.``build target with failure expected`` "Release"
-                    Assert.``CHANGELOG contains Unreleased section``
-                    ]
+                // "-n CoverageReportFail --githubUsername TestAccount", [
+                //     Effect.``setup for release tests``
+                //     Effect.``make build function fail`` "let generateCoverageReport"
+                //     Assert.``CHANGELOG contains Unreleased section``
+                //     Assert.``build target with failure expected`` "Release"
+                //     Assert.``CHANGELOG contains Unreleased section``
+                //     ]
                 "-n DotnetPackFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "let dotnetPack"
@@ -225,13 +225,13 @@ module Tests =
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n CoverageReportFail --githubUsername TestAccount --outputType Console", [
-                    Effect.``setup for release tests``
-                    Effect.``make build function fail`` "let generateCoverageReport"
-                    Assert.``CHANGELOG contains Unreleased section``
-                    Assert.``build target with failure expected`` "Release"
-                    Assert.``CHANGELOG contains Unreleased section``
-                    ]
+                // "-n CoverageReportFail --githubUsername TestAccount --outputType Console", [
+                //     Effect.``setup for release tests``
+                //     Effect.``make build function fail`` "let generateCoverageReport"
+                //     Assert.``CHANGELOG contains Unreleased section``
+                //     Assert.``build target with failure expected`` "Release"
+                //     Assert.``CHANGELOG contains Unreleased section``
+                //     ]
                 "-n CreatePackagesFail --githubUsername TestAccount --outputType Console", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "let createPackages"
