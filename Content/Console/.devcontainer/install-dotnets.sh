@@ -15,7 +15,7 @@ fi
 # Add additional versions if required
 DOTNET_VERSIONS=(
     # 'latest'
-    '5.0.100'
+    #'5.0.100'
 )
 for version in ${DOTNET_VERSIONS[@]}; do
    echo "installing dotnet $version"
