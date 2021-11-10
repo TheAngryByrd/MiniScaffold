@@ -9,23 +9,23 @@ NUGET
       FSharp.Core (>= 4.6) - restriction: || (>= net461) (>= netstandard2.0)
       Mono.Cecil (>= 0.11.3) - restriction: || (>= net461) (>= netstandard2.0)
     FSharp.Core (6.0)
-    Microsoft.CodeCoverage (17.0) - restriction: || (>= net45) (>= netcoreapp1.0)
+    Microsoft.CodeCoverage (17.1.0-preview-20211109-03) - restriction: || (>= net45) (>= netcoreapp1.0)
     Microsoft.CSharp (4.7) - restriction: || (&& (< netstandard1.3) (>= uap10.0)) (&& (< netstandard2.0) (>= uap10.0))
-    Microsoft.NET.Test.Sdk (17.0)
-      Microsoft.CodeCoverage (>= 17.0) - restriction: || (>= net45) (>= netcoreapp1.0)
-      Microsoft.TestPlatform.TestHost (>= 17.0) - restriction: >= netcoreapp1.0
+    Microsoft.NET.Test.Sdk (17.1.0-preview-20211109-03)
+      Microsoft.CodeCoverage (>= 17.1.0-preview-20211109-03) - restriction: || (>= net45) (>= netcoreapp1.0)
+      Microsoft.TestPlatform.TestHost (>= 17.1.0-preview-20211109-03) - restriction: >= netcoreapp1.0
       Newtonsoft.Json (>= 9.0.1) - restriction: >= uap10.0
       System.ComponentModel.Primitives (>= 4.1) - restriction: >= uap10.0
       System.ComponentModel.TypeConverter (>= 4.1) - restriction: >= uap10.0
       System.Runtime.InteropServices.RuntimeInformation (>= 4.0) - restriction: >= uap10.0
     Microsoft.NETCore.Platforms (5.0.2) - restriction: || (&& (>= monoandroid) (>= netcoreapp2.1) (< netstandard1.3)) (&& (< monoandroid) (>= netcoreapp1.0) (< netcoreapp2.1) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (>= monotouch) (>= netcoreapp2.1)) (&& (>= net46) (< netstandard1.4) (>= uap10.0)) (&& (>= net461) (>= netcoreapp2.1)) (&& (>= net461) (< netstandard2.0) (>= uap10.0)) (>= netcoreapp2.0) (&& (>= netcoreapp2.1) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (>= netcoreapp3.0) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< netstandard1.0) (>= uap10.0)) (&& (< netstandard1.2) (>= uap10.0) (< win8)) (&& (< netstandard1.3) (>= uap10.0)) (&& (< netstandard1.4) (>= uap10.0) (< win8) (< wpa81)) (&& (>= netstandard1.5) (< netstandard1.6) (>= uap10.0) (< win8) (< wpa81)) (&& (< netstandard1.5) (>= uap10.0)) (&& (>= netstandard1.6) (< netstandard2.0) (>= uap10.0) (< win8) (< wpa81)) (&& (< portable-net45+win8+wpa81) (>= uap10.0)) (&& (>= uap10.0) (>= wp8)) (>= uap10.1)
     Microsoft.NETCore.Targets (5.0) - restriction: || (&& (< monoandroid) (>= netcoreapp1.0) (< netcoreapp2.1) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (>= net46) (< netstandard1.4) (>= uap10.0)) (&& (< netstandard1.3) (>= uap10.0)) (&& (< netstandard1.4) (>= uap10.0) (< win8) (< wpa81)) (&& (>= netstandard1.5) (< netstandard1.6) (>= uap10.0) (< win8) (< wpa81)) (&& (< netstandard1.5) (>= uap10.0) (< uap10.1)) (&& (< netstandard1.5) (>= uap10.0) (< win8) (< wpa81)) (&& (>= netstandard1.6) (< netstandard2.0) (>= uap10.0) (< win8) (< wpa81))
-    Microsoft.TestPlatform.ObjectModel (17.0) - restriction: >= netcoreapp1.0
+    Microsoft.TestPlatform.ObjectModel (17.1.0-preview-20211109-03) - restriction: >= netcoreapp1.0
       NuGet.Frameworks (>= 4.6.4) - restriction: && (>= netcoreapp1.0) (< netstandard2.0)
-      NuGet.Frameworks (>= 5.0) - restriction: || (&& (>= net45) (< netstandard1.3)) (&& (< net45) (< netcoreapp1.0) (>= netstandard2.0) (< uap10.0)) (>= net451) (>= netcoreapp2.1)
+      NuGet.Frameworks (>= 5.11) - restriction: || (&& (>= net45) (< netstandard1.3)) (&& (< net45) (< netcoreapp1.0) (>= netstandard2.0) (< uap10.0)) (>= net451) (>= netcoreapp2.1)
       System.Reflection.Metadata (>= 1.6) - restriction: || (&& (>= net45) (< netstandard1.3)) (&& (< net45) (< netcoreapp1.0) (>= netstandard1.3) (< netstandard2.0) (< uap10.0)) (&& (< net45) (< netcoreapp1.0) (>= netstandard2.0) (< uap10.0)) (>= net451) (&& (>= netcoreapp1.0) (< netstandard2.0)) (>= netcoreapp2.1)
-    Microsoft.TestPlatform.TestHost (17.0) - restriction: >= netcoreapp1.0
-      Microsoft.TestPlatform.ObjectModel (>= 17.0) - restriction: || (>= netcoreapp1.0) (>= uap10.0)
+    Microsoft.TestPlatform.TestHost (17.1.0-preview-20211109-03) - restriction: >= netcoreapp1.0
+      Microsoft.TestPlatform.ObjectModel (>= 17.1.0-preview-20211109-03) - restriction: || (>= netcoreapp1.0) (>= uap10.0)
       Newtonsoft.Json (>= 9.0.1) - restriction: || (>= netcoreapp1.0) (>= uap10.0)
       System.Diagnostics.Process (>= 4.1) - restriction: && (>= netcoreapp1.0) (< netcoreapp2.1)
       System.Diagnostics.StackTrace (>= 4.3) - restriction: && (>= netcoreapp1.0) (< netcoreapp2.1)
@@ -98,7 +98,7 @@ NUGET
       System.Runtime.Serialization.Formatters (>= 4.3) - restriction: && (< net20) (>= netstandard1.3) (< netstandard2.0)
       System.Runtime.Serialization.Primitives (>= 4.3) - restriction: || (&& (< net20) (>= netstandard1.0) (< netstandard1.3)) (&& (< net20) (>= netstandard1.3) (< netstandard2.0))
       System.Xml.XmlDocument (>= 4.3) - restriction: && (< net20) (>= netstandard1.3) (< netstandard2.0)
-    NuGet.Frameworks (5.9.1) - restriction: || (&& (>= net45) (>= netcoreapp1.0) (< netstandard1.3)) (&& (>= net451) (>= netcoreapp1.0)) (&& (>= netcoreapp1.0) (< netstandard2.0)) (>= netcoreapp2.1)
+    NuGet.Frameworks (6.0) - restriction: || (&& (>= net45) (>= netcoreapp1.0) (< netstandard1.3)) (&& (>= net451) (>= netcoreapp1.0)) (&& (>= netcoreapp1.0) (< netstandard2.0)) (>= netcoreapp2.1)
     Packaging.Targets (0.1.208)
       System.Buffers (>= 4.5.1) - restriction: >= netstandard2.0
     runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3) - restriction: || (&& (>= net46) (< netstandard1.4) (>= uap10.0)) (&& (< netstandard1.3) (>= uap10.0)) (&& (< netstandard1.4) (>= uap10.0) (< win8) (< wpa81)) (&& (>= netstandard1.5) (< netstandard1.6) (>= uap10.0) (< win8) (< wpa81)) (&& (< netstandard1.5) (>= uap10.0) (< uap10.1)) (&& (< netstandard1.5) (>= uap10.0) (< win8) (< wpa81)) (&& (>= netstandard1.6) (< netstandard2.0) (>= uap10.0) (< win8) (< wpa81))
