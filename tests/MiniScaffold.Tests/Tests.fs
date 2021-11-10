@@ -155,13 +155,13 @@ module Tests =
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                "-n SourceLinkTestFail --githubUsername TestAccount", [
-                    Effect.``setup for release tests``
-                    Effect.``make build function fail`` "let sourceLinkTest"
-                    Assert.``CHANGELOG contains Unreleased section``
-                    Assert.``build target with failure expected`` "Release"
-                    Assert.``CHANGELOG contains Unreleased section``
-                    ]
+                // "-n SourceLinkTestFail --githubUsername TestAccount", [
+                //     Effect.``setup for release tests``
+                //     Effect.``make build function fail`` "let sourceLinkTest"
+                //     Assert.``CHANGELOG contains Unreleased section``
+                //     Assert.``build target with failure expected`` "Release"
+                //     Assert.``CHANGELOG contains Unreleased section``
+                //     ]
                 "-n PublishToNugetFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "let publishToNuget"
