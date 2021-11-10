@@ -83,7 +83,7 @@ let publishUrl = "https://www.nuget.org"
 
 let docsSiteBaseUrl = sprintf "https://%s.github.io/%s" gitOwner gitRepoName
 
-let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
+let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" true
 
 let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
 
@@ -423,10 +423,10 @@ let dotnetTest ctx =
     let args =
         [
             "--no-build"
-            // sprintf "/p:AltCover=%b" (not disableCodeCoverage)
-            // sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
-            // sprintf "/p:AltCoverAssemblyExcludeFilter=%s" excludeCoverage
-            // "/p:AltCoverLocalSource=true"
+            sprintf "/p:AltCover=%b" (not disableCodeCoverage)
+            sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
+            sprintf "/p:AltCoverAssemblyExcludeFilter=%s" excludeCoverage
+            "/p:AltCoverLocalSource=true"
         ]
     DotNet.test(fun c ->
 
