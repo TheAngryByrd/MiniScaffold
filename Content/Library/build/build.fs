@@ -423,10 +423,10 @@ let dotnetTest ctx =
     let args =
         [
             "--no-build"
-            sprintf "/p:AltCover=%b" (not disableCodeCoverage)
+            // sprintf "/p:AltCover=%b" (not disableCodeCoverage)
             // sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
-            sprintf "/p:AltCoverAssemblyExcludeFilter=%s" excludeCoverage
-            "/p:AltCoverLocalSource=true"
+            // sprintf "/p:AltCoverAssemblyExcludeFilter=%s" excludeCoverage
+            // "/p:AltCoverLocalSource=true"
         ]
     DotNet.test(fun c ->
 
