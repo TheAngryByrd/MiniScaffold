@@ -82,7 +82,7 @@ let mutable latestEntry =
 let mutable linkReferenceForLatestEntry = ""
 let mutable changelogBackupFilename = ""
 
-let targetFramework =  "net5.0"
+let targetFramework =  "net6.0"
 
 // RuntimeIdentifiers: https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
 // dotnet-packaging Tasks: https://github.com/qmfrederik/dotnet-packaging/blob/0c8e063ada5ba0de2b194cd3fad8308671b48092/Packaging.Targets/build/Packaging.Targets.targets
