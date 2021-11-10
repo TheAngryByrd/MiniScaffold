@@ -716,11 +716,11 @@ let initTargets () =
     "DotnetRestore"
         ==> "CheckFormatCode"
         ==> "DotnetBuild"
-        ==> "FSharpAnalyzers"
+        // ==> "FSharpAnalyzers"
         ==> "DotnetTest"
         =?> ("GenerateCoverageReport", not disableCodeCoverage)
         ==> "DotnetPack"
-        ==> "SourceLinkTest"
+        // ==> "SourceLinkTest"
         ==> "PublishToNuGet"
         ==> "GitRelease"
         ==> "GitHubRelease"
