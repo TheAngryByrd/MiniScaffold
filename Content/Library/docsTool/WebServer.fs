@@ -28,7 +28,7 @@ module WebServer =
 
     /// Async version of IApplicationBuilder.Use
     let useAsync (middlware : HttpContext -> (unit -> Async<unit>) -> Async<unit>) (app:IApplicationBuilder) =
-        app.Use(fun env next ->
+        app.Use(fun env (next : Func<Threading.Tasks.Task>) ->
             middlware env (next.Invoke >> Async.AwaitTask)
             |> Async.StartAsTask
             :> System.Threading.Tasks.Task
