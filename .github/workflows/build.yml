@@ -42,19 +42,9 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         dotnet --info
-        $path = [System.Environment]::GetEnvironmentVariable(
-            'PATH',
-            'Machine'
-        )
-        # Remove unwanted elements
-        $path = ($path.Split(';') | Where-Object { $_ -ne 'C:\\Program Files\\dotnet' }) -join ';'
-        $path = ($path.Split(';') | Where-Object { $_ -ne 'C:\\Program Files\\dotnet\\' }) -join ';'
-        # Set it
-        [System.Environment]::SetEnvironmentVariable(
-            'PATH',
-            $path,
-            'Machine'
-        )
+        $correctedpath = $env:Path.split(";") | where-object {$_ -notlike "Program Files\dotnet"} | where-object {$_ -notlike "Program Files\\dotnet"} | join-string -Separator "; "
+        [Environment]::SetEnvironmentVariable("Path", "$correctedpath","User")
+        [Environment]::SetEnvironmentVariable("Path", "$correctedpath","Machine")
         $Env:Path
         ./build.cmd
       env:
