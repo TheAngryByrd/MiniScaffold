@@ -103,7 +103,7 @@ module Tests =
                     Assert.``project can build target`` "BuildDocs"
                     ]
                 // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
-                testCase, "-n fsharp-data-sample --githubUsername CoolPersonNo2", [
+                ftestCase, "-n fsharp-data-sample --githubUsername CoolPersonNo2", [
                     yield! projectStructureAsserts
                     Assert.``project can build target`` "DotnetPack"
                     ]
@@ -141,13 +141,13 @@ module Tests =
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                // testCase, "-n CoverageReportFail --githubUsername TestAccount", [
-                //     Effect.``setup for release tests``
-                //     Effect.``make build function fail`` "let generateCoverageReport"
-                //     Assert.``CHANGELOG contains Unreleased section``
-                //     Assert.``build target with failure expected`` "Release"
-                //     Assert.``CHANGELOG contains Unreleased section``
-                //     ]
+                ptestCase, "-n CoverageReportFail --githubUsername TestAccount", [
+                    Effect.``setup for release tests``
+                    Effect.``make build function fail`` "let generateCoverageReport"
+                    Assert.``CHANGELOG contains Unreleased section``
+                    Assert.``build target with failure expected`` "Release"
+                    Assert.``CHANGELOG contains Unreleased section``
+                    ]
                 testCase, "-n DotnetPackFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "let dotnetPack"
@@ -155,13 +155,14 @@ module Tests =
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                // testCase, "-n SourceLinkTestFail --githubUsername TestAccount", [
-                //     Effect.``setup for release tests``
-                //     Effect.``make build function fail`` "let sourceLinkTest"
-                //     Assert.``CHANGELOG contains Unreleased section``
-                //     Assert.``build target with failure expected`` "Release"
-                //     Assert.``CHANGELOG contains Unreleased section``
-                //     ]
+                // SourceLinkTests aren't working since the testing tool is very out of date
+                ptestCase, "-n SourceLinkTestFail --githubUsername TestAccount", [
+                    Effect.``setup for release tests``
+                    Effect.``make build function fail`` "let sourceLinkTest"
+                    Assert.``CHANGELOG contains Unreleased section``
+                    Assert.``build target with failure expected`` "Release"
+                    Assert.``CHANGELOG contains Unreleased section``
+                    ]
                 testCase, "-n PublishToNugetFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "let publishToNuget"
@@ -225,13 +226,13 @@ module Tests =
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                // testCase,"-n CoverageReportFail --githubUsername TestAccount --outputType Console", [
-                //     Effect.``setup for release tests``
-                //     Effect.``make build function fail`` "let generateCoverageReport"
-                //     Assert.``CHANGELOG contains Unreleased section``
-                //     Assert.``build target with failure expected`` "Release"
-                //     Assert.``CHANGELOG contains Unreleased section``
-                //     ]
+                ptestCase,"-n CoverageReportFail --githubUsername TestAccount --outputType Console", [
+                    Effect.``setup for release tests``
+                    Effect.``make build function fail`` "let generateCoverageReport"
+                    Assert.``CHANGELOG contains Unreleased section``
+                    Assert.``build target with failure expected`` "Release"
+                    Assert.``CHANGELOG contains Unreleased section``
+                    ]
                 testCase, "-n CreatePackagesFail --githubUsername TestAccount --outputType Console", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "let createPackages"
