@@ -103,7 +103,7 @@ module Tests =
                     Assert.``project can build target`` "BuildDocs"
                     ]
                 // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
-                ftestCase, "-n fsharp-data-sample --githubUsername CoolPersonNo2", [
+                testCase, "-n fsharp-data-sample --githubUsername CoolPersonNo2", [
                     yield! projectStructureAsserts
                     Assert.``project can build target`` "DotnetPack"
                     ]
@@ -141,7 +141,7 @@ module Tests =
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                ptestCase, "-n CoverageReportFail --githubUsername TestAccount", [
+                testCase, "-n CoverageReportFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "let generateCoverageReport"
                     Assert.``CHANGELOG contains Unreleased section``
@@ -226,7 +226,7 @@ module Tests =
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                ptestCase,"-n CoverageReportFail --githubUsername TestAccount --outputType Console", [
+                testCase,"-n CoverageReportFail --githubUsername TestAccount --outputType Console", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "let generateCoverageReport"
                     Assert.``CHANGELOG contains Unreleased section``
