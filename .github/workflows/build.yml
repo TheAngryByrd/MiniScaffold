@@ -42,7 +42,19 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         dotnet --info
-        $Env:Path
+        $path = [System.Environment]::GetEnvironmentVariable(
+            'PATH',
+            'Machine'
+        )
+        # Remove unwanted elements
+        $path = ($path.Split(';') | Where-Object { $_ -ne 'C:\\Program Files\\dotnet' }) -join ';'
+        $path = ($path.Split(';') | Where-Object { $_ -ne 'C:\\Program Files\\dotnet\\' }) -join ';'
+        # Set it
+        [System.Environment]::SetEnvironmentVariable(
+            'PATH',
+            $path,
+            'Machine'
+        )
         ./build.cmd
       env:
         # Work around https://github.com/actions/setup-dotnet/issues/29
