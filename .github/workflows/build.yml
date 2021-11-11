@@ -43,8 +43,8 @@ jobs:
       run: |
         dotnet --info
         $correctedpath = $env:Path.split(";") | where-object {$_ -notlike "Program Files\dotnet"} | where-object {$_ -notlike "Program Files\\dotnet"} | join-string -Separator "; "
-        [Environment]::SetEnvironmentVariable("Path", "$correctedpath","User")
-        [Environment]::SetEnvironmentVariable("Path", "$correctedpath","Machine")
+        [Environment]::SetEnvironmentVariable("GITHUB_PATH", "$correctedpath","User")
+        [Environment]::SetEnvironmentVariable("GITHUB_PATH", "$correctedpath","Machine")
         $Env:Path
         ./build.cmd
       env:
