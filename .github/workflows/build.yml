@@ -31,6 +31,7 @@ jobs:
       if: runner.os != 'Windows'
       run: |
         dotnet --info
+        echo $PATH
         chmod +x ./build.sh
         ./build.sh
       env:
@@ -41,6 +42,7 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         dotnet --info
+        $Env:Path
         ./build.cmd
       env:
         # Work around https://github.com/actions/setup-dotnet/issues/29
