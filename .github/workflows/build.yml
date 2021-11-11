@@ -30,6 +30,7 @@ jobs:
     - name: Build
       if: runner.os != 'Windows'
       run: |
+        dotnet --info
         chmod +x ./build.sh
         ./build.sh
       env:
@@ -38,7 +39,9 @@ jobs:
         CI: true
     - name: Build
       if: runner.os == 'Windows'
-      run: ./build.cmd
+      run: |
+        dotnet --info
+        ./build.cmd
       env:
         # Work around https://github.com/actions/setup-dotnet/issues/29
         DOTNET_ROOT: ${{ runner.tool_cache }}/dncs/${{ matrix.dotnet }}/x64
