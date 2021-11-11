@@ -55,6 +55,7 @@ jobs:
             $path,
             'Machine'
         )
+        $Env:Path
         ./build.cmd
       env:
         # Work around https://github.com/actions/setup-dotnet/issues/29
