@@ -42,12 +42,8 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         dotnet --info
-        $correctedpath = $env:Path.split(";") | where-object {$_ -notlike "Program Files\dotnet"} | where-object {$_ -notlike "Program Files\\dotnet"} | join-string -Separator "; "
-        [Environment]::SetEnvironmentVariable("GITHUB_PATH", "$correctedpath","User")
-        [Environment]::SetEnvironmentVariable("GITHUB_PATH", "$correctedpath","Machine")
-        $Env:Path
         ./build.cmd
       env:
         # Work around https://github.com/actions/setup-dotnet/issues/29
-        DOTNET_ROOT: ${{ runner.tool_cache }}/dncs/${{ matrix.dotnet }}/x64
+        # DOTNET_ROOT: ${{ runner.tool_cache }}/dncs/${{ matrix.dotnet }}/x64
         CI: true
