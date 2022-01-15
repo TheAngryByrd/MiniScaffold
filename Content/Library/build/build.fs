@@ -409,6 +409,7 @@ let fsharpAnalyzers _ =
                 FSharpAnalyzers.Arguments.Fail_On_Warnings [
                     "BDH0002"
                 ]
+                FSharpAnalyzers.Arguments.Ignore_Files ["*AssemblyInfo.fs"]
                 FSharpAnalyzers.Verbose
             ]
             |> argParser.PrintCommandLineArgumentsFlat
@@ -716,7 +717,7 @@ let initTargets () =
     "DotnetRestore"
         ==> "CheckFormatCode"
         ==> "DotnetBuild"
-        // ==> "FSharpAnalyzers"
+        ==> "FSharpAnalyzers"
         ==> "DotnetTest"
         =?> ("GenerateCoverageReport", not disableCodeCoverage)
         ==> "DotnetPack"
