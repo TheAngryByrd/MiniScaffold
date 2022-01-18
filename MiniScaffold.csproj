@@ -1,24 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>F# Template for creating and publishing libraries targeting .NET 6.0 or console apps .NET 6.0</Description>
     <Authors>Jimmy Byrd</Authors>
+    <PackageType>Template</PackageType>
     <PackageProjectUrl>https://github.com/TheAngryByrd/MiniScaffold</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/TheAngryByrd/MiniScaffold/blob/master/LICENSE.md</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/TheAngryByrd/MiniScaffold.git</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>class;library;template;fsharp</PackageTags>
-    <NeutralLanguage>en-US</NeutralLanguage>
-    <PackageType>Template</PackageType>
-    <NoBuild>true</NoBuild>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IncludeContentInPack>true</IncludeContentInPack>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
-    <NoDefaultExcludes>true</NoDefaultExcludes> <!-- So nuget will include .files -->
-    <TargetFramework>netstandard0.0</TargetFramework>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <!-- So nuget will include .files -->
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <ChangelogFile>CHANGELOG.md</ChangelogFile>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="Content/**/*" Exclude="Content/**/.paket/paket;Content/**/.paket/.store/*;Content/**/packages/**/*;Content/**/.fake/**;Content/**/bin/**/**/*;Content/**/dist/*;Content/**/temp/*;Content/**/bin/**/**/*;Content/**/obj/**/**/*;Content/**/paket-files/**;" >
-        <PackagePath>Content\</PackagePath>
+    <Content Include="Content/**/*" Exclude="Content/**/.paket/paket;Content/**/.paket/.store/*;Content/**/packages/**/*;Content/**/.fake/**;Content/**/bin/**/**/*;Content/**/dist/*;Content/**/temp/*;Content/**/bin/**/**/*;Content/**/obj/**/**/*;Content/**/paket-files/**;">
+      <PackagePath>Content\</PackagePath>
     </Content>
-    <None Include="README.md" Pack="true" PackagePath="/"/>
+    <None Include="README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
+  <Import Project=".paket\Paket.Restore.targets" />
 </Project>

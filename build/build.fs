@@ -16,26 +16,28 @@ open Fake.BuildServer
 
 let srcGlob = "*.csproj"
 
-let testsGlob = __SOURCE_DIRECTORY__ </> ".."  </> "tests/**/*.??proj"
+let rootDir = __SOURCE_DIRECTORY__ </> ".."
 
-let distDir = __SOURCE_DIRECTORY__ </> ".."  </> "dist"
+let testsGlob = rootDir  </> "tests/**/*.??proj"
+
+let distDir = rootDir  </> "dist"
 let distGlob = distDir </> "*.nupkg"
 
-let docsDir = __SOURCE_DIRECTORY__ </> ".." </> "docs"
-let docsSrcDir = __SOURCE_DIRECTORY__ </> ".." </> "docsSrc"
-let docsToolDir = __SOURCE_DIRECTORY__ </> ".." </> "docsTool"
+let docsDir = rootDir </> "docs"
+let docsSrcDir = rootDir </> "docsSrc"
+let docsToolDir = rootDir </> "docsTool"
 let docsToolProj = docsToolDir </> "docsTool.fsproj"
 let docsSrcGlob = docsSrcDir </> "**/*.fsx"
 
 let gitOwner = "TheAngryByrd"
 let gitRepoName = "MiniScaffold"
 
-let contentDir = __SOURCE_DIRECTORY__ </> ".." </> "Content"
+let contentDir = rootDir </> "Content"
 
 
 
 let tagFromVersionNumber versionNumber = sprintf "%s" versionNumber
-let changelogFilename = __SOURCE_DIRECTORY__ </> ".." </> "CHANGELOG.md"
+let changelogFilename = rootDir </> "CHANGELOG.md"
 let changelog = Fake.Core.Changelog.load changelogFilename
 let mutable latestEntry =
     if Seq.isEmpty changelog.Entries
