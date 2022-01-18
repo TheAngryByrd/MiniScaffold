@@ -8,6 +8,8 @@ module Tests =
     open Expecto
     open Infrastructure
 
+    let ptestCase (reason : string) name test = Expecto.Tests.ptestCase name test
+
     let logger = Expecto.Logging.Log.create "setup"
     let nugetPkgName =  "MiniScaffold"
     let templateName = "mini-scaffold"
@@ -155,8 +157,7 @@ module Tests =
                     Assert.``build target with failure expected`` "Release"
                     Assert.``CHANGELOG contains Unreleased section``
                     ]
-                // SourceLinkTests aren't working since the testing tool is very out of date
-                ptestCase, "-n SourceLinkTestFail --githubUsername TestAccount", [
+                ptestCase "SourceLinkTests aren't working since the testing tool is very out of date", "-n SourceLinkTestFail --githubUsername TestAccount", [
                     Effect.``setup for release tests``
                     Effect.``make build function fail`` "let sourceLinkTest"
                     Assert.``CHANGELOG contains Unreleased section``
