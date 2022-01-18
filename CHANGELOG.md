@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.0] - 2022-01-18
+
+### Changed
+- [.NET 6.0 support](https://github.com/TheAngryByrd/MiniScaffold/pull/250)
+
 ## [0.30.0-beta001] - 2022-01-18
 
 ### Changed
@@ -568,7 +573,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.30.0-beta001...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.30.0...HEAD
+[0.30.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.29.1...0.30.0
 [0.30.0-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.29.1...0.30.0-beta001
 [0.29.1]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.29.0...0.29.1
 [0.29.1-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.29.0...0.29.1-beta001
