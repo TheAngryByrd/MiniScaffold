@@ -71,9 +71,7 @@ module Main =
 
     [<EntryPoint>]
     let main (argv: string array) =
-        let parser =
-            ArgumentParser.Create<CLIArguments>(programName = "MyLib._1")
-
+        let parser = ArgumentParser.Create<CLIArguments>(programName = "MyLib._1")
         let results = parser.Parse(argv)
 
         if results.Contains Version then
