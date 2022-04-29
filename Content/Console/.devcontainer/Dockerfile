@@ -26,7 +26,7 @@ ENV \
     DOTNET_INSTALL_DIR=/usr/share/dotnet/ \
     DOTNET_ROOT=/usr/share/dotnet/
 
-COPY ./.devcontainer/install-dotnets.sh global.json* .
+COPY ./.devcontainer/install-dotnets.sh global.json* ./
 
 RUN /bin/bash install-dotnets.sh
 
