@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.31.1] - 2022-04-29
+
+### Fixed
+- [Adjust Dockerfiles to copy install-dotnets.sh correctly on new versions of Docker.](https://github.com/TheAngryByrd/MiniScaffold/pull/257)
+
 ## [0.31.1-beta001] - 2022-04-29
 
 ### Fixed
@@ -588,7 +593,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.31.1-beta001...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.31.1...HEAD
+[0.31.1]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.31.0...0.31.1
 [0.31.1-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.31.0...0.31.1-beta001
 [0.31.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.30.0...0.31.0
 [0.31.0-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.30.0...0.31.0-beta001
