@@ -3,7 +3,7 @@
     <Description>F# Template for creating and publishing libraries targeting .NET 6.0 or console apps .NET 6.0</Description>
     <Authors>Jimmy Byrd</Authors>
     <PackageProjectUrl>https://github.com/TheAngryByrd/MiniScaffold</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/TheAngryByrd/MiniScaffold/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/TheAngryByrd/MiniScaffold.git</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>class;library;template;fsharp</PackageTags>
@@ -14,6 +14,8 @@
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <NoDefaultExcludes>true</NoDefaultExcludes> <!-- So nuget will include .files -->
     <TargetFramework>netstandard0.0</TargetFramework>
+    <!-- Ignore the "target frameworks don't match" warning because we're not a library package -->
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Content/**/*" Exclude="Content/**/.paket/paket;Content/**/.paket/.store/*;Content/**/packages/**/*;Content/**/.fake/**;Content/**/bin/**/**/*;Content/**/dist/*;Content/**/temp/*;Content/**/bin/**/**/*;Content/**/obj/**/**/*;Content/**/paket-files/**;" >
