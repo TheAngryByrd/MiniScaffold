@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json.schemastore.org/vs-2017.3.host",
+    "symbolInfo": [
+        {
+            "id": "githubUsername",
+            "name": {
+                "id": "githubUsername",
+                "text": "Github Username"
+            }
+        },
+        {
+            "id": "outputType",
+            "name" : {
+                "id": "outputType",
+                "text": "Output Type"
+            }
+        },
+        {
+            "id": "releaseBranch",
+            "name" : {
+                "id": "releaseBranch",
+                "text": "Release Branch"
+            }
+        }
+    ]
+}
