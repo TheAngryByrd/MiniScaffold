@@ -1,26 +1,54 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <Description>F# Template for creating and publishing libraries targeting .NET 6.0 or console apps .NET 6.0</Description>
-    <Authors>Jimmy Byrd</Authors>
-    <PackageProjectUrl>https://github.com/TheAngryByrd/MiniScaffold</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/TheAngryByrd/MiniScaffold.git</RepositoryUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>class;library;template;fsharp</PackageTags>
-    <NeutralLanguage>en-US</NeutralLanguage>
-    <PackageType>Template</PackageType>
-    <NoBuild>true</NoBuild>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
-    <NoDefaultExcludes>true</NoDefaultExcludes> <!-- So nuget will include .files -->
-    <TargetFramework>netstandard0.0</TargetFramework>
-    <!-- Ignore the "target frameworks don't match" warning because we're not a library package -->
-    <NoWarn>$(NoWarn);NU5128</NoWarn>
-  </PropertyGroup>
-  <ItemGroup>
-    <Content Include="Content/**/*" Exclude="Content/**/.paket/paket;Content/**/.paket/.store/*;Content/**/packages/**/*;Content/**/.fake/**;Content/**/bin/**/**/*;Content/**/dist/*;Content/**/temp/*;Content/**/bin/**/**/*;Content/**/obj/**/**/*;Content/**/paket-files/**;" >
-        <PackagePath>Content\</PackagePath>
-    </Content>
-    <None Include="README.md" Pack="true" PackagePath="/"/>
-  </ItemGroup>
+    <PropertyGroup>
+        <Description>F# Template for creating and publishing libraries targeting .NET 6.0 or console apps .NET 6.0</Description>
+        <Authors>Jimmy Byrd</Authors>
+        <PackageProjectUrl>https://github.com/TheAngryByrd/MiniScaffold</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/TheAngryByrd/MiniScaffold.git</RepositoryUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>class;library;template;fsharp</PackageTags>
+        <NeutralLanguage>en-US</NeutralLanguage>
+        <PackageType>Template</PackageType>
+        <NoBuild>true</NoBuild>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+        <NoDefaultExcludes>true</NoDefaultExcludes> <!-- So nuget will include .files -->
+        <TargetFramework>netstandard0.0</TargetFramework>
+        <!-- Ignore the "target frameworks don't match" warning because we're not a library package -->
+        <NoWarn>$(NoWarn);NU5128</NoWarn>
+        <EnablePackageValidation>true</EnablePackageValidation>
+        <IsPackable>true</IsPackable>
+    </PropertyGroup>
+    <ItemGroup>
+        <Content
+                Include="Content/**/*"
+                Exclude="Content/**/.paket/paket;Content/**/.paket/.store/*;Content/**/packages/**/*;Content/**/.fake/**;Content/**/bin/**/**/*;Content/**/dist/*;Content/**/temp/*;Content/**/bin/**/**/*;Content/**/obj/**/**/*;Content/**/paket-files/**;">
+            <PackagePath>Content\</PackagePath>
+        </Content>
+        <None
+                Include="README.md"
+                Pack="true"
+                PackagePath="/" />
+    </ItemGroup>
+
+    <UsingTask
+            TaskName="AnalyzeTemplate"
+            AssemblyFile="$(Pkgsayedha_templates_tasks)\tasks\netstandard2.1\SayedHa.Templates.Tasks.dll" />
+    <ItemGroup>
+        <PackageReference
+                Include="Sayedha.Templates.Tasks"
+                GeneratePathProperty="true"
+                Version="0.0.2-beta"
+                PrivateAssets="all"
+                ExcludeAssets="compile" />
+    </ItemGroup>
+
+    <Target
+            Name="ValidatePackage"
+            AfterTargets="Pack">
+        <ItemGroup>
+            <PackagesToAnalyze Include="$([MSBuild]::ValueOrDefault('$(PackageTargetPath)', '$([MSBuild]::NormalizePath('$(PackageOutputPath)', '$(PackageId).$(PackageVersion).nupkg'))'))" />
+        </ItemGroup>
+        <AnalyzeTemplate Packages="@(PackagesToAnalyze)" />
+    </Target>
 </Project>
