@@ -16,7 +16,12 @@ open Fake.BuildServer
 
 let srcGlob = "*.csproj"
 
-let testsGlob = __SOURCE_DIRECTORY__ </> ".."  </> "tests/**/*.??proj"
+let testsCodeGlob =
+    !! (__SOURCE_DIRECTORY__ </> ".." </> "tests/**/*.fs")
+    ++ (__SOURCE_DIRECTORY__ </> ".." </> "tests/**/*.fsx")
+    -- (__SOURCE_DIRECTORY__ </> ".." </> "tests/**/obj/**/*.fs")
+
+let testsGlob = !! (__SOURCE_DIRECTORY__ </> ".."  </> "tests/**/*.??proj")
 
 let distDir = __SOURCE_DIRECTORY__ </> ".."  </> "dist"
 let distGlob = distDir </> "*.nupkg"
@@ -182,6 +187,9 @@ module dotnet =
     let run cmdParam args =
         DotNet.exec cmdParam "run" args
 
+    let fantomas args =
+        DotNet.exec id "fantomas" args
+
 module DocsTool =
     open Argu
     let buildparser = ArgumentParser.Create<BuildArgs>(programName = "docstool")
@@ -319,6 +327,39 @@ let ``update changelog`` ctx =
     // If build fails after this point but before we push the release out, undo our modifications
     Target.activateBuildFailure "RevertChangelog"
 
+let formatCode _ =
+    let result =
+        [
+            testsCodeGlob
+        ]
+        |> Seq.collect id
+        // Ignore AssemblyInfo
+        |> Seq.filter(fun f -> f.EndsWith("AssemblyInfo.fs") |> not)
+        |> String.concat " "
+        |> dotnet.fantomas
+
+    if not result.OK then
+        printfn "Errors while formatting all files: %A" result.Messages
+
+let checkFormatCode _ =
+    let result =
+        [
+            testsCodeGlob
+        ]
+        |> Seq.collect id
+        // Ignore AssemblyInfo
+        |> Seq.filter(fun f -> f.EndsWith("AssemblyInfo.fs") |> not)
+        |> String.concat " "
+        |> sprintf "%s --check"
+        |> dotnet.fantomas
+
+    if result.ExitCode = 0 then
+        Trace.log "No files need formatting"
+    elif result.ExitCode = 99 then
+        failwith "Some files need formatting, check output for more info"
+    else
+        Trace.logf "Errors while formatting: %A" result.Errors
+
 
 let ``dotnet pack`` ctx =
     !! srcGlob
@@ -345,7 +386,7 @@ let getPkgPath () =
     |> Seq.head
 
 let ``integration tests`` ctx =
-    !! testsGlob
+    testsGlob
     |> Seq.iter (fun proj ->
 
         dotnet.run(fun c ->
@@ -467,7 +508,8 @@ let initTargets () =
     Target.create "BuildDocs" ``build docs``
     Target.create "WatchDocs" ``watch docs``
     Target.create "ReleaseDocs" ``release docs``
-
+    Target.create "FormatCode" formatCode
+    Target.create "CheckFormatCode" checkFormatCode
     //-----------------------------------------------------------------------------
     // Target Dependencies
     //-----------------------------------------------------------------------------
@@ -487,6 +529,7 @@ let initTargets () =
     "Clean"
         ==> "DotnetRestore"
         ==> "DotnetPack"
+        =?> ("CheckFormatCode", isCI)
         =?> ("IntegrationTests", isCI)
         ==> "PublishToNuGet"
         ==> "GitRelease"
