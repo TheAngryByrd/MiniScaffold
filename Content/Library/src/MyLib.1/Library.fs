@@ -14,11 +14,12 @@ module Say =
         | Blue
 
     /// <summary> A person with many different field types </summary>
-    type Person =
-        { Name: string
-          FavoriteNumber: int
-          FavoriteColor: FavoriteColor
-          DateOfBirth: DateTimeOffset }
+    type Person = {
+        Name: string
+        FavoriteNumber: int
+        FavoriteColor: FavoriteColor
+        DateOfBirth: DateTimeOffset
+    }
 
     /// <summary>Says hello to a specific person</summary>
     let helloPerson (person: Person) =
@@ -50,4 +51,6 @@ module Say =
 
 
     /// I do nothing
-    let nothing name = name |> ignore
+    let nothing name =
+        name
+        |> ignore
