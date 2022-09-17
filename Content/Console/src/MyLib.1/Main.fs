@@ -43,7 +43,9 @@ module AssemblyInfo =
 module Say =
     open System
 
-    let nothing name = name |> ignore
+    let nothing name =
+        name
+        |> ignore
 
     let hello name = sprintf "Hello %s" name
 
@@ -61,6 +63,7 @@ module Main =
         | Version
         | Favorite_Color of string // Look in App.config
         | [<MainCommand>] Hello of string
+
         interface IArgParserTemplate with
             member s.Usage =
                 match s with
@@ -82,9 +85,14 @@ module Main =
             match results.TryGetResult Hello with
             | Some v ->
                 let color = results.GetResult Favorite_Color
-                Say.hello v |> Say.colorizeIn color
-            | None -> parser.PrintUsage() |> printfn "%s"
+
+                Say.hello v
+                |> Say.colorizeIn color
+            | None ->
+                parser.PrintUsage()
+                |> printfn "%s"
         else
-            parser.PrintUsage() |> printfn "%s"
+            parser.PrintUsage()
+            |> printfn "%s"
 
         0
