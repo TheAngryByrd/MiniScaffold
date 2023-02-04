@@ -6,8 +6,23 @@
     <WarnOn>3390;$(WarnOn)</WarnOn>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+    <ItemGroup>
+    <PackageReference Include="Fake.IO.FileSystem"  />
+    <PackageReference Include="Fake.Core.Target"  />
+    <PackageReference Include="Fake.Core.ReleaseNotes"  />
+    <PackageReference Include="FAKE.Core.Environment"  />
+    <PackageReference Include="Fake.DotNet.Cli"  />
+    <PackageReference Include="FAKE.Core.Process"  />
+    <PackageReference Include="Fake.DotNet.AssemblyInfoFile"  />
+    <PackageReference Include="Fake.Tools.Git"  />
+    <PackageReference Include="Fake.DotNet.Paket"  />
+    <PackageReference Include="Fake.Api.GitHub"  />
+    <PackageReference Include="Fake.BuildServer.GitHubActions"  />
+    <PackageReference Include="MSBuild.StructuredLogger" />
+    <PackageReference Include="Argu" />
+    <PackageReference Include="Octokit"/>
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="build.fs" />
   </ItemGroup>
-  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>
