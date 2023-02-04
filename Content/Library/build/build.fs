@@ -1,3 +1,5 @@
+
+module Build
 open System
 open Fake.Core
 open Fake.DotNet

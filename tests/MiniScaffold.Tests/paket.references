@@ -1,5 +1,0 @@
-Expecto
-
-group build
-Fake.DotNet.Cli
-Fake.Tools.Git

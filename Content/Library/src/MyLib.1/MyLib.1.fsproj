@@ -18,4 +18,23 @@
         <Compile Include="Library.fs" />
     </ItemGroup>
     <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Title>MyLib.1</Title>
+    <Description>MyLib.1 does the thing!</Description>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Library.fs" />
+  </ItemGroup>
 </Project>
