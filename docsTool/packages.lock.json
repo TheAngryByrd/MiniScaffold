@@ -387,18 +387,6 @@
         "resolved": "1.0.0",
         "contentHash": "vSN/L1uaVwKsiLa95bYu2SGkF0iY3xMblTfxc8alSziPuVfJpj3geVqHGAA75J7cZkMuKpFVikz82Lo6y6LLdA=="
       },
-      "MSBuild.StructuredLogger": {
-        "type": "Transitive",
-        "resolved": "2.1.176",
-        "contentHash": "WI4C+Iuzr3Q3sLPRylpQrI59spTeOyDDAd59obN2em8o1V+E/1iW78uQB6Omd6PtqvdJAa6cjQXmmkmYza2Myg==",
-        "dependencies": {
-          "Microsoft.Build": "16.4.0",
-          "Microsoft.Build.Framework": "16.4.0",
-          "Microsoft.Build.Tasks.Core": "16.4.0",
-          "Microsoft.Build.Utilities.Core": "16.4.0",
-          "Microsoft.SourceLink.GitHub": "1.0.0"
-        }
-      },
       "Newtonsoft.Json": {
         "type": "Transitive",
         "resolved": "12.0.3",
@@ -1365,6 +1353,19 @@
         "requested": "[6.0.7, )",
         "resolved": "4.7.2",
         "contentHash": "w3XFVTnyZUbC8e2QT6a85ern6y7eQPPk+MYemz1FP0iBfgZcembL+wmo5cIZ1kxB8jfoXC8Q9KVkOMsGpkBKbA=="
+      },
+      "MSBuild.StructuredLogger": {
+        "type": "CentralTransitive",
+        "requested": "[2.1.768, )",
+        "resolved": "2.1.176",
+        "contentHash": "WI4C+Iuzr3Q3sLPRylpQrI59spTeOyDDAd59obN2em8o1V+E/1iW78uQB6Omd6PtqvdJAa6cjQXmmkmYza2Myg==",
+        "dependencies": {
+          "Microsoft.Build": "16.4.0",
+          "Microsoft.Build.Framework": "16.4.0",
+          "Microsoft.Build.Tasks.Core": "16.4.0",
+          "Microsoft.Build.Utilities.Core": "16.4.0",
+          "Microsoft.SourceLink.GitHub": "1.0.0"
+        }
       }
     }
   }

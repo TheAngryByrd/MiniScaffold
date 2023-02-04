@@ -244,11 +244,6 @@ let clean _ =
         )
     |> Shell.cleanDirs
 
-    [
-        "paket-files/paket.restore.cached"
-    ]
-    |> Seq.iter Shell.rm
-
 let dotnetRestore _ =
     [sln]
     |> Seq.map(fun dir -> fun () ->

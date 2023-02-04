@@ -289,10 +289,6 @@ let clean _ =
         |> Seq.map(fun sp -> IO.Path.GetDirectoryName p </> sp ))
     |> Shell.cleanDirs
 
-    [
-        "paket-files/paket.restore.cached"
-    ]
-    |> Seq.iter Shell.rm
 
 let dotnetRestore _ =
     [sln]
@@ -545,14 +541,14 @@ let sourceLinkTest _ =
 
 let publishToNuget _ =
     allReleaseChecks ()
-    Paket.push(fun c ->
+    NuGet.NuGet.NuGetPublish(fun c ->
         { c with
-            ToolType = ToolType.CreateLocalTool()
-            PublishUrl = publishUrl
+            PublishUrl = "https://www.nuget.org"
             WorkingDir = "dist"
-            ApiKey = match nugetToken with
-                     | Some s -> s
-                     | _ -> c.ApiKey // assume paket-config was set properly
+            AccessKey =
+                match nugetToken with
+                | Some s -> s
+                | _ -> c.AccessKey
         }
     )
     // If build fails after this point, we've pushed a release out with this version of CHANGELOG.md so we should keep it around
