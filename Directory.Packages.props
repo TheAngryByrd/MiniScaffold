@@ -1,0 +1,37 @@
+<!-- https://learn.microsoft.com/en-us/nuget/consume-packages/Central-Package-Management -->
+<Project>
+  <PropertyGroup>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
+  </PropertyGroup>
+    <PropertyGroup>
+    <FakeVersion>5.20.4</FakeVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="FSharp.Core" Version="6.0.7"/>
+    <PackageVersion Include="Expecto" Version="9.0.0"/>
+    <PackageVersion Include="YoloDev.Expecto.TestSdk" Version="0.9.2"/>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version=" 15.7.2"/>
+    <PackageVersion Include="Fake.IO.FileSystem" Version="$(FakeVersion)" />
+    <PackageVersion Include="Fake.Core.Target" Version="$(FakeVersion)" />
+    <PackageVersion Include="Fake.Core.ReleaseNotes" Version="$(FakeVersion)" />
+    <PackageVersion Include="FAKE.Core.Environment" Version="$(FakeVersion)" />
+    <PackageVersion Include="Fake.DotNet.Cli" Version="$(FakeVersion)" />
+    <PackageVersion Include="FAKE.Core.Process" Version="$(FakeVersion)" />
+    <PackageVersion Include="Fake.DotNet.AssemblyInfoFile" Version="$(FakeVersion)" />
+    <PackageVersion Include="Fake.Tools.Git" Version="$(FakeVersion)" />
+    <PackageVersion Include="Fake.DotNet.Paket" Version="$(FakeVersion)" />
+    <PackageVersion Include="Fake.Api.GitHub" Version="$(FakeVersion)" />
+    <PackageVersion Include="Fake.BuildServer.GitHubActions" Version="$(FakeVersion)" />
+    <PackageVersion Include="MSBuild.StructuredLogger" Version="2.1.768" />
+    <PackageVersion Include="Argu" Version="6.0" />
+    <PackageVersion Include="Octokit" Version="0.48" />
+
+    <PackageVersion Include="FSharp.Formatting" Version="4.0.0-rc1"/>
+    <PackageVersion Include="FSharp.Literate" Version="4.0.0-rc1"/>
+    <PackageVersion Include="Fable.React" Version="6.2.0" />
+    <PackageVersion Include="Dotnet.ProjInfo.Workspace.FCS" Version="0.39" />
+    <PackageVersion Include="FSharp.Compiler.Service" Version="34.1.1"/>
+  </ItemGroup>
+</Project>

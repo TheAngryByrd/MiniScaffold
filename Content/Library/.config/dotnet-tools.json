@@ -14,12 +14,6 @@
         "reportgenerator"
       ]
     },
-    "paket": {
-      "version": "6.2.1",
-      "commands": [
-        "paket"
-      ]
-    },
     "fsharp-analyzers": {
       "version": "0.11.0",
       "commands": [
