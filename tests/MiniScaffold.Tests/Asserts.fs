@@ -126,9 +126,9 @@ module Assert =
 
     let ``LICENSE exists`` = tryFindFile "LICENSE.md"
 
-    let ``paket.lock exists`` = tryFindFile "paket.lock"
+    let ``NuGet.config exists`` = tryFindFile "NuGet.config"
 
-    let ``paket.dependencies exists`` = tryFindFile "paket.dependencies"
+    let ``Directory.Packages.props exists`` = tryFindFile "Directory.Packages.props"
 
     let ``README exists`` = tryFindFile "README.md"
 
@@ -443,7 +443,7 @@ module Effect =
 
         match
             lines
-            |> Array.tryFindIndex (fun line -> line.Contains "Paket.push (")
+            |> Array.tryFindIndex (fun line -> line.Contains "NuGet.NuGet.NuGetPublish(")
         with
         | None -> ()
         | Some startIdx ->

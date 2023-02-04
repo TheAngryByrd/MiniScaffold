@@ -27,7 +27,6 @@
     <PackageReference Include="FAKE.Core.Process"  />
     <PackageReference Include="Fake.DotNet.AssemblyInfoFile"  />
     <PackageReference Include="Fake.Tools.Git"  />
-    <PackageReference Include="Fake.DotNet.Paket"  />
     <PackageReference Include="Fake.Api.GitHub"  />
     <PackageReference Include="Fake.BuildServer.GitHubActions"  />
     <PackageReference Include="MSBuild.StructuredLogger" />

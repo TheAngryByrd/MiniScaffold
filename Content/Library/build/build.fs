@@ -1,5 +1,5 @@
-
 module Build
+
 open System
 open Fake.Core
 open Fake.DotNet
@@ -329,9 +329,6 @@ let clean _ =
     )
     |> Shell.cleanDirs
 
-    [ "paket-files/paket.restore.cached" ]
-    |> Seq.iter Shell.rm
-
 let dotnetRestore _ =
     [ sln ]
     |> Seq.map (fun dir ->
@@ -591,18 +588,19 @@ let sourceLinkTest _ =
     |> Seq.iter (fun nupkg -> dotnet.sourcelink id (sprintf "test %s" nupkg))
 
 let publishToNuget _ =
-    allPublishChecks ()
+    allReleaseChecks ()
 
-    Paket.push (fun c -> {
+    NuGet.NuGet.NuGetPublish(fun c -> {
         c with
-            ToolType = ToolType.CreateLocalTool()
-            PublishUrl = publishUrl
+            PublishUrl = "https://www.nuget.org"
             WorkingDir = "dist"
-            ApiKey =
+            AccessKey =
                 match nugetToken with
                 | Some s -> s
-                | _ -> c.ApiKey // assume paket-config was set properly
+                | _ -> c.AccessKey
     })
+    // If build fails after this point, we've pushed a release out with this version of CHANGELOG.md so we should keep it around
+    Target.deactivateBuildFailure "RevertChangelog"
 
 let gitRelease _ =
     allReleaseChecks ()

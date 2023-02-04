@@ -112,8 +112,8 @@ module Tests =
         Assert.``.gitattributes exists``
         Assert.``.gitignore exists``
         Assert.``LICENSE exists``
-        Assert.``paket.dependencies exists``
-        Assert.``paket.lock exists``
+        Assert.``NuGet.config exists``
+        Assert.``Directory.Packages.props exists``
         Assert.``README exists``
     ]
 

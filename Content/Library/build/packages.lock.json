@@ -117,20 +117,6 @@
           "Newtonsoft.Json": "12.0.3"
         }
       },
-      "Fake.DotNet.Paket": {
-        "type": "Direct",
-        "requested": "[5.20.4, )",
-        "resolved": "5.20.4",
-        "contentHash": "4qyStf2RpHEnZg9q0VDn33lQ7EeX5gD3J9yXpi9jBwb8RhLXWAUK75Lah83rQaYd6gNGtuh8fur552x6wzNnHw==",
-        "dependencies": {
-          "FSharp.Core": "4.7.2",
-          "Fake.Core.Process": "5.20.4",
-          "Fake.Core.String": "5.20.4",
-          "Fake.Core.Trace": "5.20.4",
-          "Fake.DotNet.Cli": "5.20.4",
-          "Fake.IO.FileSystem": "5.20.4"
-        }
-      },
       "Fake.IO.FileSystem": {
         "type": "Direct",
         "requested": "[5.20.4, )",

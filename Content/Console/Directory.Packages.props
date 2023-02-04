@@ -24,7 +24,6 @@
     <PackageVersion Include="FAKE.Core.Process" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.DotNet.AssemblyInfoFile" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.Tools.Git" Version="$(FakeVersion)" />
-    <PackageVersion Include="Fake.DotNet.Paket" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.Api.GitHub" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.BuildServer.GitHubActions" Version="$(FakeVersion)" />
     <PackageVersion Include="MSBuild.StructuredLogger" Version="2.1.768" />
