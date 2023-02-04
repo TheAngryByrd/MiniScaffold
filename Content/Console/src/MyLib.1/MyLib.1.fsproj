@@ -14,9 +14,13 @@
         <Tailcalls>true</Tailcalls>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="FSharp.Core" />
+        <PackageReference Include="Argu" />
+        <PackageReference Include="Packaging.Targets" PrivateAssets="All" />
+    </ItemGroup>
+    <ItemGroup>
         <Compile Include="AssemblyInfo.fs" />
         <None Include="App.config" />
         <Compile Include="Main.fs" />
     </ItemGroup>
-    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
