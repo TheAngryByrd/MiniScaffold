@@ -20,6 +20,10 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.4" />
+  </ItemGroup>
+
   <Import Project="..\.paket\Paket.Restore.targets" />
 
 </Project>

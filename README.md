@@ -157,3 +157,4 @@ Appveyor's conventions around generating URLs based on the project name has some
 * [Argu](https://github.com/fsprojects/Argu)
 * [dotnet-packaging](https://github.com/qmfrederik/dotnet-packaging)
 * [FSharp.Formatting](https://github.com/fsprojects/FSharp.Formatting)
+* [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet)
