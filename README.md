@@ -66,7 +66,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
 ### Install the [dotnet template](https://docs.microsoft.com/en-us/dotnet/core/tools/custom-templates) from NuGet:
 
 ```
-dotnet new -i "MiniScaffold::*"
+dotnet new install "MiniScaffold::*"
 ```
 
 Then choose:
