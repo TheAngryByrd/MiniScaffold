@@ -13,19 +13,23 @@ group Build
     storage: none
     source https://www.nuget.org/api/v2
     source https://api.nuget.org/v3/index.json
-    nuget Fake.IO.FileSystem 5.20.4
-    nuget Fake.Core.Target 5.20.4
-    nuget Fake.Core.ReleaseNotes 5.20.4
-    nuget FAKE.Core.Environment 5.20.4
-    nuget Fake.DotNet.Cli 5.20.4
-    nuget FAKE.Core.Process 5.20.4
-    nuget Fake.DotNet.AssemblyInfoFile 5.20.4
-    nuget Fake.Tools.Git 5.20.4
-    nuget Fake.DotNet.Paket 5.20.4
-    nuget Fake.Api.GitHub 5.20.4
-    nuget Fake.BuildServer.GitHubActions 5.20.4
+    nuget Fake.IO.FileSystem
+    nuget Fake.Core.Target
+    nuget Fake.Core.ReleaseNotes
+    nuget FAKE.Core.Environment
+    nuget Fake.DotNet.Cli
+    nuget FAKE.Core.Process
+    nuget Fake.DotNet.AssemblyInfoFile
+    nuget Fake.Tools.Git
+    nuget Fake.DotNet.Paket
+    nuget Fake.Api.GitHub
+    nuget Fake.BuildServer.GitHubActions
     nuget Argu
-    nuget Octokit 0.48
+    nuget Octokit
+    nuget Microsoft.Build 17.3.2
+    nuget Microsoft.Build.Framework 17.3.2
+    nuget Microsoft.Build.Tasks.Core 17.3.2
+    nuget Microsoft.Build.Utilities.Core 17.3.2
 
 group Docs
     storage: none
@@ -34,9 +38,9 @@ group Docs
     nuget Argu
     nuget FSharp.Compiler.Service 34.1.0
     nuget FSharp.Core ~> 4.6
-    nuget Fake.IO.FileSystem 5.20.4
-    nuget FAKE.Core.Environment 5.20.4
-    nuget Fake.DotNet.Cli 5.20.4
+    nuget Fake.IO.FileSystem
+    nuget FAKE.Core.Environment
+    nuget Fake.DotNet.Cli
     nuget FSharp.Formatting 4.0.0-rc1
     nuget FSharp.Literate 4.0.0-rc1
     nuget Fable.React
