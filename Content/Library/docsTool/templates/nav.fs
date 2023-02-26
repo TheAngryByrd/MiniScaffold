@@ -48,7 +48,7 @@ let navItemIconOnly link ariaLabel inner =
     ]
 
 let dropDownNavMenu text items =
-            li [ Class "nav-item dropdown" ][
+            li [ Class "nav-item dropdown" ] [
                 a [
                     Id (sprintf "navbarDropdown-%s"  text)
                     Href "#"
