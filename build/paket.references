@@ -1,7 +1,5 @@
 group Build
 FSharp.Core
-YoloDev.Expecto.TestSdk
-Microsoft.NET.Test.Sdk
 Fake.IO.FileSystem
 Fake.Core.Target
 Fake.Core.ReleaseNotes
