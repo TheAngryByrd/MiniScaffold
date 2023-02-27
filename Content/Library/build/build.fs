@@ -206,9 +206,6 @@ module dotnet =
     let reportgenerator optionConfig args =
         tool optionConfig "reportgenerator" args
 
-    let sourcelink optionConfig args =
-        tool optionConfig "sourcelink" args
-
     let fcswatch optionConfig args =
         tool optionConfig "fcswatch" args
 
@@ -537,11 +534,6 @@ let dotnetPack ctx =
                 |> DotNet.Options.withAdditionalArgs args
         }) sln
 
-let sourceLinkTest _ =
-    !! distGlob
-    |> Seq.iter (fun nupkg ->
-        dotnet.sourcelink id (sprintf "test %s" nupkg)
-    )
 
 let publishToNuget _ =
     allReleaseChecks ()
@@ -675,7 +667,6 @@ let initTargets () =
     Target.create "WatchTests" watchTests
     Target.create "GenerateAssemblyInfo" generateAssemblyInfo
     Target.create "DotnetPack" dotnetPack
-    Target.create "SourceLinkTest" sourceLinkTest
     Target.create "PublishToNuGet" publishToNuget
     Target.create "GitRelease" gitRelease
     Target.create "GitHubRelease" githubRelease
@@ -721,7 +712,6 @@ let initTargets () =
         ==> "DotnetTest"
         =?> ("GenerateCoverageReport", not disableCodeCoverage)
         ==> "DotnetPack"
-        // ==> "SourceLinkTest"
         ==> "PublishToNuGet"
         ==> "GitRelease"
         ==> "GitHubRelease"
