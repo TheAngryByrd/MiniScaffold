@@ -1,13 +1,13 @@
 source https://www.nuget.org/api/v2
 source https://api.nuget.org/v3/index.json
 storage: none
-nuget Argu 6.1.1
+nuget Argu
 nuget FSharp.Core 6.0
-nuget Expecto 9.0.4
-nuget YoloDev.Expecto.TestSdk 0.12.12
-nuget Microsoft.NET.Test.Sdk 17.1.0-preview-20211109-03
-nuget altcover ~> 8.2.825
-nuget Packaging.Targets 0.1.208
+nuget Expecto
+nuget YoloDev.Expecto.TestSdk
+nuget Microsoft.NET.Test.Sdk
+nuget altcover
+nuget Packaging.Targets
 
 // [ FAKE GROUP ]
 group Build
@@ -15,18 +15,22 @@ group Build
     source https://www.nuget.org/api/v2
     source https://api.nuget.org/v3/index.json
     nuget Argu
-    nuget Fake.IO.FileSystem 5.20.4
-    nuget Fake.Core.Target 5.20.4
-    nuget Fake.Core.ReleaseNotes 5.20.4
-    nuget FAKE.Core.Environment 5.20.4
-    nuget Fake.DotNet.Cli 5.20.4
-    nuget FAKE.Core.Process 5.20.4
-    nuget Fake.DotNet.AssemblyInfoFile 5.20.4
-    nuget Fake.Tools.Git 5.20.4
-    nuget Fake.DotNet.Paket 5.20.4
-    nuget Fake.Api.GitHub 5.20.4
-    nuget Fake.BuildServer.GitHubActions 5.20.4
-    nuget Octokit 0.48
+    nuget Fake.IO.FileSystem
+    nuget Fake.Core.Target
+    nuget Fake.Core.ReleaseNotes
+    nuget FAKE.Core.Environment
+    nuget Fake.DotNet.Cli
+    nuget FAKE.Core.Process
+    nuget Fake.DotNet.AssemblyInfoFile
+    nuget Fake.Tools.Git
+    nuget Fake.DotNet.Paket
+    nuget Fake.Api.GitHub
+    nuget Fake.BuildServer.GitHubActions
+    nuget Octokit
+    nuget Microsoft.Build 17.3.2
+    nuget Microsoft.Build.Framework 17.3.2
+    nuget Microsoft.Build.Tasks.Core 17.3.2
+    nuget Microsoft.Build.Utilities.Core 17.3.2
 
 group Analyzers
   source https://www.nuget.org/api/v2

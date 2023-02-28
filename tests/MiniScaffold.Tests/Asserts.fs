@@ -155,7 +155,7 @@ module Effect =
             |> Array.tryFind (startPredicate)
         with
         | None -> None
-        | Some (startIdx, _) ->
+        | Some(startIdx, _) ->
             let (endIdx, _) =
                 datai
                 |> Array.skip (
@@ -191,7 +191,7 @@ module Effect =
 
         match ``find section`` startPred endPred lines with
         | None -> ()
-        | Some (startIdx, endIdx) ->
+        | Some(startIdx, endIdx) ->
             ``replace section with``
                 (startIdx
                  + 1)
@@ -212,7 +212,7 @@ module Effect =
 
         match ``find section`` startPred endPred lines with
         | None -> ()
-        | Some (startIdx, endIdx) ->
+        | Some(startIdx, endIdx) ->
             ``replace section with``
                 (startIdx
                  + 1)
@@ -233,7 +233,7 @@ module Effect =
 
         match ``find section`` startPred endPred lines with
         | None -> ()
-        | Some (startIdx, endIdx) ->
+        | Some(startIdx, endIdx) ->
             ``replace section with``
                 (startIdx
                  + 1)
@@ -255,7 +255,7 @@ module Effect =
 
         match ``find section`` startPred endPred lines with
         | None -> ()
-        | Some (startIdx, endIdx) ->
+        | Some(startIdx, endIdx) ->
             ``replace section with``
                 (startIdx
                  + 1)
@@ -279,7 +279,7 @@ module Effect =
 
         match ``find section`` startPred endPred lines with
         | None -> ()
-        | Some (startIdx, endIdx) ->
+        | Some(startIdx, endIdx) ->
             ``replace section with``
                 (startIdx
                  + 1)
@@ -301,7 +301,7 @@ module Effect =
 
         match ``find section`` startPred endPred lines with
         | None -> ()
-        | Some (startIdx, endIdx) ->
+        | Some(startIdx, endIdx) ->
             ``replace section with``
                 (startIdx
                  + 1)
@@ -323,7 +323,7 @@ module Effect =
 
         match ``find section`` startPred endPred lines with
         | None -> ()
-        | Some (startIdx, endIdx) ->
+        | Some(startIdx, endIdx) ->
             ``replace section with``
                 (startIdx
                  + 1)

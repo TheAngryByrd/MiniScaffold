@@ -2,20 +2,14 @@
   "version": 1,
   "isRoot": true,
   "tools": {
-    "sourcelink": {
-      "version": "3.1.1",
-      "commands": [
-        "sourcelink"
-      ]
-    },
     "dotnet-reportgenerator-globaltool": {
-      "version": "4.8.13",
+      "version": "5.1.18",
       "commands": [
         "reportgenerator"
       ]
     },
     "paket": {
-      "version": "6.2.1",
+      "version": "7.2.0",
       "commands": [
         "paket"
       ]
@@ -27,7 +21,7 @@
       ]
     },
     "fantomas": {
-      "version": "5.0.0",
+      "version": "5.2.2",
       "commands": [
         "fantomas"
       ]
