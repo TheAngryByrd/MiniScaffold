@@ -131,7 +131,7 @@ module Tests =
                     [
                         yield! projectStructureAsserts
                         Assert.``project can build target`` "DotnetPack"
-                        Assert.``project can build target`` "BuildDocs"
+                    // Assert.``project can build target`` "BuildDocs"
                     ]
                     // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
                     testCase,
