@@ -89,11 +89,10 @@ module Tests =
             |> Arguments.appendRaw args
 
         Dotnet.New.cmd
-            (fun opt ->
-                { opt with
+            (fun opt -> {
+                opt with
                     WorkingDirectory = directory
-                }
-            )
+            })
             newArgs.ToStartInfo
 
     let copyGlobalJson (directory: IO.DirectoryInfo) =
