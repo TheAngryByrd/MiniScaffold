@@ -137,6 +137,9 @@ module Effect =
     open Fake.IO
     open Fake.Tools
 
+    let ``format build`` (d: DirectoryInfo) = Dotnet.fantomas d.FullName "build"
+
+
     let ``replace section with`` startIdx endIdx replace (data: string array) =
         printfn "replacing lines %i to %i with %s" startIdx endIdx replace
 
@@ -200,6 +203,8 @@ module Effect =
                 lines
             |> File.writeNew buildScript
 
+        ``format build`` d
+
     let ``disable build`` (d: DirectoryInfo) =
         let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
@@ -220,6 +225,8 @@ module Effect =
                 "    ()"
                 lines
             |> File.writeNew buildScript
+
+        ``format build`` d
 
     let ``disable fsharpAnalyzers`` (d: DirectoryInfo) =
         let buildScript = ``get build.fs`` d
@@ -242,6 +249,8 @@ module Effect =
                 lines
             |> File.writeNew buildScript
 
+        ``format build`` d
+
 
     let ``disable tests`` (d: DirectoryInfo) =
         let buildScript = ``get build.fs`` d
@@ -263,6 +272,8 @@ module Effect =
                 "    ()"
                 lines
             |> File.writeNew buildScript
+
+        ``format build`` d
 
 
     let ``disable generateCoverage`` (d: DirectoryInfo) =
@@ -288,6 +299,8 @@ module Effect =
                 lines
             |> File.writeNew buildScript
 
+        ``format build`` d
+
 
     let ``disable createPackages`` (d: DirectoryInfo) =
         let buildScript = ``get build.fs`` d
@@ -310,6 +323,8 @@ module Effect =
                 lines
             |> File.writeNew buildScript
 
+        ``format build`` d
+
 
     let ``disable dotnetPack`` (d: DirectoryInfo) =
         let buildScript = ``get build.fs`` d
@@ -331,6 +346,8 @@ module Effect =
                 "    ()"
                 lines
             |> File.writeNew buildScript
+
+        ``format build`` d
 
     let ``disable sourceLinkTest function`` (d: DirectoryInfo) =
         let buildScript = ``get build.fs`` d
@@ -363,6 +380,8 @@ module Effect =
             lines
             |> File.writeNew buildScript
 
+        ``format build`` d
+
     let ``disable publishToNuget function`` (d: DirectoryInfo) =
         let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
@@ -389,6 +408,8 @@ module Effect =
 
             lines
             |> File.writeNew buildScript
+
+        ``format build`` d
 
     let ``disable pushing in gitRelease function`` (d: DirectoryInfo) =
         let buildScript = ``get build.fs`` d
@@ -420,6 +441,8 @@ module Effect =
             lines
             |> File.writeNew buildScript
 
+        ``format build`` d
+
     let ``change githubRelease function to only run release checks`` (d: DirectoryInfo) =
         let buildScript = ``get build.fs`` d
         let lines = File.ReadAllLines buildScript
@@ -445,6 +468,8 @@ module Effect =
             lines
             |> ``replace section with`` startIdx endIdx "let githubRelease _ = allReleaseChecks ()"
             |> File.writeNew buildScript
+
+            ``format build`` d
         | _ -> failwith "couldn't find bounds of `let githubRelease` function in build.fs"
 
     let ``git init`` (d: DirectoryInfo) (branchName: string) =
@@ -475,6 +500,8 @@ module Effect =
         Array.insert msg (idx + 1) lines
         // |> fun lines -> lines |> Seq.iter(printfn "%s") ; lines
         |> File.writeNew buildScript
+
+        ``format build`` d
 
 
     let ``set environment variable`` name value (d: DirectoryInfo) =

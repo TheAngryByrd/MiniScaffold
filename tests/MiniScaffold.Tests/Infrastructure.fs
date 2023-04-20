@@ -15,6 +15,15 @@ module Dotnet =
 
             failwithf "failed with exitcode %d" p.ExitCode
 
+    let fantomas workingDir args =
+        DotNet.exec
+            (fun opt -> {
+                opt with
+                    WorkingDirectory = workingDir
+            })
+            "fantomas"
+            args
+        |> failOnBadExitAndPrint
 
     module New =
         let cmd (opt: DotNet.Options -> DotNet.Options) args =
