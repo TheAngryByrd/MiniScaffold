@@ -12,20 +12,50 @@ insert_final_newline = true
 indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
+end_of_line = lf
 
 [*.{fs,fsi,fsx,config}]
 # https://fsprojects.github.io/fantomas/docs/end-users/Configuration.html
 charset = utf-8
 trim_trailing_whitespace = true
 max_line_length=100
-fsharp_multiline_block_brackets_on_same_column=true
-fsharp_experimental_stroustrup_style=true
+fsharp_multiline_bracket_style = stroustrup
 fsharp_keep_max_number_of_blank_lines=2
 fsharp_max_array_or_list_number_of_items=1
 fsharp_array_or_list_multiline_formatter=number_of_items
 fsharp_max_infix_operator_expression=10
 fsharp_multi_line_lambda_closing_newline=true
 
+
+# Visual Studio Solution Files
+[*.sln]
+indent_style = tab
+
+# XML project files
+[*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj,sfproj}]
+indent_size = 2
+
+# XML config files
+[*.{props,targets,ruleset,config,nuspec,resx,vsixmanifest,vsct}]
+indent_size = 2
+
+# Markdown Files
+[*.{md,mdx}]
+trim_trailing_whitespace = false
+
+# Bash Files
+[*.{sh}]
+end_of_line = lf
+
+# Batch Files
+[*.{cmd,bat}]
+end_of_line = crlf
+
+# Powershell Files
+[*.{ps1, psm1}]
+end_of_line = crlf
+
+# Paket files
 [paket.*]
 trim_trailing_whitespace = true
 indent_size = 2
@@ -33,3 +63,9 @@ indent_size = 2
 [*.paket.references]
 trim_trailing_whitespace = true
 indent_size = 2
+
+
+# YAML Files
+[*.{yml,yaml}]
+indent_size = 2
+indent_style = space
