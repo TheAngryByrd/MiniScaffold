@@ -609,38 +609,13 @@ let githubRelease _ =
     |> Async.RunSynchronously
 
 let formatCode _ =
-    let result =
-        [
-            srcCodeGlob
-            testsCodeGlob
-        ]
-        |> Seq.collect id
-        // Ignore AssemblyInfo
-        |> Seq.filter (fun f ->
-            f.EndsWith("AssemblyInfo.fs")
-            |> not
-        )
-        |> String.concat " "
-        |> dotnet.fantomas
+    let result = dotnet.fantomas "."
 
     if not result.OK then
         printfn "Errors while formatting all files: %A" result.Messages
 
 let checkFormatCode _ =
-    let result =
-        [
-            srcCodeGlob
-            testsCodeGlob
-        ]
-        |> Seq.collect id
-        // Ignore AssemblyInfo
-        |> Seq.filter (fun f ->
-            f.EndsWith("AssemblyInfo.fs")
-            |> not
-        )
-        |> String.concat " "
-        |> sprintf "%s --check"
-        |> dotnet.fantomas
+    let result = dotnet.fantomas "--check ."
 
     if result.ExitCode = 0 then
         Trace.log "No files need formatting"
