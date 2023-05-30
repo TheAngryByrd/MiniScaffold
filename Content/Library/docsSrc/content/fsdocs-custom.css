@@ -1,0 +1,15 @@
+.fsharp-icon-logo {
+    width: 25px;
+    margin-top: -2px;
+    -webkit-filter: grayscale(100%) brightness(1) invert(1); /* Safari 6.0 - 9.0 */
+    filter: grayscale(100%) brightness(1) invert(1);
+}
+
+
+body .navbar .dropdown-menu .active .bi {
+    display: block !important;
+}
+
+nav.navbar .dropdown-item img.fsharp-icon-logo {
+    margin-right: 0px;
+}

@@ -2,5 +2,7 @@
     "workbench.colorCustomizations": {
         "tab.unfocusedActiveBorder": "#fff0"
     },
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "cmake.configureOnOpen": false,
+    "editor.inlayHints.enabled": "offUnlessPressed"
 }

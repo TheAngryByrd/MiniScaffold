@@ -4,14 +4,9 @@ on:
   push:
     branches:
       - MyReleaseBranch
-    paths-ignore:
-      - "*.md"
-
   pull_request:
     branches:
       - MyReleaseBranch
-    paths-ignore:
-      - "*.md"
 
 jobs:
   build:
@@ -21,29 +16,23 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup dotnet
+      - uses: actions/checkout@v3
+      - name: Setup necessary dotnet SDKs
         uses: actions/setup-dotnet@v3
         with:
+          global-json-file: global.json
           dotnet-version: |
             6.x
-          global-json-file: global.json
 
-      - name: Build
+      - name: Build via Bash
         if: runner.os != 'Windows'
         run: |
-          dotnet --info
-          echo $PATH
           chmod +x ./build.sh
           ./build.sh
         env:
           CI: true
-      - name: Build
+      - name: Build via Windows
         if: runner.os == 'Windows'
-        run: |
-          dotnet --info
-          ./build.cmd
+        run: ./build.cmd
         env:
           CI: true

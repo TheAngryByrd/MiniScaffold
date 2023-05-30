@@ -1,0 +1,50 @@
+@import url('https://raw.githubusercontent.com/tonsky/FiraCode/fixed/distr/fira_code.css');
+@import url('https://fonts.googleapis.com/css2?family=Hind+Vadodara&family=Roboto+Mono&display=swap');
+/*--------------------------------------------------------------------------
+  Formatting for page & standard document content
+/*--------------------------------------------------------------------------*/
+
+:root {
+    --fsdocs-text-color:#d1d1d1;
+    --fsdocs-pre-border-color: #000000;
+    --fsdocs-pre-border-color-top: #070707;
+    --fsdocs-pre-background-color: #1E1E1E;
+    --fsdocs-pre-color: #e2e2e2;
+    --fsdocs-table-pre-background-color: #1d1d1d;
+    --fsdocs-table-pre-color: #c9c9c9;
+
+    --fsdocs-code-strings-color: #ea9a75;
+    --fsdocs-code-printf-color: #E0C57F;
+    --fsdocs-code-escaped-color: #EA8675;
+    --fsdocs-code-identifiers-color: var(--fsdocs-text-color);
+    --fsdocs-code-module-color: #43AEC6;
+    --fsdocs-code-reference-color: #6a8dd8;
+    --fsdocs-code-value-color: #43AEC6;
+    --fsdocs-code-interface-color: #43AEC6;
+    --fsdocs-code-typearg-color: #43AEC6;
+    --fsdocs-code-disposable-color: #2f798a;
+    --fsdocs-code-property-color: #43AEC6;
+    --fsdocs-code-punctuation-color: #43AEC6;
+    --fsdocs-code-punctuation2-color: #e1e1e1;
+    --fsdocs-code-function-color: #e1e1e1;
+    --fsdocs-code-function2-color: #43AEC6;
+    --fsdocs-code-activepattern-color: #4ec9b0;
+    --fsdocs-code-unioncase-color: #4ec9b0;
+    --fsdocs-code-enumeration-color: #4ec9b0;
+    --fsdocs-code-keywords-color: #2248c4;
+    --fsdocs-code-comment-color: #329215;
+    --fsdocs-code-operators-color: #af75c1;
+    --fsdocs-code-numbers-color: #96C71D;
+    --fsdocs-code-linenumbers-color: #80b0b0;
+    --fsdocs-code-mutable-color: #997f0c;
+    --fsdocs-code-inactive-color: #808080;
+    --fsdocs-code-preprocessor-color: #af75c1;
+    --fsdocs-code-fsioutput-color: #808080;
+    --fsdocs-code-tooltip-color: #d1d1d1;
+}
+
+
+.fsdocs-source-link img {
+    -webkit-filter: grayscale(100%) brightness(1) invert(1); /* Safari 6.0 - 9.0 */
+    filter: grayscale(100%) brightness(1) invert(1);
+}

@@ -17,7 +17,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
 - How do I create releases easily?
 - What Issue/Pull Request templates should I use?
 - How should I go about creating documentation?
-- How do I get CI setup easily?
+- How do I get CI/CD setup easily?
 - What's the standard .gitignore file?
 - What other things would make it easier for me when starting off creating a project I might not even know about?
 
@@ -33,9 +33,9 @@ This takes away the ambiguity that developers face when creating an OSS project.
 - [Code Coverage](https://en.wikipedia.org/wiki/Code_coverage) via [Altcover](https://github.com/SteveGilham/altcover)
     - Also builds an html report with [ReportGenerator](https://github.com/danielpalme/ReportGenerator)
 - [Code formatting](https://en.wikipedia.org/wiki/Programming_style) style via [Fantomas](https://github.com/fsprojects/fantomas)
-- `Release` build step commits latest [CHANGELOG.md](https://keepachangelog.com/en/1.0.0/) in the body and creates a [git tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging).
+- `GitRelease` build step commits latest [CHANGELOG.md](https://keepachangelog.com/en/1.0.0/) in the body and creates a [git tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging).
     - If you [reference a Pull Request](https://github.com/TheAngryByrd/MiniScaffold/blob/master/CHANGELOG.md#0230-beta001---2020-02-07) in the `CHANGELOG.md` it will [update that Pull Request](https://github.com/TheAngryByrd/MiniScaffold/pull/186#ref-commit-b343218) with the version it was released in.
-- `Release` build step publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) via the  [CHANGELOG.md](https://keepachangelog.com/en/1.0.0/) and adds any artifacts (nuget/zip/targz/etc).
+- `GitHubRelease` build step publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) via the  [CHANGELOG.md](https://keepachangelog.com/en/1.0.0/) and adds any artifacts (nuget/zip/targz/etc).
 - [Continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) via [GitHub Actions](https://github.com/features/actions)
 
 ### For [Libraries](Content/Library/README.md)
@@ -43,9 +43,11 @@ This takes away the ambiguity that developers face when creating an OSS project.
     - To build for `net6.0` [.NET 6.0 ](https://dotnet.microsoft.com/download) installed
 - [Sourcelink](https://github.com/dotnet/sourcelink) which enables a great source debugging experience for your users, by adding source control metadata to your built assets
 - [Documentation Generation](https://github.com/fsprojects/FSharp.Formatting) - Generates Documentation from markdown files, fsx files, and the [XML Documentation Comments](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/) from your library.
-- [Release](Content/Library/README.md#Releasing) build step pushes NuGet packages to [NuGet](https://docs.microsoft.com/en-us/nuget/what-is-nuget)
-    - Generates [Package Version](https://docs.microsoft.com/en-us/nuget/reference/nuspec#version) from `CHANGELOG.md`
-    - Adds [Package Release Notes](https://docs.microsoft.com/en-us/nuget/reference/nuspec#releasenotes) metadata from `CHANGELOG.md`
+- [Continuous deployment](https://en.wikipedia.org/wiki/Continuous_deployment) via [GitHub Actions](https://github.com/features/actions)
+    - [Publish to NuGet] - Pushes NuGet packages to [NuGet](https://docs.microsoft.com/en-us/nuget/what-is-nuget)
+        - Generates [Package Version](https://docs.microsoft.com/en-us/nuget/reference/nuspec#version) from `CHANGELOG.md`
+        - Adds [Package Release Notes](https://docs.microsoft.com/en-us/nuget/reference/nuspec#releasenotes) metadata from `CHANGELOG.md`
+    - [Documentation Publish] - Publish Documenation to [Github Pages](https://pages.github.com/)
 
 
 ### For [Applications](Content/Console/README.md)

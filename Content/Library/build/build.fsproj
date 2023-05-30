@@ -7,8 +7,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../docsTool/CLI.fs" Link="CLI.fs" />
-    <Compile Include="Changelog.fs" />
+    <Compile Include="FsDocs.fs" />
     <Compile Include="build.fs" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
