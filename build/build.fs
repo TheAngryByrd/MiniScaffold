@@ -879,10 +879,10 @@ let initTargets () =
     ==>! "Release"
 
     "DotnetRestore"
+    ==> "CheckFormatCode"
     ==> "DotnetBuild"
     ==> "DotnetPack"
-    =?> ("CheckFormatCode", isCI.Value)
-    =?> ("IntegrationTests", isCI.Value)
+    ==> "IntegrationTests"
     ==> "PublishToNuGet"
     ==> "GithubRelease"
     ==>! "Publish"
@@ -900,6 +900,6 @@ let main argv =
     |> Context.setExecutionContext
 
     initTargets ()
-    Target.runOrDefaultWithArguments "DotnetPack"
+    Target.runOrDefaultWithArguments (if isCI.Value then "IntegrationTests" else "DotnetPack")
 
     0 // return an integer exit code
