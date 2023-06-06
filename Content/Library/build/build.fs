@@ -112,8 +112,6 @@ let releaseBranch = "MyReleaseBranch"
 let readme = "README.md"
 let changelogFile = "CHANGELOG.md"
 
-let tagFromVersionNumber versionNumber = sprintf "v%s" versionNumber
-
 let READMElink = Uri(Uri(gitHubRepoUrl), $"blob/{releaseBranch}/{readme}")
 let CHANGELOGlink = Uri(Uri(gitHubRepoUrl), $"blob/{releaseBranch}/{changelogFile}")
 
@@ -191,126 +189,6 @@ let failOnWrongBranch () =
         <> releaseBranch
     then
         failwithf "Not on %s.  If you want to release please switch to this branch." releaseBranch
-
-module Changelog =
-
-    let isEmptyChange =
-        function
-        | Changelog.Change.Added s
-        | Changelog.Change.Changed s
-        | Changelog.Change.Deprecated s
-        | Changelog.Change.Fixed s
-        | Changelog.Change.Removed s
-        | Changelog.Change.Security s
-        | Changelog.Change.Custom(_, s) -> String.IsNullOrWhiteSpace s.CleanedText
-
-    let failOnEmptyChangelog () =
-        let isEmpty =
-            (latestEntry.Changes
-             |> Seq.forall isEmptyChange)
-            || latestEntry.Changes
-               |> Seq.isEmpty
-
-        if isEmpty then
-            failwith
-                "No changes in CHANGELOG. Please add your changes under a heading specified in https://keepachangelog.com/"
-
-    let mkLinkReference (newVersion: SemVerInfo) (changelog: Changelog.Changelog) =
-        if
-            changelog.Entries
-            |> List.isEmpty
-        then
-            // No actual changelog entries yet: link reference will just point to the Git tag
-            sprintf
-                "[%s]: %s/releases/tag/%s"
-                newVersion.AsString
-                gitHubRepoUrl
-                (tagFromVersionNumber newVersion.AsString)
-        else
-            let versionTuple version =
-                (version.Major, version.Minor, version.Patch)
-            // Changelog entries come already sorted, most-recent first, by the Changelog module
-            let prevEntry =
-                changelog.Entries
-                |> List.skipWhile (fun entry ->
-                    entry.SemVer.PreRelease.IsSome
-                    && versionTuple entry.SemVer = versionTuple newVersion
-                )
-                |> List.tryHead
-
-            let linkTarget =
-                match prevEntry with
-                | Some entry ->
-                    sprintf
-                        "%s/compare/%s...%s"
-                        gitHubRepoUrl
-                        (tagFromVersionNumber entry.SemVer.AsString)
-                        (tagFromVersionNumber newVersion.AsString)
-                | None ->
-                    sprintf
-                        "%s/releases/tag/%s"
-                        gitHubRepoUrl
-                        (tagFromVersionNumber newVersion.AsString)
-
-            sprintf "[%s]: %s" newVersion.AsString linkTarget
-
-    let mkReleaseNotes (latestEntry: Changelog.ChangelogEntry) =
-        let linkReference = mkLinkReference latestEntry.SemVer changelog
-
-        if String.isNullOrEmpty linkReference then
-            latestEntry.ToString()
-        else
-            // Add link reference target to description before building release notes, since in main changelog file it's at the bottom of the file
-            let description =
-                match latestEntry.Description with
-                | None -> linkReference
-                | Some desc when desc.Contains(linkReference) -> desc
-                | Some desc -> sprintf "%s\n\n%s" (desc.Trim()) linkReference
-
-            { latestEntry with
-                Description = Some description
-            }
-                .ToString()
-
-    let getVersionNumber envVarName ctx =
-        let args = ctx.Context.Arguments
-
-        let verArg =
-            args
-            |> List.tryHead
-            |> Option.defaultWith (fun () -> Environment.environVarOrDefault envVarName "")
-
-        if SemVer.isValid verArg then
-            verArg
-        elif
-            verArg.StartsWith("v")
-            && SemVer.isValid verArg.[1..]
-        then
-            let target = ctx.Context.FinalTarget
-
-            Trace.traceImportantfn
-                "Please specify a version number without leading 'v' next time, e.g. \"./build.sh %s %s\" rather than \"./build.sh %s %s\""
-                target
-                verArg.[1..]
-                target
-                verArg
-
-            verArg.[1..]
-        elif String.isNullOrEmpty verArg then
-            let target = ctx.Context.FinalTarget
-
-            Trace.traceErrorfn
-                "Please specify a version number, either at the command line (\"./build.sh %s 1.0.0\") or in the %s environment variable"
-                target
-                envVarName
-
-            failwith "No version number found"
-        else
-            Trace.traceErrorfn
-                "Please specify a valid version number: %A could not be recognized as a version number"
-                verArg
-
-            failwith "Invalid version number"
 
 
 module dotnet =
@@ -404,7 +282,7 @@ module DocsTool =
 
 let allReleaseChecks () =
     failOnWrongBranch ()
-    Changelog.failOnEmptyChangelog ()
+    Changelog.failOnEmptyChangelog latestEntry
 
 
 let failOnLocalBuild () =
@@ -413,7 +291,7 @@ let failOnLocalBuild () =
 
 let allPublishChecks () =
     failOnLocalBuild ()
-    Changelog.failOnEmptyChangelog ()
+    Changelog.failOnEmptyChangelog latestEntry
 
 //-----------------------------------------------------------------------------
 // Target Implementations
@@ -467,179 +345,17 @@ let dotnetRestore _ =
     |> Seq.iter (retryIfInCI 10)
 
 let updateChangelog ctx =
-    let description, unreleasedChanges =
-        match changelog.Unreleased with
-        | None -> None, []
-        | Some u -> u.Description, u.Changes
-
-    let verStr =
-        ctx
-        |> Changelog.getVersionNumber "RELEASE_VERSION"
-
-    let newVersion = SemVer.parse verStr
-
-    changelog.Entries
-    |> List.tryFind (fun entry -> entry.SemVer = newVersion)
-    |> Option.iter (fun entry ->
-        Trace.traceErrorfn
-            "Version %s already exists in %s, released on %s"
-            verStr
-            changelogPath
-            (if entry.Date.IsSome then
-                 entry.Date.Value.ToString("yyyy-MM-dd")
-             else
-                 "(no date specified)")
-
-        failwith "Can't release with a duplicate version number"
-    )
-
-    changelog.Entries
-    |> List.tryFind (fun entry -> entry.SemVer > newVersion)
-    |> Option.iter (fun entry ->
-        Trace.traceErrorfn
-            "You're trying to release version %s, but a later version %s already exists, released on %s"
-            verStr
-            entry.SemVer.AsString
-            (if entry.Date.IsSome then
-                 entry.Date.Value.ToString("yyyy-MM-dd")
-             else
-                 "(no date specified)")
-
-        failwith "Can't release with a version number older than an existing release"
-    )
-
-    let versionTuple version =
-        (version.Major, version.Minor, version.Patch)
-
-    let prereleaseEntries =
-        changelog.Entries
-        |> List.filter (fun entry ->
-            entry.SemVer.PreRelease.IsSome
-            && versionTuple entry.SemVer = versionTuple newVersion
-        )
-
-    let prereleaseChanges =
-        prereleaseEntries
-        |> List.collect (fun entry ->
-            entry.Changes
-            |> List.filter (
-                not
-                << Changelog.isEmptyChange
-            )
-        )
-        |> List.distinct
-
-    let assemblyVersion, nugetVersion = Changelog.parseVersions newVersion.AsString
-
-    let newEntry =
-        Changelog.ChangelogEntry.New(
-            assemblyVersion.Value,
-            nugetVersion.Value,
-            Some System.DateTime.Today,
-            description,
-            unreleasedChanges
-            @ prereleaseChanges,
-            false
-        )
-
-    let newChangelog =
-        Changelog.Changelog.New(
-            changelog.Header,
-            changelog.Description,
-            None,
-            newEntry
-            :: changelog.Entries
-        )
-
-    latestEntry <- newEntry
-
-    // Save changelog to temporary file before making any edits
-    changelogBackupFilename <- System.IO.Path.GetTempFileName()
-
-    changelogPath
-    |> Shell.copyFile changelogBackupFilename
-
-    Target.activateFinal "DeleteChangelogBackupFile"
-
-    newChangelog
-    |> Changelog.save changelogPath
-
-    // Now update the link references at the end of the file
-    let linkReferenceForLatestEntry = Changelog.mkLinkReference newVersion changelog
-
-    let linkReferenceForUnreleased =
-        sprintf
-            "[Unreleased]: %s/compare/%s...%s"
-            gitHubRepoUrl
-            (tagFromVersionNumber newVersion.AsString)
-            "HEAD"
-
-    let tailLines =
-        File.read changelogPath
-        |> List.ofSeq
-        |> List.rev
-
-    let isRef (line: string) =
-        System.Text.RegularExpressions.Regex.IsMatch(line, @"^\[.+?\]:\s?[a-z]+://.*$")
-
-    let linkReferenceTargets =
-        tailLines
-        |> List.skipWhile String.isNullOrWhiteSpace
-        |> List.takeWhile isRef
-        |> List.rev // Now most recent entry is at the head of the list
-
-    let newLinkReferenceTargets =
-        match linkReferenceTargets with
-        | [] -> [
-            linkReferenceForUnreleased
-            linkReferenceForLatestEntry
-          ]
-        | first :: rest when
-            first
-            |> String.startsWith "[Unreleased]:"
-            ->
-            linkReferenceForUnreleased
-            :: linkReferenceForLatestEntry
-            :: rest
-        | first :: rest ->
-            linkReferenceForUnreleased
-            :: linkReferenceForLatestEntry
-            :: first
-            :: rest
-
-    let blankLineCount =
-        tailLines
-        |> Seq.takeWhile String.isNullOrWhiteSpace
-        |> Seq.length
-
-    let linkRefCount =
-        linkReferenceTargets
-        |> List.length
-
-    let skipCount =
-        blankLineCount
-        + linkRefCount
-
-    let updatedLines =
-        List.rev (
-            tailLines
-            |> List.skip skipCount
-        )
-        @ newLinkReferenceTargets
-
-    File.write false changelogPath updatedLines
-
-    // If build fails after this point but before we commit changes, undo our modifications
-    Target.activateBuildFailure "RevertChangelog"
+    latestEntry <- Changelog.updateChangelog changelogPath changelog gitHubRepoUrl ctx
 
 let revertChangelog _ =
-    if String.isNotNullOrEmpty changelogBackupFilename then
-        changelogBackupFilename
+    if String.isNotNullOrEmpty Changelog.changelogBackupFilename then
+        Changelog.changelogBackupFilename
         |> Shell.copyFile changelogPath
 
 let deleteChangelogBackupFile _ =
-    if String.isNotNullOrEmpty changelogBackupFilename then
-        Shell.rm changelogBackupFilename
+    if String.isNotNullOrEmpty Changelog.changelogBackupFilename then
+        Shell.rm Changelog.changelogBackupFilename
+
 
 let dotnetBuild ctx =
     let args = [
@@ -822,8 +538,7 @@ let generateAssemblyInfo _ =
 let dotnetPack ctx =
     // Get release notes with properly-linked version number
     let releaseNotes =
-        latestEntry
-        |> Changelog.mkReleaseNotes
+        Changelog.mkReleaseNotes changelog latestEntry gitHubRepoUrl
 
     let args = [
         $"/p:PackageVersion={latestEntry.NuGetVersion}"
@@ -876,14 +591,14 @@ let gitRelease _ =
         >> ignore
     )
 
-    let msg = sprintf "Bump version to %s\n\n%s" latestEntry.NuGetVersion releaseNotesGitCommitFormat 
+    let msg = sprintf "Bump version to %s\n\n%s" latestEntry.NuGetVersion releaseNotesGitCommitFormat
     Git.Commit.exec "" msg
 
     Target.deactivateBuildFailure "RevertChangelog"
 
     Git.Branches.push ""
 
-    let tag = tagFromVersionNumber latestEntry.NuGetVersion
+    let tag = Changelog.tagFromVersionNumber latestEntry.NuGetVersion
 
     Git.Branches.tag "" tag
     Git.Branches.pushTag "" "origin" tag
@@ -902,14 +617,13 @@ let githubRelease _ =
     // Get release notes with properly-linked version number
 
     let releaseNotes =
-        latestEntry
-        |> Changelog.mkReleaseNotes
+        Changelog.mkReleaseNotes changelog latestEntry gitHubRepoUrl
 
     GitHub.createClientWithToken token
     |> GitHub.draftNewRelease
         gitOwner
         gitRepoName
-        (tagFromVersionNumber latestEntry.NuGetVersion)
+        (Changelog.tagFromVersionNumber latestEntry.NuGetVersion)
         (latestEntry.SemVer.PreRelease
          <> None)
         (releaseNotes
