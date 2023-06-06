@@ -311,29 +311,9 @@ module dotnet =
         DotNet.exec optionConfig (sprintf "%s" command) args
         |> failOnBadExitAndPrint
 
-    let reportgenerator optionConfig args =
-        tool optionConfig "reportgenerator" args
-
-    let sourcelink optionConfig args = tool optionConfig "sourcelink" args
-
     let fcswatch optionConfig args = tool optionConfig "fcswatch" args
 
-    let fsharpAnalyzer optionConfig args =
-        tool optionConfig "fsharp-analyzers" args
-
     let fantomas args = DotNet.exec id "fantomas" args
-
-module FSharpAnalyzers =
-    type Arguments =
-        | Project of string
-        | Analyzers_Path of string
-        | Fail_On_Warnings of string list
-        | Ignore_Files of string list
-        | Verbose
-
-        interface IArgParserTemplate with
-            member s.Usage = ""
-
 
 module DocsTool =
     let quoted s = $"\"%s{s}\""
@@ -648,28 +628,6 @@ let dotnetBuild ctx =
         })
         sln
 
-let fsharpAnalyzers _ =
-    let argParser =
-        ArgumentParser.Create<FSharpAnalyzers.Arguments>(programName = "fsharp-analyzers")
-
-    !!srcGlob
-    |> Seq.iter (fun proj ->
-        let args =
-            [
-                FSharpAnalyzers.Analyzers_Path(
-                    rootDirectory
-                    </> "packages/analyzers"
-                )
-                FSharpAnalyzers.Arguments.Project proj
-                FSharpAnalyzers.Arguments.Fail_On_Warnings [ "BDH0002" ]
-                FSharpAnalyzers.Arguments.Ignore_Files [ "*AssemblyInfo.fs" ]
-                FSharpAnalyzers.Verbose
-            ]
-            |> argParser.PrintCommandLineArgumentsFlat
-
-        dotnet.fsharpAnalyzer id args
-    )
-
 let getPkgPath () =
     !!distGlob
     |> Seq.head
@@ -730,10 +688,6 @@ let dotnetPack ctx =
             })
             proj
     )
-
-let sourceLinkTest _ =
-    !!distGlob
-    |> Seq.iter (fun nupkg -> dotnet.sourcelink id (sprintf "test %s" nupkg))
 
 let publishToNuget _ =
     allPublishChecks ()
@@ -873,10 +827,8 @@ let initTargets () =
     Target.createBuildFailure "RevertChangelog" revertChangelog // Do NOT put this in the dependency chain
     Target.createFinal "DeleteChangelogBackupFile" deleteChangelogBackupFile // Do NOT put this in the dependency chain
     Target.create "DotnetBuild" dotnetBuild
-    Target.create "FSharpAnalyzers" fsharpAnalyzers
     Target.create "IntegrationTests" integrationTests
     Target.create "DotnetPack" dotnetPack
-    Target.create "SourceLinkTest" sourceLinkTest
     Target.create "PublishToNuGet" publishToNuget
     Target.create "GitRelease" gitRelease
     Target.create "GitHubRelease" githubRelease

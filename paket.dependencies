@@ -41,7 +41,3 @@ group Docs
     nuget FSharp.Formatting 4.0.0-rc1
     nuget FSharp.Literate 4.0.0-rc1
     nuget Fable.React
-group Analyzers
-  source https://www.nuget.org/api/v2
-  source https://api.nuget.org/v3/index.json
-  nuget BinaryDefense.FSharp.Analyzers.Hashing 0.2.2
