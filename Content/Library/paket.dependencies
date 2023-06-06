@@ -31,20 +31,6 @@ group Build
     nuget Microsoft.Build.Tasks.Core 17.3.2
     nuget Microsoft.Build.Utilities.Core 17.3.2
 
-group Docs
-    storage: none
-    source https://www.nuget.org/api/v2
-    source https://api.nuget.org/v3/index.json
-    nuget Argu
-    nuget FSharp.Compiler.Service 34.1.0
-    nuget FSharp.Core ~> 4.6
-    nuget Fake.IO.FileSystem
-    nuget FAKE.Core.Environment
-    nuget Fake.DotNet.Cli
-    nuget FSharp.Formatting 4.0.0-rc1
-    nuget FSharp.Literate 4.0.0-rc1
-    nuget Fable.React
-
 group Analyzers
   source https://www.nuget.org/api/v2
   source https://api.nuget.org/v3/index.json

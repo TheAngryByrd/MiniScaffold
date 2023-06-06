@@ -8,7 +8,6 @@ open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
 open Fake.Api
 open Fake.BuildServer
-open Argu
 
 let environVarAsBoolOrDefault varName defaultValue =
     let truthyConsts = [

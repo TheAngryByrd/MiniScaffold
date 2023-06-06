@@ -1,8 +1,4 @@
 Expecto
-FSharp.Core
-Microsoft.NET.Test.Sdk
-YoloDev.Expecto.TestSdk
-altcover
 
 group build
 Fake.DotNet.Cli
