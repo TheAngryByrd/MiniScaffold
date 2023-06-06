@@ -7,7 +7,7 @@ NUGET
       Mono.Cecil (>= 0.11.3) - restriction: || (>= net461) (>= netstandard2.0)
     FSharp.Core (7.0.300)
     Microsoft.Build.Tasks.Git (1.1.1) - copy_local: true
-    Microsoft.CodeCoverage (17.6) - restriction: || (>= net45) (>= netcoreapp1.0)
+    Microsoft.CodeCoverage (17.6.1) - restriction: || (>= net45) (>= netcoreapp1.0)
     Microsoft.CSharp (4.7) - restriction: || (&& (< netstandard1.3) (>= uap10.0)) (&& (< netstandard2.0) (>= uap10.0))
     Microsoft.NET.Test.Sdk (17.1.0-preview-20211109-03)
       Microsoft.CodeCoverage (>= 17.1.0-preview-20211109-03) - restriction: || (>= net45) (>= netcoreapp1.0)
@@ -22,11 +22,11 @@ NUGET
     Microsoft.SourceLink.GitHub (1.1) - copy_local: true
       Microsoft.Build.Tasks.Git (>= 1.1)
       Microsoft.SourceLink.Common (>= 1.1)
-    Microsoft.TestPlatform.ObjectModel (17.6) - restriction: >= netcoreapp3.1
-      NuGet.Frameworks (>= 5.11) - restriction: || (>= net462) (>= netstandard2.0)
+    Microsoft.TestPlatform.ObjectModel (17.6.1) - restriction: >= netcoreapp3.1
+      NuGet.Frameworks (>= 6.6) - restriction: || (>= net462) (>= netstandard2.0)
       System.Reflection.Metadata (>= 1.6) - restriction: || (>= net462) (>= netstandard2.0)
-    Microsoft.TestPlatform.TestHost (17.6) - restriction: >= netcoreapp1.0
-      Microsoft.TestPlatform.ObjectModel (>= 17.6) - restriction: >= netcoreapp3.1
+    Microsoft.TestPlatform.TestHost (17.6.1) - restriction: >= netcoreapp1.0
+      Microsoft.TestPlatform.ObjectModel (>= 17.6.1) - restriction: >= netcoreapp3.1
       Newtonsoft.Json (>= 13.0.1) - restriction: >= netcoreapp3.1
     Microsoft.Win32.Primitives (4.3) - restriction: || (&& (>= net46) (< netstandard1.4) (>= uap10.0)) (&& (< netstandard1.3) (>= uap10.0)) (&& (< netstandard1.4) (>= uap10.0) (< win8) (< wpa81)) (&& (>= netstandard1.5) (< netstandard1.6) (>= uap10.0) (< win8) (< wpa81)) (&& (< netstandard1.5) (>= uap10.0) (< uap10.1)) (&& (< netstandard1.5) (>= uap10.0) (< win8) (< wpa81)) (&& (>= netstandard1.6) (< netstandard2.0) (>= uap10.0) (< win8) (< wpa81))
       Microsoft.NETCore.Platforms (>= 1.1) - restriction: && (< monoandroid) (< monotouch) (< net46) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
@@ -471,9 +471,9 @@ NUGET
       System.Security.Principal.Windows (>= 5.0) - restriction: || (&& (>= monoandroid) (< netstandard1.3)) (&& (< monoandroid) (>= netcoreapp2.0)) (>= monotouch) (&& (< net46) (< netcoreapp2.0) (>= netstandard2.0)) (>= net461) (>= netcoreapp2.1) (>= uap10.1) (>= xamarinios) (>= xamarinmac) (>= xamarintvos) (>= xamarinwatchos)
     Microsoft.Win32.SystemEvents (7.0) - restriction: >= net6.0
     Mono.Posix.NETStandard (1.0) - restriction: >= netstandard2.0
-    MSBuild.StructuredLogger (2.1.768)
-      Microsoft.Build.Framework (>= 16.10) - restriction: >= netstandard2.0
-      Microsoft.Build.Utilities.Core (>= 16.10) - restriction: >= netstandard2.0
+    MSBuild.StructuredLogger (2.1.820)
+      Microsoft.Build.Framework (>= 17.5) - restriction: >= netstandard2.0
+      Microsoft.Build.Utilities.Core (>= 17.5) - restriction: >= netstandard2.0
     Newtonsoft.Json (13.0.3) - restriction: >= netstandard2.0
     NuGet.Common (6.6) - restriction: >= netstandard2.0
       NuGet.Frameworks (>= 6.6) - restriction: >= netstandard2.0

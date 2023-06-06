@@ -26,7 +26,7 @@ group Build
     nuget Fake.BuildServer.GitHubActions 5.20.4
     nuget Argu
     nuget Octokit 0.48
-    nuget MSBuild.StructuredLogger 2.1.768
+    nuget MSBuild.StructuredLogger 2.1.820
 
 group Docs
     storage: none
