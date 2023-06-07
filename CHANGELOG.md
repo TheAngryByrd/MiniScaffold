@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.0-alpha003] - 2023-06-06
+
+### Changed
+- [Update Dependencies](https://github.com/TheAngryByrd/MiniScaffold/pull/267) from @TheAngryByrd
+- [Numerous Build Tweaks](https://github.com/TheAngryByrd/MiniScaffold/pull/269) from @TheAngryByrd
+- [Updating Publishing and Use FSDocs for documentation](https://github.com/TheAngryByrd/MiniScaffold/pull/271) from @nikoyak
+
 ## [0.33.0-alpha002] - 2023-06-06
 
 ### Changed
@@ -617,7 +624,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.33.0-alpha002...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.33.0-alpha003...HEAD
+[0.33.0-alpha003]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.32.0...v0.33.0-alpha003
 [0.33.0-alpha002]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.32.0...v0.33.0-alpha002
 [0.33.0-alpha001]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.32.0...v0.33.0-alpha001
 [0.32.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.31.1...0.32.0
