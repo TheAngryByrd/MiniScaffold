@@ -7,10 +7,26 @@ on:
 env:
   CONFIGURATION: Release
 jobs:
+  set_version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set Versions
+        uses: actions/github-script@v4
+        id: set_version
+        with:
+          script: |
+            const tag = context.ref.substring(10)
+            const no_v = tag.replace('v', '')
+            const dash_index = no_v.lastIndexOf('-')
+            const no_dash = (dash_index > -1) ?  no_v.substring(0, dash_index) : no_v
+            core.setOutput('tag', tag)
+            core.setOutput('no-v', no_v)
+            core.setOutput('no-dash', no_dash)
+
   build:
     environment:
       name: nuget
-      url: https://www.nuget.org/packages/MiniScaffold/${{ github.ref_name }}
+      url: https://www.nuget.org/packages/MiniScaffold/${{ needs.set_version.outputs.no-v }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
