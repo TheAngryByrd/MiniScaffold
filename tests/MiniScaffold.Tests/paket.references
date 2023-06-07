@@ -1,7 +1,5 @@
+Expecto
+
 group build
 Fake.DotNet.Cli
 Fake.Tools.Git
-Expecto
-FSharp.Core
-Microsoft.NET.Test.Sdk
-YoloDev.Expecto.TestSdk

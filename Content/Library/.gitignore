@@ -269,3 +269,9 @@ coverage.*.xml
 
 .fake
 .ionide
+
+# fsdocs generated
+tmp/
+temp/
+.fsdocs
+docs/

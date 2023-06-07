@@ -11,5 +11,4 @@ Fake.Tools.Git
 Fake.DotNet.Paket
 Fake.Api.GitHub
 Fake.BuildServer.GitHubActions
-Argu
 Octokit

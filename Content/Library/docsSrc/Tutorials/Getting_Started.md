@@ -1,3 +1,10 @@
+---
+title: Getting Started
+category: Tutorials
+categoryindex: 1
+index: 1
+---
+
 # Getting Started
 
 ```fsharp

@@ -25,6 +25,12 @@
       "commands": [
         "fantomas"
       ]
+    },
+    "fsdocs-tool": {
+      "version": "18.1.0",
+      "commands": [
+        "fsdocs"
+      ]
     }
   }
 }

@@ -8,10 +8,10 @@
 
 GitHub Actions |
 :---: |
-[![GitHub Actions](https://github.com/MyGithubUsername/MyLib.1/workflows/Build%20master/badge.svg)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3Amaster) |
-[![Build History](https://buildstats.info/github/chart/MyGithubUsername/MyLib.1)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3Amaster) |
+[![GitHub Actions](https://github.com/MyGithubUsername/MyLib.1/workflows/Build%20MyReleaseBranch/badge.svg)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3AMyReleaseBranch) |
+[![Build History](https://buildstats.info/github/chart/MyGithubUsername/MyLib.1)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3AMyReleaseBranch) |
 
-## NuGet 
+## NuGet
 
 Package | Stable | Prerelease
 --- | --- | ---
@@ -23,8 +23,7 @@ MyLib.1 | [![NuGet Badge](https://buildstats.info/nuget/MyLib.1)](https://www.nu
 
 Make sure the following **requirements** are installed on your system:
 
-- [dotnet SDK](https://www.microsoft.com/net/download/core) 3.0 or higher
-- [Mono](http://www.mono-project.com/) if you're on Linux or macOS.
+- [dotnet SDK](https://www.microsoft.com/net/download/core) 6.0 or higher
 
 or
 
@@ -37,8 +36,6 @@ or
 
 - `CONFIGURATION` will set the [configuration](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build?tabs=netcore2x#options) of the dotnet commands.  If not set, it will default to Release.
   - `CONFIGURATION=Debug ./build.sh` will result in `-c` additions to commands such as in `dotnet build -c Debug`
-- `GITHUB_TOKEN` will be used to upload release notes and Nuget packages to GitHub.
-  - Be sure to set this before releasing
 - `DISABLE_COVERAGE` Will disable running code coverage metrics.  AltCover can have [severe performance degradation](https://github.com/SteveGilham/altcover/issues/57) so it's worth disabling when looking to do a quicker feedback loop.
   - `DISABLE_COVERAGE=1 ./build.sh`
 
@@ -56,14 +53,14 @@ $ ./build.sh  <optional buildtarget>// on unix
 The bin of your library should look similar to:
 
 ```
-$ tree src/MyCoolNewLib/bin/
-src/MyCoolNewLib/bin/
+$ tree src/MyLib.1/bin/
+src/MyLib.1/bin/
 └── Debug
-    └── net50
-        ├── MyCoolNewLib.deps.json
-        ├── MyCoolNewLib.dll
-        ├── MyCoolNewLib.pdb
-        └── MyCoolNewLib.xml
+    └── net6.0
+        ├── MyLib.1.deps.json
+        ├── MyLib.1.dll
+        ├── MyLib.1.pdb
+        └── MyLib.1.xml
 
 ```
 
@@ -74,20 +71,21 @@ src/MyCoolNewLib/bin/
 - `Clean` - Cleans artifact and temp directories.
 - `DotnetRestore` - Runs [dotnet restore](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-restore?tabs=netcore2x) on the [solution file](https://docs.microsoft.com/en-us/visualstudio/extensibility/internals/solution-dot-sln-file?view=vs-2019).
 - [`DotnetBuild`](#Building) - Runs [dotnet build](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build?tabs=netcore2x) on the [solution file](https://docs.microsoft.com/en-us/visualstudio/extensibility/internals/solution-dot-sln-file?view=vs-2019).
+- `FSharpAnalyzers` - Runs [BinaryDefense.FSharp.Analyzers](https://github.com/BinaryDefense/BinaryDefense.FSharp.Analyzers).
 - `DotnetTest` - Runs [dotnet test](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test?tabs=netcore21) on the [solution file](https://docs.microsoft.com/en-us/visualstudio/extensibility/internals/solution-dot-sln-file?view=vs-2019).
 - `GenerateCoverageReport` - Code coverage is run during `DotnetTest` and this generates a report via [ReportGenerator](https://github.com/danielpalme/ReportGenerator).
 - `WatchTests` - Runs [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch?view=aspnetcore-3.0) with the test projects. Useful for rapid feedback loops.
 - `GenerateAssemblyInfo` - Generates [AssemblyInfo](https://docs.microsoft.com/en-us/dotnet/api/microsoft.visualbasic.applicationservices.assemblyinfo?view=netframework-4.8) for libraries.
 - `DotnetPack` - Runs [dotnet pack](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-pack). This includes running [Source Link](https://github.com/dotnet/sourcelink).
 - `SourceLinkTest` - Runs a Source Link test tool to verify Source Links were properly generated.
-- `PublishToNuGet` - Publishes the NuGet packages generated in `DotnetPack` to NuGet via [paket push](https://fsprojects.github.io/Paket/paket-push.html).
+- `PublishToNuGet` - Publishes the NuGet packages generated in `DotnetPack` to NuGet via [paket push](https://fsprojects.github.io/Paket/paket-push.html). Runs only from `Github Actions`.
 - `GitRelease` - Creates a commit message with the [Release Notes](https://fake.build/apidocs/v5/fake-core-releasenotes.html) and a git tag via the version in the `Release Notes`.
-- `GitHubRelease` - Publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) with the Release Notes and any NuGet packages.
+- `GitHubRelease` - Publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) with the Release Notes and any NuGet packages. Runs only from `Github Actions`.
 - `FormatCode` - Runs [Fantomas](https://github.com/fsprojects/fantomas) on the solution file.
-- `BuildDocs` - Generates Documentation from `docsSrc` and the [XML Documentation Comments](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/) from your libraries in `src`.
-- `WatchDocs` - Generates documentation and starts a webserver locally.  It will rebuild and hot reload if it detects any changes made to `docsSrc` files, libraries in `src`, or the `docsTool` itself.
-- `ReleaseDocs` - Will stage, commit, and push docs generated in the `BuildDocs` target.
-- [`Release`](#Releasing) - Task that runs all release type tasks such as `PublishToNuGet`, `GitRelease`, `ReleaseDocs`, and `GitHubRelease`. Make sure to read [Releasing](#Releasing) to setup your environment correctly for releases.
+- `CheckFormatCode` - Runs [Fantomas --check](https://fsprojects.github.io/fantomas/docs/end-users/FormattingCheck.html) on the solution file.
+- `BuildDocs` - Generates [Documentation](https://fsprojects.github.io/FSharp.Formatting) from `docsSrc` and the [XML Documentation Comments](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/) from your libraries in `src`.
+- `WatchDocs` - Generates documentation and starts a webserver locally.  It will rebuild and hot reload if it detects any changes made to `docsSrc` files, or libraries in `src`.
+
 ---
 
 
@@ -96,25 +94,16 @@ src/MyCoolNewLib/bin/
 - [Start a git repo with a remote](https://help.github.com/articles/adding-an-existing-project-to-github-using-the-command-line/)
 
 ```sh
+git init
 git add .
 git commit -m "Scaffold"
-git remote add origin https://github.com/user/MyCoolNewLib.git
-git push -u origin master
+git branch -M MyReleaseBranch
+git remote add origin https://github.com/MyGithubUsername/MyLib.1.git
+git push -u origin MyReleaseBranch
 ```
 
 - [Create your NuGeT API key](https://docs.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-api-keys)
-    - [Add your NuGet API key to paket](https://fsprojects.github.io/Paket/paket-config.html#Adding-a-NuGet-API-key)
-
-    ```sh
-    paket config add-token "https://www.nuget.org" 4003d786-cc37-4004-bfdf-c4f3e8ef9b3a
-    ```
-
-    - or set the environment variable `NUGET_TOKEN` to your key
-
-
-- [Create a GitHub OAuth Token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
-  - You can then set the environment variable `GITHUB_TOKEN` to upload release notes and artifacts to github
-  - Otherwise it will fallback to username/password
+    - Add your NuGet API key as repository secret NUGET_TOKEN to [Actions secrets](https://github.com/MyGithubUsername/MyLib.1/settings/secrets/actions)
 
 - Then update the `CHANGELOG.md` with an "Unreleased" section containing release notes for this version, in [KeepAChangelog](https://keepachangelog.com/en/1.1.0/) format.
 
@@ -137,18 +126,16 @@ First release
 ### Added
 - This release already has lots of features
 
-[Unreleased]: https://github.com/user/MyCoolNewLib.git/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/user/MyCoolNewLib.git/releases/tag/v0.1.0
+[Unreleased]: https://github.com/MyGithubUsername/MyLib.1/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/MyGithubUsername/MyLib.1/releases/tag/v0.1.0
 ```
 
-- You can then use the `Release` target, specifying the version number either in the `RELEASE_VERSION` environment
+- You can then use the `GitRelease` target, specifying the version number either in the `RELEASE_VERSION` environment
   variable, or else as a parameter after the target name.  This will:
   - update `CHANGELOG.md`, moving changes from the `Unreleased` section into a new `0.2.0` section
     - if there were any prerelease versions of 0.2.0 in the changelog, it will also collect their changes into the final 0.2.0 entry
   - make a commit bumping the version:  `Bump version to 0.2.0` and adds the new changelog section to the commit's body
-  - publish the package to NuGet
   - push a git tag
-  - create a GitHub release for that git tag
 
 macOS/Linux Parameter:
 
@@ -162,4 +149,12 @@ macOS/Linux Environment Variable:
 RELEASE_VERSION=0.2.0 ./build.sh Release
 ```
 
+- The [Github Action](https://github.com/MyGithubUsername/MyLib.1/blob/MyReleaseBranch/.github/workflows/publish.yml) will handle the new tag:
+  - publish the package to NuGet
+  - create a GitHub release for that git tag, upload release notes and NuGet packages to GitHub
 
+
+### Releasing Documentation
+
+- Set Source for "Build and deployment" on [GitHub Pages](https://github.com/MyGithubUsername/MyLib.1/settings/pages) to `GitHub Actions`.
+- Documentation is auto-deployed via [Github Action](https://github.com/MyGithubUsername/MyLib.1/blob/MyReleaseBranch/.github/workflows/fsdocs-gh-pages.yml) to [Your GitHub Page](https://MyGithubUsername.github.io/MyLib.1/)

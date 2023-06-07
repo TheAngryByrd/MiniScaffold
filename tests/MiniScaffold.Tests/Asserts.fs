@@ -388,7 +388,7 @@ module Effect =
 
         match
             lines
-            |> Array.tryFindIndex (fun line -> line.Contains "Paket.push(")
+            |> Array.tryFindIndex (fun line -> line.Contains "Paket.push (")
         with
         | None -> ()
         | Some startIdx ->
@@ -397,7 +397,7 @@ module Effect =
 
             while keepGoing
                   && i < Array.length lines do
-                if lines.[i].Trim() = ")" then
+                if lines.[i].Trim() = "})" then
                     keepGoing <- false
                 // Then fall through to comment out this line, too
                 lines.[i] <-
@@ -503,6 +503,40 @@ module Effect =
 
         ``format build`` d
 
+    let ``make failure in gitRelease function`` (failureCode: string) (d: DirectoryInfo) =
+        let buildScript = ``get build.fs`` d
+        let lines = File.ReadAllLines buildScript
+
+        match
+            lines
+            |> Array.tryFindIndex (fun line -> line.Contains "let gitRelease")
+        with
+        | None -> ()
+        | Some startIdx ->
+            let mutable i =
+                startIdx
+                + 1
+
+            let mutable keepGoing = true
+
+            while keepGoing
+                  && i < Array.length lines do
+                if lines.[i].StartsWith("let githubRelease") then
+                    keepGoing <- false
+                elif lines.[i].Contains(failureCode) then
+                    let fail = "    failwith \"Deliberate failure in unit test for gitRelease\"\n"
+
+                    lines.[i] <-
+                        fail
+                        + "// "
+                        + lines.[i]
+
+                i <- i + 1
+
+            lines
+            |> File.writeNew buildScript
+
+        ``format build`` d
 
     let ``set environment variable`` name value (d: DirectoryInfo) =
         Environment.SetEnvironmentVariable(name, value)
@@ -531,7 +565,7 @@ module Effect =
             newLines
             |> File.writeNew changelog
 
-    let private ``internal setup for release tests`` (branchName: string) (d: DirectoryInfo) =
+    let private ``internal setup for all tests`` (branchName: string) (d: DirectoryInfo) =
         ``git init`` d branchName
         ``disable restore`` d
         ``disable build`` d
@@ -541,16 +575,25 @@ module Effect =
         ``disable createPackages`` d
         ``disable dotnetPack`` d
         ``git commit all`` "Initial commit" d
-        ``set environment variable`` "RELEASE_VERSION" "2.0.0" d
         // SourceLinkTest requires an actual repo to exist, which we won't have in these tests
         ``disable sourceLinkTest function`` d
         // We don't want to actually release anything during integration tests!
         ``set environment variable`` "NUGET_KEY" "" d
         ``set environment variable`` "GITHUB_TOKEN" "" d
+        ``disable pushing in gitRelease function`` d
+
+    let private ``internal setup for release tests`` (branchName: string) (d: DirectoryInfo) =
+        ``internal setup for all tests`` branchName d
+        ``set environment variable`` "RELEASE_VERSION" "2.0.0" d
         ``add change to CHANGELOG`` d
 
     let ``setup for release tests`` (d: DirectoryInfo) =
         ``internal setup for release tests`` "main" d
 
-    let ``setup for branch tests`` (branchName: string) (d: DirectoryInfo) =
+    let ``setup for release branch tests`` (branchName: string) (d: DirectoryInfo) =
         ``internal setup for release tests`` branchName d
+
+    let ``setup for publish tests`` (d: DirectoryInfo) =
+        ``internal setup for all tests`` "main" d
+        // To make publish work locally during integration tests
+        ``set environment variable`` "CI" "1" d

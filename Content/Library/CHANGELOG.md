@@ -12,4 +12,4 @@ First release
 ### Added
 - This release already has lots of features
 
-[0.1.0]: https://github.com/user/MyCoolNewLib.git/releases/tag/v0.1.0
+[0.1.0]: https://github.com/MyGithubUsername/MyLib.1/releases/tag/v0.1.0

@@ -272,3 +272,9 @@ Content/Library/docs/
 Content/Console/docs/
 Content/Library/.paket/paket
 Content/Console/.paket/paket
+
+# fsdocs generated
+tmp/
+temp/
+.fsdocs
+docs/

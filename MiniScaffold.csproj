@@ -3,8 +3,8 @@
         <Description>F# Template for creating and publishing libraries targeting .NET 6.0 or console apps .NET 6.0</Description>
         <Authors>Jimmy Byrd</Authors>
         <PackageProjectUrl>https://github.com/TheAngryByrd/MiniScaffold</PackageProjectUrl>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/TheAngryByrd/MiniScaffold.git</RepositoryUrl>
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>class;library;template;fsharp</PackageTags>
         <NeutralLanguage>en-US</NeutralLanguage>
@@ -18,7 +18,7 @@
         <NoWarn>$(NoWarn);NU5128</NoWarn>
         <EnablePackageValidation>true</EnablePackageValidation>
         <IsPackable>true</IsPackable>
-    </PropertyGroup>
+  </PropertyGroup>
     <ItemGroup>
         <Content
                 Include="Content/**/*"
@@ -27,6 +27,10 @@
         </Content>
         <None
                 Include="README.md"
+                Pack="true"
+                PackagePath="/" />
+        <None
+                Include="LICENSE.md"
                 Pack="true"
                 PackagePath="/" />
     </ItemGroup>

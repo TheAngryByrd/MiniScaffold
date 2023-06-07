@@ -14,7 +14,9 @@ let isEmptyChange =
     | Changelog.Change.Security s
     | Changelog.Change.Custom(_, s) -> String.IsNullOrWhiteSpace s.CleanedText
 
-let isChangelogEmpty (latestEntry: Changelog.ChangelogEntry) =
+let tagFromVersionNumber versionNumber = sprintf "v%s" versionNumber
+
+let failOnEmptyChangelog (latestEntry: Changelog.ChangelogEntry) =
     let isEmpty =
         (latestEntry.Changes
          |> Seq.forall isEmptyChange)
@@ -24,9 +26,6 @@ let isChangelogEmpty (latestEntry: Changelog.ChangelogEntry) =
     if isEmpty then
         failwith
             "No changes in CHANGELOG. Please add your changes under a heading specified in https://keepachangelog.com/"
-
-let tagFromVersionNumber versionNumber = sprintf "%s" versionNumber
-
 
 let mkLinkReference (newVersion: SemVerInfo) (changelog: Changelog.Changelog) gitHubRepoUrl =
     if
@@ -68,7 +67,6 @@ let mkLinkReference (newVersion: SemVerInfo) (changelog: Changelog.Changelog) gi
         sprintf "[%s]: %s" newVersion.AsString linkTarget
 
 let mkReleaseNotes changelog (latestEntry: Changelog.ChangelogEntry) gitHubRepoUrl =
-
     let linkReference = mkLinkReference latestEntry.SemVer changelog gitHubRepoUrl
 
     if String.isNullOrEmpty linkReference then
@@ -127,18 +125,18 @@ let getVersionNumber envVarName ctx =
 
         failwith "Invalid version number"
 
-
 let mutable changelogBackupFilename = ""
 
 let updateChangelog changelogPath (changelog: Fake.Core.Changelog.Changelog) gitHubRepoUrl ctx =
-    let description, unreleasedChanges =
-        match changelog.Unreleased with
-        | None -> None, []
-        | Some u -> u.Description, u.Changes
 
     let verStr =
         ctx
         |> getVersionNumber "RELEASE_VERSION"
+
+    let description, unreleasedChanges =
+        match changelog.Unreleased with
+        | None -> None, []
+        | Some u -> u.Description, u.Changes
 
     let newVersion = SemVer.parse verStr
 
@@ -214,8 +212,6 @@ let updateChangelog changelogPath (changelog: Fake.Core.Changelog.Changelog) git
             newEntry
             :: changelog.Entries
         )
-
-    // latestEntry <- newEntry
 
     // Save changelog to temporary file before making any edits
     changelogBackupFilename <- System.IO.Path.GetTempFileName()
@@ -293,7 +289,7 @@ let updateChangelog changelogPath (changelog: Fake.Core.Changelog.Changelog) git
 
     File.write false changelogPath updatedLines
 
-    // If build fails after this point but before we push the release out, undo our modifications
+    // If build fails after this point but before we commit changes, undo our modifications
     Target.activateBuildFailure "RevertChangelog"
 
     newEntry

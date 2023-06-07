@@ -26,7 +26,7 @@ module Say =
         sprintf
             "Hello %s. You were born on %s and your favorite number is %d. You like %A."
             person.Name
-            (person.DateOfBirth.ToString("yyyy/MM/dd"))
+            (person.DateOfBirth.ToString("yyyy/MM/dd", Globalization.CultureInfo.InvariantCulture))
             person.FavoriteNumber
             person.FavoriteColor
 

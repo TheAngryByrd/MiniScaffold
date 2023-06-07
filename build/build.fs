@@ -9,32 +9,60 @@ open Fake.Core.TargetOperators
 open Fake.Api
 open Fake.BuildServer
 
+let environVarAsBoolOrDefault varName defaultValue =
+    let truthyConsts = [
+        "1"
+        "Y"
+        "YES"
+        "T"
+        "TRUE"
+    ]
+
+    try
+        let envvar = (Environment.environVar varName).ToUpper()
+
+        truthyConsts
+        |> List.exists ((=) envvar)
+    with _ ->
+        defaultValue
+
 //-----------------------------------------------------------------------------
 // Metadata and Configuration
 //-----------------------------------------------------------------------------
 
-
-let srcGlob = "*.csproj"
-
-let testsCodeGlob =
-    !!(__SOURCE_DIRECTORY__
-       </> ".."
-       </> "tests/**/*.fs")
-    ++ (__SOURCE_DIRECTORY__
-        </> ".."
-        </> "tests/**/*.fsx")
-    -- (__SOURCE_DIRECTORY__
-        </> ".."
-        </> "tests/**/obj/**/*.fs")
-
-let testsGlob =
-    !!(__SOURCE_DIRECTORY__
-       </> ".."
-       </> "tests/**/*.??proj")
-
-let distDir =
+let rootDirectory =
     __SOURCE_DIRECTORY__
     </> ".."
+
+let productName = "MiniScaffold"
+
+let sln =
+    rootDirectory
+    </> "MiniScaffold.sln"
+
+
+let testsCodeGlob =
+    !!(rootDirectory
+       </> "tests/**/*.fs")
+    ++ (rootDirectory
+        </> "tests/**/*.fsx")
+    -- (rootDirectory
+        </> "tests/**/obj/**/*.fs")
+
+let srcGlob =
+    rootDirectory
+    </> "*.csproj"
+
+let testsGlob =
+    rootDirectory
+    </> "tests/**/*.??proj"
+
+let srcAndTest =
+    !!srcGlob
+    ++ testsGlob
+
+let distDir =
+    rootDirectory
     </> "dist"
 
 let distGlob =
@@ -42,43 +70,44 @@ let distGlob =
     </> "*.nupkg"
 
 let docsDir =
-    __SOURCE_DIRECTORY__
-    </> ".."
+    rootDirectory
     </> "docs"
 
 let docsSrcDir =
-    __SOURCE_DIRECTORY__
-    </> ".."
+    rootDirectory
     </> "docsSrc"
 
-let docsToolDir =
-    __SOURCE_DIRECTORY__
-    </> ".."
-    </> "docsTool"
+let temp =
+    rootDirectory
+    </> "temp"
 
-let docsToolProj =
-    docsToolDir
-    </> "docsTool.fsproj"
-
-let docsSrcGlob =
-    docsSrcDir
-    </> "**/*.fsx"
+let watchDocsDir =
+    temp
+    </> "watch-docs"
 
 let gitOwner = "TheAngryByrd"
 let gitRepoName = "MiniScaffold"
 
-let contentDir =
-    __SOURCE_DIRECTORY__
-    </> ".."
-    </> "Content"
+let gitHubRepoUrl = sprintf "https://github.com/%s/%s/" gitOwner gitRepoName
 
+let documentationUrl = "https://www.jimmybyrd.me/MiniScaffold/"
 
-let changelogFilename =
-    __SOURCE_DIRECTORY__
-    </> ".."
-    </> "CHANGELOG.md"
+let releaseBranch = "master"
+let readme = "README.md"
+let changelogFile = "CHANGELOG.md"
 
-let changelog = Fake.Core.Changelog.load changelogFilename
+let tagFromVersionNumber versionNumber = sprintf "v%s" versionNumber
+
+let READMElink = Uri(Uri(gitHubRepoUrl), $"blob/{releaseBranch}/{readme}")
+let CHANGELOGlink = Uri(Uri(gitHubRepoUrl), $"blob/{releaseBranch}/{changelogFile}")
+
+let LICENSElink = Uri(Uri(gitHubRepoUrl), $"blob/{releaseBranch}/LICENSE.md")
+
+let changelogPath =
+    rootDirectory
+    </> changelogFile
+
+let changelog = Fake.Core.Changelog.load changelogPath
 
 let mutable latestEntry =
     if Seq.isEmpty changelog.Entries then
@@ -86,23 +115,27 @@ let mutable latestEntry =
     else
         changelog.LatestEntry
 
+let mutable changelogBackupFilename = ""
 
-let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
-let docsSiteBaseUrl = "https://www.jimmybyrd.me/MiniScaffold"
+let publishUrl = "https://www.nuget.org"
 
-let isCI = Environment.environVarAsBool "CI"
+let docsSiteBaseUrl = sprintf "https://%s.github.io/%s" gitOwner gitRepoName
 
 let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
+
 let nugetToken = Environment.environVarOrNone "NUGET_TOKEN"
 
 //-----------------------------------------------------------------------------
 // Helpers
 //-----------------------------------------------------------------------------
 
+
 let isRelease (targets: Target list) =
     targets
     |> Seq.map (fun t -> t.Name)
-    |> Seq.exists ((=) "Release")
+    |> Seq.exists ((=) "PublishToNuGet")
+
+let invokeAsync f = async { f () }
 
 let configuration (targets: Target list) =
     let defaultVal = if isRelease targets then "Release" else "Debug"
@@ -123,54 +156,27 @@ let failOnBadExitAndPrint (p: ProcessResult) =
         failwithf "failed with exitcode %d" p.ExitCode
 
 
-let dispose (disposable: #IDisposable) = disposable.Dispose()
+let isCI = lazy environVarAsBoolOrDefault "CI" false
 
-[<AllowNullLiteral>]
-type DisposableDirectory(directory: string) =
-    do Trace.tracefn "Created disposable directory %s" directory
+// CI Servers can have bizzare failures that have nothing to do with your code
+let rec retryIfInCI times fn =
+    match isCI.Value with
+    | true ->
+        if times > 1 then
+            try
+                fn ()
+            with _ ->
+                retryIfInCI (times - 1) fn
+        else
+            fn ()
+    | _ -> fn ()
 
-    static member Create() =
-        let tempPath = IO.Path.Combine(IO.Path.GetTempPath(), Guid.NewGuid().ToString("n"))
-
-        IO.Directory.CreateDirectory tempPath
-        |> ignore
-
-        new DisposableDirectory(tempPath)
-
-    member x.Directory = directory
-    member x.DirectoryInfo = IO.DirectoryInfo(directory)
-
-    interface IDisposable with
-        member x.Dispose() =
-            Trace.tracefn "Deleting directory %s" directory
-            IO.Directory.Delete(x.Directory, true)
-
-type DisposeablePushd(directory: string) =
-    do Shell.pushd directory
-    member x.Directory = directory
-    member x.DirectoryInfo = IO.DirectoryInfo(directory)
-
-    interface IDisposable with
-        member x.Dispose() = Shell.popd ()
-
-let isReleaseBranchCheck () =
-    let releaseBranch = "master"
-
+let failOnWrongBranch () =
     if
         Git.Information.getBranchName ""
         <> releaseBranch
     then
         failwithf "Not on %s.  If you want to release please switch to this branch." releaseBranch
-
-let invokeAsync f = async { f () }
-
-
-let allReleaseChecks () =
-    isReleaseBranchCheck ()
-    Changelog.isChangelogEmpty latestEntry
-
-
-open DocsTool.CLIArgs
 
 module dotnet =
     let watch cmdParam program args =
@@ -178,143 +184,170 @@ module dotnet =
 
     let run cmdParam args = DotNet.exec cmdParam "run" args
 
+    let tool optionConfig command args =
+        DotNet.exec optionConfig (sprintf "%s" command) args
+        |> failOnBadExitAndPrint
+
+    let fcswatch optionConfig args = tool optionConfig "fcswatch" args
+
     let fantomas args = DotNet.exec id "fantomas" args
 
 module DocsTool =
-    open Argu
-    let buildparser = ArgumentParser.Create<BuildArgs>(programName = "docstool")
+    let quoted s = $"\"%s{s}\""
 
-    let buildCLI () =
-        [
-            BuildArgs.SiteBaseUrl docsSiteBaseUrl
-            BuildArgs.ProjectGlob docsToolProj
-            BuildArgs.DocsOutputDirectory docsDir
-            BuildArgs.DocsSourceDirectory docsSrcDir
-            BuildArgs.GitHubRepoUrl gitHubRepoUrl
-            BuildArgs.ProjectName gitRepoName
-            BuildArgs.ReleaseVersion latestEntry.NuGetVersion
-        ]
-        |> buildparser.PrintCommandLineArgumentsFlat
+    let fsDocsDotnetOptions (o: DotNet.Options) = {
+        o with
+            WorkingDirectory = rootDirectory
+    }
 
-    let build () =
-        dotnet.run
-            (fun args -> {
-                args with
-                    WorkingDirectory = docsToolDir
+    let fsDocsBuildParams configuration (p: Fsdocs.BuildCommandParams) = {
+        p with
+            Clean = Some true
+            Input = Some(quoted docsSrcDir)
+            Output = Some(quoted docsDir)
+            Eval = Some true
+            //Projects = Some(Seq.map quoted (!!srcGlob))
+            Properties = Some($"Configuration=%s{configuration}")
+            Parameters =
+                Some [
+                    // https://fsprojects.github.io/FSharp.Formatting/content.html#Templates-and-Substitutions
+                    "root", quoted documentationUrl
+                    "fsdocs-collection-name", quoted productName
+                    "fsdocs-repository-branch", quoted releaseBranch
+                    "fsdocs-repository-link", quoted (gitHubRepoUrl)
+                    "fsdocs-package-version", quoted latestEntry.NuGetVersion
+                    "fsdocs-readme-link", quoted (READMElink.ToString())
+                    "fsdocs-release-notes-link", quoted (CHANGELOGlink.ToString())
+                    "fsdocs-license-link", quoted (LICENSElink.ToString())
+                ]
+            IgnoreProjects = Some true
+            NoApiDocs = Some true
+            Strict = Some true
+    }
+
+
+    let cleanDocsCache () = Fsdocs.cleanCache rootDirectory
+
+    let build (configuration) =
+        Fsdocs.build fsDocsDotnetOptions (fsDocsBuildParams configuration)
+
+
+    let watch (configuration) =
+        let buildParams bp =
+            let bp =
+                Option.defaultValue Fsdocs.BuildCommandParams.Default bp
+                |> fsDocsBuildParams configuration
+
+            {
+                bp with
+                    Output = Some watchDocsDir
+                    Strict = None
+            }
+
+        Fsdocs.watch
+            fsDocsDotnetOptions
+            (fun p -> {
+                p with
+                    BuildCommandParams = Some(buildParams p.BuildCommandParams)
             })
-            (sprintf " -- build %s" (buildCLI ()))
-        |> failOnBadExitAndPrint
 
-    let watchparser = ArgumentParser.Create<WatchArgs>(programName = "docstool")
+let allReleaseChecks () =
+    failOnWrongBranch ()
+    Changelog.failOnEmptyChangelog latestEntry
 
-    let watchCLI () =
-        [
-            WatchArgs.ProjectGlob docsToolProj
-            WatchArgs.DocsSourceDirectory docsSrcDir
-            WatchArgs.GitHubRepoUrl gitHubRepoUrl
-            WatchArgs.ProjectName gitRepoName
-            WatchArgs.ReleaseVersion latestEntry.NuGetVersion
-        ]
-        |> watchparser.PrintCommandLineArgumentsFlat
 
-    let watch () =
-        dotnet.watch
-            (fun args -> {
-                args with
-                    WorkingDirectory = docsToolDir
-            })
-            "run"
-            (sprintf "-- watch %s" (watchCLI ()))
-        |> failOnBadExitAndPrint
+let failOnLocalBuild () =
+    if not isCI.Value then
+        failwith "Not on CI. If you want to publish, please use CI."
+
+let allPublishChecks () =
+    failOnLocalBuild ()
+    Changelog.failOnEmptyChangelog latestEntry
 
 //-----------------------------------------------------------------------------
 // Target Implementations
 //-----------------------------------------------------------------------------
 
+
 let clean _ =
     [
-        "obj"
-        "dist"
+        "bin"
+        "temp"
+        distDir
     ]
     |> Shell.cleanDirs
 
-    Git.CommandHelper.directRunGitCommandAndFail contentDir "clean -xfd"
-
-let ``dotnet restore`` _ =
     !!srcGlob
-    |> Seq.iter (fun dir ->
-        let args =
-            [ sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion ]
-            |> String.concat " "
-
-        DotNet.restore
-            (fun c -> {
-                c with
-                    Common =
-                        c.Common
-                        |> DotNet.Options.withCustomParams (Some(args))
-            })
-            dir
+    ++ testsGlob
+    |> Seq.collect (fun p ->
+        [
+            "bin"
+            "obj"
+        ]
+        |> Seq.map (fun sp ->
+            IO.Path.GetDirectoryName p
+            </> sp
+        )
     )
+    |> Shell.cleanDirs
 
-let ``revert changelog`` _ =
+    [ "paket-files/paket.restore.cached" ]
+    |> Seq.iter Shell.rm
+
+let dotnetRestore _ =
+    [ sln ]
+    |> Seq.map (fun dir ->
+        fun () ->
+            let args =
+                []
+                |> String.concat " "
+
+            DotNet.restore
+                (fun c -> {
+                    c with
+                        Common =
+                            c.Common
+                            |> DotNet.Options.withCustomParams (Some(args))
+                })
+                dir
+    )
+    |> Seq.iter (retryIfInCI 10)
+
+let updateChangelog ctx =
+    latestEntry <- Changelog.updateChangelog changelogPath changelog gitHubRepoUrl ctx
+
+let revertChangelog _ =
     if String.isNotNullOrEmpty Changelog.changelogBackupFilename then
         Changelog.changelogBackupFilename
-        |> Shell.copyFile changelogFilename
+        |> Shell.copyFile changelogPath
 
-let ``delete changelogBackupFile`` _ =
+let deleteChangelogBackupFile _ =
     if String.isNotNullOrEmpty Changelog.changelogBackupFilename then
         Shell.rm Changelog.changelogBackupFilename
 
-let ``update changelog`` ctx =
-    latestEntry <- Changelog.updateChangelog changelogFilename changelog gitHubRepoUrl ctx
+let dotnetBuild ctx =
+    let args = [
+        sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
+        "--no-restore"
+    ]
 
-let formatCode _ =
-    let result = dotnet.fantomas "."
+    DotNet.build
+        (fun c -> {
+            c with
+                Configuration = configuration (ctx.Context.AllExecutingTargets)
+                Common =
+                    c.Common
+                    |> DotNet.Options.withAdditionalArgs args
 
-    if not result.OK then
-        printfn "Errors while formatting all files: %A" result.Messages
-
-let checkFormatCode _ =
-    let result = dotnet.fantomas "--check ."
-
-    if result.ExitCode = 0 then
-        Trace.log "No files need formatting"
-    elif result.ExitCode = 99 then
-        failwith "Some files need formatting, check output for more info"
-    else
-        Trace.logf "Errors while formatting: %A" result.Errors
-
-
-let ``dotnet pack`` ctx =
-    !!srcGlob
-    |> Seq.iter (fun proj ->
-        // Get release notes with properly-linked version number
-        let releaseNotes = Changelog.mkReleaseNotes changelog latestEntry gitHubRepoUrl
-
-        let args = [
-            sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
-            sprintf "/p:PackageReleaseNotes=\"%s\"" releaseNotes
-        ]
-
-        DotNet.pack
-            (fun c -> {
-                c with
-                    Configuration = configuration (ctx.Context.AllExecutingTargets)
-                    OutputPath = Some distDir
-                    Common =
-                        c.Common
-                        |> DotNet.Options.withAdditionalArgs args
-            })
-            proj
-    )
+        })
+        sln
 
 let getPkgPath () =
     !!distGlob
     |> Seq.head
 
-let ``integration tests`` ctx =
-    testsGlob
+let integrationTests ctx =
+    !!testsGlob
     |> Seq.iter (fun proj ->
 
         dotnet.run
@@ -345,14 +378,36 @@ let ``integration tests`` ctx =
         |> failOnBadExitAndPrint
     )
 
+let dotnetPack ctx =
+    // Get release notes with properly-linked version number
+    let releaseNotes = Changelog.mkReleaseNotes changelog latestEntry gitHubRepoUrl
 
-let publish _ =
-    allReleaseChecks ()
+    let args = [
+        $"/p:PackageVersion={latestEntry.NuGetVersion}"
+        $"/p:PackageReleaseNotes=\"{releaseNotes}\""
+    ]
+
+    !!srcGlob
+    |> Seq.iter (fun proj ->
+        DotNet.pack
+            (fun c -> {
+                c with
+                    Configuration = configuration (ctx.Context.AllExecutingTargets)
+                    OutputPath = Some distDir
+                    Common =
+                        c.Common
+                        |> DotNet.Options.withAdditionalArgs args
+            })
+            proj
+    )
+
+let publishToNuget _ =
+    allPublishChecks ()
 
     Paket.push (fun c -> {
         c with
             ToolType = ToolType.CreateLocalTool()
-            PublishUrl = "https://www.nuget.org"
+            PublishUrl = publishUrl
             WorkingDir = "dist"
             ApiKey =
                 match nugetToken with
@@ -360,7 +415,7 @@ let publish _ =
                 | _ -> c.ApiKey // assume paket-config was set properly
     })
 
-let ``git release`` _ =
+let gitRelease _ =
     allReleaseChecks ()
 
     let releaseNotesGitCommitFormat = latestEntry.ToString()
@@ -368,26 +423,21 @@ let ``git release`` _ =
     Git.Staging.stageFile "" "CHANGELOG.md"
     |> ignore
 
-    !! "Content/**/AssemblyInfo.fs"
-    |> Seq.iter (
-        Git.Staging.stageFile ""
-        >> ignore
-    )
-
     Git.Commit.exec
         ""
         (sprintf "Bump version to %s\n\n%s" latestEntry.NuGetVersion releaseNotesGitCommitFormat)
 
+    Target.deactivateBuildFailure "RevertChangelog"
+
     Git.Branches.push ""
 
-    let tag = Changelog.tagFromVersionNumber latestEntry.NuGetVersion
+    let tag = tagFromVersionNumber latestEntry.NuGetVersion
 
     Git.Branches.tag "" tag
     Git.Branches.pushTag "" "origin" tag
 
-
-let ``github release`` _ =
-    allReleaseChecks ()
+let githubRelease _ =
+    allPublishChecks ()
 
     let token =
         match githubToken with
@@ -398,13 +448,14 @@ let ``github release`` _ =
 
     let files = !!distGlob
     // Get release notes with properly-linked version number
+
     let releaseNotes = Changelog.mkReleaseNotes changelog latestEntry gitHubRepoUrl
 
     GitHub.createClientWithToken token
     |> GitHub.draftNewRelease
         gitOwner
         gitRepoName
-        (Changelog.tagFromVersionNumber latestEntry.NuGetVersion)
+        (tagFromVersionNumber latestEntry.NuGetVersion)
         (latestEntry.SemVer.PreRelease
          <> None)
         (releaseNotes
@@ -413,34 +464,61 @@ let ``github release`` _ =
     |> GitHub.publishDraft
     |> Async.RunSynchronously
 
+let formatCode _ =
+    let result =
+        [ testsCodeGlob ]
+        |> Seq.collect id
+        // Ignore AssemblyInfo
+        |> Seq.filter (fun f ->
+            f.EndsWith("AssemblyInfo.fs")
+            |> not
+        )
+        |> String.concat " "
+        |> dotnet.fantomas
 
-let ``build docs`` _ = DocsTool.build ()
+    if not result.OK then
+        printfn "Errors while formatting all files: %A" result.Messages
 
-let ``watch docs`` _ = DocsTool.watch ()
+let checkFormatCode _ =
+    let result =
+        [ testsCodeGlob ]
+        |> Seq.collect id
+        // Ignore AssemblyInfo
+        |> Seq.filter (fun f ->
+            f.EndsWith("AssemblyInfo.fs")
+            |> not
+        )
+        |> String.concat " "
+        |> sprintf "%s --check"
+        |> dotnet.fantomas
 
-let ``release docs`` ctx =
-    isReleaseBranchCheck () // Docs changes don't need a full release to the library
+    if result.ExitCode = 0 then
+        Trace.log "No files need formatting"
+    elif result.ExitCode = 99 then
+        failwith "Some files need formatting, check output for more info"
+    else
+        Trace.logf "Errors while formatting: %A" result.Errors
 
-    Git.Staging.stageAll docsDir
-    Git.Commit.exec "" (sprintf "Documentation release of version %s" latestEntry.NuGetVersion)
+let cleanDocsCache _ = DocsTool.cleanDocsCache ()
 
-    if
-        isRelease (ctx.Context.AllExecutingTargets)
-        |> not
-    then
-        // We only want to push if we're only calling "ReleaseDocs" target
-        // If we're calling "Release" target, we'll let the "GitRelease" target do the git push
-        Git.Branches.push ""
+let buildDocs ctx =
+    let configuration = configuration (ctx.Context.AllExecutingTargets)
+    DocsTool.build (string configuration)
+
+let watchDocs ctx =
+    let configuration = configuration (ctx.Context.AllExecutingTargets)
+    DocsTool.watch (string configuration)
+
 
 let initTargets () =
     BuildServer.install [ GitHubActions.Installer ]
 
-    /// Defines a dependency - y is dependent on x
+    /// Defines a dependency - y is dependent on x. Finishes the chain.
     let (==>!) x y =
         x ==> y
         |> ignore
 
-    /// Defines a soft dependency. x must run before y, if it is present, but y does not require x to be run.
+    /// Defines a soft dependency. x must run before y, if it is present, but y does not require x to be run. Finishes the chain.
     let (?=>!) x y =
         x ?=> y
         |> ignore
@@ -452,69 +530,77 @@ let initTargets () =
     //-----------------------------------------------------------------------------
     // Target Declaration
     //-----------------------------------------------------------------------------
+
     Target.create "Clean" clean
-    Target.create "DotnetRestore" ``dotnet restore``
-    Target.create "UpdateChangelog" ``update changelog``
-    Target.createBuildFailure "RevertChangelog" ``revert changelog`` // Do NOT put this in the dependency chain
-    Target.createFinal "DeleteChangelogBackupFile" ``delete changelogBackupFile`` // Do NOT put this in the dependency chain
-    Target.create "DotnetPack" ``dotnet pack``
-    Target.create "IntegrationTests" ``integration tests``
-    Target.create "PublishToNuGet" publish
-    Target.create "GitRelease" ``git release``
-    Target.create "GitHubRelease" ``github release``
-    Target.create "Release" ignore
-    Target.create "BuildDocs" ``build docs``
-    Target.create "WatchDocs" ``watch docs``
-    Target.create "ReleaseDocs" ``release docs``
+    Target.create "DotnetRestore" dotnetRestore
+    Target.create "UpdateChangelog" updateChangelog
+    Target.createBuildFailure "RevertChangelog" revertChangelog // Do NOT put this in the dependency chain
+    Target.createFinal "DeleteChangelogBackupFile" deleteChangelogBackupFile // Do NOT put this in the dependency chain
+    Target.create "DotnetBuild" dotnetBuild
+    Target.create "IntegrationTests" integrationTests
+    Target.create "DotnetPack" dotnetPack
+    Target.create "PublishToNuGet" publishToNuget
+    Target.create "GitRelease" gitRelease
+    Target.create "GitHubRelease" githubRelease
     Target.create "FormatCode" formatCode
     Target.create "CheckFormatCode" checkFormatCode
+    Target.create "Release" ignore // For local
+    Target.create "Publish" ignore //For CI
+    Target.create "CleanDocsCache" cleanDocsCache
+    Target.create "BuildDocs" buildDocs
+    Target.create "WatchDocs" watchDocs
+
     //-----------------------------------------------------------------------------
     // Target Dependencies
     //-----------------------------------------------------------------------------
-    "DotnetPack"
-    ==>! "BuildDocs"
 
-    "BuildDocs"
-    ==>! "ReleaseDocs"
 
-    "BuildDocs"
-    ?=>! "PublishToNuGet"
+    // Only call Clean if DotnetPack was in the call chain
+    // Ensure Clean is called before DotnetRestore
+    "Clean"
+    ?=>! "DotnetRestore"
 
-    "IntegrationTests"
-    ?=>! "ReleaseDocs"
+    "Clean"
+    ==>! "DotnetPack"
 
-    "ReleaseDocs"
-    ?=>! "GitRelease"
-
-    "ReleaseDocs"
-    ==>! "Release"
-
-    // Only call UpdateChangelog if Publish was in the call chain
-    // Ensure UpdateChangelog is called after DotnetRestore and before GenerateAssemblyInfo
+    // Only call UpdateChangelog if GitRelease was in the call chain
+    // Ensure UpdateChangelog is called after DotnetRestore and before DotnetBuild
     "DotnetRestore"
     ?=>! "UpdateChangelog"
 
     "UpdateChangelog"
-    ?=>! "DotnetPack"
+    ?=>! "DotnetBuild"
+
+    "CleanDocsCache"
+    ==>! "BuildDocs"
+
+    "DotnetBuild"
+    ?=>! "BuildDocs"
+
+    "DotnetBuild"
+    ==>! "BuildDocs"
+
+
+    "DotnetBuild"
+    ==>! "WatchDocs"
 
     "UpdateChangelog"
-    ==>! "PublishToNuGet"
-
-    "Clean"
-    ==> "DotnetRestore"
-    ==> "DotnetPack"
-    =?> ("CheckFormatCode", isCI)
-    =?> ("IntegrationTests", isCI)
-    ==> "PublishToNuGet"
     ==> "GitRelease"
-    ==> "GithubRelease"
     ==>! "Release"
+
+    "DotnetRestore"
+    ==> "CheckFormatCode"
+    ==> "DotnetBuild"
+    ==> "DotnetPack"
+    ==> "IntegrationTests"
+    ==> "PublishToNuGet"
+    ==> "GithubRelease"
+    ==>! "Publish"
+
 
 //-----------------------------------------------------------------------------
 // Target Start
 //-----------------------------------------------------------------------------
-
-
 [<EntryPoint>]
 let main argv =
     argv
@@ -524,6 +610,6 @@ let main argv =
     |> Context.setExecutionContext
 
     initTargets ()
-    Target.runOrDefaultWithArguments (if isCI then "IntegrationTests" else "DotnetPack")
+    Target.runOrDefaultWithArguments (if isCI.Value then "IntegrationTests" else "DotnetPack")
 
     0 // return an integer exit code

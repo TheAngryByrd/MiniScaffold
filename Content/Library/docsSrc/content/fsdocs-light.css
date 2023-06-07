@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Hind+Vadodara&family=Roboto+Mono&display=swap');
+/*--------------------------------------------------------------------------
+  Formatting for page & standard document content
+/*--------------------------------------------------------------------------*/
+
+:root {
+    --fsdocs-text-color:#262626;
+    --fsdocs-pre-border-color: #d8d8d8;
+    --fsdocs-pre-border-color-top: #e3e3e3;
+    --fsdocs-pre-background-color: #f3f4f7;
+    --fsdocs-pre-color: #8e0e2b;
+    --fsdocs-table-pre-background-color: #fff7ed;
+    --fsdocs-table-pre-color: #837b79;
+
+    --fsdocs-code-strings-color: #dd1144;
+    --fsdocs-code-printf-color: #E0C57F;
+    --fsdocs-code-escaped-color: #EA8675;
+    --fsdocs-code-identifiers-color: var(--fsdocs-text-color);
+    --fsdocs-code-module-color: #009999;
+    --fsdocs-code-reference-color: #4974D1;
+    --fsdocs-code-value-color: #43AEC6;
+    --fsdocs-code-interface-color: #43AEC6;
+    --fsdocs-code-typearg-color: #43AEC6;
+    --fsdocs-code-disposable-color: #43AEC6;
+    --fsdocs-code-property-color: #43AEC6;
+    --fsdocs-code-punctuation-color: #43AEC6;
+    --fsdocs-code-punctuation2-color: #var(--fsdocs-text-color);
+    --fsdocs-code-function-color: #e1e1e1;
+    --fsdocs-code-function2-color: #990000;
+    --fsdocs-code-activepattern-color: #4ec9b0;
+    --fsdocs-code-unioncase-color: #4ec9b0;
+    --fsdocs-code-enumeration-color: #4ec9b0;
+    --fsdocs-code-keywords-color: #b68015;
+    --fsdocs-code-comment-color: #808080;
+    --fsdocs-code-operators-color: #af75c1;
+    --fsdocs-code-numbers-color: #009999;
+    --fsdocs-code-linenumbers-color: #80b0b0;
+    --fsdocs-code-mutable-color: #d1d1d1;
+    --fsdocs-code-inactive-color: #808080;
+    --fsdocs-code-preprocessor-color: #af75c1;
+    --fsdocs-code-fsioutput-color: #808080;
+    --fsdocs-code-tooltip-color: #d1d1d1;
+}
