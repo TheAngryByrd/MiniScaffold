@@ -28,11 +28,11 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           chmod +x ./build.sh
-          ./build.sh
+          ./build.sh IntegrationTests
         env:
           CI: true
       - name: Build via Windows
         if: runner.os == 'Windows'
-        run: ./build.cmd
+        run: ./build.cmd IntegrationTests
         env:
           CI: true

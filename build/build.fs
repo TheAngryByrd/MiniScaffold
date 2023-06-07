@@ -566,9 +566,7 @@ let initTargets () =
     // Only call UpdateChangelog if GitRelease was in the call chain
     // Ensure UpdateChangelog is called after DotnetRestore and before DotnetBuild
     "DotnetRestore"
-    ?=>! "UpdateChangelog"
-
-    "UpdateChangelog"
+    ?=> "UpdateChangelog"
     ?=>! "DotnetBuild"
 
     "CleanDocsCache"
@@ -580,7 +578,6 @@ let initTargets () =
     "DotnetBuild"
     ==>! "BuildDocs"
 
-
     "DotnetBuild"
     ==>! "WatchDocs"
 
@@ -591,8 +588,12 @@ let initTargets () =
     "DotnetRestore"
     ==> "CheckFormatCode"
     ==> "DotnetBuild"
-    ==> "DotnetPack"
-    ==> "IntegrationTests"
+    ==>! "DotnetPack"
+
+    "DotnetPack"
+    ==>! "IntegrationTests"
+
+    "DotnetPack"
     ==> "PublishToNuGet"
     ==> "GithubRelease"
     ==>! "Publish"
@@ -610,6 +611,6 @@ let main argv =
     |> Context.setExecutionContext
 
     initTargets ()
-    Target.runOrDefaultWithArguments (if isCI.Value then "IntegrationTests" else "DotnetPack")
+    Target.runOrDefaultWithArguments ("DotnetPack")
 
     0 // return an integer exit code
