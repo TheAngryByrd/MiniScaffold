@@ -10,6 +10,7 @@ jobs:
   build:
     environment:
       name: nuget
+      url: https://www.nuget.org/packages/MiniScaffold/${{ github.ref_name }}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
