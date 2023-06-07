@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set Versions
-        uses: actions/github-script@v4
+        uses: actions/github-script@v6
         id: set_version
         with:
           script: |
@@ -24,6 +24,7 @@ jobs:
             core.setOutput('no-dash', no_dash)
 
   build:
+    needs: set_version
     environment:
       name: nuget
       url: https://www.nuget.org/packages/MiniScaffold/${{ needs.set_version.outputs.no-v }}
