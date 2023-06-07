@@ -1,4 +1,4 @@
-name: .NET Publish
+name: Publish NuGet package
 
 on:
   push:
@@ -8,6 +8,8 @@ env:
   CONFIGURATION: Release
 jobs:
   build:
+    environment:
+      name: nuget
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
