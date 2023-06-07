@@ -22,6 +22,10 @@ jobs:
             core.setOutput('tag', tag)
             core.setOutput('no-v', no_v)
             core.setOutput('no-dash', no_dash)
+    outputs:
+      tag: ${{ steps.set_version.outputs.tag }}
+      no-v: ${{ steps.set_version.outputs.no-v }}
+      no-dash: ${{ steps.set_version.outputs.no-dash }}
 
   build:
     needs: set_version
