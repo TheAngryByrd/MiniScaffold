@@ -289,6 +289,10 @@ let failOnLocalBuild () =
     if not isCI.Value then
         failwith "Not on CI. If you want to publish, please use CI."
 
+let failOnCIBuild () =
+    if isCI.Value then
+        failwith "On CI. If you want to run this target, please use a local build."
+
 let allPublishChecks () =
     failOnLocalBuild ()
     Changelog.failOnEmptyChangelog latestEntry
@@ -452,6 +456,15 @@ let generateCoverageReport _ =
         |> String.concat " "
 
     dotnet.reportgenerator id args
+
+let showCoverageReport _ =
+    failOnCIBuild ()
+    coverageReportDir </> "index.html"
+    |> Command.ShellCommand
+    |> CreateProcess.fromCommand
+    |> Proc.start
+    |> ignore
+
 
 let watchTests _ =
     !!testsGlob
@@ -718,6 +731,7 @@ let initTargets () =
     Target.create "FSharpAnalyzers" fsharpAnalyzers
     Target.create "DotnetTest" dotnetTest
     Target.create "GenerateCoverageReport" generateCoverageReport
+    Target.create "ShowCoverageReport" showCoverageReport
     Target.create "WatchTests" watchTests
     Target.create "GenerateAssemblyInfo" generateAssemblyInfo
     Target.create "DotnetPack" dotnetPack
@@ -775,7 +789,8 @@ let initTargets () =
     ==>! "WatchDocs"
 
     "DotnetTest"
-    ==>! "GenerateCoverageReport"
+    ==> "GenerateCoverageReport"
+    ==>! "ShowCoverageReport"
 
     "UpdateChangelog"
     ==> "GenerateAssemblyInfo"
