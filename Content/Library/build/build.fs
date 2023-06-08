@@ -131,7 +131,7 @@ let mutable changelogBackupFilename = ""
 
 let publishUrl = "https://www.nuget.org"
 
-let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
+let enableCodeCoverage = environVarAsBoolOrDefault "ENABLE_COVERAGE" false
 
 let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
 
@@ -411,7 +411,7 @@ let dotnetTest ctx =
 
     let args = [
         "--no-build"
-        if not disableCodeCoverage || isGenerateCoverageReport then
+        if enableCodeCoverage || isGenerateCoverageReport then
             sprintf "/p:AltCover=true"
             if not isGenerateCoverageReport then
                 sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
