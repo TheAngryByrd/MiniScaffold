@@ -529,7 +529,7 @@ let generateAssemblyInfo _ =
          IO.Path.GetDirectoryName(projectPath),
          (getAssemblyInfoAttributes projectName))
 
-    srcAndTest
+    !!srcGlob
     |> Seq.map getProjectDetails
     |> Seq.iter (fun (projFileName, _, folderName, attributes) ->
         match projFileName with

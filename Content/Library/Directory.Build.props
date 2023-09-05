@@ -9,6 +9,9 @@
         <Authors>MyGithubUsername</Authors>
         <RepositoryUrl>https://github.com/MyGithubUsername/MyLib.1</RepositoryUrl>
     </PropertyGroup>
+    <PropertyGroup>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    </PropertyGroup>
     <ItemGroup>
         <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/"/>    
         <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Pack="true" PackagePath="/"/>    

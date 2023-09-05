@@ -3,14 +3,12 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net6.0</TargetFramework>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <GenerateProgramFile>false</GenerateProgramFile>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="../../src/MyLib.1/MyLib.1.fsproj" />
     </ItemGroup>
         <ItemGroup>
-        <Compile Include="AssemblyInfo.fs" />
         <Compile Include="Tests.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>

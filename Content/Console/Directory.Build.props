@@ -10,4 +10,7 @@
         <RepositoryUrl>https://github.com/MyGithubUsername/MyLib.1</RepositoryUrl>
         <!-- owners is not supported in MSBuild -->
     </PropertyGroup>
+    <PropertyGroup>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    </PropertyGroup>
 </Project>
