@@ -9,7 +9,6 @@
         <ProjectReference Include="../../src/MyLib.1/MyLib.1.fsproj" />
     </ItemGroup>
         <ItemGroup>
-        <Compile Include="AssemblyInfo.fs" />
         <Compile Include="Tests.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
