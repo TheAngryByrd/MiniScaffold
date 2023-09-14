@@ -683,19 +683,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.34.1...HEAD
-[0.34.1]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.34.0...v0.34.1
-[0.34.0]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.33.0...v0.34.0
-[0.33.0]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.32.0...v0.33.0
-[0.33.0-alpha009]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.32.0...v0.33.0-alpha009
-[0.33.0-alpha008]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.32.0...v0.33.0-alpha008
-[0.33.0-alpha007]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.32.0...v0.33.0-alpha007
-[0.33.0-alpha006]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.32.0...v0.33.0-alpha006
-[0.33.0-alpha005]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.32.0...v0.33.0-alpha005
-[0.33.0-alpha004]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.32.0...v0.33.0-alpha004
-[0.33.0-alpha003]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.32.0...v0.33.0-alpha003
-[0.33.0-alpha002]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.32.0...v0.33.0-alpha002
-[0.33.0-alpha001]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.32.0...v0.33.0-alpha001
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.34.1...HEAD
+[0.34.1]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.34.0...v0.34.1
+[0.34.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.33.0...v0.34.0
+[0.33.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.32.0...v0.33.0
+[0.33.0-alpha009]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.32.0...v0.33.0-alpha009
+[0.33.0-alpha008]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.32.0...v0.33.0-alpha008
+[0.33.0-alpha007]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.32.0...v0.33.0-alpha007
+[0.33.0-alpha006]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.32.0...v0.33.0-alpha006
+[0.33.0-alpha005]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.32.0...v0.33.0-alpha005
+[0.33.0-alpha004]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.32.0...v0.33.0-alpha004
+[0.33.0-alpha003]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.32.0...v0.33.0-alpha003
+[0.33.0-alpha002]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.32.0...v0.33.0-alpha002
+[0.33.0-alpha001]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.32.0...v0.33.0-alpha001
 [0.32.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.31.1...0.32.0
 [0.32.0-beta001]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.31.1...0.32.0-beta001
 [0.31.1]: https://github.com/TheAngryByrd/MiniScaffold/compare/0.31.0...0.31.1

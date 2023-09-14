@@ -104,9 +104,9 @@ let watchDocsDir =
 let gitOwner = "MyGithubUsername"
 let gitRepoName = "MyLib.1"
 
-let gitHubRepoUrl = sprintf "https://github.com/%s/%s/" gitOwner gitRepoName
+let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
 
-let documentationUrl = sprintf "https://%s.github.io/%s/" gitOwner gitRepoName
+let documentationRootUrl = sprintf "https://%s.github.io/%s/" gitOwner gitRepoName
 
 let releaseBranch = "MyReleaseBranch"
 let readme = "README.md"
@@ -244,7 +244,7 @@ module DocsTool =
             Parameters =
                 Some [
                     // https://fsprojects.github.io/FSharp.Formatting/content.html#Templates-and-Substitutions
-                    "root", quoted documentationUrl
+                    "root", quoted documentationRootUrl
                     "fsdocs-collection-name", quoted productName
                     "fsdocs-repository-branch", quoted releaseBranch
                     "fsdocs-package-version", quoted latestEntry.NuGetVersion

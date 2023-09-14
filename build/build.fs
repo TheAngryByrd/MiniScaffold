@@ -88,9 +88,9 @@ let watchDocsDir =
 let gitOwner = "TheAngryByrd"
 let gitRepoName = "MiniScaffold"
 
-let gitHubRepoUrl = sprintf "https://github.com/%s/%s/" gitOwner gitRepoName
+let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
 
-let documentationUrl = "https://www.jimmybyrd.me/MiniScaffold/"
+let documentationRootUrl = "https://www.jimmybyrd.me/MiniScaffold/"
 
 let releaseBranch = "master"
 let readme = "README.md"
@@ -211,7 +211,7 @@ module DocsTool =
             Parameters =
                 Some [
                     // https://fsprojects.github.io/FSharp.Formatting/content.html#Templates-and-Substitutions
-                    "root", quoted documentationUrl
+                    "root", quoted documentationRootUrl
                     "fsdocs-collection-name", quoted productName
                     "fsdocs-repository-branch", quoted releaseBranch
                     "fsdocs-repository-link", quoted (gitHubRepoUrl)
