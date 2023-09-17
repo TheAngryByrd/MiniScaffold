@@ -7,6 +7,7 @@ See https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-director
   <PropertyGroup>
     <_DotnetToolManifestFile>$(MSBuildThisFileDirectory).config\dotnet-tools.json</_DotnetToolManifestFile>
     <_DotnetToolRestoreOutputFile>$(MSBuildThisFileDirectory)build\obj\dotnet-tool-restore-$(NETCoreSdkVersion)</_DotnetToolRestoreOutputFile>
+    <_DotnetFantomasOutputFile>$(BaseIntermediateOutputPath)dotnet-fantomas-msbuild</_DotnetFantomasOutputFile>
   </PropertyGroup>
 
   <!-- Make sure that dotnet tools (including paket) are restored before restoring any project -->
@@ -14,5 +15,12 @@ See https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-director
     <Exec Command="dotnet tool restore" WorkingDirectory="$(MSBuildThisFileDirectory)" StandardOutputImportance="High" StandardErrorImportance="High" />
     <Touch Files="$(_DotnetToolRestoreOutputFile)" AlwaysCreate="True" ForceTouch="True" />
   </Target>
+
+  <!-- Make sure that files are formatted before building -->
+  <Target Name="Format" BeforeTargets="BeforeBuild" Inputs="@(Compile)" Outputs="$(_DotnetFantomasOutputFile)" >
+    <Exec Command="dotnet fantomas ." StandardOutputImportance="High" StandardErrorImportance="High" />
+    <Touch Files="$(_DotnetFantomasOutputFile)" AlwaysCreate="True" ForceTouch="True" />
+  </Target>
+
 
 </Project>

@@ -170,7 +170,7 @@ let failOnBadExitAndPrint (p: ProcessResult) =
 
 let isCI = lazy environVarAsBoolOrDefault "CI" false
 
-// CI Servers can have bizzare failures that have nothing to do with your code
+// CI Servers can have bizarre failures that have nothing to do with your code
 let rec retryIfInCI times fn =
     match isCI.Value with
     | true ->
@@ -228,13 +228,13 @@ module FSharpAnalyzers =
 module DocsTool =
     let quoted s = $"\"%s{s}\""
 
-    let fsDocsDotnetOptions (o: DotNet.Options) =
-        { o with
+    let fsDocsDotnetOptions (o: DotNet.Options) = {
+        o with
             WorkingDirectory = rootDirectory
-        }
+    }
 
-    let fsDocsBuildParams configuration (p: Fsdocs.BuildCommandParams) =
-        { p with
+    let fsDocsBuildParams configuration (p: Fsdocs.BuildCommandParams) = {
+        p with
             Clean = Some true
             Input = Some(quoted docsSrcDir)
             Output = Some(quoted docsDir)
@@ -252,7 +252,7 @@ module DocsTool =
                     "fsdocs-release-notes-link", quoted (CHANGELOGlink.ToString())
                 ]
             Strict = Some true
-        }
+    }
 
 
     let cleanDocsCache () = Fsdocs.cleanCache rootDirectory
@@ -267,18 +267,18 @@ module DocsTool =
                 Option.defaultValue Fsdocs.BuildCommandParams.Default bp
                 |> fsDocsBuildParams configuration
 
-            { bp with
-                Output = Some watchDocsDir
-                Strict = None
+            {
+                bp with
+                    Output = Some watchDocsDir
+                    Strict = None
             }
 
         Fsdocs.watch
             fsDocsDotnetOptions
-            (fun p ->
-                { p with
+            (fun p -> {
+                p with
                     BuildCommandParams = Some(buildParams p.BuildCommandParams)
-                }
-            )
+            })
 
 let allReleaseChecks () =
     failOnWrongBranch ()
@@ -337,13 +337,12 @@ let dotnetRestore _ =
                 |> String.concat " "
 
             DotNet.restore
-                (fun c ->
-                    { c with
+                (fun c -> {
+                    c with
                         Common =
                             c.Common
                             |> DotNet.Options.withCustomParams (Some(args))
-                    }
-                )
+                })
                 dir
     )
     |> Seq.iter (retryIfInCI 10)
@@ -368,15 +367,14 @@ let dotnetBuild ctx =
     ]
 
     DotNet.build
-        (fun c ->
-            { c with
+        (fun c -> {
+            c with
                 Configuration = configuration (ctx.Context.AllExecutingTargets)
                 Common =
                     c.Common
                     |> DotNet.Options.withAdditionalArgs args
 
-            }
-        )
+        })
         sln
 
 let fsharpAnalyzers _ =
@@ -407,14 +405,20 @@ let dotnetTest ctx =
         |> Seq.map IO.Path.GetFileNameWithoutExtension
         |> String.concat "|"
 
-    let isGenerateCoverageReport = ctx.Context.TryFindTarget("GenerateCoverageReport").IsSome
+    let isGenerateCoverageReport =
+        ctx.Context.TryFindTarget("GenerateCoverageReport").IsSome
 
     let args = [
         "--no-build"
-        if enableCodeCoverage || isGenerateCoverageReport then
+        if
+            enableCodeCoverage
+            || isGenerateCoverageReport
+        then
             sprintf "/p:AltCover=true"
+
             if not isGenerateCoverageReport then
                 sprintf "/p:AltCoverThreshold=%d" coverageThresholdPercent
+
             sprintf "/p:AltCoverAssemblyExcludeFilter=%s" excludeCoverage
             "/p:AltCoverLocalSource=true"
     ]
@@ -422,13 +426,13 @@ let dotnetTest ctx =
     DotNet.test
         (fun c ->
 
-            { c with
-                Configuration = configuration (ctx.Context.AllExecutingTargets)
-                Common =
-                    c.Common
-                    |> DotNet.Options.withAdditionalArgs args
-            }
-        )
+            {
+                c with
+                    Configuration = configuration (ctx.Context.AllExecutingTargets)
+                    Common =
+                        c.Common
+                        |> DotNet.Options.withAdditionalArgs args
+            })
         sln
 
 let generateCoverageReport _ =
@@ -459,7 +463,9 @@ let generateCoverageReport _ =
 
 let showCoverageReport _ =
     failOnCIBuild ()
-    coverageReportDir </> "index.html"
+
+    coverageReportDir
+    </> "index.html"
     |> Command.ShellCommand
     |> CreateProcess.fromCommand
     |> Proc.start
@@ -554,8 +560,7 @@ let generateAssemblyInfo _ =
 
 let dotnetPack ctx =
     // Get release notes with properly-linked version number
-    let releaseNotes =
-        Changelog.mkReleaseNotes changelog latestEntry gitHubRepoUrl
+    let releaseNotes = Changelog.mkReleaseNotes changelog latestEntry gitHubRepoUrl
 
     let args = [
         $"/p:PackageVersion={latestEntry.NuGetVersion}"
@@ -563,15 +568,14 @@ let dotnetPack ctx =
     ]
 
     DotNet.pack
-        (fun c ->
-            { c with
+        (fun c -> {
+            c with
                 Configuration = configuration (ctx.Context.AllExecutingTargets)
                 OutputPath = Some distDir
                 Common =
                     c.Common
                     |> DotNet.Options.withAdditionalArgs args
-            }
-        )
+        })
         sln
 
 let sourceLinkTest _ =
@@ -581,8 +585,8 @@ let sourceLinkTest _ =
 let publishToNuget _ =
     allPublishChecks ()
 
-    Paket.push (fun c ->
-        { c with
+    Paket.push (fun c -> {
+        c with
             ToolType = ToolType.CreateLocalTool()
             PublishUrl = publishUrl
             WorkingDir = "dist"
@@ -590,8 +594,7 @@ let publishToNuget _ =
                 match nugetToken with
                 | Some s -> s
                 | _ -> c.ApiKey // assume paket-config was set properly
-        }
-    )
+    })
 
 let gitRelease _ =
     allReleaseChecks ()
@@ -601,14 +604,18 @@ let gitRelease _ =
     Git.Staging.stageFile "" "CHANGELOG.md"
     |> ignore
 
-    !!(rootDirectory </> "src/**/AssemblyInfo.fs")
-    ++ (rootDirectory </> "tests/**/AssemblyInfo.fs")
+    !!(rootDirectory
+       </> "src/**/AssemblyInfo.fs")
+    ++ (rootDirectory
+        </> "tests/**/AssemblyInfo.fs")
     |> Seq.iter (
         Git.Staging.stageFile ""
         >> ignore
     )
 
-    let msg = sprintf "Bump version to %s\n\n%s" latestEntry.NuGetVersion releaseNotesGitCommitFormat
+    let msg =
+        sprintf "Bump version to %s\n\n%s" latestEntry.NuGetVersion releaseNotesGitCommitFormat
+
     Git.Commit.exec "" msg
 
     Target.deactivateBuildFailure "RevertChangelog"
@@ -633,8 +640,7 @@ let githubRelease _ =
     let files = !!distGlob
     // Get release notes with properly-linked version number
 
-    let releaseNotes =
-        Changelog.mkReleaseNotes changelog latestEntry gitHubRepoUrl
+    let releaseNotes = Changelog.mkReleaseNotes changelog latestEntry gitHubRepoUrl
 
     GitHub.createClientWithToken token
     |> GitHub.draftNewRelease
@@ -650,45 +656,24 @@ let githubRelease _ =
     |> Async.RunSynchronously
 
 let formatCode _ =
-    let result =
-        [
-            srcCodeGlob
-            testsCodeGlob
-        ]
-        |> Seq.collect id
-        // Ignore AssemblyInfo
-        |> Seq.filter (fun f ->
-            f.EndsWith("AssemblyInfo.fs")
-            |> not
-        )
-        |> String.concat " "
-        |> dotnet.fantomas
+    let result = dotnet.fantomas $"{rootDirectory}"
 
     if not result.OK then
         printfn "Errors while formatting all files: %A" result.Messages
 
-let checkFormatCode _ =
-    let result =
-        [
-            srcCodeGlob
-            testsCodeGlob
-        ]
-        |> Seq.collect id
-        // Ignore AssemblyInfo
-        |> Seq.filter (fun f ->
-            f.EndsWith("AssemblyInfo.fs")
-            |> not
-        )
-        |> String.concat " "
-        |> sprintf "%s --check"
-        |> dotnet.fantomas
+let checkFormatCode ctx =
+    if isCI.Value then
+        let result = dotnet.fantomas $"{rootDirectory} --check"
 
-    if result.ExitCode = 0 then
-        Trace.log "No files need formatting"
-    elif result.ExitCode = 99 then
-        failwith "Some files need formatting, check output for more info"
+        if result.ExitCode = 0 then
+            Trace.log "No files need formatting"
+        elif result.ExitCode = 99 then
+            failwith "Some files need formatting, check output for more info"
+        else
+            Trace.logf "Errors while formatting: %A" result.Errors
     else
-        Trace.logf "Errors while formatting: %A" result.Errors
+        // Only verify in CI, otherwise format all files
+        formatCode ctx
 
 let cleanDocsCache _ = DocsTool.cleanDocsCache ()
 
