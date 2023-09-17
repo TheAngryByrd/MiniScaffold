@@ -1,0 +1,18 @@
+<!--
+This file allows overriding of properties for all projects in the directory.
+See https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory?view=vs-2022#directorybuildprops-and-directorybuildtargets
+-->
+<Project>
+
+  <PropertyGroup>
+    <_DotnetToolManifestFile>$(MSBuildThisFileDirectory).config\dotnet-tools.json</_DotnetToolManifestFile>
+    <_DotnetToolRestoreOutputFile>$(MSBuildThisFileDirectory)build\obj\dotnet-tool-restore-$(NETCoreSdkVersion)</_DotnetToolRestoreOutputFile>
+  </PropertyGroup>
+
+  <!-- Make sure that dotnet tools (including paket) are restored before restoring any project -->
+  <Target Name="ToolRestore" BeforeTargets="Restore;CollectPackageReferences" Inputs="$(_DotnetToolManifestFile)" Outputs="$(_DotnetToolRestoreOutputFile)">
+    <Exec Command="dotnet tool restore" WorkingDirectory="$(MSBuildThisFileDirectory)" StandardOutputImportance="High" StandardErrorImportance="High" />
+    <Touch Files="$(_DotnetToolRestoreOutputFile)" AlwaysCreate="True" ForceTouch="True" />
+  </Target>
+
+</Project>

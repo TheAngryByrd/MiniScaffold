@@ -1,3 +1,9 @@
+
+<!--
+This file allows overriding of properties for all projects in the directory.
+See https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory?view=vs-2022#directorybuildprops-and-directorybuildtargets
+ -->
+
 <Project>
     <PropertyGroup>
         <PackageTags>f#, fsharp</PackageTags>
@@ -13,7 +19,7 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
     <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/"/>    
-        <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Pack="true" PackagePath="/"/>    
+        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/"/>
+        <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Pack="true" PackagePath="/"/>
     </ItemGroup>
 </Project>
