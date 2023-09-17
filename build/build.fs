@@ -465,32 +465,13 @@ let githubRelease _ =
     |> Async.RunSynchronously
 
 let formatCode _ =
-    let result =
-        [ testsCodeGlob ]
-        |> Seq.collect id
-        // Ignore AssemblyInfo
-        |> Seq.filter (fun f ->
-            f.EndsWith("AssemblyInfo.fs")
-            |> not
-        )
-        |> String.concat " "
-        |> dotnet.fantomas
+    let result = dotnet.fantomas $"{rootDirectory}"
 
     if not result.OK then
         printfn "Errors while formatting all files: %A" result.Messages
 
-let checkFormatCode _ =
-    let result =
-        [ testsCodeGlob ]
-        |> Seq.collect id
-        // Ignore AssemblyInfo
-        |> Seq.filter (fun f ->
-            f.EndsWith("AssemblyInfo.fs")
-            |> not
-        )
-        |> String.concat " "
-        |> sprintf "%s --check"
-        |> dotnet.fantomas
+let checkFormatCode ctx =
+    let result = dotnet.fantomas $"{rootDirectory} --check"
 
     if result.ExitCode = 0 then
         Trace.log "No files need formatting"
@@ -498,6 +479,7 @@ let checkFormatCode _ =
         failwith "Some files need formatting, check output for more info"
     else
         Trace.logf "Errors while formatting: %A" result.Errors
+
 
 let cleanDocsCache _ = DocsTool.cleanDocsCache ()
 
@@ -586,7 +568,7 @@ let initTargets () =
     ==>! "Release"
 
     "DotnetRestore"
-    ==> "CheckFormatCode"
+    =?> ("CheckFormatCode", isCI.Value)
     ==> "DotnetBuild"
     ==>! "DotnetPack"
 

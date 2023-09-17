@@ -29,11 +29,19 @@ let environVarAsBoolOrDefault varName defaultValue =
     with _ ->
         defaultValue
 
+
+let isCI = lazy environVarAsBoolOrDefault "CI" false
+
 //-----------------------------------------------------------------------------
 // Metadata and Configuration
 //-----------------------------------------------------------------------------
 
 let productName = "MyLib.1"
+
+
+let rootDirectory =
+    __SOURCE_DIRECTORY__
+    </> ".."
 
 let sln =
     __SOURCE_DIRECTORY__
@@ -175,8 +183,7 @@ let failOnBadExitAndPrint (p: ProcessResult) =
         failwithf "failed with exitcode %d" p.ExitCode
 
 let rec retryIfInCI times fn =
-    match Environment.environVarOrNone "CI" with
-    | Some _ ->
+    if isCI.Value then
         if times > 1 then
             try
                 fn ()
@@ -184,7 +191,8 @@ let rec retryIfInCI times fn =
                 retryIfInCI (times - 1) fn
         else
             fn ()
-    | _ -> fn ()
+    else
+        fn ()
 
 
 let allReleaseChecks () =
@@ -544,14 +552,15 @@ let githubRelease _ =
     |> GitHub.publishDraft
     |> Async.RunSynchronously
 
+
 let formatCode _ =
-    let result = dotnet.fantomas "."
+    let result = dotnet.fantomas $"{rootDirectory}"
 
     if not result.OK then
         printfn "Errors while formatting all files: %A" result.Messages
 
-let checkFormatCode _ =
-    let result = dotnet.fantomas "--check ."
+let checkFormatCode ctx =
+    let result = dotnet.fantomas $"{rootDirectory} --check"
 
     if result.ExitCode = 0 then
         Trace.log "No files need formatting"
@@ -559,6 +568,7 @@ let checkFormatCode _ =
         failwith "Some files need formatting, check output for more info"
     else
         Trace.logf "Errors while formatting: %A" result.Errors
+
 
 let initTargets () =
     BuildServer.install [ GitHubActions.Installer ]
@@ -635,7 +645,7 @@ let initTargets () =
     ==>! "GitRelease"
 
     "DotnetRestore"
-    ==> "CheckFormatCode"
+    =?> ("CheckFormatCode", isCI.Value)
     ==> "DotnetBuild"
     // ==> "FSharpAnalyzers"
     ==> "DotnetTest"

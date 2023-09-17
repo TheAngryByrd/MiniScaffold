@@ -1,6 +1,10 @@
+<!--
+This file allows overriding of properties for all projects in the directory.
+See https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory?view=vs-2022#directorybuildprops-and-directorybuildtargets
+-->
+
 <Project>
     <PropertyGroup>
-        <!-- summary is not migrated from project.json, but you can use the <Description> property for that if needed. -->
         <PackageTags>f#, fsharp</PackageTags>
         <PackageProjectUrl>https://github.com/MyGithubUsername/MyLib.1</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/MyGithubUsername/MyLib.1/blob/master/LICENSE.md</PackageLicenseUrl>
@@ -8,7 +12,6 @@
         <RepositoryType>git</RepositoryType>
         <Authors>MyGithubUsername</Authors>
         <RepositoryUrl>https://github.com/MyGithubUsername/MyLib.1</RepositoryUrl>
-        <!-- owners is not supported in MSBuild -->
     </PropertyGroup>
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>

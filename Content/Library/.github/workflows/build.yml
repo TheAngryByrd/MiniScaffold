@@ -12,6 +12,7 @@ jobs:
   build:
     strategy:
       matrix:
+        configuration: [Debug, Release]
         os: [ubuntu-latest, windows-latest, macOS-latest]
     runs-on: ${{ matrix.os }}
 
@@ -23,6 +24,7 @@ jobs:
           global-json-file: global.json
           dotnet-version: |
             6.x
+            7.x
 
       - name: Build via Bash
         if: runner.os != 'Windows'
@@ -31,10 +33,12 @@ jobs:
           ./build.sh
         env:
           CI: true
+          CONFIGURATION: ${{ matrix.configuration }}
           ENABLE_COVERAGE: true
       - name: Build via Windows
         if: runner.os == 'Windows'
         run: ./build.cmd
         env:
           CI: true
+          CONFIGURATION: ${{ matrix.configuration }}
           ENABLE_COVERAGE: true

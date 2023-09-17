@@ -15,71 +15,70 @@ module Fsdocs =
     /// <summary>
     /// Fsdocs build command parameters and options
     /// </summary>
-    type BuildCommandParams =
-        {
-            /// Input directory of content (default: docs)
-            Input: string option
+    type BuildCommandParams = {
+        /// Input directory of content (default: docs)
+        Input: string option
 
-            /// Project files to build API docs for outputs, defaults to all packable projects
-            Projects: seq<string> option
+        /// Project files to build API docs for outputs, defaults to all packable projects
+        Projects: seq<string> option
 
-            /// Output Directory (default <c>output</c> for <c>build</c> and <c>tmp/watch</c> for <c>watch</c>)
-            Output: string option
+        /// Output Directory (default <c>output</c> for <c>build</c> and <c>tmp/watch</c> for <c>watch</c>)
+        Output: string option
 
-            /// Disable generation of API docs
-            NoApiDocs: bool option
+        /// Disable generation of API docs
+        NoApiDocs: bool option
 
-            /// Evaluate F# fragments in scripts
-            Eval: bool option
+        /// Evaluate F# fragments in scripts
+        Eval: bool option
 
-            /// Save images referenced in docs
-            SaveImages: bool option
+        /// Save images referenced in docs
+        SaveImages: bool option
 
-            /// Add line numbers
-            LineNumbers: bool option
+        /// Add line numbers
+        LineNumbers: bool option
 
-            /// Additional substitution parameters for templates
-            Parameters: seq<string * string> option
+        /// Additional substitution parameters for templates
+        Parameters: seq<string * string> option
 
-            /// Disable project cracking.
-            IgnoreProjects: bool option
+        /// Disable project cracking.
+        IgnoreProjects: bool option
 
-            ///  In API doc generation qualify the output by the collection name, e.g. 'reference/FSharp.Core/...' instead of 'reference/...' .
-            Qualify: bool option
+        ///  In API doc generation qualify the output by the collection name, e.g. 'reference/FSharp.Core/...' instead of 'reference/...' .
+        Qualify: bool option
 
-            /// The tool will also generate documentation for non-public members
-            NoPublic: bool option
+        /// The tool will also generate documentation for non-public members
+        NoPublic: bool option
 
-            /// Do not copy default content styles, javascript or use default templates
-            NoDefaultContent: bool option
+        /// Do not copy default content styles, javascript or use default templates
+        NoDefaultContent: bool option
 
-            /// Clean the output directory
-            Clean: bool option
+        /// Clean the output directory
+        Clean: bool option
 
-            /// Display version information
-            Version: bool option
+        /// Display version information
+        Version: bool option
 
-            /// Provide properties to dotnet msbuild, e.g. <c>--properties Configuration=Release Version=3.4</c>
-            Properties: string option
+        /// Provide properties to dotnet msbuild, e.g. <c>--properties Configuration=Release Version=3.4</c>
+        Properties: string option
 
-            /// Additional arguments passed down as otherflags to the F# compiler when the API is being generated.
-            /// Note that these arguments are trimmed, this is to overcome a limitation in the command line argument
-            /// processing. A typical use-case would be to pass an addition assembly reference.
-            /// Example <c>--fscoptions " -r:MyAssembly.dll"</c>
-            FscOptions: string option
+        /// Additional arguments passed down as otherflags to the F# compiler when the API is being generated.
+        /// Note that these arguments are trimmed, this is to overcome a limitation in the command line argument
+        /// processing. A typical use-case would be to pass an addition assembly reference.
+        /// Example <c>--fscoptions " -r:MyAssembly.dll"</c>
+        FscOptions: string option
 
-            /// Fail if docs are missing or can't be generated
-            Strict: bool option
+        /// Fail if docs are missing or can't be generated
+        Strict: bool option
 
-            /// Source folder at time of component build (<c>&lt;FsDocsSourceFolder&gt;</c>)
-            SourceFolder: string option
+        /// Source folder at time of component build (<c>&lt;FsDocsSourceFolder&gt;</c>)
+        SourceFolder: string option
 
-            /// Source repository for github links (<c>&lt;FsDocsSourceRepository&gt;</c>)
-            SourceRepository: string option
+        /// Source repository for github links (<c>&lt;FsDocsSourceRepository&gt;</c>)
+        SourceRepository: string option
 
-            /// Assume comments in F# code are markdown (<c>&lt;UsesMarkdownComments&gt;</c>)
-            MdComments: bool option
-        }
+        /// Assume comments in F# code are markdown (<c>&lt;UsesMarkdownComments&gt;</c>)
+        MdComments: bool option
+    } with
 
         /// Parameter default values.
         static member Default = {
@@ -108,23 +107,22 @@ module Fsdocs =
     /// <summary>
     /// Fsdocs watch command parameters and options
     /// </summary>
-    type WatchCommandParams =
-        {
-            /// Do not serve content when watching.
-            NoServer: bool option
+    type WatchCommandParams = {
+        /// Do not serve content when watching.
+        NoServer: bool option
 
-            /// Do not launch a browser window.
-            NoLaunch: bool option
+        /// Do not launch a browser window.
+        NoLaunch: bool option
 
-            /// URL extension to launch <c>http://localhost:/%s</c>.
-            Open: string option
+        /// URL extension to launch <c>http://localhost:/%s</c>.
+        Open: string option
 
-            /// Port to serve content for <c>http://localhost</c> serving.
-            Port: int option
+        /// Port to serve content for <c>http://localhost</c> serving.
+        Port: int option
 
-            /// Build Commands
-            BuildCommandParams: BuildCommandParams option
-        }
+        /// Build Commands
+        BuildCommandParams: BuildCommandParams option
+    } with
 
         /// Parameter default values.
         static member Default = {
