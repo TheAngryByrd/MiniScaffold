@@ -560,18 +560,15 @@ let formatCode _ =
         printfn "Errors while formatting all files: %A" result.Messages
 
 let checkFormatCode ctx =
-    if isCI.Value then
-        let result = dotnet.fantomas $"{rootDirectory} --check"
+    let result = dotnet.fantomas $"{rootDirectory} --check"
 
-        if result.ExitCode = 0 then
-            Trace.log "No files need formatting"
-        elif result.ExitCode = 99 then
-            failwith "Some files need formatting, check output for more info"
-        else
-            Trace.logf "Errors while formatting: %A" result.Errors
+    if result.ExitCode = 0 then
+        Trace.log "No files need formatting"
+    elif result.ExitCode = 99 then
+        failwith "Some files need formatting, check output for more info"
     else
-        // Only verify in CI, otherwise format all files
-        formatCode ctx
+        Trace.logf "Errors while formatting: %A" result.Errors
+
 
 let initTargets () =
     BuildServer.install [ GitHubActions.Installer ]
@@ -648,7 +645,7 @@ let initTargets () =
     ==>! "GitRelease"
 
     "DotnetRestore"
-    ==> "CheckFormatCode"
+    =?> ("CheckFormatCode", isCI.Value)
     ==> "DotnetBuild"
     // ==> "FSharpAnalyzers"
     ==> "DotnetTest"
