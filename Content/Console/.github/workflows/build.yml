@@ -29,6 +29,7 @@ jobs:
         with:
           dotnet-version: |
             6.x
+            7.x
           global-json-file: global.json
 
       - name: Build
