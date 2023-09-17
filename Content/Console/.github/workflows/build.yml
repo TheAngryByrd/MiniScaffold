@@ -17,6 +17,7 @@ jobs:
   build:
     strategy:
       matrix:
+        configuration: [Debug, Release]
         os: [ubuntu-latest, windows-latest, macOS-latest]
     runs-on: ${{ matrix.os }}
 
@@ -40,6 +41,7 @@ jobs:
           chmod +x ./build.sh
           ./build.sh
         env:
+          CONFIGURATION: ${{ matrix.configuration }}
           CI: true
       - name: Build
         if: runner.os == 'Windows'
@@ -47,4 +49,5 @@ jobs:
           dotnet --info
           ./build.cmd
         env:
+          CONFIGURATION: ${{ matrix.configuration }}
           CI: true
