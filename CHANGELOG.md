@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.35.1] - 2023-09-17
+
+### Fixed
+[Ensure .fantomasignore is used](https://github.com/TheAngryByrd/MiniScaffold/pull/278) from @TheAngryByrd
+
 ## [0.35.0] - 2023-09-17
 
 ### Changed
@@ -693,7 +698,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.35.0...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.35.1...HEAD
+[0.35.1]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.34.2...v0.35.0
 [0.34.2]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.34.1...v0.34.2
 [0.34.1]: https://github.com/TheAngryByrd/MiniScaffold/compare/v0.34.0...v0.34.1
