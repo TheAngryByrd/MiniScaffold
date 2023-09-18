@@ -20,7 +20,7 @@ See https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-director
 
   <!-- Make sure that files are formatted before building -->
   <Target Name="Format" BeforeTargets="BeforeBuild" Inputs="@(Compile)" Outputs="$(_DotnetFantomasOutputFile)" >
-    <Exec Command="dotnet fantomas ." StandardOutputImportance="High" StandardErrorImportance="High" />
+    <Exec Command="dotnet fantomas $(MSBuildProjectDirectory)" StandardOutputImportance="High" StandardErrorImportance="High" WorkingDirectory="$(MSBuildThisFileDirectory)" />
     <Touch Files="$(_DotnetFantomasOutputFile)" AlwaysCreate="True" ForceTouch="True" />
   </Target>
 </Project>
