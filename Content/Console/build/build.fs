@@ -230,6 +230,9 @@ module FSharpAnalyzers =
 // Target Implementations
 //-----------------------------------------------------------------------------
 
+/// So we don't require always being on the latest MSBuild.StructuredLogger
+let disableBinLog (p: MSBuild.CliArguments) = { p with DisableInternalBinLog = true }
+
 let clean _ =
     [
         "bin"
@@ -265,6 +268,7 @@ let dotnetRestore _ =
             DotNet.restore
                 (fun c -> {
                     c with
+                        MSBuildParams = disableBinLog c.MSBuildParams
                         Common =
                             c.Common
                             |> DotNet.Options.withAdditionalArgs args
@@ -294,6 +298,7 @@ let dotnetBuild ctx =
     DotNet.build
         (fun c -> {
             c with
+                MSBuildParams = disableBinLog c.MSBuildParams
                 Configuration = configuration (ctx.Context.AllExecutingTargets)
                 Common =
                     c.Common
@@ -341,6 +346,7 @@ let dotnetTest ctx =
 
             {
                 c with
+                    MSBuildParams = disableBinLog c.MSBuildParams
                     Configuration = configuration (ctx.Context.AllExecutingTargets)
                     Common =
                         c.Common
