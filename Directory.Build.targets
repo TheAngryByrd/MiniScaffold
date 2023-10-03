@@ -7,8 +7,8 @@ See https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-director
   <PropertyGroup>
     <_BuildProjBaseIntermediateOutputPath>$(MSBuildThisFileDirectory)build/obj/</_BuildProjBaseIntermediateOutputPath>
     <_DotnetToolManifestFile>$(MSBuildThisFileDirectory).config/dotnet-tools.json</_DotnetToolManifestFile>
-    <_DotnetToolRestoreOutputFile>$(_BuildProjBaseIntermediateOutputPath)/dotnet-tool-restore-$(NETCoreSdkVersion)</_DotnetToolRestoreOutputFile>
-    <_DotnetFantomasOutputFile>$(BaseIntermediateOutputPath)dotnet-fantomas-msbuild</_DotnetFantomasOutputFile>
+    <_DotnetToolRestoreOutputFile>$(_BuildProjBaseIntermediateOutputPath)/dotnet-tool-restore-$(NETCoreSdkVersion)-$(OS)</_DotnetToolRestoreOutputFile>
+    <_DotnetFantomasOutputFile>$(BaseIntermediateOutputPath)dotnet-fantomas-msbuild-$(NETCoreSdkVersion)-$(OS)</_DotnetFantomasOutputFile>
   </PropertyGroup>
 
   <!-- Make sure that dotnet tools (including paket) are restored before restoring any project -->
@@ -19,8 +19,9 @@ See https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-director
   </Target>
 
   <!-- Make sure that files are formatted before building -->
-  <Target Name="Format" BeforeTargets="BeforeBuild" Inputs="@(Compile)" Outputs="$(_DotnetFantomasOutputFile)" >
-    <Exec Command="dotnet fantomas $(MSBuildProjectDirectory)" StandardOutputImportance="High" StandardErrorImportance="High" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+  <Target Name="Format" Condition=" '$(MSBuildProjectExtension)' == '.fsproj' AND '$(DesignTimeBuild)' != 'true' " BeforeTargets="BeforeBuild" Inputs="@(Compile)" Outputs="$(_DotnetFantomasOutputFile)" >
+    <Exec Command="dotnet fantomas $(MSBuildProjectDirectory)" StandardOutputImportance="High" StandardErrorImportance="High" WorkingDirectory="$(MSBuildThisFileDirectory)" ContinueOnError="WarnAndContinue" />
     <Touch Files="$(_DotnetFantomasOutputFile)" AlwaysCreate="True" ForceTouch="True" />
   </Target>
+
 </Project>
