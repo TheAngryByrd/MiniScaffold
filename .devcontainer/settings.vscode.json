@@ -1,7 +1,0 @@
-{
-    "FSharp.fsacRuntime":"netcore",
-    "FSharp.enableAnalyzers": true,
-    "FSharp.analyzersPath": [
-        "./packages/analyzers"
-    ]
-}
