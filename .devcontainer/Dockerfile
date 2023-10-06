@@ -1,40 +1,17 @@
-FROM debian:buster-slim
-
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        ca-certificates \
-        \
-        # .NET Core dependencies
-        libc6 \
-        libgcc1 \
-        libgssapi-krb5-2 \
-        libicu63 \
-        libssl1.1 \
-        libstdc++6 \
-        zlib1g \
-        curl \
-        git \
-        procps \
-        wget \
-    && rm -rf /var/lib/apt/lists/*
+# [Choice] Debian version (use bullseye on local arm64/Apple Silicon): bookworm, bullseye, buster
+ARG VARIANT="bookworm"
+FROM buildpack-deps:${VARIANT}-curl
 
 
 ENV \
     # Enable detection of running in a container
     DOTNET_RUNNING_IN_CONTAINER=true \
-    DOTNET_INSTALL_DIR=/usr/share/dotnet/ \
-    DOTNET_ROOT=/usr/share/dotnet/
+    DOTNET_ROOT=/usr/share/dotnet/ \
+    DOTNET_NOLOGO=true \
+    DOTNET_CLI_TELEMETRY_OPTOUT=false\
+    DOTNET_USE_POLLING_FILE_WATCHER=true
 
-COPY ./.devcontainer/install-dotnets.sh global.json* .
 
-RUN /bin/bash install-dotnets.sh
-
-ENV PATH="$DOTNET_ROOT:${PATH}"
-RUN ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
-
-RUN  dotnet --info
-
-# Copy endpoint specific user settings into container to specify
-# .NET Core should be used as the runtime.
-COPY ./.devcontainer/settings.vscode.json /root/.vscode-remote/data/Machine/settings.json
+# [Optional] Uncomment this section to install additional OS packages.
+# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+#     && apt-get -y install --no-install-recommends <your-package-list-here>
