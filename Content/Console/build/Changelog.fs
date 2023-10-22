@@ -47,7 +47,7 @@ let mkLinkReference (newVersion: SemVerInfo) (changelog: Changelog.Changelog) gi
             changelog.Entries
             |> List.skipWhile (fun entry ->
                 entry.SemVer.PreRelease.IsSome
-                && versionTuple entry.SemVer = versionTuple newVersion
+                || versionTuple entry.SemVer = versionTuple newVersion
             )
             |> List.tryHead
 
