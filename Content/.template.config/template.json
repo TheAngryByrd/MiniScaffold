@@ -59,6 +59,11 @@
             "source": "./Console/",
             "target": "./",
             "condition": "(outputType == \"console\")"
+        },
+        {
+            "source": "./ProjLib/",
+            "target": "./",
+            "condition": "(outputType == \"projLib\")"
         }
     ],
     "postActions": [
