@@ -1,6 +1,6 @@
 ---
 title: Adding a console project
-category: Tutorials
+category: How To Guides
 categoryindex: 1
 index: 100
 ---

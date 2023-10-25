@@ -1,6 +1,13 @@
+---
+title: Get Started with a Library solution
+category: Tutorials
+categoryindex: 0
+index: 100
+---
+
 # Getting Started
 
-In this tutorial, we'll take a look at getting started with MiniScaffold and publishing your first library to NuGet and GitHub
+In this tutorial, we'll take a look at getting started with MiniScaffold and publishing your first library to NuGet and GitHub.
 
 ## Prerequisites
 
@@ -29,10 +36,12 @@ This will generate a structure similar to this
     .
     ├── CHANGELOG.md
     ├── Directory.Build.props
+    ├── Directory.Build.targets
     ├── LICENSE.md
-    ├── MyLib.1.sln
     ├── README.md
     ├── build
+    │   ├── Changelog.fs
+    │   ├── FsDocs.fs
     │   ├── build.fs
     │   ├── build.fsproj
     │   └── paket.references
@@ -46,52 +55,34 @@ This will generate a structure similar to this
     │   │   └── Doing_Another_Thing.md
     │   ├── Tutorials
     │   │   └── Getting_Started.md
+    │   ├── _menu-item_template.html
+    │   ├── _menu_template.html
+    │   ├── _template.html
     │   ├── content
-    │   │   ├── cleanups.js
-    │   │   ├── hotload.js
-    │   │   ├── style.css
-    │   │   ├── submenu.js
-    │   │   ├── themes.js
-    │   │   ├── tips.js
-    │   │   ├── toggle-bootstrap-dark.min.css
-    │   │   └── toggle-bootstrap.min.css
-    │   ├── files
-    │   │   └── placeholder.md
+    │   │   ├── fsdocs-custom.css
+    │   │   ├── fsdocs-dark.css
+    │   │   ├── fsdocs-light.css
+    │   │   ├── fsdocs-main.css
+    │   │   ├── navbar-fixed-left.css
+    │   │   └── theme-toggle.js
     │   └── index.md
-    ├── docsTool
-    │   ├── CLI.fs
-    │   ├── Prelude.fs
-    │   ├── Program.fs
-    │   ├── README.md
-    │   ├── WebServer.fs
-    │   ├── docsTool.fsproj
-    │   ├── paket.references
-    │   └── templates
-    │       ├── helpers.fs
-    │       ├── master.fs
-    │       ├── modules.fs
-    │       ├── namespaces.fs
-    │       ├── nav.fs
-    │       ├── partMembers.fs
-    │       ├── partNested.fs
-    │       └── types.fs
     ├── global.json
+    ├── lolol.sln
     ├── paket.dependencies
     ├── paket.lock
     ├── src
     │   ├── Directory.Build.props
-    │   └── MyLib.1
+    │   └── lolol
     │       ├── AssemblyInfo.fs
     │       ├── Library.fs
-    │       ├── MyLib.1.fsproj
+    │       ├── lolol.fsproj
     │       └── paket.references
     └── tests
         ├── Directory.Build.props
-        └── MyLib.1.Tests
-            ├── AssemblyInfo.fs
+        └── lolol.Tests
             ├── Main.fs
-            ├── MyLib.1.Tests.fsproj
             ├── Tests.fs
+            ├── lolol.Tests.fsproj
             └── paket.references
 
 This may look overwhelming, but we don't have to worry about all of these yet.  Let's just focus on the real important ones for this tutorial.
@@ -136,48 +127,57 @@ If it does not complete successfully, either [open an issue](https://github.com/
 
 ## Fill out README.md
 
-The README.md comes with a lot of information but it's recommended to fill out the introductionary description.
+The README.md comes with a lot of information but it's recommended to fill out the introduction description.
 
 ## Making a Release
 
-The release process is streamlined so you only have to start your git repository, set your NuGet and GitHub authorization keys, create `CHANGELOG` notes, and run the `Release` build target.
+The release process is streamlined so you only have to start your git repository, set your NuGet keys for GitHub Actions, create `CHANGELOG` notes, and run the `Release` build target. After you've done the initial setup, you will only need to perform the last two steps for each release.
+
+### Create your Github Repository
 
 - [Create a GitHub Repository](https://help.github.com/en/github/getting-started-with-github/create-a-repo) and
 [Start a git repo with your GitHub repository as a remote](https://help.github.com/articles/adding-an-existing-project-to-github-using-the-command-line/)
 
-
     [lang=bash]
+    git init
     git add .
     git commit -m "Scaffold"
     git remote add origin https://github.com/MyGithubUsername/MyCoolNewLib.git
     git push -u origin master
+    ```
 
-- [Create a NuGet API key](https://docs.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-api-keys)
+### Add your NUGET_TOKEN to your environment
 
-    - [Add your NuGet API key to paket](https://fsprojects.github.io/Paket/paket-config.html#Adding-a-NuGet-API-key)
-    - or set the environment variable `NUGET_TOKEN` to your key
+- Our NuGet package is created with a [GitHub Action](https://github.com/features/actions)  This action needs to be able to push to NuGet.  To do this, we need to add our NuGet API key to our GitHub repository's secrets. 
+- [Create an Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#creating-an-environment) on your repository named `nuget`.
+- [Create a NuGet API key](https://learn.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-an-api-key)
+- Add your `NUGET_TOKEN` to the [Environment Secrets](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#environment-secrets) of your newly created environment.
 
-- [Create a GitHub OAuth Token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
-  - You can then set the `GITHUB_TOKEN` to upload `CHANGELOG` notes and artifacts to github
-    - If you're on a linux, you can put this key into your [.bashrc](https://unix.stackexchange.com/questions/129143/what-is-the-purpose-of-bashrc-and-how-does-it-work)
-  - Otherwise it will fallback to username/password
+
+### Prepare your CHANGELOG.md
 
 Then update the `CHANGELOG.md` with an "Unreleased" section containing release notes for this version, in [KeepAChangelog](https://keepachangelog.com/en/1.1.0/) format.
 
 <div class="alert alert-primary" role="alert">
-    NOTE: Its highly recommend to add a link to the Pull Request next to the release note that it affects. The reason for this is when the <code>RELEASE</code> target is run, it will add these new notes into the body of git commit. GitHub will notice the links and will update the Pull Request with what commit referenced it saying <a href="https://github.com/TheAngryByrd/MiniScaffold/pull/179#ref-commit-837ad59">"added a commit that referenced this pull request"</a>. Since we automate the commit message, it will say "Bump Version to x.y.z". The benefit of this is when users goto a Pull Request, it will be clear when and which version those code changes released. Also when reading the <code>CHANGELOG</code>, if someone is curious about how or why those changes were made, they can easily discover the work and discussions.
+    <p>
+        NOTE: Its highly recommend to add a link to the Pull Request next to the release note that it affects. The reason for this is when the <code>RELEASE</code> target is run, it will add these new notes into the body of git commit. GitHub will notice the links and will update the Pull Request with what commit referenced it saying <a href="https://github.com/TheAngryByrd/MiniScaffold/pull/179#ref-commit-837ad59">"added a commit that referenced this pull request"</a>. Since we automate the commit message, it will say "Bump Version to x.y.z". The benefit of this is when users goto a Pull Request, it will be clear when and which version those code changes released. Also when reading the <code>CHANGELOG</code>, if someone is curious about how or why those changes were made, they can easily discover the work and discussions.
+    </p>
+    <p>
+        Additionally adding the GitHub handle of the user that contributed the pull request will allow GitHub to notify them of the release and have them show up as contributors for that release.
+    </p>
 </div>
 
-Here's an example of adding an "Unreleased" section to a `CHANGELOG.md` with a `0.1.0` section already released.
+Here's an example of adding an `Unreleased` section to a `CHANGELOG.md` with a `0.1.0` section already released.
+
 
     [lang=markdown]
     ## [Unreleased]
 
     ### Added
-    - Does cool stuff! (https://github.com/MyGithubUsername/MyCoolNewLib/pull/001)
+    - Does cool stuff! (https://github.com/MyGithubUsername/MyCoolNewLib/pull/001) (Thanks @TheAngryByrd!)
 
     ### Fixed
-    - Fixes that silly oversight (https://github.com/MyGithubUsername/MyCoolNewLib/pull/002)
+    - Fixes that silly oversight (https://github.com/MyGithubUsername/MyCoolNewLib/pull/002) (Thanks! @baronfel)
 
     ## [0.1.0] - 2017-03-17
     First release
@@ -189,12 +189,16 @@ Here's an example of adding an "Unreleased" section to a `CHANGELOG.md` with a `
     [0.1.0]: https://github.com/user/MyCoolNewLib.git/releases/tag/v0.1.0
 
 - You can then use the `Release` target, specifying the version number either in the `RELEASE_VERSION` environment
-  variable, or else as a parameter after the target name.  This will:
+  variable, or else as a parameter after the target name. 
+    - `./build.sh Release 0.2.0`
+
+- This target will do the following for you:
   - update `CHANGELOG.md`, moving changes from the `Unreleased` section into a new `0.2.0` section
     - if there were any prerelease versions of 0.2.0 in the changelog, it will also collect their changes into the final 0.2.0 entry
   - make a commit bumping the version:  `Bump version to 0.2.0` and adds the new changelog section to the commit's body
-  - publish the package to NuGet
   - push a git tag
+- The GitHub Action will then:
+  - publish the package to NuGet
   - create a GitHub release for that git tag
 
 macOS/Linux Parameter:

@@ -1,7 +1,7 @@
 ---
 title:  Table of Contents
 category: How To Guides
-categoryindex: 2
+categoryindex: 1
 index: 1
 ---
 

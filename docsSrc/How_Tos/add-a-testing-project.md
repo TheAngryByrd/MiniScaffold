@@ -1,6 +1,6 @@
 ---
 title: Adding a testing project
-category: Tutorials
+category: How To Guides
 categoryindex: 1
 index: 300
 ---

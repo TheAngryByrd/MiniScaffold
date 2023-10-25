@@ -1,11 +1,11 @@
 ---
 title: Table of Contents
 category: Tutorials
-categoryindex: 1
+categoryindex: 0
 index: 0
 ---
 
 
 # Tutorials Table of Contents
 
-- [Getting Started with Libraries](Getting_Started_With_Libraries.html)
+- [Get Started with a Library solution](Getting_Started_With_Libraries.md)

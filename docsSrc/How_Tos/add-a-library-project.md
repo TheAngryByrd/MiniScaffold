@@ -1,6 +1,6 @@
 ---
-title: Adding a library
-category: Tutorials
+title: Adding a library project
+category: How To Guides
 categoryindex: 1
 index: 100
 ---
