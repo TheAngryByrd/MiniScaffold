@@ -6,8 +6,6 @@ In this tutorial, we'll take a look at getting started with MiniScaffold and pub
 
 - Install [git](https://git-scm.com/download)
 - Install [.Net core](https://dotnet.microsoft.com/download)
-- If on macOS or Linux, install [Mono](https://www.mono-project.com/download/stable/)
-- If on Windows [ensure](https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/how-to-determine-which-versions-are-installed) you have at least .NET Full Framework 4.6.1 installed
 - Recommended IDE is [VSCode with Ionide](https://docs.microsoft.com/en-us/dotnet/fsharp/get-started/install-fsharp#install-f-with-visual-studio-code)
 - Create a [NuGet account](https://www.nuget.org/)
 - Create a [GitHub account](https://github.com/)
