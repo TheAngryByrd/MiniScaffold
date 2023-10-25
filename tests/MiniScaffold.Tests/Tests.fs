@@ -132,6 +132,21 @@ module Tests =
                         Assert.``project can build target`` "DotnetPack"
                     // Assert.``project can build target`` "BuildDocs"
                     ]
+
+
+                    ftestCase,
+                    "-n ProjLibTest --githubUsername CoolPersonNo0",
+                    [
+                        yield! projectStructureAsserts
+                        Assert.``project can build target`` "DotnetPack"
+                        Effect.``run dotnet new``
+                            "mini-scaffold -n MyCoolLib3 --githubUsername CoolPersonNo3 --outputType projLib"
+                            "src"
+                        Effect.``run dotnet sln`` "add src/MyCoolLib3/MyCoolLib3.fsproj"
+                        Assert.``File exists`` "src/MyCoolLib3/MyCoolLib3.fsproj"
+                        Assert.``project can build target`` "DotnetPack"
+                    ]
+
                     // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
                     testCase,
                     "-n fsharp-data-sample --githubUsername CoolPersonNo2",

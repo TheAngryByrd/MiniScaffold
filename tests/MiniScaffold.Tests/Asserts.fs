@@ -132,10 +132,41 @@ module Assert =
 
     let ``README exists`` = tryFindFile "README.md"
 
+    let ``File exists`` path = tryFindFile path
+
 module Effect =
     open System
     open Fake.IO
     open Fake.Tools
+    open Fake.Core
+    open Fake.DotNet
+    open Infrastructure.Dotnet
+
+
+    let ``run dotnet new`` argsStr (path: string) (d: DirectoryInfo) =
+
+        DotNet.exec
+            (fun opt -> {
+                opt with
+                    WorkingDirectory = Path.Join(d.FullName, path)
+            })
+            "new"
+            argsStr
+        |> failOnBadExitAndPrint
+
+    let ``run dotnet sln`` argsStr (d: DirectoryInfo) =
+        let args =
+            Arguments.Empty
+            |> Arguments.appendRaw argsStr
+
+        DotNet.exec
+            (fun opt -> {
+                opt with
+                    WorkingDirectory = d.FullName
+            })
+            "sln"
+            args.ToStartInfo
+        |> failOnBadExitAndPrint
 
     let ``format build`` (d: DirectoryInfo) = Dotnet.fantomas d.FullName "build"
 
