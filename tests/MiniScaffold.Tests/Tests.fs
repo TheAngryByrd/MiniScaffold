@@ -119,8 +119,8 @@ module Tests =
 
     [<Tests>]
     let tests =
-        testSequenced
-        <| // uncomment to get better logs
+        // testSequenced
+        // <| // uncomment to get better logs
         testList "samples" [
             do setup ()
             yield!
@@ -130,7 +130,7 @@ module Tests =
                     [
                         yield! projectStructureAsserts
                         Assert.``project can build target`` "DotnetPack"
-                    // Assert.``project can build target`` "BuildDocs"
+                        Assert.``project can build target`` "BuildDocs"
                     ]
 
 
@@ -267,14 +267,6 @@ module Tests =
                     [
                         Effect.``setup for publish tests``
                         Effect.``make build function fail`` "let dotnetPack"
-                        Assert.``build target with failure expected`` "Publish"
-                    ]
-                    ptestCase
-                        "SourceLinkTests aren't working since the testing tool is very out of date",
-                    "-n SourceLinkTestFail --githubUsername TestAccount",
-                    [
-                        Effect.``setup for publish tests``
-                        Effect.``make build function fail`` "let sourceLinkTest"
                         Assert.``build target with failure expected`` "Publish"
                     ]
 
