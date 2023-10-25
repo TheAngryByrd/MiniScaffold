@@ -142,8 +142,18 @@ module Effect =
     open Fake.DotNet
     open Infrastructure.Dotnet
 
+    let ``dotnet run`` argStr projectPath (d: DirectoryInfo) =
 
-    let ``run dotnet new`` argsStr (path: string) (d: DirectoryInfo) =
+        DotNet.exec
+            (fun opt -> {
+                opt with
+                    WorkingDirectory = Path.Join(d.FullName, projectPath)
+            })
+            "run"
+            argStr
+        |> failOnBadExitAndPrint
+
+    let ``dotnet new`` argsStr (path: string) (d: DirectoryInfo) =
 
         DotNet.exec
             (fun opt -> {
@@ -168,7 +178,7 @@ module Effect =
             args.ToStartInfo
         |> failOnBadExitAndPrint
 
-    let ``run dotnet sln add`` argsStr (d: DirectoryInfo) =
+    let ``dotnet sln add`` argsStr (d: DirectoryInfo) =
         let args =
             Arguments.Empty
             |> Arguments.appendNotEmpty "add" argsStr

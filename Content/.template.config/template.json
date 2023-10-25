@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json.schemastore.org/template",
+    "$schema": "https://json.schemastore.org/template",
     "author": "Jimmy Byrd",
     "classifications": [
         "Scaffold",
@@ -38,7 +38,11 @@
                 },
                 {
                     "choice": "projLib",
-                    "description": "A project for creating a class library that targets .NET or .NET Standard. Used for creating individual library projects for MiniScaffold."
+                    "description": "A project for creating a class library. Used for creating individual library projects for MiniScaffold."
+                },
+                {
+                    "choice": "projConsole",
+                    "description": "A project for creating a command-line application. Used for creating individual console projects for MiniScaffold."
                 },
                 {
                     "choice": "projTest",
@@ -68,6 +72,11 @@
             "source": "./ProjLib/",
             "target": "./",
             "condition": "(outputType == \"projLib\")"
+        },
+        {
+            "source": "./ProjConsole/",
+            "target": "./",
+            "condition": "(outputType == \"projConsole\")"
         },
         {
             "source": "./ProjTest/",
