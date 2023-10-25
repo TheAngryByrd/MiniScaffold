@@ -134,7 +134,7 @@ module Tests =
                     ]
 
 
-                    ftestCase,
+                    testCase,
                     "-n ProjLibTest --githubUsername CoolPersonNo0",
                     [
                         yield! projectStructureAsserts
@@ -142,8 +142,29 @@ module Tests =
                         Effect.``run dotnet new``
                             "mini-scaffold -n MyCoolLib3 --githubUsername CoolPersonNo3 --outputType projLib"
                             "src"
-                        Effect.``run dotnet sln`` "add src/MyCoolLib3/MyCoolLib3.fsproj"
+                        Effect.``run dotnet sln add`` "src/MyCoolLib3/MyCoolLib3.fsproj"
                         Assert.``File exists`` "src/MyCoolLib3/MyCoolLib3.fsproj"
+                        Assert.``project can build target`` "DotnetPack"
+                    ]
+
+                    testCase,
+                    "-n ProjTestTest --githubUsername CoolPersonNo0",
+                    [
+                        yield! projectStructureAsserts
+                        Assert.``project can build target`` "DotnetPack"
+                        Effect.``run dotnet new``
+                            "mini-scaffold -n MyCoolLib3 --githubUsername CoolPersonNo3 --outputType projLib"
+                            "src"
+                        Effect.``run dotnet sln add`` "src/MyCoolLib3/MyCoolLib3.fsproj"
+                        Effect.``run dotnet new``
+                            "mini-scaffold -n MyCoolLib3.Tests --githubUsername CoolPersonNo3 --outputType projTest"
+                            "tests"
+                        Effect.``run dotnet sln add``
+                            "tests/MyCoolLib3.Tests/MyCoolLib3.Tests.fsproj"
+                        Effect.``dotnet add reference``
+                            "../../src/MyCoolLib3/MyCoolLib3.fsproj"
+                            "tests/MyCoolLib3.Tests/"
+                        Assert.``File exists`` "tests/MyCoolLib3.Tests/MyCoolLib3.Tests.fsproj"
                         Assert.``project can build target`` "DotnetPack"
                     ]
 

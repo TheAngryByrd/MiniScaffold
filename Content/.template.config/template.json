@@ -39,6 +39,10 @@
                 {
                     "choice": "projLib",
                     "description": "A project for creating a class library that targets .NET or .NET Standard. Used for creating individual library projects for MiniScaffold."
+                },
+                {
+                    "choice": "projTest",
+                    "description": "A project for Expect tests. Used for creating individual test projects for MiniScaffold."
                 }
             ]
         },
@@ -64,6 +68,11 @@
             "source": "./ProjLib/",
             "target": "./",
             "condition": "(outputType == \"projLib\")"
+        },
+        {
+            "source": "./ProjTest/",
+            "target": "./",
+            "condition": "(outputType == \"projTest\")"
         }
     ],
     "postActions": [

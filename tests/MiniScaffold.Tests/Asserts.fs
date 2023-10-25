@@ -154,10 +154,24 @@ module Effect =
             argsStr
         |> failOnBadExitAndPrint
 
-    let ``run dotnet sln`` argsStr (d: DirectoryInfo) =
+    let ``dotnet add reference`` args path (d: DirectoryInfo) =
         let args =
             Arguments.Empty
-            |> Arguments.appendRaw argsStr
+            |> Arguments.appendNotEmpty "reference" args
+
+        DotNet.exec
+            (fun opt -> {
+                opt with
+                    WorkingDirectory = Path.Join(d.FullName, path)
+            })
+            "add"
+            args.ToStartInfo
+        |> failOnBadExitAndPrint
+
+    let ``run dotnet sln add`` argsStr (d: DirectoryInfo) =
+        let args =
+            Arguments.Empty
+            |> Arguments.appendNotEmpty "add" argsStr
 
         DotNet.exec
             (fun opt -> {
