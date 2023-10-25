@@ -147,7 +147,7 @@ module Tests =
                         Assert.``project can build target`` "DotnetPack"
                     ]
 
-                    ftestCase,
+                    testCase,
                     "-n ProjConsoleTest --githubUsername CoolPersonNo0",
                     [
                         yield! projectStructureAsserts

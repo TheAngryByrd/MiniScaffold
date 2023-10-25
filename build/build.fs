@@ -363,6 +363,8 @@ let integrationTests ctx =
                         // sprintf "-C %A" (configuration (ctx.Context.AllExecutingTargets))
                         sprintf "--project %s" proj
                         "--summary"
+                        if isCI.Value then
+                            "--fail-on-focused-tests"
                     ]
                     |> String.concat " "
 
