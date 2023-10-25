@@ -88,7 +88,7 @@ let watchDocsDir =
 let gitOwner = "TheAngryByrd"
 let gitRepoName = "MiniScaffold"
 
-let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
+let gitHubRepoUrl = sprintf "https://github.com/%s/%s/" gitOwner gitRepoName
 
 let documentationRootUrl = "https://www.jimmybyrd.me/MiniScaffold/"
 
@@ -158,7 +158,7 @@ let failOnBadExitAndPrint (p: ProcessResult) =
 
 let isCI = lazy environVarAsBoolOrDefault "CI" false
 
-// CI Servers can have bizzare failures that have nothing to do with your code
+// CI Servers can have bizarre failures that have nothing to do with your code
 let rec retryIfInCI times fn =
     match isCI.Value with
     | true ->
@@ -187,8 +187,6 @@ module dotnet =
     let tool optionConfig command args =
         DotNet.exec optionConfig (sprintf "%s" command) args
         |> failOnBadExitAndPrint
-
-    let fcswatch optionConfig args = tool optionConfig "fcswatch" args
 
     let fantomas args = DotNet.exec id "fantomas" args
 
@@ -363,6 +361,8 @@ let integrationTests ctx =
                         // sprintf "-C %A" (configuration (ctx.Context.AllExecutingTargets))
                         sprintf "--project %s" proj
                         "--summary"
+                        if isCI.Value then
+                            "--fail-on-focused-tests"
                     ]
                     |> String.concat " "
 

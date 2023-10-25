@@ -27,7 +27,11 @@ let failOnEmptyChangelog (latestEntry: Changelog.ChangelogEntry) =
         failwith
             "No changes in CHANGELOG. Please add your changes under a heading specified in https://keepachangelog.com/"
 
-let mkLinkReference (newVersion: SemVerInfo) (changelog: Changelog.Changelog) gitHubRepoUrl =
+let mkLinkReference
+    (newVersion: SemVerInfo)
+    (changelog: Changelog.Changelog)
+    (gitHubRepoUrl: string)
+    =
     if
         changelog.Entries
         |> List.isEmpty
@@ -36,7 +40,7 @@ let mkLinkReference (newVersion: SemVerInfo) (changelog: Changelog.Changelog) gi
         sprintf
             "[%s]: %s/releases/tag/%s"
             newVersion.AsString
-            gitHubRepoUrl
+            (gitHubRepoUrl.TrimEnd('/'))
             (tagFromVersionNumber newVersion.AsString)
     else
         let versionTuple version =

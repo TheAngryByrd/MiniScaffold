@@ -35,18 +35,15 @@ module Dotnet =
         let install name =
             let args =
                 Arguments.Empty
-                |> Arguments.appendNotEmpty "-i" name
-            // |> Arguments.appendRaw "--dev:install"
-            //     |>
-            // let args = [
-            //     sprintf "-i \"%s\"" name
-            // ]
+                |> Arguments.appendNotEmpty "install" name
+                |> Arguments.appendRaw "--force"
+
             cmd id args.ToStartInfo
 
         let uninstall name =
             let args =
                 Arguments.Empty
-                |> Arguments.appendNotEmpty "-u" name
+                |> Arguments.appendNotEmpty "uninstall" name
 
             cmd id args.ToStartInfo
 

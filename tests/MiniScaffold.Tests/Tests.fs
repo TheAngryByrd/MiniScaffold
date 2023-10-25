@@ -119,8 +119,8 @@ module Tests =
 
     [<Tests>]
     let tests =
-        testSequenced
-        <| // uncomment to get better logs
+        // testSequenced
+        // <| // uncomment to get better logs
         testList "samples" [
             do setup ()
             yield!
@@ -130,8 +130,58 @@ module Tests =
                     [
                         yield! projectStructureAsserts
                         Assert.``project can build target`` "DotnetPack"
-                    // Assert.``project can build target`` "BuildDocs"
+                        Assert.``project can build target`` "BuildDocs"
                     ]
+
+
+                    testCase,
+                    "-n ProjLibTest --githubUsername CoolPersonNo0",
+                    [
+                        yield! projectStructureAsserts
+                        Assert.``project can build target`` "DotnetPack"
+                        Effect.``dotnet new``
+                            "mini-scaffold -n MyCoolLib3 --githubUsername CoolPersonNo3 --outputType projLib"
+                            "src"
+                        Effect.``dotnet sln add`` "src/MyCoolLib3/MyCoolLib3.fsproj"
+                        Assert.``File exists`` "src/MyCoolLib3/MyCoolLib3.fsproj"
+                        Assert.``project can build target`` "DotnetPack"
+                    ]
+
+                    testCase,
+                    "-n ProjConsoleTest --githubUsername CoolPersonNo0",
+                    [
+                        yield! projectStructureAsserts
+                        Assert.``project can build target`` "DotnetPack"
+                        Effect.``dotnet new``
+                            "mini-scaffold -n MyCoolConsole --githubUsername CoolPersonNo3 --outputType projConsole"
+                            "src"
+                        Effect.``dotnet sln add`` "src/MyCoolConsole/MyCoolConsole.fsproj"
+                        Assert.``File exists`` "src/MyCoolConsole/MyCoolConsole.fsproj"
+                        Assert.``project can build target`` "DotnetPack"
+                        Effect.``dotnet run`` "" "src/MyCoolConsole/"
+                    ]
+
+
+                    testCase,
+                    "-n ProjTestTest --githubUsername CoolPersonNo0",
+                    [
+                        yield! projectStructureAsserts
+                        Assert.``project can build target`` "DotnetPack"
+                        Effect.``dotnet new``
+                            "mini-scaffold -n MyCoolLib3 --githubUsername CoolPersonNo3 --outputType projLib"
+                            "src"
+                        Effect.``dotnet sln add`` "src/MyCoolLib3/MyCoolLib3.fsproj"
+                        Effect.``dotnet new``
+                            "mini-scaffold -n MyCoolLib3.Tests --githubUsername CoolPersonNo3 --outputType projTest"
+                            "tests"
+                        Effect.``dotnet sln add`` "tests/MyCoolLib3.Tests/MyCoolLib3.Tests.fsproj"
+                        Effect.``dotnet add reference``
+                            "../../src/MyCoolLib3/MyCoolLib3.fsproj"
+                            "tests/MyCoolLib3.Tests/"
+                        Assert.``File exists`` "tests/MyCoolLib3.Tests/MyCoolLib3.Tests.fsproj"
+                        Assert.``project can build target`` "DotnetPack"
+                    ]
+
                     // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
                     testCase,
                     "-n fsharp-data-sample --githubUsername CoolPersonNo2",
@@ -217,14 +267,6 @@ module Tests =
                     [
                         Effect.``setup for publish tests``
                         Effect.``make build function fail`` "let dotnetPack"
-                        Assert.``build target with failure expected`` "Publish"
-                    ]
-                    ptestCase
-                        "SourceLinkTests aren't working since the testing tool is very out of date",
-                    "-n SourceLinkTestFail --githubUsername TestAccount",
-                    [
-                        Effect.``setup for publish tests``
-                        Effect.``make build function fail`` "let sourceLinkTest"
                         Assert.``build target with failure expected`` "Publish"
                     ]
 
