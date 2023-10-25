@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json.schemastore.org/vs-2017.3.host",
+    "$schema": "https://json.schemastore.org/vs-2017.3.host",
     "symbolInfo": [
         {
             "id": "githubUsername",
@@ -10,14 +10,14 @@
         },
         {
             "id": "outputType",
-            "name" : {
+            "name": {
                 "id": "outputType",
                 "text": "Output Type"
             }
         },
         {
             "id": "releaseBranch",
-            "name" : {
+            "name": {
                 "id": "releaseBranch",
                 "text": "Release Branch"
             }

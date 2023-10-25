@@ -2,7 +2,9 @@
     "$schema": "http://json.schemastore.org/template",
     "author": "Jimmy Byrd",
     "classifications": [
-        "Scaffold", "Console", "Library"
+        "Scaffold",
+        "Console",
+        "Library"
     ],
     "description": "A full-featured template for creating console or library solutions with documentation and release workflows.",
     "name": "MiniScaffold",
@@ -28,11 +30,15 @@
             "choices": [
                 {
                     "choice": "library",
-                    "description": "Creates a template for library projects"
+                    "description": "Creates a template for library solutions."
                 },
                 {
                     "choice": "console",
-                    "description": "Creates a template for console projects"
+                    "description": "Creates a template for console solutions."
+                },
+                {
+                    "choice": "projLib",
+                    "description": "A project for creating a class library that targets .NET or .NET Standard. Used for creating individual library projects for MiniScaffold."
                 }
             ]
         },
