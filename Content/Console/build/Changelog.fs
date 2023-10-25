@@ -28,7 +28,11 @@ let isChangelogEmpty (latestEntry: Changelog.ChangelogEntry) =
 let tagFromVersionNumber versionNumber = sprintf "%s" versionNumber
 
 
-let mkLinkReference (newVersion: SemVerInfo) (changelog: Changelog.Changelog) gitHubRepoUrl =
+let mkLinkReference
+    (newVersion: SemVerInfo)
+    (changelog: Changelog.Changelog)
+    (gitHubRepoUrl: string)
+    =
     if
         changelog.Entries
         |> List.isEmpty
@@ -37,7 +41,7 @@ let mkLinkReference (newVersion: SemVerInfo) (changelog: Changelog.Changelog) gi
         sprintf
             "[%s]: %s/releases/tag/%s"
             newVersion.AsString
-            gitHubRepoUrl
+            (gitHubRepoUrl.TrimEnd('/'))
             (tagFromVersionNumber newVersion.AsString)
     else
         let versionTuple version =

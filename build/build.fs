@@ -88,7 +88,7 @@ let watchDocsDir =
 let gitOwner = "TheAngryByrd"
 let gitRepoName = "MiniScaffold"
 
-let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
+let gitHubRepoUrl = sprintf "https://github.com/%s/%s/" gitOwner gitRepoName
 
 let documentationRootUrl = "https://www.jimmybyrd.me/MiniScaffold/"
 

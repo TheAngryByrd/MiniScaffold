@@ -113,7 +113,7 @@ let coverageReportDir =
 let gitOwner = "MyGithubUsername"
 let gitRepoName = "MyLib.1"
 
-let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
+let gitHubRepoUrl = sprintf "https://github.com/%s/%s/" gitOwner gitRepoName
 
 let releaseBranch = "MyReleaseBranch"
 
