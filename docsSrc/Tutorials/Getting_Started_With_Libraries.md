@@ -67,22 +67,22 @@ This will generate a structure similar to this
     │   │   └── theme-toggle.js
     │   └── index.md
     ├── global.json
-    ├── lolol.sln
+    ├── MyCoolNewLib.sln
     ├── paket.dependencies
     ├── paket.lock
     ├── src
     │   ├── Directory.Build.props
-    │   └── lolol
+    │   └── MyCoolNewLib
     │       ├── AssemblyInfo.fs
     │       ├── Library.fs
-    │       ├── lolol.fsproj
+    │       ├── MyCoolNewLib.fsproj
     │       └── paket.references
     └── tests
         ├── Directory.Build.props
-        └── lolol.Tests
+        └── MyCoolNewLib.Tests
             ├── Main.fs
             ├── Tests.fs
-            ├── lolol.Tests.fsproj
+            ├── MyCoolNewLib.Tests.fsproj
             └── paket.references
 
 This may look overwhelming, but we don't have to worry about all of these yet.  Let's just focus on the real important ones for this tutorial.
