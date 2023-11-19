@@ -11,6 +11,8 @@ jobs:
     # Sets permissions of the GITHUB_TOKEN to allow release creating
     permissions:
       contents: write
+    environment:
+      name: nuget
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
