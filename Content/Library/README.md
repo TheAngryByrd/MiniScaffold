@@ -56,7 +56,7 @@ The bin of your library should look similar to:
 $ tree src/MyLib.1/bin/
 src/MyLib.1/bin/
 └── Debug
-    └── net6.0
+    └── net8.0
         ├── MyLib.1.deps.json
         ├── MyLib.1.dll
         ├── MyLib.1.pdb
