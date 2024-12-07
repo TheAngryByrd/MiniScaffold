@@ -119,8 +119,8 @@ module Tests =
 
     [<Tests>]
     let tests =
-        // testSequenced
-        // <| // uncomment to get better logs
+        testSequenced
+        <| // uncomment to get better logs
         testList "samples" [
             do setup ()
             yield!
