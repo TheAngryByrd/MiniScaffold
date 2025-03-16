@@ -23,7 +23,7 @@
     <ItemGroup>
         <Content
             Include="Content/**/*"
-            Exclude="Content/**/.paket/paket;Content/**/.paket/.store/*;Content/**/packages/**/*;Content/**/.fake/**;Content/**/bin/**/**/*;Content/**/dist/*;Content/**/temp/*;Content/**/bin/**/**/*;Content/**/obj/**/**/*;Content/**/paket-files/**;packages.lock.json">
+            Exclude="Content/**/.paket/paket;Content/**/.paket/.store/*;Content/**/packages/**/*;Content/**/.fake/**;Content/**/bin/**/**/*;Content/**/dist/*;Content/**/temp/*;Content/**/bin/**/**/*;Content/**/obj/**/**/*;Content/**/paket-files/**;Content/**/packages.lock.json">
             <PackagePath>Content\</PackagePath>
         </Content>
         <None
