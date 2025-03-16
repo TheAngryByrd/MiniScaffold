@@ -1,7 +1,7 @@
 {
   "version": 2,
   "dependencies": {
-    "net6.0": {
+    "net8.0": {
       "Argu": {
         "type": "Direct",
         "requested": "[6.0.0, )",
@@ -11,12 +11,6 @@
           "FSharp.Core": "4.3.2",
           "System.Configuration.ConfigurationManager": "4.4.0"
         }
-      },
-      "FSharp.Core": {
-        "type": "Direct",
-        "requested": "[6.0.7, )",
-        "resolved": "6.0.7",
-        "contentHash": "e6wGrq5smV3Yk2fBE/Y0nBG5oFyF59k5Je0a0QDydUpg6liyaafGjD3xvutciKepCP2knspZ/sWViC/F1OyyQQ=="
       },
       "Packaging.Targets": {
         "type": "Direct",
@@ -44,6 +38,12 @@
         "type": "Transitive",
         "resolved": "4.4.0",
         "contentHash": "cJV7ScGW7EhatRsjehfvvYVBvtiSMKgN8bOVI0bQhnF5bU7vnHVIsH49Kva7i7GWaWYvmEzkYVk1TC+gZYBEog=="
+      },
+      "FSharp.Core": {
+        "type": "CentralTransitive",
+        "requested": "[8.0.403, )",
+        "resolved": "4.3.2",
+        "contentHash": "PbCdtEW/fn7q+YdKBStNpVCo+dbBSm8dIrt5WmllpuGTnk4ve9T2HLh8bK/DU0mZEb6sM649aqcvoah8p4IiMQ=="
       }
     }
   }

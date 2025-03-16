@@ -6,7 +6,6 @@
         <GenerateProgramFile>false</GenerateProgramFile>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="FSharp.Core" />
         <PackageReference Include="Fake.DotNet.Cli" />
         <PackageReference Include="Fake.Tools.Git" />
         <PackageReference Include="Expecto" />
@@ -14,7 +13,6 @@
         <PackageReference Include="YoloDev.Expecto.TestSdk" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="AssemblyInfo.fs" />
         <Compile Include="Infrastructure.fs" />
         <Compile Include="Asserts.fs" />
         <Compile Include="Tests.fs" />

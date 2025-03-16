@@ -650,5 +650,6 @@ module Effect =
 
     let ``setup for publish tests`` (d: DirectoryInfo) =
         ``internal setup for all tests`` "main" d
+        ``disable publishToNuget function`` d
         // To make publish work locally during integration tests
         ``set environment variable`` "CI" "1" d

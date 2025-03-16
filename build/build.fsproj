@@ -5,18 +5,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <WarnOn>3390;$(WarnOn)</WarnOn>
     <IsPackable>false</IsPackable>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Changelog.fs" />
     <Compile Include="FsDocs.fs" />
     <Compile Include="build.fs" />
   </ItemGroup>
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <WarnOn>3390;$(WarnOn)</WarnOn>
-    <IsPackable>false</IsPackable>
-  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Fake.IO.FileSystem" />
     <PackageReference Include="Fake.Core.Target" />
@@ -30,10 +25,5 @@
     <PackageReference Include="Fake.BuildServer.GitHubActions" />
     <PackageReference Include="MSBuild.StructuredLogger" />
     <PackageReference Include="Argu" />
-    <PackageReference Include="Octokit" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="../docsTool/CLI.fs" Link="CLI.fs" />
-    <Compile Include="build.fs" />
   </ItemGroup>
 </Project>
