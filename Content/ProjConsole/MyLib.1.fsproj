@@ -5,9 +5,9 @@
         <TargetFramework>net8.0</TargetFramework>
     </PropertyGroup>
 
-    <PropertyGroup>
+    <ItemGroup>
         <PackageReference Include="FSharp.Core" />
-    </PropertyGroup>
+    </ItemGroup>
 
     <ItemGroup>
         <Compile Include="AssemblyInfo.fs" />
