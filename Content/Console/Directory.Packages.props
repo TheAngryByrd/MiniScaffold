@@ -13,7 +13,7 @@
     <PackageVersion Include="FSharp.Core" Version="8.0.403" />
     <PackageVersion Include="Expecto" Version="10.2.2" />
     <PackageVersion Include="YoloDev.Expecto.TestSdk" Version="0.15.3" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version=" 17.13.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageVersion Include="Packaging.Targets" Version="0.1.208" PrivateAssets="All" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.1.0" PrivateAssets="All" />
     <PackageVersion Include="altcover" Version="8.2.825" />
