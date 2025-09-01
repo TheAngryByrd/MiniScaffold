@@ -590,15 +590,21 @@ let sourceLinkTest _ =
 let publishToNuget _ =
     allReleaseChecks ()
 
-    NuGet.NuGet.NuGetPublish(fun c -> {
-        c with
-            PublishUrl = "https://www.nuget.org"
-            WorkingDir = "dist"
-            AccessKey =
-                match nugetToken with
-                | Some s -> s
-                | _ -> c.AccessKey
-    })
+    DotNet.nugetPush
+        (fun c -> {
+            c with
+                Common = {
+                    c.Common with
+                        WorkingDirectory = distDir
+                }
+                PushParams = {
+                    c.PushParams with
+                        Source = Some publishUrl
+                        ApiKey = nugetToken
+                }
+        })
+        "*.nupkg"
+
     // If build fails after this point, we've pushed a release out with this version of CHANGELOG.md so we should keep it around
     Target.deactivateBuildFailure "RevertChangelog"
 

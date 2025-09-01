@@ -409,15 +409,20 @@ let dotnetPack ctx =
 let publishToNuget _ =
     allPublishChecks ()
 
-    NuGet.NuGet.NuGetPublish(fun c -> {
-        c with
-            PublishUrl = "https://www.nuget.org"
-            WorkingDir = "dist"
-            AccessKey =
-                match nugetToken with
-                | Some s -> s
-                | _ -> c.AccessKey
-    })
+    DotNet.nugetPush
+        (fun c -> {
+            c with
+                Common = {
+                    c.Common with
+                        WorkingDirectory = distDir
+                }
+                PushParams = {
+                    c.PushParams with
+                        Source = Some publishUrl
+                        ApiKey = nugetToken
+                }
+        })
+        "*.nupkg"
 
 let gitRelease _ =
     allReleaseChecks ()
