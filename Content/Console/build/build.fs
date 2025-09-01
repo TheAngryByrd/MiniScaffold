@@ -354,7 +354,7 @@ let dotnetTest ctx =
 
 let generateCoverageReport _ =
     let coverageReports =
-        !! "tests/**/coverage*.xml"
+        !!"tests/**/coverage*.xml"
         |> String.concat ";"
 
     let sourceDirs =
@@ -509,7 +509,7 @@ let gitRelease _ =
     Git.Staging.stageFile "" "CHANGELOG.md"
     |> ignore
 
-    !! "src/**/AssemblyInfo.fs"
+    !!"src/**/AssemblyInfo.fs"
     |> Seq.iter (
         Git.Staging.stageFile ""
         >> ignore
