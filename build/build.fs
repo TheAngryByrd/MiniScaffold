@@ -1,3 +1,5 @@
+module Build
+
 open System
 open Fake.Core
 open Fake.DotNet
@@ -156,7 +158,7 @@ let failOnBadExitAndPrint (p: ProcessResult) =
         failwithf "failed with exitcode %d" p.ExitCode
 
 
-let isCI = lazy environVarAsBoolOrDefault "CI" false
+let isCI = lazy environVarAsBoolOrDefault "CI" true
 
 // CI Servers can have bizarre failures that have nothing to do with your code
 let rec retryIfInCI times fn =
@@ -292,9 +294,6 @@ let clean _ =
     )
     |> Shell.cleanDirs
 
-    [ "paket-files/paket.restore.cached" ]
-    |> Seq.iter Shell.rm
-
 let dotnetRestore _ =
     [ sln ]
     |> Seq.map (fun dir ->
@@ -410,15 +409,14 @@ let dotnetPack ctx =
 let publishToNuget _ =
     allPublishChecks ()
 
-    Paket.push (fun c -> {
+    NuGet.NuGet.NuGetPublish(fun c -> {
         c with
-            ToolType = ToolType.CreateLocalTool()
-            PublishUrl = publishUrl
+            PublishUrl = "https://www.nuget.org"
             WorkingDir = "dist"
-            ApiKey =
+            AccessKey =
                 match nugetToken with
                 | Some s -> s
-                | _ -> c.ApiKey // assume paket-config was set properly
+                | _ -> c.AccessKey
     })
 
 let gitRelease _ =

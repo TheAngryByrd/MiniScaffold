@@ -126,9 +126,9 @@ module Assert =
 
     let ``LICENSE exists`` = tryFindFile "LICENSE.md"
 
-    let ``paket.lock exists`` = tryFindFile "paket.lock"
+    let ``NuGet.config exists`` = tryFindFile "NuGet.config"
 
-    let ``paket.dependencies exists`` = tryFindFile "paket.dependencies"
+    let ``Directory.Packages.props exists`` = tryFindFile "Directory.Packages.props"
 
     let ``README exists`` = tryFindFile "README.md"
 
@@ -443,7 +443,7 @@ module Effect =
 
         match
             lines
-            |> Array.tryFindIndex (fun line -> line.Contains "Paket.push (")
+            |> Array.tryFindIndex (fun line -> line.Contains "NuGet.NuGet.NuGetPublish(")
         with
         | None -> ()
         | Some startIdx ->
@@ -650,5 +650,6 @@ module Effect =
 
     let ``setup for publish tests`` (d: DirectoryInfo) =
         ``internal setup for all tests`` "main" d
+        ``disable publishToNuget function`` d
         // To make publish work locally during integration tests
         ``set environment variable`` "CI" "1" d

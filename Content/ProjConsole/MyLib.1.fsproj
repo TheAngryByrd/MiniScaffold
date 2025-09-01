@@ -6,9 +6,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FSharp.Core" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Compile Include="AssemblyInfo.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
-    <Import Project="..\..\.paket\Paket.Restore.targets" />
 
 </Project>

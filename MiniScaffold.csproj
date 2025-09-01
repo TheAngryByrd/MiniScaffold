@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <Description>F# Template for creating and publishing libraries targeting .NET 6.0 or console apps .NET 6.0</Description>
+        <Description>F# Template for creating and publishing libraries targeting .NET 6.0 or console
+            apps .NET 6.0</Description>
         <Authors>Jimmy Byrd</Authors>
         <PackageProjectUrl>https://github.com/TheAngryByrd/MiniScaffold</PackageProjectUrl>
         <RepositoryUrl>https://github.com/TheAngryByrd/MiniScaffold.git</RepositoryUrl>
@@ -18,40 +19,40 @@
         <NoWarn>$(NoWarn);NU5128</NoWarn>
         <EnablePackageValidation>true</EnablePackageValidation>
         <IsPackable>true</IsPackable>
-  </PropertyGroup>
+    </PropertyGroup>
     <ItemGroup>
         <Content
-                Include="Content/**/*"
-                Exclude="Content/**/.paket/paket;Content/**/.paket/.store/*;Content/**/packages/**/*;Content/**/.fake/**;Content/**/bin/**/**/*;Content/**/dist/*;Content/**/temp/*;Content/**/bin/**/**/*;Content/**/obj/**/**/*;Content/**/paket-files/**;">
+            Include="Content/**/*"
+            Exclude="Content/**/.paket/paket;Content/**/.paket/.store/*;Content/**/packages/**/*;Content/**/.fake/**;Content/**/bin/**/**/*;Content/**/dist/*;Content/**/temp/*;Content/**/bin/**/**/*;Content/**/obj/**/**/*;Content/**/paket-files/**;Content/**/packages.lock.json">
             <PackagePath>Content\</PackagePath>
         </Content>
         <None
-                Include="README.md"
-                Pack="true"
-                PackagePath="/" />
+            Include="README.md"
+            Pack="true"
+            PackagePath="/" />
         <None
-                Include="LICENSE.md"
-                Pack="true"
-                PackagePath="/" />
+            Include="LICENSE.md"
+            Pack="true"
+            PackagePath="/" />
     </ItemGroup>
 
     <UsingTask
-            TaskName="AnalyzeTemplate"
-            AssemblyFile="$(Pkgsayedha_templates_tasks)\tasks\netstandard2.1\SayedHa.Templates.Tasks.dll" />
+        TaskName="AnalyzeTemplate"
+        AssemblyFile="$(Pkgsayedha_templates_tasks)\tasks\netstandard2.1\SayedHa.Templates.Tasks.dll" />
     <ItemGroup>
         <PackageReference
-                Include="Sayedha.Templates.Tasks"
-                GeneratePathProperty="true"
-                Version="0.0.2-beta"
-                PrivateAssets="all"
-                ExcludeAssets="compile" />
+            Include="Sayedha.Templates.Tasks"
+            GeneratePathProperty="true"
+            PrivateAssets="all"
+            ExcludeAssets="compile" />
     </ItemGroup>
 
     <Target
-            Name="ValidatePackage"
-            AfterTargets="Pack">
+        Name="ValidatePackage"
+        AfterTargets="Pack">
         <ItemGroup>
-            <PackagesToAnalyze Include="$([MSBuild]::ValueOrDefault('$(PackageTargetPath)', '$([MSBuild]::NormalizePath('$(PackageOutputPath)', '$(PackageId).$(PackageVersion).nupkg'))'))" />
+            <PackagesToAnalyze
+                Include="$([MSBuild]::ValueOrDefault('$(PackageTargetPath)', '$([MSBuild]::NormalizePath('$(PackageOutputPath)', '$(PackageId).$(PackageVersion).nupkg'))'))" />
         </ItemGroup>
         <AnalyzeTemplate Packages="@(PackagesToAnalyze)" />
     </Target>

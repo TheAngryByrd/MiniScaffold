@@ -76,7 +76,6 @@ When you do an initial scaffold, your folder will be filled with this set of fil
 - `.editorconfig` - [EditorConfig](https://editorconfig.org/).
 - `.github\` - Holds all [GitHub] related templates.
 - `.gitignore` - Good set of defaults for dotnet related repositories.
-- `.paket\Paket.Restore.targets` - Needed for paket to interact with MSBuild. See [paket](https://fsprojects.github.io/Paket/).
 - `.vscode\extensions.json` - File containing all recommended VSCode plugins for this repository.
 - `.vscode\settings.json` - File containing all VSCode settings for this repository.
 - `Directory.Build.props` - Top level configuration for project files. See [Microsoft Docs](https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2019#directorybuildprops-and-directorybuildtargets) for more info.

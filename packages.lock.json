@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dependencies": {
+    ".NETStandard,Version=v0.0": {
+      "sayedha.templates.tasks": {
+        "type": "Direct",
+        "requested": "[0.0.2-beta, )",
+        "resolved": "0.0.2-beta",
+        "contentHash": "Qi6BwBfNCYM3Me8A2PMgdJXP/iu4EgW0Xnu/pMWOFvPDN8eT4uEydIx/hSk4nnfQNNSTucRWqeq9SjgMLHa4mQ=="
+      }
+    }
+  }
+}

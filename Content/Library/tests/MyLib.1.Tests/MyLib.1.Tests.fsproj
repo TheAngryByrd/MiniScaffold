@@ -9,9 +9,14 @@
         <ProjectReference Include="../../src/MyLib.1/MyLib.1.fsproj" />
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="Expecto" />
+        <PackageReference Include="YoloDev.Expecto.TestSdk" />
+        <PackageReference Include="altcover" />
+    </ItemGroup>
+    <ItemGroup>
         <Compile Include="Tests.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
-    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
 

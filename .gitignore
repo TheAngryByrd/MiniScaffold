@@ -267,11 +267,10 @@ coverage.*.xml
 .paket/.store
 .paket/paket
 
-# Content docs
+# Content specific
 Content/Library/docs/
 Content/Console/docs/
-Content/Library/.paket/paket
-Content/Console/.paket/paket
+Content/**/package.lock.json
 
 # fsdocs generated
 tmp/
