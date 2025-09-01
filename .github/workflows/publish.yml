@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set Versions
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         id: set_version
         with:
           script: |
@@ -34,9 +34,9 @@ jobs:
       url: https://www.nuget.org/packages/MiniScaffold/${{ needs.set_version.outputs.no-v }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: Setup necessary dotnet SDKs
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
           dotnet-version: |
