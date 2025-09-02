@@ -28,7 +28,7 @@ This takes away the ambiguity that developers face when creating an OSS project.
 
 - [Standard project structure](https://docs.microsoft.com/en-us/dotnet/core/porting/project-structure) for your dotnet application
 - [Build Automation](https://en.wikipedia.org/wiki/Build_automation) tool via [FAKE](https://fake.build/)
-- [Package management](https://en.wikipedia.org/wiki/Package_manager) tool via [Paket](https://fsprojects.github.io/Paket/)
+- [Package management](https://en.wikipedia.org/wiki/Package_manager) tool via [Nuget](https://learn.microsoft.com/en-us/nuget/)
 - [Unit Testing](https://en.wikipedia.org/wiki/Unit_testing) via [Expecto](https://github.com/haf/expecto)
 - [Code Coverage](https://en.wikipedia.org/wiki/Code_coverage) via [Altcover](https://github.com/SteveGilham/altcover)
     - Also builds an html report with [ReportGenerator](https://github.com/danielpalme/ReportGenerator)
@@ -148,7 +148,7 @@ Appveyor's conventions around generating URLs based on the project name has some
 
 #### This project uses the following projects:
 * Heavily inspired by [Project Scaffold](https://github.com/fsprojects/ProjectScaffold)
-* [Paket](https://fsprojects.github.io/Paket/)
+* [Nuget](https://learn.microsoft.com/en-us/nuget/)
 * [FAKE](https://fsharp.github.io/FAKE/)
 * [Expecto](https://github.com/haf/expecto)
 * [Buildstats.info](https://github.com/dustinmoris/CI-BuildStats)

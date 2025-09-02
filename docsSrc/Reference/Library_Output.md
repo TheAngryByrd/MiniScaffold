@@ -12,7 +12,6 @@ When you do an initial scaffold, your folder will be filled with this set of fil
     ├── build
     │   ├── build.fs
     │   ├── build.fsproj
-    │   └── paket.references
     ├── build.cmd
     ├── build.sh
     ├── docsSrc
@@ -42,7 +41,6 @@ When you do an initial scaffold, your folder will be filled with this set of fil
     │   ├── README.md
     │   ├── WebServer.fs
     │   ├── docsTool.fsproj
-    │   ├── paket.references
     │   └── templates
     │       ├── helpers.fs
     │       ├── master.fs
@@ -53,15 +51,12 @@ When you do an initial scaffold, your folder will be filled with this set of fil
     │       ├── partNested.fs
     │       └── types.fs
     ├── global.json
-    ├── paket.dependencies
-    ├── paket.lock
     ├── src
     │   ├── Directory.Build.props
     │   └── MyLib.1
     │       ├── AssemblyInfo.fs
     │       ├── Library.fs
     │       ├── MyLib.1.fsproj
-    │       └── paket.references
     └── tests
         ├── Directory.Build.props
         └── MyLib.1.Tests
@@ -69,7 +64,6 @@ When you do an initial scaffold, your folder will be filled with this set of fil
             ├── Main.fs
             ├── MyLib.1.Tests.fsproj
             ├── Tests.fs
-            └── paket.references
 
 - `.config\dotnet-tools.json` - Holds [dotnet tools](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-tool-install) manifest.
 - `.devcontainer\` - Holds all files necessary for [VSCode Dev Container](https://code.visualstudio.com/docs/remote/containers) feature.
@@ -88,7 +82,5 @@ When you do an initial scaffold, your folder will be filled with this set of fil
 - `build\` - Build script for building the repository. See [FAKE Docs](https://fake.build/) for more info.
 - `docsSrc\` - Contains the source files for your [GitHub documentation](https://help.github.com/en/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
 - `docsTool\` - Contains the tool for generating your [GitHub documentation](https://help.github.com/en/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
-- `paket.dependencies` - File containing your repositories dependencies.  See [Paket Docs](https://fsprojects.github.io/Paket/dependencies-file.html) for more info.
-- `paket.lock` - File containing the full dependency graph of your repository.  See [Paket Docs](https://fsprojects.github.io/Paket/lock-file.html) for more info.
 - `src\` - Folder containing your repository's [project files](https://docs.microsoft.com/en-us/aspnet/web-forms/overview/deployment/web-deployment-in-the-enterprise/understanding-the-project-file) and code.
 - `tests\` - Folder containing tests running against your code in `src`.

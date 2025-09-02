@@ -44,7 +44,6 @@ This will generate a structure similar to this
     │   ├── FsDocs.fs
     │   ├── build.fs
     │   ├── build.fsproj
-    │   └── paket.references
     ├── build.cmd
     ├── build.sh
     ├── docsSrc
@@ -68,22 +67,18 @@ This will generate a structure similar to this
     │   └── index.md
     ├── global.json
     ├── MyCoolNewLib.sln
-    ├── paket.dependencies
-    ├── paket.lock
     ├── src
     │   ├── Directory.Build.props
     │   └── MyCoolNewLib
     │       ├── AssemblyInfo.fs
     │       ├── Library.fs
     │       ├── MyCoolNewLib.fsproj
-    │       └── paket.references
     └── tests
         ├── Directory.Build.props
         └── MyCoolNewLib.Tests
             ├── Main.fs
             ├── Tests.fs
             ├── MyCoolNewLib.Tests.fsproj
-            └── paket.references
 
 This may look overwhelming, but we don't have to worry about all of these yet.  Let's just focus on the real important ones for this tutorial.
 
