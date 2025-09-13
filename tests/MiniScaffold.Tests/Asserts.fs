@@ -443,7 +443,7 @@ module Effect =
 
         match
             lines
-            |> Array.tryFindIndex (fun line -> line.Contains "NuGet.NuGet.NuGetPublish(")
+            |> Array.tryFindIndex (fun line -> line.Contains "DotNet.nugetPush")
         with
         | None -> ()
         | Some startIdx ->
@@ -452,7 +452,7 @@ module Effect =
 
             while keepGoing
                   && i < Array.length lines do
-                if lines.[i].Trim() = "})" then
+                if lines.[i].Trim() = "\"*.nupkg\"" then
                     keepGoing <- false
                 // Then fall through to comment out this line, too
                 lines.[i] <-
