@@ -29,5 +29,6 @@
     <PackageVersion Include="Fake.BuildServer.GitHubActions" Version="$(FakeVersion)" />
     <PackageVersion Include="MSBuild.StructuredLogger" Version="2.2.441" />
     <PackageVersion Include="Argu" Version="6.0" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
   </ItemGroup>
 </Project>
