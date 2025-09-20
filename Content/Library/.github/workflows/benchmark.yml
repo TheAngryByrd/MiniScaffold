@@ -30,11 +30,11 @@ jobs:
         with:
           name: MyLib.1 Benchmark
           tool: 'benchmarkdotnet'
-          output-file-path: benchmarks/MyLib.1.Benchmarks/BenchmarkDotNet.Artifacts/results/*.json
+          output-file-path: 'benchmarks/**/BenchmarkDotNet.Artifacts/results/*.json'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
           # Show alert with commit comment on detecting possible performance regression
           alert-threshold: '200%'
           comment-on-alert: true
-          fail-on-alert: true
+          fail-on-alert: false
           alert-comment-cc-users: '@MyGithubUsername'

@@ -115,6 +115,10 @@ module Tests =
         Assert.``NuGet.config exists``
         Assert.``Directory.Packages.props exists``
         Assert.``README exists``
+        Assert.``File exists`` "benchmarks/MyLib.1.Benchmarks/MyLib.1.Benchmarks.fsproj"
+        Assert.``File exists`` "benchmarks/MyLib.1.Benchmarks/Library.Benchmarks.fs"
+        Assert.``File exists`` "benchmarks/MyLib.1.Benchmarks/Program.fs"
+        Assert.``File exists`` ".github/workflows/benchmark.yml"
     ]
 
     [<Tests>]
@@ -131,6 +135,7 @@ module Tests =
                         yield! projectStructureAsserts
                         Assert.``project can build target`` "DotnetPack"
                         Assert.``project can build target`` "BuildDocs"
+                        Assert.``project can build target`` "RunBenchmarks"
                     ]
 
 
