@@ -9,7 +9,7 @@
     <FakeVersion>6.1.3</FakeVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="FSharp.Core" Version="8.0.403" />
+    <PackageVersion Include="FSharp.Core" Version="9.0.303" />
     <PackageVersion Include="Expecto" Version="10.2.2" />
     <PackageVersion Include="YoloDev.Expecto.TestSdk" Version="0.15.3" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
