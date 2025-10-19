@@ -24,6 +24,13 @@
             $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <!-- Disable SourceLink for Debug builds since it breaks incremental builds. See
+        https://github.com/dotnet/sdk/issues/37371#issuecomment-2561620166 -->
+        <EnableSourceLink>false</EnableSourceLink>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    </PropertyGroup>
+
     <!-- Build Quality -->
     <PropertyGroup>
         <!--
