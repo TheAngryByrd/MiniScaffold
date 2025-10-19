@@ -1,5 +1,5 @@
 <Project>
-   <PropertyGroup>
+    <PropertyGroup>
         <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
         <FSharpAnalyzersOtherFlags>--analyzers-path "$(PkgG-Research_FSharp_Analyzers)/analyzers/dotnet/fs"</FSharpAnalyzersOtherFlags>
         <FSharpAnalyzersOtherFlags>$(FSharpAnalyzersOtherFlags) --analyzers-path "$(PkgIonide_Analyzers)/analyzers/dotnet/fs"</FSharpAnalyzersOtherFlags>
