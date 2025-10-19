@@ -4,6 +4,10 @@ See
 https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory?view=vs-2022#directorybuildprops-and-directorybuildtargets
 -->
 <Project>
+  <ItemGroup>
+    <!-- Dotnet Watch to know about this file -->
+    <Watch Include="$(MSBuildThisFileFullPath)"/>
+  </ItemGroup>
 
   <PropertyGroup>
     <_BuildProjBaseIntermediateOutputPath>$(MSBuildThisFileDirectory)build/obj/</_BuildProjBaseIntermediateOutputPath>

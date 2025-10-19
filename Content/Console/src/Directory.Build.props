@@ -1,4 +1,9 @@
 <Project>
+    <ItemGroup>
+        <!-- Dotnet Watch to know about this file -->
+        <Watch Include="$(MSBuildThisFileFullPath)"/>
+    </ItemGroup>
+
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
     <PropertyGroup>
         <IsTestProject>false</IsTestProject>

@@ -1,4 +1,9 @@
 <Project>
+    <ItemGroup>
+        <!-- Dotnet Watch to know about this file -->
+        <Watch Include="$(MSBuildThisFileFullPath)"/>
+    </ItemGroup>
+
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>

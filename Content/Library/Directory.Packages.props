@@ -1,5 +1,10 @@
 <!-- https://learn.microsoft.com/en-us/nuget/consume-packages/Central-Package-Management -->
 <Project>
+  <ItemGroup>
+    <!-- Dotnet Watch to know about this file -->
+    <Watch Include="$(MSBuildThisFileFullPath)"/>
+  </ItemGroup>
+
   <PropertyGroup>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RestoreLockedMode>true</RestoreLockedMode>
