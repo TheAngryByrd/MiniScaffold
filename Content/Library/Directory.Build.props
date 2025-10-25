@@ -5,6 +5,11 @@ See https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-director
  -->
 
 <Project>
+    <ItemGroup>
+        <!-- Dotnet Watch to know about this file -->
+        <Watch Include="$(MSBuildThisFileFullPath)"/>
+    </ItemGroup>
+
     <PropertyGroup>
         <PackageTags>f#, fsharp</PackageTags>
         <PackageProjectUrl>https://github.com/MyGithubUsername/MyLib.1</PackageProjectUrl>
