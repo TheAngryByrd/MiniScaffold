@@ -1,27 +1,107 @@
-# Auto detect text files
+# Normalize line endings for all text files
 * text=auto
 
-# Custom for Visual Studio
-*.cs diff=csharp text=auto eol=lf
-*.vb diff=csharp text=auto eol=lf
-*.fs diff=csharp text=auto eol=lf
-*.fsi diff=csharp text=auto eol=lf
-*.fsx diff=csharp text=auto eol=lf
+###############################
+# .NET Language Files
+###############################
+# Force LF for source code files to ensure consistency across platforms
+*.cs diff=csharp text eol=lf
+*.vb diff=csharp text eol=lf
+*.fs diff=csharp text eol=lf
+*.fsi diff=csharp text eol=lf
+*.fsx diff=csharp text eol=lf
+
+###############################
+# .NET Project Files
+###############################
+# Force CRLF for Visual Studio compatibility
 *.sln text eol=crlf merge=union
-*.csproj merge=union
-*.vbproj merge=union
-*.fsproj merge=union
-*.dbproj merge=union
+*.csproj text eol=crlf merge=union
+*.vbproj text eol=crlf merge=union
+*.fsproj text eol=crlf merge=union
+*.dbproj text eol=crlf merge=union
+*.props text eol=crlf
+*.targets text eol=crlf
+
+###############################
+# Windows Scripts
+###############################
+# Force CRLF for Windows batch files and scripts
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+###############################
+# Unix/Linux Scripts
+###############################
+# Force LF for shell scripts
 *.sh text eol=lf
 
-# Standard to msysgit
-*.doc diff=astextplain
+###############################
+# Configuration Files
+###############################
+# Configuration and data files should use LF
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.xml text eol=lf
+*.config text eol=lf
+*.md text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+
+###############################
+# Binary Files - Git LFS
+###############################
+# Images
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.gif filter=lfs diff=lfs merge=lfs -text
+*.bmp filter=lfs diff=lfs merge=lfs -text
+*.ico filter=lfs diff=lfs merge=lfs -text
+*.svg filter=lfs diff=lfs merge=lfs -text
+
+# Documents
+*.pdf filter=lfs diff=lfs merge=lfs -text
+*.doc filter=lfs diff=lfs merge=lfs -text
+*.docx filter=lfs diff=lfs merge=lfs -text
+*.xls filter=lfs diff=lfs merge=lfs -text
+*.xlsx filter=lfs diff=lfs merge=lfs -text
+*.ppt filter=lfs diff=lfs merge=lfs -text
+*.pptx filter=lfs diff=lfs merge=lfs -text
+
+# Archives
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.tar filter=lfs diff=lfs merge=lfs -text
+*.gz filter=lfs diff=lfs merge=lfs -text
+*.rar filter=lfs diff=lfs merge=lfs -text
+*.7z filter=lfs diff=lfs merge=lfs -text
+
+# Executables and Libraries
+*.exe filter=lfs diff=lfs merge=lfs -text
+*.dll filter=lfs diff=lfs merge=lfs -text
+*.so filter=lfs diff=lfs merge=lfs -text
+*.dylib filter=lfs diff=lfs merge=lfs -text
+*.lib filter=lfs diff=lfs merge=lfs -text
+*.a filter=lfs diff=lfs merge=lfs -text
+
+# Media Files
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.avi filter=lfs diff=lfs merge=lfs -text
+*.mov filter=lfs diff=lfs merge=lfs -text
+*.mp3 filter=lfs diff=lfs merge=lfs -text
+*.wav filter=lfs diff=lfs merge=lfs -text
+
+###############################
+# Legacy Binary Handling
+###############################
+# Fallback for document types that might not use LFS
 *.DOC diff=astextplain
-*.docx diff=astextplain
 *.DOCX diff=astextplain
 *.dot diff=astextplain
 *.DOT diff=astextplain
-*.pdf diff=astextplain
 *.PDF diff=astextplain
-*.rtf diff=astextplain
 *.RTF diff=astextplain
+*.rtf diff=astextplain
