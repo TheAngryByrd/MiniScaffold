@@ -4,21 +4,65 @@
         <Watch Include="$(MSBuildThisFileFullPath)" />
     </ItemGroup>
 
+    <!-- Load Directory.Build.props from parent directory since they don't automatically import -->
     <Import
         Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
     <PropertyGroup>
         <!-- Tell dotnet that anything under src should be packable -->
         <IsPackable>true</IsPackable>
         <!-- Tell dotnet that anything under src is not a test project -->
         <IsTestProject>false</IsTestProject>
     </PropertyGroup>
-    <PropertyGroup>
-        <!-- Sourcelink 
+
+    <!-- Sourcelink 
         https://devblogs.microsoft.com/dotnet/producing-packages-with-source-link/-->
+    <PropertyGroup>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <AllowedOutputExtensionsInPackageBuildOutputFolder>
             $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    </PropertyGroup>
+
+    <!-- Build Quality -->
+    <PropertyGroup>
+        <!--
+        https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/code-generation#deterministic -->
+        <Deterministic>true</Deterministic>
+        <!--
+        https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#continuousintegrationbuild -->
+        <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+        <!--
+        https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/output#producereferenceassembly -->
+        <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+        <!--
+        https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#generatedocumentationfile -->
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+        <!--
+        https://learn.microsoft.com/en-us/dotnet/fundamentals/apicompat/package-validation/overview -->
+        <EnablePackageValidation>true</EnablePackageValidation>
+    </PropertyGroup>
+
+    <!-- Code Quality -->
+    <PropertyGroup>
+        <!--
+        https://learn.microsoft.com/en-us/dotnet/csharp/tutorials/nullable-reference-types#create-the-application-and-enable-nullable-reference-types
+        https://devblogs.microsoft.com/dotnet/nullable-reference-types-in-fsharp-9/#turning-the-feature-on -->
+        <Nullable>enable</Nullable>
+        <!--
+        https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/errors-warnings#treatwarningsaserrors -->
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <NoWarn>$(NoWarn)</NoWarn>
+    </PropertyGroup>
+
+    <!-- Dependency Quality -->
+    <PropertyGroup>
+        <!-- Since this is a library, we should only care about direct vulnerabilities 
+        https://learn.microsoft.com/en-us/nuget/concepts/auditing-packages-->
+        <NuGetAuditMode>direct</NuGetAuditMode>
+        <NuGetAuditLevel>low</NuGetAuditLevel>
+        <NuGetAudit>true</NuGetAudit>
     </PropertyGroup>
 
 </Project>

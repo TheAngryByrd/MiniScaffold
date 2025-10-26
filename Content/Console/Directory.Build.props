@@ -23,7 +23,6 @@ https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory?vi
         <RepositoryUrl>https://github.com/MyGithubUsername/MyLib.1</RepositoryUrl>
     </PropertyGroup>
 
-
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
