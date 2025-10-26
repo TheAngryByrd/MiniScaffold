@@ -129,8 +129,15 @@ module Tests =
                     "-n MyCoolLib --githubUsername CoolPersonNo2",
                     [
                         yield! projectStructureAsserts
+                        Assert.``File exists`` ".github/workflows/benchmark.yml"
+                        Assert.``File exists``
+                            "benchmarks/MyCoolLib.Benchmarks/MyCoolLib.Benchmarks.fsproj"
+                        Assert.``File exists``
+                            "benchmarks/MyCoolLib.Benchmarks/Library.Benchmarks.fs"
+                        Assert.``File exists`` "benchmarks/MyCoolLib.Benchmarks/Program.fs"
                         Assert.``project can build target`` "DotnetPack"
                         Assert.``project can build target`` "BuildDocs"
+                        Assert.``project can build target`` "RunBenchmarks"
                     ]
 
 
@@ -187,6 +194,12 @@ module Tests =
                     "-n fsharp-data-sample --githubUsername CoolPersonNo2",
                     [
                         yield! projectStructureAsserts
+                        Assert.``File exists`` ".github/workflows/benchmark.yml"
+                        Assert.``File exists``
+                            "benchmarks/fsharp-data-sample.Benchmarks/fsharp-data-sample.Benchmarks.fsproj"
+                        Assert.``File exists``
+                            "benchmarks/fsharp-data-sample.Benchmarks/Library.Benchmarks.fs"
+                        Assert.``File exists`` "benchmarks/fsharp-data-sample.Benchmarks/Program.fs"
                         Assert.``project can build target`` "DotnetPack"
                     ]
                     testCase,
