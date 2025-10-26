@@ -14,14 +14,14 @@
 ###############################
 # .NET Project Files
 ###############################
-# Force CRLF for Visual Studio compatibility
-*.sln text eol=crlf merge=union
-*.csproj text eol=crlf merge=union
-*.vbproj text eol=crlf merge=union
-*.fsproj text eol=crlf merge=union
-*.dbproj text eol=crlf merge=union
-*.props text eol=crlf
-*.targets text eol=crlf
+# Force LF for cross-platform compatibility
+*.sln text eol=lf merge=union
+*.csproj text eol=lf merge=union
+*.vbproj text eol=lf merge=union
+*.fsproj text eol=lf merge=union
+*.dbproj text eol=lf merge=union
+*.props text eol=lf
+*.targets text eol=lf
 
 ###############################
 # Windows Scripts
@@ -79,9 +79,7 @@
 *.rar filter=lfs diff=lfs merge=lfs -text
 *.7z filter=lfs diff=lfs merge=lfs -text
 
-# Executables and Libraries
-*.exe filter=lfs diff=lfs merge=lfs -text
-*.dll filter=lfs diff=lfs merge=lfs -text
+# Native Libraries (excluding .NET build artifacts)
 *.so filter=lfs diff=lfs merge=lfs -text
 *.dylib filter=lfs diff=lfs merge=lfs -text
 *.lib filter=lfs diff=lfs merge=lfs -text
