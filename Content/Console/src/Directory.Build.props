@@ -4,12 +4,4 @@
         <IsTestProject>false</IsTestProject>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
-
-    <ItemGroup>
-        <!-- See Directory.Build.targets for FSharpAnalyzersOtherFlags -->
-        <PackageReference Include="FSharp.Analyzers.Build" PrivateAssets="All"/>
-        <PackageReference Include="Ionide.Analyzers" PrivateAssets="All"/>
-        <PackageReference Include="G-Research.FSharp.Analyzers" PrivateAssets="All"/>
-    </ItemGroup>
-
 </Project>
