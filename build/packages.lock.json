@@ -1,7 +1,7 @@
 {
   "version": 2,
   "dependencies": {
-    "net8.0": {
+    "net9.0": {
       "Argu": {
         "type": "Direct",
         "requested": "[6.0.0, )",
@@ -465,7 +465,7 @@
       },
       "FSharp.Core": {
         "type": "CentralTransitive",
-        "requested": "[8.0.403, )",
+        "requested": "[9.0.303, )",
         "resolved": "8.0.301",
         "contentHash": "I94+2zfAhWMJwPzVDFSlsutZvjPkaRvLVipf8b2O4AyzxKUBmevDkUBzcJBqSQNB1Ikig8xdphswoeKrObqx7Q=="
       }

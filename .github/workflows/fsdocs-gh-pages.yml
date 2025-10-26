@@ -30,11 +30,13 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Setup necessary dotnet SDKs
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           dotnet-version: |
-            6.x
+            8.x
+            9.x
+            10.x
       - name: Build Docs
         run: |
           ./build.sh builddocs
