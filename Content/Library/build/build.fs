@@ -34,8 +34,10 @@ let environVarAsBoolOrDefault varName defaultValue =
 //-----------------------------------------------------------------------------
 
 let rootDirectory =
-    __SOURCE_DIRECTORY__
-    </> ".."
+    IO.Path.GetFullPath(
+        __SOURCE_DIRECTORY__
+        </> ".."
+    )
 
 let productName = "MyLib.1"
 
@@ -120,6 +122,7 @@ let CHANGELOGlink = Uri(Uri(gitHubRepoUrl), $"blob/{releaseBranch}/{changelogFil
 let changelogPath =
     rootDirectory
     </> changelogFile
+
 
 let changelog = Fake.Core.Changelog.load changelogPath
 
