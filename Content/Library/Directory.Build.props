@@ -1,30 +1,77 @@
 
 <!--
 This file allows overriding of properties for all projects in the directory.
-See https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory?view=vs-2022#directorybuildprops-and-directorybuildtargets
+See
+https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory?view=vs-2022#directorybuildprops-and-directorybuildtargets
  -->
 
 <Project>
     <ItemGroup>
         <!-- Dotnet Watch to know about this file -->
-        <Watch Include="$(MSBuildThisFileFullPath)"/>
+        <Watch Include="$(MSBuildThisFileFullPath)" />
     </ItemGroup>
 
+    <!-- Package Info -->
+    <!-- https://learn.microsoft.com/en-us/nuget/reference/msbuild-targets#pack-target -->
     <PropertyGroup>
         <PackageTags>f#, fsharp</PackageTags>
         <PackageProjectUrl>https://github.com/MyGithubUsername/MyLib.1</PackageProjectUrl>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile> <!--https://docs.microsoft.com/en-gb/nuget/reference/msbuild-targets#packagereadmefile -->
-        <RepositoryType>git</RepositoryType>
         <Authors>MyGithubUsername</Authors>
+        <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/MyGithubUsername/MyLib.1</RepositoryUrl>
     </PropertyGroup>
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/" />
+        <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Pack="true" PackagePath="/" />
+    </ItemGroup>
+
+
+    <!-- Build Quality -->
+    <PropertyGroup>
+        <!--
+        https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/code-generation#deterministic -->
+        <Deterministic>true</Deterministic>
+        <!--
+        https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#continuousintegrationbuild -->
+        <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+        <!--
+        https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/output#producereferenceassembly -->
+        <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+        <!--
+        https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#generatedocumentationfile -->
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+        <!--
+        https://learn.microsoft.com/en-us/dotnet/fundamentals/apicompat/package-validation/overview -->
+        <EnablePackageValidation>true</EnablePackageValidation>
+    </PropertyGroup>
+
+    <!-- Code Quality -->
+    <PropertyGroup>
+        <!--
+        https://learn.microsoft.com/en-us/dotnet/csharp/tutorials/nullable-reference-types#create-the-application-and-enable-nullable-reference-types
+        https://devblogs.microsoft.com/dotnet/nullable-reference-types-in-fsharp-9/#turning-the-feature-on -->
+        <Nullable>enable</Nullable>
+        <!--
+        https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/errors-warnings#treatwarningsaserrors -->
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <NoWarn>$(NoWarn)</NoWarn>
+    </PropertyGroup>
+
+    <!-- Dependency Quality -->
+    <PropertyGroup>
+        <!-- Since this is a library, we should only care about direct vulnerabilities 
+        https://learn.microsoft.com/en-us/nuget/concepts/auditing-packages-->
+        <NuGetAuditMode>direct</NuGetAuditMode>
+        <NuGetAuditLevel>low</NuGetAuditLevel>
+        <NuGetAudit>true</NuGetAudit>
+    </PropertyGroup>
+
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
-    <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/"/>
-        <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Pack="true" PackagePath="/"/>
-    </ItemGroup>
+
 </Project>

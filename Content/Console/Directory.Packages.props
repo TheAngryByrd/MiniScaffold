@@ -2,7 +2,7 @@
 <Project>
   <ItemGroup>
     <!-- Dotnet Watch to know about this file -->
-    <Watch Include="$(MSBuildThisFileFullPath)"/>
+    <Watch Include="$(MSBuildThisFileFullPath)" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -15,14 +15,19 @@
   </PropertyGroup>
   <ItemGroup>
 
+    <!-- Main -->
     <PackageVersion Include="FSharp.Core" Version="8.0.403" />
+    <PackageVersion Include="Argu" Version="6.0" />
+    <PackageVersion Include="Packaging.Targets" Version="0.1.208" PrivateAssets="All" />
+
+    <!-- Tests -->
     <PackageVersion Include="Expecto" Version="10.2.2" />
     <PackageVersion Include="YoloDev.Expecto.TestSdk" Version="0.15.3" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
-    <PackageVersion Include="Packaging.Targets" Version="0.1.208" PrivateAssets="All" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.1.0" PrivateAssets="All" />
     <PackageVersion Include="altcover" Version="8.2.825" />
 
+    <!-- Build -->
     <PackageVersion Include="Fake.IO.FileSystem" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.Core.Target" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.Core.ReleaseNotes" Version="$(FakeVersion)" />
@@ -34,6 +39,6 @@
     <PackageVersion Include="Fake.Api.GitHub" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.BuildServer.GitHubActions" Version="$(FakeVersion)" />
     <PackageVersion Include="MSBuild.StructuredLogger" Version="2.2.441" />
-    <PackageVersion Include="Argu" Version="6.0" />
+    <PackageVersion Include="System.Formats.Asn1" Version="6.0.1" />
   </ItemGroup>
 </Project>

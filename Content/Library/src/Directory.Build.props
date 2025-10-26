@@ -1,19 +1,24 @@
 <Project>
     <ItemGroup>
         <!-- Dotnet Watch to know about this file -->
-        <Watch Include="$(MSBuildThisFileFullPath)"/>
+        <Watch Include="$(MSBuildThisFileFullPath)" />
     </ItemGroup>
 
-    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+    <Import
+        Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
     <PropertyGroup>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <!-- Tell dotnet that anything under src should be packable -->
         <IsPackable>true</IsPackable>
+        <!-- Tell dotnet that anything under src is not a test project -->
         <IsTestProject>false</IsTestProject>
-
-        <!-- Sourcelink -->
+    </PropertyGroup>
+    <PropertyGroup>
+        <!-- Sourcelink 
+        https://devblogs.microsoft.com/dotnet/producing-packages-with-source-link/-->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>
+            $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     </PropertyGroup>
 
 </Project>
