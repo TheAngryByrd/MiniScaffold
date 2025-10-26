@@ -28,13 +28,27 @@ https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory?vi
   </Target>
 
   <!-- Make sure that files are formatted before building -->
-  <Target Name="Format"
+  <Target Name="FormatFSharp"
     Condition=" '$(MSBuildProjectExtension)' == '.fsproj' AND '$(DesignTimeBuild)' != 'true' "
     BeforeTargets="BeforeBuild" Inputs="@(Compile)" Outputs="$(_DotnetFantomasOutputFile)">
     <Exec Command="dotnet fantomas $(MSBuildProjectDirectory)" StandardOutputImportance="High"
       StandardErrorImportance="High" WorkingDirectory="$(MSBuildThisFileDirectory)"
       ContinueOnError="WarnAndContinue" />
     <Touch Files="$(_DotnetFantomasOutputFile)" AlwaysCreate="True" ForceTouch="True" />
+  </Target>
+
+  <!-- Only format once per project -->
+  <!-- https://learn.microsoft.com/en-us/visualstudio/msbuild/run-target-exactly-once?view=vs-2022 -->
+  <Target Name="FormatFSharpBeforeOuterBuild"
+    DependsOnTargets="FormatFSharp"
+    BeforeTargets="DispatchToInnerBuilds"
+  />
+
+  <Target Name="FormatFSharpBeforeInnerBuild"
+    BeforeTargets="BeforeBuild">
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+      Targets="FormatFSharp"
+      RemoveProperties="TargetFramework" />
   </Target>
 
 </Project>
