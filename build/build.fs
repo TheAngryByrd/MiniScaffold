@@ -351,15 +351,13 @@ let getPkgPath () =
 let integrationTests ctx =
     !!testsGlob
     |> Seq.iter (fun proj ->
-        let testArgs =
+        let runSettingsArgs =
             [
-                "--summary"
+                "Expecto.summary=true"
                 if isCI.Value then
-                    "--fail-on-focused-tests"
+                    "Expecto.fail-on-focused-tests=true"
             ]
-            |> String.concat " "
-
-        let args = [ sprintf "-- %s" testArgs ]
+            |> List.map (sprintf "-- %s")
 
         DotNet.test
             (fun c -> {
@@ -373,7 +371,7 @@ let integrationTests ctx =
                                     c.Common.Environment
                                     |> Map.add "MINISCAFFOLD_NUPKG_LOCATION" (getPkgPath ())
                         }
-                        |> DotNet.Options.withAdditionalArgs args
+                        |> DotNet.Options.withAdditionalArgs runSettingsArgs
             })
             proj
     )
