@@ -364,7 +364,7 @@ let integrationTests ctx =
             (fun c -> {
                 c with
                     Configuration = configuration (ctx.Context.AllExecutingTargets)
-                    Logger = Some "trx;LogFilePrefix=testResults"
+                    Logger = Some "console;verbosity=detailed"
                     Common =
                         {
                             c.Common with
@@ -372,7 +372,13 @@ let integrationTests ctx =
                                     c.Common.Environment
                                     |> Map.add "MINISCAFFOLD_NUPKG_LOCATION" (getPkgPath ())
                         }
-                        |> DotNet.Options.withAdditionalArgs runSettingsArgs
+                        |> DotNet.Options.withAdditionalArgs (
+                            [
+                                "--logger"
+                                "trx;LogFilePrefix=testResults"
+                            ]
+                            @ runSettingsArgs
+                        )
             })
             proj
     )
