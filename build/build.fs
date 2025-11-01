@@ -351,35 +351,31 @@ let getPkgPath () =
 let integrationTests ctx =
     !!testsGlob
     |> Seq.iter (fun proj ->
+        let testArgs =
+            [
+                "--summary"
+                if isCI.Value then
+                    "--fail-on-focused-tests"
+            ]
+            |> String.concat " "
 
-        dotnet.run
-            (fun c ->
+        let args = [ sprintf "-- %s" testArgs ]
 
-                let args =
-                    [
-                        // sprintf "-C %A" (configuration (ctx.Context.AllExecutingTargets))
-                        sprintf "--project %s" proj
-                        "--summary"
-                        if isCI.Value then
-                            "--fail-on-focused-tests"
-                    ]
-                    |> String.concat " "
-
-                {
-                    c with
-                        CustomParams = Some args
-                        Environment =
-                            c.Environment
-                            |> Map.add "MINISCAFFOLD_NUPKG_LOCATION" (getPkgPath ())
-                // Configuration = configuration (ctx.Context.AllExecutingTargets)
-                // Common =
-                //     c.Common
-                //     |> DotNet.Options.withCustomParams
-                //         (Some(args))
-                }
-            )
-            ""
-        |> failOnBadExitAndPrint
+        DotNet.test
+            (fun c -> {
+                c with
+                    Configuration = configuration (ctx.Context.AllExecutingTargets)
+                    Logger = Some "trx;LogFilePrefix=testResults"
+                    Common =
+                        {
+                            c.Common with
+                                Environment =
+                                    c.Common.Environment
+                                    |> Map.add "MINISCAFFOLD_NUPKG_LOCATION" (getPkgPath ())
+                        }
+                        |> DotNet.Options.withAdditionalArgs args
+            })
+            proj
     )
 
 let dotnetPack ctx =

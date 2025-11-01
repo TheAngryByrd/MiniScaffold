@@ -39,6 +39,13 @@ jobs:
         env:
           CONFIGURATION: ${{ matrix.configuration }}
           CI: true
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results (${{ matrix.os }}-${{ matrix.configuration }})
+          path: '**/TestResults/testResults*.trx'
+          reporter: dotnet-trx
 
   # Builds the project in a dev container
   build-devcontainer:
