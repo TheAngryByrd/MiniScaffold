@@ -353,7 +353,6 @@ let integrationTests ctx =
     |> Seq.iter (fun proj ->
         let runSettingsArgs =
             [
-                "Expecto.summary=true"
                 if isCI.Value then
                     "Expecto.fail-on-focused-tests=true"
             ]
