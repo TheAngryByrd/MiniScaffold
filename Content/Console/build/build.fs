@@ -345,6 +345,7 @@ let dotnetTest ctx =
                 c with
                     MSBuildParams = disableBinLog c.MSBuildParams
                     Configuration = configuration (ctx.Context.AllExecutingTargets)
+                    Logger = Some "trx;LogFilePrefix=testResults"
                     Common =
                         c.Common
                         |> DotNet.Options.withAdditionalArgs args
