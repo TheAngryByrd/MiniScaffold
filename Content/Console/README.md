@@ -27,10 +27,22 @@ Make sure the following **requirements** are installed on your system:
 
 - [dotnet SDK](https://www.microsoft.com/net/download/core) 3.0 or higher
 - [Mono](http://www.mono-project.com/) if you're on Linux or macOS.
+- [Git LFS](https://git-lfs.com/) for handling binary assets
 
 or
 
 - [VSCode Dev Container](https://code.visualstudio.com/docs/remote/containers)
+
+#### Git LFS Setup
+
+This project uses Git LFS to handle binary assets efficiently. After cloning the repository, initialize Git LFS:
+
+```sh
+git lfs install
+git lfs pull
+```
+
+The `.gitattributes` file is already configured to track binary files (images, documents, archives, etc.) with LFS automatically.
 
 
 ---
