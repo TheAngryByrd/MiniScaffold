@@ -352,11 +352,13 @@ let integrationTests ctx =
     !!testsGlob
     |> Seq.iter (fun proj ->
         let runSettingsArgs =
-            [
-                if isCI.Value then
+            if isCI.Value then
+                [
+                    "--"
                     "Expecto.fail-on-focused-tests=true"
-            ]
-            |> List.map (sprintf "-- %s")
+                ]
+            else
+                []
 
         DotNet.test
             (fun c -> {
