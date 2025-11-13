@@ -46,7 +46,7 @@ let rootDirectory =
 let sln =
     __SOURCE_DIRECTORY__
     </> ".."
-    </> "MyLib.1.sln"
+    </> "MyLib.1.slnx"
 
 let src =
     __SOURCE_DIRECTORY__

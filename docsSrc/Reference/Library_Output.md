@@ -7,7 +7,7 @@ When you do an initial scaffold, your folder will be filled with this set of fil
     ├── CHANGELOG.md
     ├── Directory.Build.props
     ├── LICENSE.md
-    ├── MyLib.1.sln
+    ├── MyLib.1.slnx
     ├── README.md
     ├── build
     │   ├── build.fs
@@ -74,7 +74,7 @@ When you do an initial scaffold, your folder will be filled with this set of fil
 - `.vscode\settings.json` - File containing all VSCode settings for this repository.
 - `Directory.Build.props` - Top level configuration for project files. See [Microsoft Docs](https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2019#directorybuildprops-and-directorybuildtargets) for more info.
 - `LICENSE.md` - Your repositories license. Starts with MIT. [Choose a license](https://choosealicense.com/) if you're looking for more choices.
-- `MyCoolNewLib.sln` - Solution file for your repository. See [Microsoft Docs](https://docs.microsoft.com/en-us/visualstudio/extensibility/internals/solution-dot-sln-file?view=vs-2019) for more info.
+- `MyCoolNewLib.slnx` - Solution file for your repository in the new XML-based format. See [Microsoft Docs](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-sln) for more info.
 - `README.md` - The text file that introduces and explains a project.
 - `CHANGELOG.md` - The text file containing versioning, date, and release notes.
 - `build.cmd` - Windows specific entry point for building the repository.

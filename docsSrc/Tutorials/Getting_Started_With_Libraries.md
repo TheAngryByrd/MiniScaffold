@@ -66,7 +66,7 @@ This will generate a structure similar to this
     │   │   └── theme-toggle.js
     │   └── index.md
     ├── global.json
-    ├── MyCoolNewLib.sln
+    ├── MyCoolNewLib.slnx
     ├── src
     │   ├── Directory.Build.props
     │   └── MyCoolNewLib
