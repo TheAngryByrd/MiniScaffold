@@ -7,8 +7,8 @@
 
 This is an [F# Template](https://docs.microsoft.com/en-us/dotnet/core/tools/custom-templates) for:
 
-- creating and publishing [libraries](https://docs.microsoft.com/en-us/dotnet/standard/glossary#library) targeting .NET 8.0 `net8.0`
-- creating and publishing [applications](https://docs.microsoft.com/en-us/dotnet/core/tutorials/cli-create-console-app#hello-console-app) targeting .NET 8.0 `net8.0`
+- creating and publishing [libraries](https://docs.microsoft.com/en-us/dotnet/standard/glossary#library) targeting .NET 8.0, 9.0, 10.0 (`net8.0`, `net9.0`, `net10.0`)
+- creating and publishing [applications](https://docs.microsoft.com/en-us/dotnet/core/tutorials/cli-create-console-app#hello-console-app) targeting .NET 10.0 `net10.0`
 
 
 ## Why use MiniScaffold?
@@ -44,8 +44,8 @@ This takes away the ambiguity that developers face when creating an OSS project.
 
 
 ### For [Libraries](Content/Library/README.md)
-- Builds for `net8.0` - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
-    - To build for `net8.0` [.NET 8.0 ](https://dotnet.microsoft.com/download) installed
+- Builds for `net8.0`, `net9.0`, `net10.0` - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
+    - To build for `net8.0`, `net9.0`, `net10.0` have [.NET 10.0 SDK](https://dotnet.microsoft.com/download) installed
 - [Sourcelink](https://github.com/dotnet/sourcelink) which enables a great source debugging experience for your users, by adding source control metadata to your built assets
 - [Documentation Generation](https://github.com/fsprojects/FSharp.Formatting) - Generates Documentation from markdown files, fsx files, and the [XML Documentation Comments](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/) from your library.
 - [Release](Content/Library/README.md#Releasing) build step pushes NuGet packages to [NuGet](https://docs.microsoft.com/en-us/nuget/what-is-nuget)
@@ -55,9 +55,9 @@ This takes away the ambiguity that developers face when creating an OSS project.
 
 ### For [Applications](Content/Console/README.md)
 - Basic argument parsing example via [Argu](https://fsprojects.github.io/Argu/)
-- Builds a `net8.0` application - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
-    - To build for `net8.0`
-        - Have [.NET core 8.0](https://dotnet.microsoft.com/download) installed
+- Builds a `net10.0` application - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
+    - To build for `net10.0`
+        - Have [.NET core 10.0](https://dotnet.microsoft.com/download) installed
 - Builds for `win-x64`, `osx-x64` and `linux-x64` - [Runtime Identifiers](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog).  Bundles the application via [dotnet-packaging](https://github.com/qmfrederik/dotnet-packaging)
     - Bundles the `win-x64` application in a .zip file.
     - Bundles the `osx-x64` application in a .tar.gz file.
