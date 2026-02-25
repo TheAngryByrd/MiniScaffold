@@ -16,7 +16,7 @@
   <ItemGroup>
 
     <!-- Main -->
-    <PackageVersion Include="FSharp.Core" Version="8.0.403" />
+    <PackageVersion Include="FSharp.Core" Version="10.0.102" />
     <PackageVersion Include="Argu" Version="6.0" />
     <PackageVersion Include="Packaging.Targets" Version="0.1.208" PrivateAssets="All" />
 

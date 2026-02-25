@@ -34,7 +34,8 @@ jobs:
         with:
           global-json-file: global.json
           dotnet-version: |
-            6.x
+            8.x
+            9.x
       - name: Build Docs
         run: |
           chmod +x ./build.sh

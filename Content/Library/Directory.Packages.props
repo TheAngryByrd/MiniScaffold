@@ -18,7 +18,7 @@
   <ItemGroup>
 
     <!-- Main -->
-    <PackageVersion Include="FSharp.Core" Version="8.0.403" />
+    <PackageVersion Include="FSharp.Core" Version="10.0.102" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.1.0" />
 
     <!-- Tests -->
