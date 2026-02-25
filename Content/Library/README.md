@@ -23,7 +23,7 @@ MyLib.1 | [![NuGet Badge](https://buildstats.info/nuget/MyLib.1)](https://www.nu
 
 Make sure the following **requirements** are installed on your system:
 
-- [dotnet SDK](https://www.microsoft.com/net/download/core) 10.0 or higher
+- [dotnet SDK](https://www.microsoft.com/net/download/core) 6.0 or higher
 - [Git LFS](https://git-lfs.com/) for handling binary assets
 
 or
@@ -68,17 +68,7 @@ The bin of your library should look similar to:
 $ tree src/MyLib.1/bin/
 src/MyLib.1/bin/
 └── Debug
-    ├── net8.0
-    │   ├── MyLib.1.deps.json
-    │   ├── MyLib.1.dll
-    │   ├── MyLib.1.pdb
-    │   └── MyLib.1.xml
-    ├── net9.0
-    │   ├── MyLib.1.deps.json
-    │   ├── MyLib.1.dll
-    │   ├── MyLib.1.pdb
-    │   └── MyLib.1.xml
-    └── net10.0
+    └── net8.0
         ├── MyLib.1.deps.json
         ├── MyLib.1.dll
         ├── MyLib.1.pdb
