@@ -465,7 +465,7 @@
       },
       "FSharp.Core": {
         "type": "CentralTransitive",
-        "requested": "[10.0.102, )",
+        "requested": "[8.0.403, )",
         "resolved": "8.0.301",
         "contentHash": "I94+2zfAhWMJwPzVDFSlsutZvjPkaRvLVipf8b2O4AyzxKUBmevDkUBzcJBqSQNB1Ikig8xdphswoeKrObqx7Q=="
       }
