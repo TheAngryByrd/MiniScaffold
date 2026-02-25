@@ -1,19 +1,30 @@
 <!--
 This file allows overriding of properties for all projects in the directory.
-See https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory?view=vs-2022#directorybuildprops-and-directorybuildtargets
+See
+https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory?view=vs-2022#directorybuildprops-and-directorybuildtargets
 -->
 
 <Project>
+    <ItemGroup>
+        <!-- Dotnet Watch to know about this file -->
+        <Watch Include="$(MSBuildThisFileFullPath)" />
+    </ItemGroup>
+
+    <!-- Package Info -->
+    <!-- https://learn.microsoft.com/en-us/nuget/reference/msbuild-targets#pack-target -->
     <PropertyGroup>
         <PackageTags>f#, fsharp</PackageTags>
         <PackageProjectUrl>https://github.com/MyGithubUsername/MyLib.1</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/MyGithubUsername/MyLib.1/blob/master/LICENSE.md</PackageLicenseUrl>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-        <RepositoryType>git</RepositoryType>
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile> <!--https://docs.microsoft.com/en-gb/nuget/reference/msbuild-targets#packagereadmefile -->
         <Authors>MyGithubUsername</Authors>
+        <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/MyGithubUsername/MyLib.1</RepositoryUrl>
     </PropertyGroup>
+
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
+
 </Project>

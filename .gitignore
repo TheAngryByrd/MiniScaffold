@@ -270,7 +270,7 @@ coverage.*.xml
 # Content specific
 Content/Library/docs/
 Content/Console/docs/
-Content/**/package.lock.json
+Content/**/packages.lock.json
 
 # fsdocs generated
 tmp/
