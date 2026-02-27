@@ -43,7 +43,7 @@ let productName = "MyLib.1"
 
 let sln =
     rootDirectory
-    </> "MyLib.1.sln"
+    </> "MyLib.1.slnx"
 
 let srcCodeGlob =
     !!(rootDirectory

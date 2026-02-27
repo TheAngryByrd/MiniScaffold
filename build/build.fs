@@ -40,7 +40,7 @@ let productName = "MiniScaffold"
 
 let sln =
     rootDirectory
-    </> "MiniScaffold.sln"
+    </> "MiniScaffold.slnx"
 
 
 let testsCodeGlob =

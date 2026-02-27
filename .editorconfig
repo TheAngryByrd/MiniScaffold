@@ -28,8 +28,8 @@ fsharp_multi_line_lambda_closing_newline=true
 
 
 # Visual Studio Solution Files
-[*.sln]
-indent_style = tab
+[*.slnx]
+indent_size = 2
 
 # XML project files
 [*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj,sfproj}]
