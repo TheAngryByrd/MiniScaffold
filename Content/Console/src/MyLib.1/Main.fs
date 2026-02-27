@@ -26,7 +26,11 @@ module AssemblyInfo =
         |> getMetaDataAttribute assembly
         |> metaDataValue
 
-    let assembly = lazy (Assembly.GetEntryAssembly())
+    let assembly =
+        lazy
+            (match Assembly.GetEntryAssembly() with
+             | null -> failwith "Could not get entry assembly"
+             | asm -> asm)
 
     let printVersion () =
         let version = assembly.Force().GetName().Version

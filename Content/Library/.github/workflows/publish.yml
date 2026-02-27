@@ -21,7 +21,9 @@ jobs:
         with:
           global-json-file: global.json
           dotnet-version: |
-            6.x
+            8.x
+            9.x
+            10.x
       - name: publish
         env:
           NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
