@@ -351,35 +351,36 @@ let getPkgPath () =
 let integrationTests ctx =
     !!testsGlob
     |> Seq.iter (fun proj ->
+        let runSettingsArgs =
+            if isCI.Value then
+                [
+                    "--"
+                    "Expecto.fail-on-focused-tests=true"
+                ]
+            else
+                []
 
-        dotnet.run
-            (fun c ->
-
-                let args =
-                    [
-                        // sprintf "-C %A" (configuration (ctx.Context.AllExecutingTargets))
-                        sprintf "--project %s" proj
-                        "--summary"
-                        if isCI.Value then
-                            "--fail-on-focused-tests"
-                    ]
-                    |> String.concat " "
-
-                {
-                    c with
-                        CustomParams = Some args
-                        Environment =
-                            c.Environment
-                            |> Map.add "MINISCAFFOLD_NUPKG_LOCATION" (getPkgPath ())
-                // Configuration = configuration (ctx.Context.AllExecutingTargets)
-                // Common =
-                //     c.Common
-                //     |> DotNet.Options.withCustomParams
-                //         (Some(args))
-                }
-            )
-            ""
-        |> failOnBadExitAndPrint
+        DotNet.test
+            (fun c -> {
+                c with
+                    Configuration = configuration (ctx.Context.AllExecutingTargets)
+                    Logger = Some "console;verbosity=detailed"
+                    Common =
+                        {
+                            c.Common with
+                                Environment =
+                                    c.Common.Environment
+                                    |> Map.add "MINISCAFFOLD_NUPKG_LOCATION" (getPkgPath ())
+                        }
+                        |> DotNet.Options.withAdditionalArgs (
+                            [
+                                "--logger"
+                                "trx;LogFilePrefix=testResults"
+                            ]
+                            @ runSettingsArgs
+                        )
+            })
+            proj
     )
 
 let dotnetPack ctx =
