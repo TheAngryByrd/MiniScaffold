@@ -275,3 +275,6 @@ tmp/
 temp/
 .fsdocs
 docs/
+
+# BenchmarkDotNet artifacts
+BenchmarkDotNet.Artifacts/

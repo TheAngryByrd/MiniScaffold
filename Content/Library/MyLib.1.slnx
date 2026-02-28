@@ -16,5 +16,11 @@
       <Platform Solution="*|x86" Project="x86" />
     </Project>
   </Folder>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/MyLib.1.Benchmarks/MyLib.1.Benchmarks.fsproj">
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+    </Project>
+  </Folder>
   <Project Path="build/build.fsproj" />
 </Solution>
