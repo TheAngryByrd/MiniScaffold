@@ -1,0 +1,43 @@
+name: Benchmark
+
+on:
+  push:
+    branches:
+      - MyReleaseBranch
+
+permissions:
+  # contents permission to update benchmark contents in MyReleaseBranch
+  contents: write
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup necessary dotnet SDKs
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.x
+      - name: Run benchmarks
+        run: |
+          chmod +x ./build.sh
+          ./build.sh RunBenchmarks
+        env:
+          CI: true
+          CONFIGURATION: Release
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: MyLib.1 Benchmark
+          tool: 'benchmarkdotnet'
+          output-file-path: 'BenchmarkDotNet.Artifacts/results/*.json'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          gh-pages-branch: MyReleaseBranch
+          benchmark-data-dir-path: docs/benchmarks
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '200%'
+          comment-on-alert: true
+          fail-on-alert: false
+          alert-comment-cc-users: '@MyGithubUsername'

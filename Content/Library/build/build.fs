@@ -509,6 +509,17 @@ let watchTests _ =
 
     cancelEvent.Cancel <- true
 
+let benchmarksGlob =
+    rootDirectory
+    </> "benchmarks/**/*.??proj"
+
+let runBenchmarks _ =
+    !!benchmarksGlob
+    |> Seq.iter (fun proj ->
+        DotNet.exec id "run" $"--project \"{proj}\" --configuration Release"
+        |> ignore
+    )
+
 let generateAssemblyInfo _ =
 
     let (|Fsproj|Csproj|Vbproj|) (projFileName: string) =
@@ -731,6 +742,7 @@ let initTargets () =
     Target.create "GenerateCoverageReport" generateCoverageReport
     Target.create "ShowCoverageReport" showCoverageReport
     Target.create "WatchTests" watchTests
+    Target.create "RunBenchmarks" runBenchmarks
     Target.create "GenerateAssemblyInfo" generateAssemblyInfo
     Target.create "DotnetPack" dotnetPack
     Target.create "SourceLinkTest" sourceLinkTest
@@ -785,6 +797,9 @@ let initTargets () =
 
     "DotnetBuild"
     ==>! "WatchDocs"
+
+    "DotnetBuild"
+    ==>! "RunBenchmarks"
 
     "DotnetTest"
     ==> "GenerateCoverageReport"
