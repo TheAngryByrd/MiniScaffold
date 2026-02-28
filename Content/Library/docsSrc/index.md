@@ -57,4 +57,15 @@ I created it because I had to solve an issue with this other thing.
       </div>
     </div>
   </div>
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Benchmarks</h5>
+        <p class="card-text">Performance benchmark results over time.</p>
+      </div>
+      <div class="card-footer text-right   border-top-0">
+        <a href="{{root}}benchmarks/index.html" class="btn btn-primary">View Benchmarks</a>
+      </div>
+    </div>
+  </div>
 </div>
