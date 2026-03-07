@@ -509,7 +509,11 @@ let watchTests _ =
 
     cancelEvent.Cancel <- true
 
-let generateAssemblyInfo _ = ()
+let generateAssemblyInfo _ =
+    let isNoop = true
+
+    if isNoop then
+        ()
 
 let dotnetPack ctx =
     // Get release notes with properly-linked version number
