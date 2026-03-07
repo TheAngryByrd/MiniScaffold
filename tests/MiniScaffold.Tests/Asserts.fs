@@ -1,6 +1,10 @@
 namespace MiniScaffold.Tests
 
 open System.IO
+open System.IO.Compression
+open System.Diagnostics
+open System.Reflection
+open System.Runtime.Loader
 open Expecto
 open Infrastructure
 open Fake.IO.FileSystemOperators
@@ -133,6 +137,107 @@ module Assert =
     let ``README exists`` = tryFindFile "README.md"
 
     let ``File exists`` path = tryFindFile path
+
+    let ``File does not exist`` file (d: DirectoryInfo) =
+        let filepath = Path.Combine(d.FullName, file)
+        Expect.isFalse (File.Exists filepath) (sprintf "%s should not exist" filepath)
+
+    let ``assembly info values are set after pack`` projectName (d: DirectoryInfo) =
+        let mutable extractedDllDir: string option = None
+
+        let nupkgPath = Path.Combine(d.FullName, "dist", $"{projectName}.0.1.0.nupkg")
+
+        Expect.isTrue (File.Exists nupkgPath) (sprintf "%s should exist" nupkgPath)
+
+        use archive = ZipFile.OpenRead(nupkgPath)
+
+        let entry =
+            archive.Entries
+            |> Seq.tryFind (fun x ->
+                x.FullName.StartsWith("lib/net8.0/")
+                && x.FullName.EndsWith($"/{projectName}.dll")
+            )
+
+        let dllPath =
+            match entry with
+            | Some e ->
+                let tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"))
+
+                let tempPath = Path.Combine(tempDir, $"{projectName}.dll")
+
+                Directory.CreateDirectory(tempDir)
+                |> ignore
+
+                e.ExtractToFile(tempPath, true)
+                extractedDllDir <- Some tempDir
+
+                tempPath
+            | None -> failtestf "Could not find lib/net8.0/%s.dll in %s" projectName nupkgPath
+
+        let assemblyName = AssemblyName.GetAssemblyName(dllPath)
+        Expect.equal assemblyName.Version (Version "0.1.0.0") "AssemblyVersion should be 0.1.0.0"
+
+        let fileVersionInfo = FileVersionInfo.GetVersionInfo(dllPath)
+
+        Expect.equal fileVersionInfo.FileVersion "0.1.0" "FileVersion should be 0.1.0"
+
+        let assemblyContext =
+            new AssemblyLoadContext($"metadata-{projectName}-{Guid.NewGuid():N}", true)
+
+        try
+            let assembly = assemblyContext.LoadFromAssemblyPath(dllPath)
+
+            let title =
+                assembly.GetCustomAttribute<AssemblyTitleAttribute>()
+                |> Option.ofObj
+                |> Option.map _.Title
+
+            Expect.equal title (Some projectName) "AssemblyTitle should match project name"
+
+            let product =
+                assembly.GetCustomAttribute<AssemblyProductAttribute>()
+                |> Option.ofObj
+                |> Option.map _.Product
+
+            Expect.equal product (Some projectName) "AssemblyProduct should match project name"
+
+            let informationalVersion =
+                assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                |> Option.ofObj
+                |> Option.map _.InformationalVersion
+
+            Expect.equal informationalVersion (Some "0.1.0") "InformationalVersion should be 0.1.0"
+
+            let metadata =
+                assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+                |> Seq.map (fun x -> x.Key, x.Value)
+                |> Map.ofSeq
+
+            Expect.equal
+                (metadata
+                 |> Map.tryFind "ReleaseChannel")
+                (Some "release")
+                "ReleaseChannel should be release"
+
+            let releaseDate =
+                metadata
+                |> Map.tryFind "ReleaseDate"
+
+            Expect.isTrue
+                (releaseDate
+                 |> Option.exists (
+                     String.IsNullOrWhiteSpace
+                     >> not
+                 ))
+                "ReleaseDate should be set"
+        finally
+            assemblyContext.Unload()
+
+            extractedDllDir
+            |> Option.iter (fun path ->
+                if Directory.Exists path then
+                    Directory.Delete(path, true)
+            )
 
 module Effect =
     open System

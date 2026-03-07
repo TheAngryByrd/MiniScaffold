@@ -129,7 +129,9 @@ module Tests =
                     "-n MyCoolLib --githubUsername CoolPersonNo2",
                     [
                         yield! projectStructureAsserts
+                        Assert.``File does not exist`` "src/MyCoolLib/AssemblyInfo.fs"
                         Assert.``project can build target`` "DotnetPack"
+                        Assert.``assembly info values are set after pack`` "MyCoolLib"
                         Assert.``project can build target`` "BuildDocs"
                     ]
 
