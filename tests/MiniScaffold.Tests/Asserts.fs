@@ -134,6 +134,10 @@ module Assert =
 
     let ``File exists`` path = tryFindFile path
 
+    let ``File does not exist`` file (d: DirectoryInfo) =
+        let filepath = Path.Combine(d.FullName, file)
+        Expect.isFalse (File.Exists filepath) (sprintf "%s should not exist" filepath)
+
 module Effect =
     open System
     open Fake.IO
