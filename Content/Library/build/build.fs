@@ -390,13 +390,9 @@ let assemblyInfoMsBuildArgs () =
 
 
 let dotnetBuild ctx =
-    let isDotnetPack = ctx.Context.TryFindTarget("DotnetPack").IsSome
-
     let args = [
         sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
         "--no-restore"
-        if isDotnetPack then
-            yield! assemblyInfoMsBuildArgs ()
     ]
 
     DotNet.build

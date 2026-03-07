@@ -10,7 +10,7 @@
 
     <PropertyGroup>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-        <Product>MyLib.1</Product>
+        <Product>$(MSBuildProjectName)</Product>
         <!-- Tell dotnet that anything under src should be packable -->
         <IsPackable>true</IsPackable>
         <!-- Tell dotnet that anything under src is not a test project -->
