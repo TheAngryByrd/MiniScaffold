@@ -1,6 +1,9 @@
 namespace MiniScaffold.Tests
 
 open System.IO
+open System.Diagnostics
+open System.Reflection
+open System.Runtime.Loader
 open Expecto
 open Infrastructure
 open Fake.IO.FileSystemOperators
@@ -137,6 +140,78 @@ module Assert =
     let ``File does not exist`` file (d: DirectoryInfo) =
         let filepath = Path.Combine(d.FullName, file)
         Expect.isFalse (File.Exists filepath) (sprintf "%s should not exist" filepath)
+
+    let ``assembly info values are set after pack`` projectName (d: DirectoryInfo) =
+        let dllPath =
+            Path.Combine(
+                d.FullName,
+                "src",
+                projectName,
+                "bin",
+                "Debug",
+                "net8.0",
+                $"{projectName}.dll"
+            )
+
+        Expect.isTrue (File.Exists dllPath) (sprintf "%s should exist" dllPath)
+
+        let assemblyName = AssemblyName.GetAssemblyName(dllPath)
+        Expect.equal assemblyName.Version (Version "0.1.0.0") "AssemblyVersion should be 0.1.0.0"
+
+        let fileVersionInfo = FileVersionInfo.GetVersionInfo(dllPath)
+
+        Expect.equal fileVersionInfo.FileVersion "0.1.0" "FileVersion should be 0.1.0"
+
+        let assemblyContext =
+            new AssemblyLoadContext($"metadata-{projectName}-{Guid.NewGuid():N}", true)
+
+        let assembly = assemblyContext.LoadFromAssemblyPath(dllPath)
+
+        let title =
+            assembly.GetCustomAttribute<AssemblyTitleAttribute>()
+            |> Option.ofObj
+            |> Option.map _.Title
+
+        Expect.equal title (Some projectName) "AssemblyTitle should match project name"
+
+        let product =
+            assembly.GetCustomAttribute<AssemblyProductAttribute>()
+            |> Option.ofObj
+            |> Option.map _.Product
+
+        Expect.equal product (Some projectName) "AssemblyProduct should match project name"
+
+        let informationalVersion =
+            assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            |> Option.ofObj
+            |> Option.map _.InformationalVersion
+
+        Expect.equal informationalVersion (Some "0.1.0") "InformationalVersion should be 0.1.0"
+
+        let metadata =
+            assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+            |> Seq.map (fun x -> x.Key, x.Value)
+            |> Map.ofSeq
+
+        Expect.equal
+            (metadata
+             |> Map.tryFind "ReleaseChannel")
+            (Some "release")
+            "ReleaseChannel should be release"
+
+        let releaseDate =
+            metadata
+            |> Map.tryFind "ReleaseDate"
+
+        Expect.isTrue
+            (releaseDate
+             |> Option.exists (
+                 String.IsNullOrWhiteSpace
+                 >> not
+             ))
+            "ReleaseDate should be set"
+
+        assemblyContext.Unload()
 
 module Effect =
     open System

@@ -364,11 +364,39 @@ let deleteChangelogBackupFile _ =
     if String.isNotNullOrEmpty Changelog.changelogBackupFilename then
         Shell.rm Changelog.changelogBackupFilename
 
+let assemblyInfoMsBuildArgs () =
+    let releaseChannel =
+        match latestEntry.SemVer.PreRelease with
+        | Some pr -> pr.Name
+        | _ -> "release"
+
+    let releaseDate = latestEntry.Date.Value.ToString("o")
+
+    let gitHash =
+        try
+            Git.Information.getCurrentSHA1 (null)
+        with _ ->
+            ""
+
+    [
+        $"/p:Version={latestEntry.AssemblyVersion}"
+        $"/p:AssemblyVersion={latestEntry.AssemblyVersion}"
+        $"/p:FileVersion={latestEntry.AssemblyVersion}"
+        $"/p:InformationalVersion={latestEntry.AssemblyVersion}"
+        $"/p:AssemblyMetadataReleaseDate={releaseDate}"
+        $"/p:AssemblyMetadataReleaseChannel={releaseChannel}"
+        $"/p:AssemblyMetadataGitHash={gitHash}"
+    ]
+
 
 let dotnetBuild ctx =
+    let isDotnetPack = ctx.Context.TryFindTarget("DotnetPack").IsSome
+
     let args = [
         sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
         "--no-restore"
+        if isDotnetPack then
+            yield! assemblyInfoMsBuildArgs ()
     ]
 
     DotNet.build
@@ -519,28 +547,9 @@ let dotnetPack ctx =
     // Get release notes with properly-linked version number
     let releaseNotes = Changelog.mkReleaseNotes changelog latestEntry gitHubRepoUrl
 
-    let releaseChannel =
-        match latestEntry.SemVer.PreRelease with
-        | Some pr -> pr.Name
-        | _ -> "release"
-
-    let releaseDate = latestEntry.Date.Value.ToString("o")
-
-    let gitHash =
-        try
-            Git.Information.getCurrentSHA1 (null)
-        with _ ->
-            ""
-
     let args = [
         $"/p:PackageVersion={latestEntry.NuGetVersion}"
-        $"/p:Version={latestEntry.AssemblyVersion}"
-        $"/p:AssemblyVersion={latestEntry.AssemblyVersion}"
-        $"/p:FileVersion={latestEntry.AssemblyVersion}"
-        $"/p:InformationalVersion={latestEntry.AssemblyVersion}"
-        $"/p:AssemblyMetadataReleaseDate={releaseDate}"
-        $"/p:AssemblyMetadataReleaseChannel={releaseChannel}"
-        $"/p:AssemblyMetadataGitHash={gitHash}"
+        yield! assemblyInfoMsBuildArgs ()
         $"/p:PackageReleaseNotes=\"{releaseNotes}\""
     ]
 
