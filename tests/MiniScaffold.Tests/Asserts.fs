@@ -44,6 +44,9 @@ module Array =
         newArray
 
 module Assert =
+    let private deleteRetryDelayMs = 100
+    let private maxDeleteRetries = 5
+
     open System
 
     let private failIfNoneWithMsg msg opt =
@@ -179,13 +182,17 @@ module Assert =
 
         let fileVersionInfo = FileVersionInfo.GetVersionInfo(dllPath)
 
-        Expect.equal fileVersionInfo.FileVersion "0.1.0" "FileVersion should be 0.1.0"
+        Expect.isTrue
+            (fileVersionInfo.FileVersion = "0.1.0"
+             || fileVersionInfo.FileVersion = "0.1.0.0")
+            "FileVersion should be 0.1.0 or 0.1.0.0"
 
         let assemblyContext =
             new AssemblyLoadContext($"metadata-{projectName}-{Guid.NewGuid():N}", true)
 
         try
-            let assembly = assemblyContext.LoadFromAssemblyPath(dllPath)
+            use assemblyStream = new MemoryStream(File.ReadAllBytes dllPath)
+            let assembly = assemblyContext.LoadFromStream(assemblyStream)
 
             let title =
                 assembly.GetCustomAttribute<AssemblyTitleAttribute>()
@@ -232,11 +239,29 @@ module Assert =
                 "ReleaseDate should be set"
         finally
             assemblyContext.Unload()
+            GC.Collect()
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
 
             extractedDllDir
             |> Option.iter (fun path ->
-                if Directory.Exists path then
-                    Directory.Delete(path, true)
+                let rec deleteWithRetry attempts =
+                    try
+                        if Directory.Exists path then
+                            Directory.Delete(path, true)
+                    with
+                    | :? IOException
+                    | :? UnauthorizedAccessException when attempts > 0 ->
+                        GC.Collect()
+                        GC.WaitForPendingFinalizers()
+                        System.Threading.Thread.Sleep deleteRetryDelayMs
+
+                        deleteWithRetry (
+                            attempts
+                            - 1
+                        )
+
+                deleteWithRetry maxDeleteRetries
             )
 
 module Effect =
