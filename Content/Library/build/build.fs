@@ -533,12 +533,6 @@ let watchTests _ =
 
     cancelEvent.Cancel <- true
 
-let generateAssemblyInfo _ =
-    let isNoop = true
-
-    if isNoop then
-        ()
-
 let dotnetPack ctx =
     // Get release notes with properly-linked version number
     let releaseNotes = Changelog.mkReleaseNotes changelog latestEntry gitHubRepoUrl
@@ -696,7 +690,6 @@ let initTargets () =
     Target.create "GenerateCoverageReport" generateCoverageReport
     Target.create "ShowCoverageReport" showCoverageReport
     Target.create "WatchTests" watchTests
-    Target.create "GenerateAssemblyInfo" generateAssemblyInfo
     Target.create "DotnetPack" dotnetPack
     Target.create "SourceLinkTest" sourceLinkTest
     Target.create "PublishToNuGet" publishToNuget
@@ -723,20 +716,9 @@ let initTargets () =
     "Clean"
     ==>! "DotnetPack"
 
-    // Only call GenerateAssemblyInfo if GitRelease was in the call chain
-    // Ensure GenerateAssemblyInfo is called after DotnetRestore and before DotnetBuild
-    "DotnetRestore"
-    ?=>! "GenerateAssemblyInfo"
-
-    "GenerateAssemblyInfo"
-    ?=>! "DotnetBuild"
-
     // Ensure UpdateChangelog is called after DotnetRestore
     "DotnetRestore"
     ?=>! "UpdateChangelog"
-
-    "UpdateChangelog"
-    ?=>! "GenerateAssemblyInfo"
 
     "CleanDocsCache"
     ==>! "BuildDocs"
@@ -756,7 +738,6 @@ let initTargets () =
     ==>! "ShowCoverageReport"
 
     "UpdateChangelog"
-    ==> "GenerateAssemblyInfo"
     ==> "GitRelease"
     ==>! "Release"
 
