@@ -19,7 +19,6 @@
         <PackageReference Include="Packaging.Targets" PrivateAssets="All" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="AssemblyInfo.fs" />
         <None Include="App.config" />
         <Compile Include="Main.fs" />
     </ItemGroup>
