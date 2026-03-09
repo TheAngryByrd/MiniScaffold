@@ -4,6 +4,10 @@ namespace Infrastructure
 module Dotnet =
     open Fake.Core
     open Fake.DotNet
+    open System.Threading
+
+    let private fantomasRetryDelayMs = 250
+    let private fantomasMaxRetries = 2
 
     let failOnBadExitAndPrint (p: ProcessResult) =
         if
@@ -16,14 +20,32 @@ module Dotnet =
             failwithf "failed with exitcode %d" p.ExitCode
 
     let fantomas workingDir args =
-        DotNet.exec
-            (fun opt -> {
-                opt with
-                    WorkingDirectory = workingDir
-            })
-            "fantomas"
-            args
-        |> failOnBadExitAndPrint
+        let rec run attempts =
+            let result =
+                DotNet.exec
+                    (fun opt -> {
+                        opt with
+                            WorkingDirectory = workingDir
+                    })
+                    "fantomas"
+                    args
+
+            if
+                // Exit code 137 can occur when Fantomas is transiently terminated by the OS.
+                result.ExitCode = 137
+                && attempts > 0
+            then
+                Thread.Sleep fantomasRetryDelayMs
+
+                run (
+                    attempts
+                    - 1
+                )
+            else
+                result
+                |> failOnBadExitAndPrint
+
+        run fantomasMaxRetries
 
     module New =
         let cmd (opt: DotNet.Options -> DotNet.Options) args =
