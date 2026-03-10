@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.40.0-beta001] - 2026-03-09
+
+### Added
+- [Add dotnet watch support to .props/.targets files](https://github.com/TheAngryByrd/MiniScaffold/pull/305) from @TheAngryByrd
+- [Add comprehensive GitHub Copilot instructions for MiniScaffold development](https://github.com/TheAngryByrd/MiniScaffold/pull/294) from @TheAngryByrd
+- [Add test-reporter action to display test results in GitHub Actions](https://github.com/TheAngryByrd/MiniScaffold/pull/312) from @TheAngryByrd
+
+### Changed
+- [Refactor project files to replace Paket with NuGet for package management](https://github.com/TheAngryByrd/MiniScaffold/commit/8fac2a5) from @TheAngryByrd
+- [Update NuGet publish references in tests to use DotNet.nugetPush](https://github.com/TheAngryByrd/MiniScaffold/commit/ab9e1ed) from @TheAngryByrd
+- [Optimize SourceLink to only run on Release builds to prevent incremental build breakage](https://github.com/TheAngryByrd/MiniScaffold/pull/306) from @TheAngryByrd
+- [Run FsharpFormat once per TFM](https://github.com/TheAngryByrd/MiniScaffold/pull/308) from @TheAngryByrd
+- [Refactor project files to enhance package management and build quality settings](https://github.com/TheAngryByrd/MiniScaffold/pull/309) from @TheAngryByrd
+- [Re-enable F# analyzers in Library and Console templates](https://github.com/TheAngryByrd/MiniScaffold/pull/310) from @TheAngryByrd
+- [Update .gitattributes with comprehensive best practices for .NET projects](https://github.com/TheAngryByrd/MiniScaffold/pull/311) from @TheAngryByrd
+- [Prepare for .NET 10: update TFMs, workflows, and infrastructure](https://github.com/TheAngryByrd/MiniScaffold/pull/315) from @TheAngryByrd
+- [Convert .sln to .slnx](https://github.com/TheAngryByrd/MiniScaffold/pull/316) from @TheAngryByrd
+- [Update Library_Output.md to reflect current template file structure](https://github.com/TheAngryByrd/MiniScaffold/pull/317) from @TheAngryByrd
+- [Move template AssemblyInfo generation from FAKE files to MSBuild pack-time metadata](https://github.com/TheAngryByrd/MiniScaffold/pull/320) from @TheAngryByrd
+
 ## [0.39.0] - 2025-09-01
 
 ### Changed
@@ -756,7 +776,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.39.0...HEAD
+[Unreleased]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.40.0-beta001...HEAD
+[0.40.0-beta001]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.39.0...v0.40.0-beta001
 [0.39.0]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.38.0...v0.39.0
 [0.39.0-beta002]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.38.0...v0.39.0-beta002
 [0.39.0-beta001]: https://github.com/TheAngryByrd/MiniScaffold//compare/v0.38.0...v0.39.0-beta001
