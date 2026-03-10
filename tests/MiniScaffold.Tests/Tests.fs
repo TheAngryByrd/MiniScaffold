@@ -129,7 +129,9 @@ module Tests =
                     "-n MyCoolLib --githubUsername CoolPersonNo2",
                     [
                         yield! projectStructureAsserts
+                        Assert.``File does not exist`` "src/MyCoolLib/AssemblyInfo.fs"
                         Assert.``project can build target`` "DotnetPack"
+                        Assert.``assembly info values are set after pack`` "MyCoolLib"
                         Assert.``project can build target`` "BuildDocs"
                     ]
 
@@ -144,6 +146,7 @@ module Tests =
                             "src"
                         Effect.``dotnet sln add`` "src/MyCoolLib3/MyCoolLib3.fsproj"
                         Assert.``File exists`` "src/MyCoolLib3/MyCoolLib3.fsproj"
+                        Assert.``File does not exist`` "src/MyCoolLib3/AssemblyInfo.fs"
                         Assert.``project can build target`` "DotnetPack"
                     ]
 
@@ -157,6 +160,7 @@ module Tests =
                             "src"
                         Effect.``dotnet sln add`` "src/MyCoolConsole/MyCoolConsole.fsproj"
                         Assert.``File exists`` "src/MyCoolConsole/MyCoolConsole.fsproj"
+                        Assert.``File does not exist`` "src/MyCoolConsole/AssemblyInfo.fs"
                         Assert.``project can build target`` "DotnetPack"
                         Effect.``dotnet run`` "" "src/MyCoolConsole/"
                     ]
@@ -179,6 +183,7 @@ module Tests =
                             "../../src/MyCoolLib3/MyCoolLib3.fsproj"
                             "tests/MyCoolLib3.Tests/"
                         Assert.``File exists`` "tests/MyCoolLib3.Tests/MyCoolLib3.Tests.fsproj"
+                        Assert.``File does not exist`` "tests/MyCoolLib3.Tests/AssemblyInfo.fs"
                         Assert.``project can build target`` "DotnetPack"
                     ]
 
@@ -202,7 +207,7 @@ module Tests =
                     "-n AssemblyInfoFail --githubUsername TestAccount",
                     [
                         Effect.``setup for release tests``
-                        Effect.``make build function fail`` "let generateAssemblyInfo"
+                        Effect.``make build function fail`` "let updateChangelog"
                         Assert.``CHANGELOG contains Unreleased section``
                         Assert.``build target with failure expected`` "Release"
                         Assert.``CHANGELOG contains Unreleased section``
@@ -305,7 +310,7 @@ module Tests =
                     "-n AssemblyInfoFail --githubUsername TestAccount --outputType Console",
                     [
                         Effect.``setup for release tests``
-                        Effect.``make build function fail`` "let generateAssemblyInfo"
+                        Effect.``make build function fail`` "let updateChangelog"
                         Assert.``CHANGELOG contains Unreleased section``
                         Assert.``build target with failure expected`` "Release"
                         Assert.``CHANGELOG contains Unreleased section``

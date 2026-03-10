@@ -364,6 +364,30 @@ let deleteChangelogBackupFile _ =
     if String.isNotNullOrEmpty Changelog.changelogBackupFilename then
         Shell.rm Changelog.changelogBackupFilename
 
+let assemblyInfoMsBuildArgs () =
+    let releaseChannel =
+        match latestEntry.SemVer.PreRelease with
+        | Some pr -> pr.Name
+        | _ -> "release"
+
+    let releaseDate = latestEntry.Date.Value.ToString("o")
+
+    let gitHash =
+        try
+            Git.Information.getCurrentSHA1 (null)
+        with _ ->
+            ""
+
+    [
+        $"/p:Version={latestEntry.AssemblyVersion}"
+        $"/p:AssemblyVersion={latestEntry.AssemblyVersion}"
+        $"/p:FileVersion={latestEntry.AssemblyVersion}"
+        $"/p:InformationalVersion={latestEntry.AssemblyVersion}"
+        $"/p:AssemblyMetadataReleaseDate={releaseDate}"
+        $"/p:AssemblyMetadataReleaseChannel={releaseChannel}"
+        $"/p:AssemblyMetadataGitHash={gitHash}"
+    ]
+
 
 let dotnetBuild ctx =
     let args = [
@@ -509,69 +533,13 @@ let watchTests _ =
 
     cancelEvent.Cancel <- true
 
-let generateAssemblyInfo _ =
-
-    let (|Fsproj|Csproj|Vbproj|) (projFileName: string) =
-        match projFileName with
-        | f when f.EndsWith("fsproj") -> Fsproj
-        | f when f.EndsWith("csproj") -> Csproj
-        | f when f.EndsWith("vbproj") -> Vbproj
-        | _ ->
-            failwith (sprintf "Project file %s not supported. Unknown project type." projFileName)
-
-    let releaseChannel =
-        match latestEntry.SemVer.PreRelease with
-        | Some pr -> pr.Name
-        | _ -> "release"
-
-    let getAssemblyInfoAttributes projectName = [
-        AssemblyInfo.Title(projectName)
-        AssemblyInfo.Product productName
-        AssemblyInfo.Version latestEntry.AssemblyVersion
-        AssemblyInfo.Metadata("ReleaseDate", latestEntry.Date.Value.ToString("o"))
-        AssemblyInfo.FileVersion latestEntry.AssemblyVersion
-        AssemblyInfo.InformationalVersion latestEntry.AssemblyVersion
-        AssemblyInfo.Metadata("ReleaseChannel", releaseChannel)
-        AssemblyInfo.Metadata("GitHash", Git.Information.getCurrentSHA1 (null))
-    ]
-
-    let getProjectDetails (projectPath: string) =
-        let projectName = IO.Path.GetFileNameWithoutExtension(projectPath)
-
-        (projectPath,
-         projectName,
-         IO.Path.GetDirectoryName(projectPath),
-         (getAssemblyInfoAttributes projectName))
-
-    !!srcGlob
-    |> Seq.map getProjectDetails
-    |> Seq.iter (fun (projFileName, _, folderName, attributes) ->
-        match projFileName with
-        | Fsproj ->
-            AssemblyInfoFile.createFSharp
-                (folderName
-                 </> "AssemblyInfo.fs")
-                attributes
-        | Csproj ->
-            AssemblyInfoFile.createCSharp
-                ((folderName
-                  </> "Properties")
-                 </> "AssemblyInfo.cs")
-                attributes
-        | Vbproj ->
-            AssemblyInfoFile.createVisualBasic
-                ((folderName
-                  </> "My Project")
-                 </> "AssemblyInfo.vb")
-                attributes
-    )
-
 let dotnetPack ctx =
     // Get release notes with properly-linked version number
     let releaseNotes = Changelog.mkReleaseNotes changelog latestEntry gitHubRepoUrl
 
     let args = [
         $"/p:PackageVersion={latestEntry.NuGetVersion}"
+        yield! assemblyInfoMsBuildArgs ()
         $"/p:PackageReleaseNotes=\"{releaseNotes}\""
     ]
 
@@ -619,15 +587,6 @@ let gitRelease _ =
 
     Git.Staging.stageFile "" "CHANGELOG.md"
     |> ignore
-
-    !!(rootDirectory
-       </> "src/**/AssemblyInfo.fs")
-    ++ (rootDirectory
-        </> "tests/**/AssemblyInfo.fs")
-    |> Seq.iter (
-        Git.Staging.stageFile ""
-        >> ignore
-    )
 
     let msg =
         sprintf "Bump version to %s\n\n%s" latestEntry.NuGetVersion releaseNotesGitCommitFormat
@@ -731,7 +690,6 @@ let initTargets () =
     Target.create "GenerateCoverageReport" generateCoverageReport
     Target.create "ShowCoverageReport" showCoverageReport
     Target.create "WatchTests" watchTests
-    Target.create "GenerateAssemblyInfo" generateAssemblyInfo
     Target.create "DotnetPack" dotnetPack
     Target.create "SourceLinkTest" sourceLinkTest
     Target.create "PublishToNuGet" publishToNuget
@@ -758,20 +716,9 @@ let initTargets () =
     "Clean"
     ==>! "DotnetPack"
 
-    // Only call GenerateAssemblyInfo if GitRelease was in the call chain
-    // Ensure GenerateAssemblyInfo is called after DotnetRestore and before DotnetBuild
-    "DotnetRestore"
-    ?=>! "GenerateAssemblyInfo"
-
-    "GenerateAssemblyInfo"
-    ?=>! "DotnetBuild"
-
     // Ensure UpdateChangelog is called after DotnetRestore
     "DotnetRestore"
     ?=>! "UpdateChangelog"
-
-    "UpdateChangelog"
-    ?=>! "GenerateAssemblyInfo"
 
     "CleanDocsCache"
     ==>! "BuildDocs"
@@ -791,7 +738,6 @@ let initTargets () =
     ==>! "ShowCoverageReport"
 
     "UpdateChangelog"
-    ==> "GenerateAssemblyInfo"
     ==> "GitRelease"
     ==>! "Release"
 

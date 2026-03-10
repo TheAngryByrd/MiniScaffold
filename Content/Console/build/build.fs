@@ -182,6 +182,28 @@ let failOnBadExitAndPrint (p: ProcessResult) =
 
         failwithf "failed with exitcode %d" p.ExitCode
 
+let assemblyInfoMsBuildArgs () =
+    let releaseChannel =
+        match latestEntry.SemVer.PreRelease with
+        | Some pr -> pr.Name
+        | _ -> "release"
+
+    let gitHash =
+        try
+            Git.Information.getCurrentSHA1 (null)
+        with _ ->
+            ""
+
+    [
+        sprintf "/p:Version=%s" latestEntry.AssemblyVersion
+        sprintf "/p:AssemblyVersion=%s" latestEntry.AssemblyVersion
+        sprintf "/p:FileVersion=%s" latestEntry.AssemblyVersion
+        sprintf "/p:InformationalVersion=%s" latestEntry.AssemblyVersion
+        sprintf "/p:AssemblyMetadataReleaseDate=%s" (latestEntry.Date.Value.ToString("o"))
+        sprintf "/p:AssemblyMetadataReleaseChannel=%s" releaseChannel
+        sprintf "/p:AssemblyMetadataGitHash=%s" gitHash
+    ]
+
 let rec retryIfInCI times fn =
     if isCI.Value then
         if times > 1 then
@@ -423,63 +445,6 @@ let watchTests _ =
 
     cancelEvent.Cancel <- true
 
-let generateAssemblyInfo _ =
-
-    let (|Fsproj|Csproj|Vbproj|) (projFileName: string) =
-        match projFileName with
-        | f when f.EndsWith("fsproj") -> Fsproj
-        | f when f.EndsWith("csproj") -> Csproj
-        | f when f.EndsWith("vbproj") -> Vbproj
-        | _ ->
-            failwith (sprintf "Project file %s not supported. Unknown project type." projFileName)
-
-    let releaseChannel =
-        match latestEntry.SemVer.PreRelease with
-        | Some pr -> pr.Name
-        | _ -> "release"
-
-    let getAssemblyInfoAttributes projectName = [
-        AssemblyInfo.Title(projectName)
-        AssemblyInfo.Product productName
-        AssemblyInfo.Version latestEntry.AssemblyVersion
-        AssemblyInfo.Metadata("ReleaseDate", latestEntry.Date.Value.ToString("o"))
-        AssemblyInfo.FileVersion latestEntry.AssemblyVersion
-        AssemblyInfo.InformationalVersion latestEntry.AssemblyVersion
-        AssemblyInfo.Metadata("ReleaseChannel", releaseChannel)
-        AssemblyInfo.Metadata("GitHash", Git.Information.getCurrentSHA1 (null))
-    ]
-
-    let getProjectDetails (projectPath: string) =
-        let projectName = IO.Path.GetFileNameWithoutExtension(projectPath)
-
-        (projectPath,
-         projectName,
-         IO.Path.GetDirectoryName(projectPath),
-         (getAssemblyInfoAttributes projectName))
-
-    !!srcGlob
-    |> Seq.map getProjectDetails
-    |> Seq.iter (fun (projFileName, _, folderName, attributes) ->
-        match projFileName with
-        | Fsproj ->
-            AssemblyInfoFile.createFSharp
-                (folderName
-                 @@ "AssemblyInfo.fs")
-                attributes
-        | Csproj ->
-            AssemblyInfoFile.createCSharp
-                ((folderName
-                  @@ "Properties")
-                 @@ "AssemblyInfo.cs")
-                attributes
-        | Vbproj ->
-            AssemblyInfoFile.createVisualBasic
-                ((folderName
-                  @@ "My Project")
-                 @@ "AssemblyInfo.vb")
-                attributes
-    )
-
 let createPackages _ =
     runtimes
     |> Seq.iter (fun (runtime, packageType) ->
@@ -491,6 +456,7 @@ let createPackages _ =
                 sprintf "/p:RuntimeIdentifier=%s" runtime
                 sprintf "/p:Configuration=%s" "Release"
                 sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
+                yield! assemblyInfoMsBuildArgs ()
                 sprintf
                     "/p:PackagePath=\"%s\""
                     (distDir
@@ -509,12 +475,6 @@ let gitRelease _ =
 
     Git.Staging.stageFile "" "CHANGELOG.md"
     |> ignore
-
-    !!"src/**/AssemblyInfo.fs"
-    |> Seq.iter (
-        Git.Staging.stageFile ""
-        >> ignore
-    )
 
     Git.Commit.exec
         ""
@@ -606,7 +566,6 @@ let initTargets () =
     Target.create "GenerateCoverageReport" generateCoverageReport
     Target.create "WatchApp" watchApp
     Target.create "WatchTests" watchTests
-    Target.create "AssemblyInfo" generateAssemblyInfo
     Target.create "CreatePackages" createPackages
     Target.create "GitRelease" gitRelease
     Target.create "GitHubRelease" githubRelease
@@ -626,24 +585,10 @@ let initTargets () =
     "Clean"
     ==>! "CreatePackages"
 
-    // Only call AssemblyInfo if there is a release target in the call chain
-    // Ensure AssemblyInfo is called after DotnetRestore and before DotnetBuild
-    "DotnetRestore"
-    ?=>! "AssemblyInfo"
-
-    "AssemblyInfo"
-    ?=>! "DotnetBuild"
-
-    "AssemblyInfo"
-    ==>! "GitRelease"
-
     // Only call UpdateChangelog if there is a release target in the call chain
-    // Ensure UpdateChangelog is called after DotnetRestore and before AssemblyInfo
+    // Ensure UpdateChangelog is called after DotnetRestore
     "DotnetRestore"
     ?=>! "UpdateChangelog"
-
-    "UpdateChangelog"
-    ?=>! "AssemblyInfo"
 
     "UpdateChangelog"
     ==>! "GitRelease"

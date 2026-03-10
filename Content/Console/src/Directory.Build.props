@@ -9,6 +9,8 @@
         Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
     <PropertyGroup>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <Product>$(MSBuildProjectName)</Product>
         <IsTestProject>false</IsTestProject>
     </PropertyGroup>
 

@@ -9,6 +9,8 @@
         Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
     <PropertyGroup>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <Product>$(MSBuildProjectName)</Product>
         <!-- Tell dotnet that anything under src should be packable -->
         <IsPackable>true</IsPackable>
         <!-- Tell dotnet that anything under src is not a test project -->

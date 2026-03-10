@@ -34,7 +34,6 @@
     <PackageVersion Include="FAKE.Core.Environment" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.DotNet.Cli" Version="$(FakeVersion)" />
     <PackageVersion Include="FAKE.Core.Process" Version="$(FakeVersion)" />
-    <PackageVersion Include="Fake.DotNet.AssemblyInfoFile" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.Tools.Git" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.Api.GitHub" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.BuildServer.GitHubActions" Version="$(FakeVersion)" />

@@ -1,6 +1,10 @@
 namespace MiniScaffold.Tests
 
 open System.IO
+open System.IO.Compression
+open System.Diagnostics
+open System.Reflection
+open System.Runtime.Loader
 open Expecto
 open Infrastructure
 open Fake.IO.FileSystemOperators
@@ -40,6 +44,9 @@ module Array =
         newArray
 
 module Assert =
+    let private deleteRetryDelayMs = 100
+    let private maxDeleteRetries = 5
+
     open System
 
     let private failIfNoneWithMsg msg opt =
@@ -133,6 +140,129 @@ module Assert =
     let ``README exists`` = tryFindFile "README.md"
 
     let ``File exists`` path = tryFindFile path
+
+    let ``File does not exist`` file (d: DirectoryInfo) =
+        let filepath = Path.Combine(d.FullName, file)
+        Expect.isFalse (File.Exists filepath) (sprintf "%s should not exist" filepath)
+
+    let ``assembly info values are set after pack`` projectName (d: DirectoryInfo) =
+        let mutable extractedDllDir: string option = None
+
+        let nupkgPath = Path.Combine(d.FullName, "dist", $"{projectName}.0.1.0.nupkg")
+
+        Expect.isTrue (File.Exists nupkgPath) (sprintf "%s should exist" nupkgPath)
+
+        use archive = ZipFile.OpenRead(nupkgPath)
+
+        let entry =
+            archive.Entries
+            |> Seq.tryFind (fun x ->
+                x.FullName.StartsWith("lib/net8.0/")
+                && x.FullName.EndsWith($"/{projectName}.dll")
+            )
+
+        let dllPath =
+            match entry with
+            | Some e ->
+                let tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"))
+
+                let tempPath = Path.Combine(tempDir, $"{projectName}.dll")
+
+                Directory.CreateDirectory(tempDir)
+                |> ignore
+
+                e.ExtractToFile(tempPath, true)
+                extractedDllDir <- Some tempDir
+
+                tempPath
+            | None -> failtestf "Could not find lib/net8.0/%s.dll in %s" projectName nupkgPath
+
+        let assemblyName = AssemblyName.GetAssemblyName(dllPath)
+        Expect.equal assemblyName.Version (Version "0.1.0.0") "AssemblyVersion should be 0.1.0.0"
+
+        let fileVersionInfo = FileVersionInfo.GetVersionInfo(dllPath)
+
+        Expect.isTrue
+            (fileVersionInfo.FileVersion = "0.1.0"
+             || fileVersionInfo.FileVersion = "0.1.0.0")
+            "FileVersion should be 0.1.0 or 0.1.0.0"
+
+        let assemblyContext =
+            new AssemblyLoadContext($"metadata-{projectName}-{Guid.NewGuid():N}", true)
+
+        try
+            use assemblyStream = new MemoryStream(File.ReadAllBytes dllPath)
+            let assembly = assemblyContext.LoadFromStream(assemblyStream)
+
+            let title =
+                assembly.GetCustomAttribute<AssemblyTitleAttribute>()
+                |> Option.ofObj
+                |> Option.map _.Title
+
+            Expect.equal title (Some projectName) "AssemblyTitle should match project name"
+
+            let product =
+                assembly.GetCustomAttribute<AssemblyProductAttribute>()
+                |> Option.ofObj
+                |> Option.map _.Product
+
+            Expect.equal product (Some projectName) "AssemblyProduct should match project name"
+
+            let informationalVersion =
+                assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                |> Option.ofObj
+                |> Option.map _.InformationalVersion
+
+            Expect.equal informationalVersion (Some "0.1.0") "InformationalVersion should be 0.1.0"
+
+            let metadata =
+                assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+                |> Seq.map (fun x -> x.Key, x.Value)
+                |> Map.ofSeq
+
+            Expect.equal
+                (metadata
+                 |> Map.tryFind "ReleaseChannel")
+                (Some "release")
+                "ReleaseChannel should be release"
+
+            let releaseDate =
+                metadata
+                |> Map.tryFind "ReleaseDate"
+
+            Expect.isTrue
+                (releaseDate
+                 |> Option.exists (
+                     String.IsNullOrWhiteSpace
+                     >> not
+                 ))
+                "ReleaseDate should be set"
+        finally
+            assemblyContext.Unload()
+            GC.Collect()
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
+
+            extractedDllDir
+            |> Option.iter (fun path ->
+                let rec deleteWithRetry attempts =
+                    try
+                        if Directory.Exists path then
+                            Directory.Delete(path, true)
+                    with
+                    | :? IOException
+                    | :? UnauthorizedAccessException when attempts > 0 ->
+                        GC.Collect()
+                        GC.WaitForPendingFinalizers()
+                        System.Threading.Thread.Sleep deleteRetryDelayMs
+
+                        deleteWithRetry (
+                            attempts
+                            - 1
+                        )
+
+                deleteWithRetry maxDeleteRetries
+            )
 
 module Effect =
     open System

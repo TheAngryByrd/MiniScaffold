@@ -1,7 +1,22 @@
 <Project>
-   <PropertyGroup>
+    <PropertyGroup>
         <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
         <FSharpAnalyzersOtherFlags>--analyzers-path "$(PkgG-Research_FSharp_Analyzers)/analyzers/dotnet/fs"</FSharpAnalyzersOtherFlags>
         <FSharpAnalyzersOtherFlags>$(FSharpAnalyzersOtherFlags) --analyzers-path "$(PkgIonide_Analyzers)/analyzers/dotnet/fs"</FSharpAnalyzersOtherFlags>
     </PropertyGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute" Condition="'$(AssemblyMetadataReleaseDate)' != ''">
+            <_Parameter1>ReleaseDate</_Parameter1>
+            <_Parameter2>$(AssemblyMetadataReleaseDate)</_Parameter2>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute" Condition="'$(AssemblyMetadataReleaseChannel)' != ''">
+            <_Parameter1>ReleaseChannel</_Parameter1>
+            <_Parameter2>$(AssemblyMetadataReleaseChannel)</_Parameter2>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute" Condition="'$(AssemblyMetadataGitHash)' != ''">
+            <_Parameter1>GitHash</_Parameter1>
+            <_Parameter2>$(AssemblyMetadataGitHash)</_Parameter2>
+        </AssemblyAttribute>
+    </ItemGroup>
 </Project>
