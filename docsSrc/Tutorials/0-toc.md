@@ -9,3 +9,4 @@ index: 0
 # Tutorials Table of Contents
 
 - [Get Started with a Library solution](Getting_Started_With_Libraries.md)
+- [Get started with a console solution](Getting_Started_With_Console.md)

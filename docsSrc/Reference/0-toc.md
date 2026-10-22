@@ -6,6 +6,8 @@ index: 0
 ---
 
 
-# Tutorials Table of Contents
-- [Library Scaffold output file explanations](Library_Output.html)
+# Reference Table of Contents
 
+- [MiniScaffold template parameters](Template_Parameters.md)
+- [Library Scaffold output file explanations](Library_Output.html)
+- [Console scaffold output](Console_Output.md)
