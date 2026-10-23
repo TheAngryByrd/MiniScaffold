@@ -62,5 +62,6 @@ On Windows, run this command:
 The default target, `CreatePackages`, restores dependencies, builds the solution, runs the tests, and creates packages.
 The build output reports the result of each target.
 
-After the build succeeds, check `dist/` for the Windows ZIP package and the macOS and Linux tarballs.
+After the build succeeds, check `dist/` for six ZIP packages.
+The packages support Windows, macOS, and Linux on x64 and ARM64.
 The [console output reference](../Reference/Console_Output.md) describes the generated files and package formats.

@@ -136,6 +136,9 @@ let runtimes = [
     "linux-x64"
     "osx-x64"
     "win-x64"
+    "linux-arm64"
+    "osx-arm64"
+    "win-arm64"
 ]
 
 let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
@@ -549,7 +552,9 @@ let createPackages _ =
                 args.ToStartInfo
             |> failOnBadExitAndPrint
 
-            let executableEntryName = if runtime = "win-x64" then None else Some productName
+            let executableEntryName =
+                if runtime.StartsWith "win-" then None else Some productName
+
             writeReleaseZip publishDirectory stagedArchive executableEntryName
 
             IO.File.Move(

@@ -44,7 +44,7 @@ This target builds and tests the solution before it creates packages in `dist/`.
 The application project targets `net10.0`.
 The packaging commands use `dotnet publish` with the target framework from the application project.
 Each published application is framework-dependent and requires the corresponding .NET runtime on the destination computer.
-The target creates three ZIP archives named `<product>-<version>-<runtime>.zip` in `dist/`.
+The target creates six ZIP archives named `<product>-<version>-<runtime>.zip` in `dist/`.
 Each archive contains the executable and supporting files at its root.
 Unix apphosts retain executable permissions after ZIP extraction.
 
@@ -53,3 +53,6 @@ Unix apphosts retain executable permissions after ZIP extraction.
 | `win-x64` | `.zip` |
 | `osx-x64` | `.zip` |
 | `linux-x64` | `.zip` |
+| `win-arm64` | `.zip` |
+| `osx-arm64` | `.zip` |
+| `linux-arm64` | `.zip` |

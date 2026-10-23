@@ -79,7 +79,7 @@ $ ./build.sh  <optional buildtarget>// on unix
 - `WatchApp` - Runs [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch?view=aspnetcore-3.0) on the application. Useful for rapid feedback loops.
 - `WatchTests` - Runs [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch?view=aspnetcore-3.0) with the test projects. Useful for rapid feedback loops.
 - `CreatePackages` - Uses `dotnet publish` with the application-project target framework to create framework-dependent applications.
-    - Creates one ZIP archive for each runtime: `win-x64`, `osx-x64`, and `linux-x64`.
+    - Creates one ZIP archive for each runtime: `win-x64`, `osx-x64`, `linux-x64`, `win-arm64`, `osx-arm64`, and `linux-arm64`.
     - Writes `<product>-<version>-<runtime>.zip` to `dist/`.
     - Places the executable and supporting files at each archive root.
     - Preserves executable permissions for Unix apphosts after ZIP extraction.
