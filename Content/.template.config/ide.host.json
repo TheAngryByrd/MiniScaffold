@@ -3,13 +3,15 @@
     "symbolInfo": [
         {
             "id": "githubUsername",
+            "isVisible": true,
             "name": {
                 "id": "githubUsername",
-                "text": "Github Username"
+                "text": "GitHub Username"
             }
         },
         {
             "id": "outputType",
+            "isVisible": true,
             "name": {
                 "id": "outputType",
                 "text": "Output Type"
@@ -17,6 +19,7 @@
         },
         {
             "id": "releaseBranch",
+            "isVisible": true,
             "name": {
                 "id": "releaseBranch",
                 "text": "Release Branch"
