@@ -16,7 +16,6 @@
     <ItemGroup>
         <PackageReference Include="FSharp.Core" />
         <PackageReference Include="Argu" />
-        <PackageReference Include="Packaging.Targets" PrivateAssets="All" />
     </ItemGroup>
     <ItemGroup>
         <None Include="App.config" />

@@ -78,10 +78,12 @@ $ ./build.sh  <optional buildtarget>// on unix
 - `GenerateCoverageReport` - Code coverage is run during `DotnetTest` and this generates a report via [ReportGenerator](https://github.com/danielpalme/ReportGenerator).
 - `WatchApp` - Runs [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch?view=aspnetcore-3.0) on the application. Useful for rapid feedback loops.
 - `WatchTests` - Runs [dotnet watch](https://docs.microsoft.com/en-us/aspnet/core/tutorials/dotnet-watch?view=aspnetcore-3.0) with the test projects. Useful for rapid feedback loops.
-- `CreatePackages` - Runs the packaging task from [dotnet-packaging](https://github.com/qmfrederik/dotnet-packaging). This creates applications for `win-x64`, `osx-x64` and `linux-x64` - [Runtime Identifiers](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog).  
-    - Bundles the `win-x64` application in a .zip file.
-    - Bundles the `osx-x64` application in a .tar.gz file.
-    - Bundles the `linux-x64` application in a .tar.gz file.
+- `CreatePackages` - Uses `dotnet publish` with the application-project target framework to create framework-dependent applications.
+    - Creates one ZIP archive for each runtime: `win-x64`, `osx-x64`, and `linux-x64`.
+    - Writes `<product>-<version>-<runtime>.zip` to `dist/`.
+    - Places the executable and supporting files at each archive root.
+    - Preserves executable permissions for Unix apphosts after ZIP extraction.
+    - Requires the corresponding .NET runtime on the destination computer.
 - `GitRelease` - Creates a commit message with the [Release Notes](https://fake.build/apidocs/v5/fake-core-releasenotes.html) and a git tag via the version in the `Release Notes`.
 - `GitHubRelease` - Publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) with the Release Notes and any NuGet packages.
 - `FormatCode` - Runs [Fantomas](https://github.com/fsprojects/fantomas) on the solution file.
