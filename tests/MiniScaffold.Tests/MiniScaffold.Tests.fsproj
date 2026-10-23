@@ -7,6 +7,7 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Fake.DotNet.Cli" />
+        <PackageReference Include="MSBuild.StructuredLogger" />
         <PackageReference Include="Fake.Tools.Git" />
         <PackageReference Include="Expecto" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
