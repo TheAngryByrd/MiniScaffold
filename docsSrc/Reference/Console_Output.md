@@ -42,10 +42,14 @@ The test project is `tests/MyCoolNewApp.Tests/MyCoolNewApp.Tests.fsproj`.
 The default build target is `CreatePackages`.
 This target builds and tests the solution before it creates packages in `dist/`.
 The application project targets `net10.0`.
-The packaging commands override the target framework with `net8.0`, as defined by `targetFramework` in `build/build.fs`.
+The packaging commands use `dotnet publish` with the target framework from the application project.
+Each published application is framework-dependent and requires the corresponding .NET runtime on the destination computer.
+The target creates three ZIP archives named `<product>-<version>-<runtime>.zip` in `dist/`.
+Each archive contains the executable and supporting files at its root.
+Unix apphosts retain executable permissions after ZIP extraction.
 
 | Runtime identifier | Package format |
 | --- | --- |
 | `win-x64` | `.zip` |
-| `osx-x64` | `.tar.gz` |
-| `linux-x64` | `.tar.gz` |
+| `osx-x64` | `.zip` |
+| `linux-x64` | `.zip` |
