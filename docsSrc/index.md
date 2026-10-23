@@ -8,7 +8,7 @@
 This is an [F# Template](https://docs.microsoft.com/en-us/dotnet/core/tools/custom-templates) for:
 
 - creating and publishing [libraries](https://docs.microsoft.com/en-us/dotnet/standard/glossary#library) targeting .NET 8.0 `net8.0`
-- creating and publishing [applications](https://docs.microsoft.com/en-us/dotnet/core/tutorials/cli-create-console-app#hello-console-app) targeting .NET 8.0 `net8.0`
+- creating and publishing [applications](https://docs.microsoft.com/en-us/dotnet/core/tutorials/cli-create-console-app#hello-console-app) with the target framework from the application project
 
 
 ## Why use MiniScaffold?
@@ -55,13 +55,11 @@ This takes away the ambiguity that developers face when creating an OSS project.
 
 ### For [Applications](Content/Console/README.md)
 - Basic argument parsing example via [Argu](https://fsprojects.github.io/Argu/)
-- Builds a `net8.0` application - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
-    - To build for `net8.0`
-        - Have [.NET core 8.0](https://dotnet.microsoft.com/download) installed
-- Builds for `win-x64`, `osx-x64` and `linux-x64` - [Runtime Identifiers](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog).  Bundles the application via [dotnet-packaging](https://github.com/qmfrederik/dotnet-packaging)
-    - Bundles the `win-x64` application in a .zip file.
-    - Bundles the `osx-x64` application in a .tar.gz file.
-    - Bundles the `linux-x64` application in a .tar.gz file.
+- Builds the target framework from the application project.
+- Uses `dotnet publish` to create framework-dependent applications for `win-x64`, `osx-x64`, and `linux-x64`.
+- Creates three ZIP archives in `dist/` with names of the form `<product>-<version>-<runtime>.zip`.
+- Places the executable and supporting files at each archive root.
+- Requires the corresponding .NET runtime on the destination computer.
 
 ---
 

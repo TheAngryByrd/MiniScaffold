@@ -132,14 +132,10 @@ let mutable latestEntry =
     else
         changelog.LatestEntry
 
-let targetFramework = "net8.0"
-
-// RuntimeIdentifiers: https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
-// dotnet-packaging Tasks: https://github.com/qmfrederik/dotnet-packaging/blob/0c8e063ada5ba0de2b194cd3fad8308671b48092/Packaging.Targets/build/Packaging.Targets.targets
 let runtimes = [
-    "linux-x64", "CreateTarball"
-    "osx-x64", "CreateTarball"
-    "win-x64", "CreateZip"
+    "linux-x64"
+    "osx-x64"
+    "win-x64"
 ]
 
 let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
@@ -445,28 +441,126 @@ let watchTests _ =
 
     cancelEvent.Cancel <- true
 
-let createPackages _ =
-    runtimes
-    |> Seq.iter (fun (runtime, packageType) ->
-        let args =
-            [
-                sprintf "/t:Restore;%s" packageType
-                sprintf "/p:TargetFramework=%s" targetFramework
-                sprintf "/p:CustomTarget=%s" packageType
-                sprintf "/p:RuntimeIdentifier=%s" runtime
-                sprintf "/p:Configuration=%s" "Release"
-                sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
-                yield! assemblyInfoMsBuildArgs ()
-                sprintf
-                    "/p:PackagePath=\"%s\""
-                    (distDir
-                     @@ (sprintf "%s-%s-%s" productName latestEntry.NuGetVersion runtime))
-            ]
-            |> String.concat " "
+let private writeReleaseZip (publishDirectory: string) (stagedArchive: string) executableEntryName =
+    let entries =
+        IO.Directory.EnumerateFileSystemEntries(
+            publishDirectory,
+            "*",
+            IO.SearchOption.AllDirectories
+        )
+        |> Seq.map (fun path ->
+            let relativePath =
+                IO.Path.GetRelativePath(publishDirectory, path).Replace('\\', '/')
 
-        DotNet.exec (fun opt -> { opt with WorkingDirectory = mainApp }) "msbuild" args
-        |> failOnBadExitAndPrint
-    )
+            if
+                IO.Path.IsPathRooted relativePath
+                || (relativePath.Split('/')
+                    |> Array.contains "..")
+            then
+                invalidOp $"Published path is outside the publication directory: {path}"
+
+            let isDirectory = IO.Directory.Exists path
+
+            let name =
+                if isDirectory then
+                    relativePath
+                    + "/"
+                else
+                    relativePath
+
+            name, path, isDirectory
+        )
+        |> Seq.sortWith (fun (left, _, _) (right, _, _) ->
+            StringComparer.Ordinal.Compare(left, right)
+        )
+
+    use output = IO.File.Create stagedArchive
+    use archive = new ICSharpCode.SharpZipLib.Zip.ZipOutputStream(output)
+    archive.UseZip64 <- ICSharpCode.SharpZipLib.Zip.UseZip64.Dynamic
+
+    for name, path, isDirectory in entries do
+        let entry = ICSharpCode.SharpZipLib.Zip.ZipEntry(name)
+        entry.HostSystem <- 3
+        entry.IsUnicodeText <- true
+        entry.DateTime <- IO.File.GetLastWriteTime path
+        entry.CompressionMethod <- ICSharpCode.SharpZipLib.Zip.CompressionMethod.Deflated
+        entry.Size <- if isDirectory then 0L else IO.FileInfo(path).Length
+
+        entry.ExternalFileAttributes <-
+            if isDirectory then 0x41ED0010
+            elif Some name = executableEntryName then int 0x81ED0000u
+            else int 0x81A40000u
+
+        archive.PutNextEntry entry
+
+        if not isDirectory then
+            use input = IO.File.OpenRead path
+            input.CopyTo archive
+
+        archive.CloseEntry()
+
+    archive.Finish()
+
+let createPackages _ =
+    let workspace =
+        IO.Path.GetFullPath(
+            rootDirectory
+            </> "temp"
+            </> $"publish-{Guid.NewGuid():N}"
+        )
+
+    try
+        IO.Directory.CreateDirectory workspace
+        |> ignore
+
+        IO.Directory.CreateDirectory distDir
+        |> ignore
+
+        for runtime in runtimes do
+            let publishDirectory =
+                workspace
+                </> runtime
+
+            let archiveName = $"{productName}-{latestEntry.NuGetVersion}-{runtime}.zip"
+
+            let stagedArchive =
+                workspace
+                </> archiveName
+
+            let args =
+                Arguments.Empty
+                |> Arguments.append [
+                    "--configuration"
+                    "Release"
+                    "--runtime"
+                    runtime
+                    "--self-contained"
+                    "false"
+                    "--output"
+                    publishDirectory
+                    "/p:UseAppHost=true"
+                    $"/p:PackageVersion={latestEntry.NuGetVersion}"
+                    yield! assemblyInfoMsBuildArgs ()
+                ]
+
+            DotNet.exec
+                (fun opt -> { opt with WorkingDirectory = mainApp })
+                "publish"
+                args.ToStartInfo
+            |> failOnBadExitAndPrint
+
+            let executableEntryName = if runtime = "win-x64" then None else Some productName
+            writeReleaseZip publishDirectory stagedArchive executableEntryName
+
+            IO.File.Move(
+                stagedArchive,
+                distDir
+                </> archiveName,
+                true
+            )
+    finally
+        if IO.Directory.Exists workspace then
+            IO.Directory.Delete(workspace, true)
 
 let gitRelease _ =
     allReleaseChecks ()

@@ -5,6 +5,9 @@ module Tests =
     open System
     open System.Diagnostics
     open System.IO.Compression
+    open System.Reflection.Metadata
+    open System.Reflection.PortableExecutable
+    open System.Runtime.InteropServices
     open System.Text.Json
     open System.Xml.Linq
     open Fake.Core
@@ -504,6 +507,839 @@ if (actual != expected)
             ]
             "2.3.4.5"
             "  release date text   - hash text"
+
+    let private runArchiveProcess workingDirectory fileName arguments =
+        let startInfo =
+            ProcessStartInfo(
+                fileName,
+                WorkingDirectory = workingDirectory,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            )
+
+        for argument in arguments do
+            startInfo.ArgumentList.Add argument
+
+        startInfo.Environment.Remove "MSBuildSDKsPath"
+        |> ignore
+
+        startInfo.Environment.Remove "MSBuildExtensionsPath"
+        |> ignore
+
+        startInfo.Environment.["DISABLE_COVERAGE"] <- "true"
+        startInfo.Environment.["CI"] <- "false"
+        use child = new Process(StartInfo = startInfo)
+        Expect.isTrue (child.Start()) $"{fileName} should start"
+        let output = child.StandardOutput.ReadToEndAsync()
+        let errors = child.StandardError.ReadToEndAsync()
+        child.WaitForExit()
+
+        {|
+            ExitCode = child.ExitCode
+            Output =
+                output.Result
+                + errors.Result
+        |}
+
+    let private runArchiveBuild directory =
+        let fileName, arguments =
+            if OperatingSystem.IsWindows() then
+                "cmd.exe",
+                [
+                    "/c"
+                    "build.cmd"
+                    "CreatePackages"
+                ]
+            else
+                "bash",
+                [
+                    "./build.sh"
+                    "CreatePackages"
+                ]
+
+        runArchiveProcess directory fileName arguments
+
+    let private expectArchiveSuccess (result: {| ExitCode: int; Output: string |}) =
+        Expect.equal result.ExitCode 0 result.Output
+
+    let private generateArchiveProject directory =
+        copyGlobalJson (IO.DirectoryInfo directory)
+
+        runTemplate
+            directory
+            "-n ArchiveApp --githubUsername TestUser --outputType Console --output \"project with spaces\""
+
+        let projectDirectory = IO.Path.Combine(directory, "project with spaces")
+        let applicationDirectory = IO.Path.Combine(projectDirectory, "src", "ArchiveApp")
+
+        IO.File.WriteAllBytes(
+            IO.Path.Combine(applicationDirectory, "archive-payload.bin"),
+            [|
+                0uy
+                1uy
+                127uy
+                128uy
+                255uy
+            |]
+        )
+
+        let projectPath = IO.Path.Combine(applicationDirectory, "ArchiveApp.fsproj")
+        let project = XDocument.Load projectPath
+
+        project.Root.Add(
+            XElement(
+                XName.Get "ItemGroup",
+                XElement(
+                    XName.Get "Content",
+                    XAttribute(XName.Get "Include", "archive-payload.bin"),
+                    XElement(XName.Get "CopyToPublishDirectory", "Always"),
+                    XElement(XName.Get "TargetPath", "données/深い/payload.bin")
+                )
+            ),
+            XElement(
+                XName.Get "Target",
+                XAttribute(XName.Get "Name", "AddEmptyArchiveDirectory"),
+                XAttribute(XName.Get "AfterTargets", "Publish"),
+                XElement(
+                    XName.Get "MakeDir",
+                    XAttribute(XName.Get "Directories", "$(PublishDir)données/empty")
+                )
+            )
+        )
+
+        project.Save projectPath
+        projectDirectory
+
+    let private expectPublicationCleanup directory =
+        let temp = IO.Path.Combine(directory, "temp")
+
+        let remaining =
+            if IO.Directory.Exists temp then
+                IO.Directory.GetDirectories(temp, "publish-*")
+            else
+                [||]
+
+        Expect.isEmpty remaining "Owned publication workspaces should be removed"
+
+    type private ArchiveMetadata = {
+        AssemblyVersion: Version
+        ReleaseDate: string
+        ReleaseChannel: string
+        GitHash: string
+    }
+
+    let private expectArchiveMetadata path expected =
+        use stream = IO.File.OpenRead path
+        use pe = new PEReader(stream)
+        let reader = pe.GetMetadataReader()
+        let assembly = reader.GetAssemblyDefinition()
+
+        Expect.equal
+            assembly.Version
+            expected.AssemblyVersion
+            "Assembly version should come from the changelog"
+
+        let attributes =
+            assembly.GetCustomAttributes()
+            |> Seq.choose (fun handle ->
+                let attribute = reader.GetCustomAttribute handle
+
+                if attribute.Constructor.Kind = HandleKind.MemberReference then
+                    let constructor =
+                        reader.GetMemberReference(
+                            MemberReferenceHandle.op_Explicit attribute.Constructor
+                        )
+
+                    if constructor.Parent.Kind = HandleKind.TypeReference then
+                        let attributeType =
+                            reader.GetTypeReference(
+                                TypeReferenceHandle.op_Explicit constructor.Parent
+                            )
+
+                        let name = reader.GetString attributeType.Name
+                        let mutable value = reader.GetBlobReader attribute.Value
+
+                        Expect.equal
+                            (value.ReadUInt16())
+                            1us
+                            "Custom attributes should have a valid prolog"
+
+                        match name with
+                        | "AssemblyMetadataAttribute" ->
+                            Some(value.ReadSerializedString(), value.ReadSerializedString())
+                        | "AssemblyFileVersionAttribute"
+                        | "AssemblyInformationalVersionAttribute" ->
+                            Some(name, value.ReadSerializedString())
+                        | _ -> None
+                    else
+                        None
+                else
+                    None
+            )
+            |> Map.ofSeq
+
+        for key, value in
+            [
+                "ReleaseDate", expected.ReleaseDate
+                "ReleaseChannel", expected.ReleaseChannel
+                "GitHash", expected.GitHash
+                "AssemblyFileVersionAttribute", expected.AssemblyVersion.ToString(3)
+            ] do
+            Expect.equal
+                (Map.tryFind key attributes)
+                (Some value)
+                $"Published assembly should retain {key}"
+
+        let informationalVersion =
+            Map.find "AssemblyInformationalVersionAttribute" attributes
+
+        Expect.isTrue
+            (informationalVersion.StartsWith(
+                expected.AssemblyVersion.ToString(3),
+                StringComparison.Ordinal
+            ))
+            "Informational version should retain the assembly version"
+
+        Expect.isTrue
+            (informationalVersion.Contains expected.GitHash)
+            "Informational version should retain the source revision"
+
+    let private readCentralHeaders (bytes: byte array) =
+        let uint16 offset = BitConverter.ToUInt16(bytes, offset)
+        let uint32 offset = BitConverter.ToUInt32(bytes, offset)
+
+        let ending =
+            [
+                bytes.Length
+                - 22 .. -1 .. max
+                    0
+                    (bytes.Length
+                     - 65557)
+            ]
+            |> List.find (fun offset ->
+                uint32 offset = 0x06054b50u
+                && offset
+                   + 22
+                   + int (
+                       uint16 (
+                           offset
+                           + 20
+                       )
+                   ) = bytes.Length
+            )
+
+        let count =
+            int (
+                uint16 (
+                    ending
+                    + 10
+                )
+            )
+
+        let start =
+            int (
+                uint32 (
+                    ending
+                    + 16
+                )
+            )
+
+        Expect.isLessThan count 65535 "The fixture should use a standard central directory"
+
+        let rec read offset remaining =
+            if remaining = 0 then
+                Expect.equal
+                    offset
+                    (start
+                     + int (
+                         uint32 (
+                             ending
+                             + 12
+                         )
+                     ))
+                    "Central directory size should match its records"
+
+                []
+            else
+                Expect.equal
+                    (uint32 offset)
+                    0x02014b50u
+                    "Each central record should have the ZIP signature"
+
+                let nameLength =
+                    int (
+                        uint16 (
+                            offset
+                            + 28
+                        )
+                    )
+
+                let extraLength =
+                    int (
+                        uint16 (
+                            offset
+                            + 30
+                        )
+                    )
+
+                let commentLength =
+                    int (
+                        uint16 (
+                            offset
+                            + 32
+                        )
+                    )
+
+                let next =
+                    offset
+                    + 46
+                    + nameLength
+                    + extraLength
+                    + commentLength
+
+                Expect.isLessThanOrEqual
+                    next
+                    ending
+                    "Central records should end before the directory trailer"
+
+                let name =
+                    Text.Encoding.UTF8.GetString(
+                        bytes,
+                        offset
+                        + 46,
+                        nameLength
+                    )
+
+                (name, bytes.[offset + 5], offset + 5)
+                :: read
+                    next
+                    (remaining
+                     - 1)
+
+        read start count
+
+    let private expectUnixCreators headers =
+        Expect.isNonEmpty headers "The ZIP should contain entries"
+
+        for name, creator, _ in headers do
+            Expect.equal creator 3uy $"{name} should declare Unix creator platform 3"
+
+    let private verifyConsoleArchives directory version metadata =
+        let product = "ArchiveApp"
+
+        let runtimes = [
+            "linux-x64"
+            "osx-x64"
+            "win-x64"
+        ]
+
+        let dist = IO.Path.Combine(directory, "dist")
+
+        let expectedNames =
+            runtimes
+            |> List.map (fun runtime -> $"{product}-{version}-{runtime}.zip")
+            |> Set.ofList
+
+        let actualNames =
+            IO.Directory.GetFiles(dist)
+            |> Seq.map IO.Path.GetFileName
+            |> Set.ofSeq
+
+        Expect.equal
+            actualNames
+            expectedNames
+            "CreatePackages should produce exactly three named ZIP archives"
+
+        let project =
+            XDocument.Load(
+                IO.Path.Combine(
+                    directory,
+                    "src",
+                    product,
+                    product
+                    + ".fsproj"
+                )
+            )
+
+        let framework =
+            project.Descendants(XName.Get "TargetFramework")
+            |> Seq.exactlyOne
+            |> _.Value
+
+        let nativeRuntime =
+            if OperatingSystem.IsWindows() then
+                "win-x64"
+            elif OperatingSystem.IsLinux() then
+                "linux-x64"
+            elif OperatingSystem.IsMacOS() then
+                "osx-x64"
+            else
+                failtest "Archive execution requires Windows, Linux, or macOS"
+
+        Expect.equal
+            RuntimeInformation.ProcessArchitecture
+            Architecture.X64
+            "The CI host must run the x64 apphost directly"
+
+        for runtime in runtimes do
+            let archivePath = IO.Path.Combine(dist, $"{product}-{version}-{runtime}.zip")
+
+            let headers =
+                IO.File.ReadAllBytes archivePath
+                |> readCentralHeaders
+
+            expectUnixCreators headers
+
+            use archive =
+                ZipFile.OpenRead(IO.Path.Combine(dist, $"{product}-{version}-{runtime}.zip"))
+
+            let apphost =
+                if runtime = "win-x64" then
+                    product
+                    + ".exe"
+                else
+                    product
+
+            let names =
+                archive.Entries
+                |> Seq.map _.FullName
+                |> Set.ofSeq
+
+            Expect.equal
+                headers.Length
+                archive.Entries.Count
+                "Every entry should have a checked central header"
+
+            let orderedNames =
+                headers
+                |> List.map (fun (name, _, _) -> name)
+
+            Expect.equal
+                orderedNames
+                (orderedNames
+                 |> List.sortWith (fun left right -> StringComparer.Ordinal.Compare(left, right)))
+                "ZIP entries should have stable ordinal path order"
+
+            Expect.equal names.Count archive.Entries.Count "ZIP entry names should be unique"
+
+            Expect.isTrue
+                (Set.contains "données/empty/" names)
+                "Empty published directories should have ZIP entries"
+
+            use payload = archive.GetEntry("données/深い/payload.bin").Open()
+            use payloadBytes = new IO.MemoryStream()
+            payload.CopyTo payloadBytes
+
+            Expect.equal
+                (payloadBytes.ToArray())
+                [|
+                    0uy
+                    1uy
+                    127uy
+                    128uy
+                    255uy
+                |]
+                "Nested UTF-8 paths should retain the exact published payload"
+
+            for name in
+                [
+                    apphost
+                    product
+                    + ".dll"
+                    product
+                    + ".deps.json"
+                    product
+                    + ".runtimeconfig.json"
+                    "FSharp.Core.dll"
+                    "Argu.dll"
+                ] do
+                Expect.isTrue
+                    (Set.contains name names)
+                    $"{runtime} should contain {name} at its root"
+
+            Expect.isFalse
+                (Set.contains "coreclr.dll" names
+                 || Set.contains "libcoreclr.so" names
+                 || Set.contains "libcoreclr.dylib" names)
+                "Framework-dependent archives should not include the runtime"
+
+            let assemblyEntry =
+                archive.GetEntry(
+                    product
+                    + ".dll"
+                )
+
+            Expect.isLessThan
+                assemblyEntry.CompressedLength
+                assemblyEntry.Length
+                "Published assemblies should use ZIP compression"
+
+            use configurationStream =
+                archive
+                    .GetEntry(
+                        product
+                        + ".runtimeconfig.json"
+                    )
+                    .Open()
+
+            use configuration = JsonDocument.Parse configurationStream
+            let options = configuration.RootElement.GetProperty "runtimeOptions"
+
+            Expect.equal
+                (options.GetProperty("tfm").GetString())
+                framework
+                "The application project should determine the archived framework"
+
+            let runtimeFramework = options.GetProperty "framework"
+
+            Expect.equal
+                (runtimeFramework.GetProperty("name").GetString())
+                "Microsoft.NETCore.App"
+                "The application should use the shared framework"
+
+            Expect.equal
+                (runtimeFramework.GetProperty("version").GetString())
+                (framework.Substring(3)
+                 + ".0")
+                "The shared framework version should match the application project"
+
+            Expect.isFalse
+                (fst (options.TryGetProperty "includedFrameworks"))
+                "The runtime configuration should be framework-dependent"
+
+            use extracted = Disposables.DisposableDirectory.Create()
+            archive.ExtractToDirectory extracted.Directory
+
+            use standardExtracted = Disposables.DisposableDirectory.Create()
+
+            if not (OperatingSystem.IsWindows()) then
+                runArchiveProcess directory "unzip" [
+                    "-q"
+                    archivePath
+                    "-d"
+                    standardExtracted.Directory
+                ]
+
+                |> expectArchiveSuccess
+
+            for extractedDirectory in
+                [
+                    extracted.Directory
+                    if not (OperatingSystem.IsWindows()) then
+                        standardExtracted.Directory
+                ] do
+                let emptyDirectory = IO.Path.Combine(extractedDirectory, "données", "empty")
+
+                Expect.isTrue
+                    (IO.Directory.Exists emptyDirectory)
+                    "Fresh extraction should retain empty directories"
+
+                Expect.isEmpty
+                    (IO.Directory.GetFileSystemEntries emptyDirectory)
+                    "The published empty directory should remain empty"
+
+            for entry in archive.Entries do
+                Expect.isFalse
+                    (entry.FullName.Contains '\\'
+                     || entry.FullName.StartsWith "/"
+                     || (entry.FullName.Split('/')
+                         |> Array.contains ".."))
+                    "ZIP entries should be relative slash-separated paths"
+
+                let isDirectory = entry.FullName.EndsWith "/"
+
+                let expectedAttributes =
+                    if isDirectory then
+                        0x41ED0010
+                    elif
+                        runtime
+                        <> "win-x64"
+                        && entry.FullName = product
+                    then
+                        int 0x81ED0000u
+                    else
+                        int 0x81A40000u
+
+                Expect.equal
+                    entry.ExternalAttributes
+                    expectedAttributes
+                    $"{runtime}/{entry.FullName} should retain its complete Unix file type and permissions"
+
+                if not isDirectory then
+                    let extractedPath = IO.Path.Combine(extracted.Directory, entry.FullName)
+                    use original = entry.Open()
+                    use contents = new IO.MemoryStream()
+                    original.CopyTo contents
+
+                    Expect.equal
+                        (IO.File.ReadAllBytes extractedPath)
+                        (contents.ToArray())
+                        $"{runtime}/{entry.FullName} should extract without changes"
+
+                    if not (OperatingSystem.IsWindows()) then
+                        Expect.equal
+                            (IO.File.ReadAllBytes(
+                                IO.Path.Combine(standardExtracted.Directory, entry.FullName)
+                            ))
+                            (contents.ToArray())
+                            $"{runtime}/{entry.FullName} should retain its bytes after standard extraction"
+
+            metadata
+            |> Option.iter (
+                expectArchiveMetadata (
+                    IO.Path.Combine(
+                        extracted.Directory,
+                        product
+                        + ".dll"
+                    )
+                )
+            )
+
+            if runtime = nativeRuntime then
+                let executable = IO.Path.Combine(extracted.Directory, apphost)
+
+                if not (OperatingSystem.IsWindows()) then
+                    Expect.equal
+                        (IO.File.GetUnixFileMode executable)
+                        (enum<IO.UnixFileMode> 0o755)
+                        "Fresh extraction should preserve apphost executable permissions"
+
+                let result = runArchiveProcess extracted.Directory executable [ "--version" ]
+                expectArchiveSuccess result
+
+                let expectedVersion =
+                    metadata
+                    |> Option.map (fun value -> string value.AssemblyVersion)
+                    |> Option.defaultValue "0.1.0.0"
+
+                Expect.equal
+                    (result.Output.Trim())
+                    expectedVersion
+                    "The extracted native apphost should report the changelog version"
+
+                let standardExecutable = IO.Path.Combine(standardExtracted.Directory, apphost)
+
+                if not (OperatingSystem.IsWindows()) then
+                    Expect.isTrue
+                        (IO.File.GetUnixFileMode(standardExecutable).HasFlag
+                            IO.UnixFileMode.UserExecute)
+                        "Standard extraction should preserve apphost execute permission without chmod"
+
+                    let standardVersion =
+                        runArchiveProcess standardExtracted.Directory standardExecutable [
+                            "--version"
+                        ]
+
+                    expectArchiveSuccess standardVersion
+
+                    Expect.equal
+                        (standardVersion.Output.Trim())
+                        expectedVersion
+                        "The standard-extracted native apphost should report the changelog version"
+
+                metadata
+                |> Option.iter (fun expected ->
+                    let info = runArchiveProcess extracted.Directory executable [ "--info" ]
+                    expectArchiveSuccess info
+
+                    Expect.equal
+                        (info.Output.Trim())
+                        $"{product} - {expected.AssemblyVersion} - {expected.ReleaseDate} - {expected.GitHash}"
+                        "The extracted apphost should retain release metadata"
+
+                    if not (OperatingSystem.IsWindows()) then
+                        let standardInfo =
+                            runArchiveProcess standardExtracted.Directory standardExecutable [
+                                "--info"
+                            ]
+
+                        expectArchiveSuccess standardInfo
+
+                        Expect.equal
+                            (standardInfo.Output.Trim())
+                            $"{product} - {expected.AssemblyVersion} - {expected.ReleaseDate} - {expected.GitHash}"
+                            "The standard-extracted apphost should retain release metadata"
+                )
+
+        expectPublicationCleanup directory
+
+    [<Tests>]
+    let consoleArchiveTests =
+        testSequenced
+        <| testList "console archives" [
+            testCase "Raw creator check rejects creator zero with Unix executable attributes"
+            <| fun _ ->
+                use stream = new IO.MemoryStream()
+
+                do
+                    use archive = new ZipArchive(stream, ZipArchiveMode.Create, true)
+                    let entry = archive.CreateEntry "app"
+                    entry.ExternalAttributes <- int 0x81ED0000u
+                    use payload = entry.Open()
+                    payload.WriteByte 42uy
+
+                let bytes = stream.ToArray()
+
+                let _, _, creatorOffset =
+                    readCentralHeaders bytes
+                    |> List.exactlyOne
+
+                bytes.[creatorOffset] <- 3uy
+
+                readCentralHeaders bytes
+                |> expectUnixCreators
+
+                bytes.[creatorOffset] <- 0uy
+                let headers = readCentralHeaders bytes
+                use negativeStream = new IO.MemoryStream(bytes)
+                use negativeArchive = new ZipArchive(negativeStream, ZipArchiveMode.Read)
+
+                Expect.equal
+                    negativeArchive.Entries.[0].ExternalAttributes
+                    (int 0x81ED0000u)
+                    "The negative control should retain Unix executable attributes"
+
+                Expect.throws
+                    (fun () -> expectUnixCreators headers)
+                    "Creator zero should fail the creator-platform check on every host"
+
+            testCase
+                "CreatePackages publishes framework-dependent root ZIPs and executable apphosts"
+            <| fun _ ->
+                use generated = Disposables.DisposableDirectory.Create()
+                let directory = generateArchiveProject generated.Directory
+
+                runArchiveBuild directory
+                |> expectArchiveSuccess
+
+                verifyConsoleArchives directory "0.1.0" None
+
+            testCase "CreatePackages retains dated prerelease metadata and project framework"
+            <| fun _ ->
+                use generated = Disposables.DisposableDirectory.Create()
+                let directory = generateArchiveProject generated.Directory
+
+                let projectPath =
+                    IO.Path.Combine(directory, "src", "ArchiveApp", "ArchiveApp.fsproj")
+
+                let project = XDocument.Load projectPath
+
+                project.Descendants(XName.Get "TargetFramework")
+                |> Seq.exactlyOne
+                |> fun element -> element.Value <- "net9.0"
+
+                project.Save projectPath
+
+                IO.File.WriteAllText(
+                    IO.Path.Combine(directory, "CHANGELOG.md"),
+                    "# Changelog\n\n## [Unreleased]\n\n## [2.3.4-beta.1] - 2024-02-03\n\n### Added\n- Archive regression fixture.\n"
+                )
+
+                for arguments in
+                    [
+                        [ "init" ]
+                        [
+                            "config"
+                            "user.name"
+                            "Template Test"
+                        ]
+                        [
+                            "config"
+                            "user.email"
+                            "template-test@example.invalid"
+                        ]
+                        [
+                            "add"
+                            "."
+                        ]
+                        [
+                            "commit"
+                            "-m"
+                            "Archive fixture"
+                        ]
+                    ] do
+                    runArchiveProcess directory "git" arguments
+                    |> expectArchiveSuccess
+
+                let revision =
+                    runArchiveProcess directory "git" [
+                        "rev-parse"
+                        "HEAD"
+                    ]
+
+                expectArchiveSuccess revision
+
+                runArchiveBuild directory
+                |> expectArchiveSuccess
+
+                verifyConsoleArchives
+                    directory
+                    "2.3.4-beta.1"
+                    (Some {
+                        AssemblyVersion = System.Version(2, 3, 4, 0)
+                        ReleaseDate = "2024-02-03T00:00:00.0000000"
+                        ReleaseChannel = "beta"
+                        GitHash = revision.Output.Trim()
+                    })
+
+            testCase "CreatePackages removes its workspace after a real publish failure"
+            <| fun _ ->
+                use generated = Disposables.DisposableDirectory.Create()
+                let directory = generateArchiveProject generated.Directory
+
+                let projectPath =
+                    IO.Path.Combine(directory, "src", "ArchiveApp", "ArchiveApp.fsproj")
+
+                let project = XDocument.Load projectPath
+
+                project.Root.Add(
+                    XElement(
+                        XName.Get "Target",
+                        XAttribute(XName.Get "Name", "FailArchivePublication"),
+                        XAttribute(XName.Get "BeforeTargets", "Publish"),
+                        XElement(
+                            XName.Get "WriteLinesToFile",
+                            XAttribute(
+                                XName.Get "File",
+                                "$(MSBuildProjectDirectory)/../../publish-marker.txt"
+                            ),
+                            XAttribute(XName.Get "Lines", "$(PublishDir)"),
+                            XAttribute(XName.Get "Overwrite", "true")
+                        ),
+                        XElement(
+                            XName.Get "Error",
+                            XAttribute(XName.Get "Text", "Archive publication failure fixture")
+                        )
+                    )
+                )
+
+                project.Save projectPath
+                let result = runArchiveBuild directory
+                Expect.notEqual result.ExitCode 0 "The publication error should fail CreatePackages"
+
+                Expect.isTrue
+                    (result.Output.Contains "Archive publication failure fixture")
+                    result.Output
+
+                let marker = IO.Path.Combine(directory, "publish-marker.txt")
+
+                Expect.isTrue
+                    (IO.File.Exists marker)
+                    "The failure must occur inside MSBuild publication"
+
+                let publishDirectory = IO.File.ReadAllText(marker).Trim()
+
+                Expect.isTrue
+                    (publishDirectory.Contains "publish-")
+                    $"The marker should identify the owned publication workspace: {publishDirectory}"
+
+                Expect.isFalse
+                    (IO.Directory.Exists publishDirectory)
+                    "The failed publication directory should be removed"
+
+                expectPublicationCleanup directory
+        ]
 
     [<Tests>]
     let metadataTests =
