@@ -9,22 +9,22 @@ module AssemblyInfo =
     let getMetaDataAttribute (assembly: Assembly) key =
         assembly.GetCustomAttributes(typedefof<AssemblyMetadataAttribute>)
         |> Seq.cast<AssemblyMetadataAttribute>
-        |> Seq.find (fun x -> x.Key = key)
+        |> Seq.tryFind (fun x -> x.Key = key)
 
     let getReleaseDate assembly =
         "ReleaseDate"
         |> getMetaDataAttribute assembly
-        |> metaDataValue
+        |> Option.map metaDataValue
 
     let getGitHash assembly =
         "GitHash"
         |> getMetaDataAttribute assembly
-        |> metaDataValue
+        |> Option.map metaDataValue
 
     let getVersion assembly =
         "AssemblyVersion"
         |> getMetaDataAttribute assembly
-        |> metaDataValue
+        |> Option.map metaDataValue
 
     let assembly =
         lazy
@@ -40,8 +40,15 @@ module AssemblyInfo =
         let assembly = assembly.Force()
         let name = assembly.GetName()
         let version = assembly.GetName().Version
-        let releaseDate = getReleaseDate assembly
-        let githash = getGitHash assembly
+
+        let releaseDate =
+            getReleaseDate assembly
+            |> Option.defaultValue "unreleased"
+
+        let githash =
+            getGitHash assembly
+            |> Option.defaultValue "unknown"
+
         printfn "%s - %A - %s - %s" name.Name version releaseDate githash
 
 module Say =
