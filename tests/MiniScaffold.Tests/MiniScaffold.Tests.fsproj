@@ -18,6 +18,7 @@
         <Compile Include="Asserts.fs" />
         <Compile Include="Tests.fs" />
         <Compile Include="AuditPolicyTests.fs" />
+        <Compile Include="GeneratedReleasePolicyTests.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
 </Project>

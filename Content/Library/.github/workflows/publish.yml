@@ -3,7 +3,7 @@ name: .NET Publish
 on:
   push:
     tags:
-      - "*"
+      - "v*"
 env:
   CONFIGURATION: Release
 jobs:
@@ -26,6 +26,7 @@ jobs:
             10.x
       - name: publish
         env:
+          RELEASE_TAG: ${{ github.ref_name }}
           NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FAKE_DETAILED_ERRORS: true

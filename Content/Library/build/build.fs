@@ -298,9 +298,17 @@ let failOnCIBuild () =
     if isCI.Value then
         failwith "On CI. If you want to run this target, please use a local build."
 
+let failOnWrongReleaseTag () =
+    let expected = Changelog.tagFromVersionNumber latestEntry.NuGetVersion
+
+    match Environment.environVarOrNone "RELEASE_TAG" with
+    | Some actual when String.Equals(actual, expected, StringComparison.Ordinal) -> ()
+    | _ -> failwithf "RELEASE_TAG must equal %s." expected
+
 let allPublishChecks () =
     failOnLocalBuild ()
     Changelog.failOnEmptyChangelog latestEntry
+    failOnWrongReleaseTag ()
 
 //-----------------------------------------------------------------------------
 // Target Implementations
@@ -560,7 +568,7 @@ let sourceLinkTest _ =
     |> Seq.iter (fun nupkg -> dotnet.sourcelink id (sprintf "test %s" nupkg))
 
 let publishToNuget _ =
-    allReleaseChecks ()
+    allPublishChecks ()
 
     DotNet.nugetPush
         (fun c -> {
