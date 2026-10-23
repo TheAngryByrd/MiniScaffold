@@ -216,7 +216,8 @@ let updateChangelog changelogPath (changelog: Fake.Core.Changelog.Changelog) git
             changelog.Description,
             None,
             newEntry
-            :: changelog.Entries
+            :: changelog.Entries,
+            changelog.References
         )
 
     // latestEntry <- newEntry

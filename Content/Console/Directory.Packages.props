@@ -11,7 +11,7 @@
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
   </PropertyGroup>
   <PropertyGroup>
-    <FakeVersion>6.1.3</FakeVersion>
+    <FakeVersion>6.2.0</FakeVersion>
   </PropertyGroup>
   <ItemGroup>
 
@@ -38,7 +38,6 @@
     <PackageVersion Include="Fake.Api.GitHub" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.BuildServer.GitHubActions" Version="$(FakeVersion)" />
     <PackageVersion Include="MSBuild.StructuredLogger" Version="2.2.441" />
-    <PackageVersion Include="System.Formats.Asn1" Version="6.0.1" />
 
     <!-- Analyzers -->
     <PackageVersion Include="FSharp.Analyzers.Build" Version="0.4.0" />

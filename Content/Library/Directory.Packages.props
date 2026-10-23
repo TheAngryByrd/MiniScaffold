@@ -13,7 +13,7 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <PropertyGroup>
-    <FakeVersion>6.1.3</FakeVersion>
+    <FakeVersion>6.2.0</FakeVersion>
   </PropertyGroup>
   <ItemGroup>
 
