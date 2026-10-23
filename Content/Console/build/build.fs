@@ -617,20 +617,26 @@ let githubRelease _ =
 
 
 let formatCode _ =
-    let result = dotnet.fantomas $"{rootDirectory}"
+    let result = dotnet.fantomas (Arguments.OfArgs [ rootDirectory ]).ToStartInfo
 
     if not result.OK then
-        printfn "Errors while formatting all files: %A" result.Messages
+        failwithf "Fantomas failed with exit code %d: %A" result.ExitCode result.Messages
 
 let checkFormatCode ctx =
-    let result = dotnet.fantomas $"{rootDirectory} --check"
+    let result =
+        dotnet.fantomas
+            (Arguments.OfArgs [
+                rootDirectory
+                "--check"
+            ])
+                .ToStartInfo
 
     if result.ExitCode = 0 then
         Trace.log "No files need formatting"
     elif result.ExitCode = 99 then
         failwith "Some files need formatting, check output for more info"
     else
-        Trace.logf "Errors while formatting: %A" result.Errors
+        failwithf "Fantomas failed with exit code %d: %A" result.ExitCode result.Errors
 
 
 let initTargets () =
