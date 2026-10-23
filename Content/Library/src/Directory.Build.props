@@ -65,15 +65,6 @@
         <NoWarn>$(NoWarn)</NoWarn>
     </PropertyGroup>
 
-    <!-- Dependency Quality -->
-    <PropertyGroup>
-        <!-- Since this is a library, we should only care about direct vulnerabilities 
-        https://learn.microsoft.com/en-us/nuget/concepts/auditing-packages-->
-        <NuGetAuditMode>direct</NuGetAuditMode>
-        <NuGetAuditLevel>low</NuGetAuditLevel>
-        <NuGetAudit>true</NuGetAudit>
-    </PropertyGroup>
-
     <ItemGroup>
         <!-- See Directory.Build.targets for FSharpAnalyzersOtherFlags -->
         <PackageReference Include="FSharp.Analyzers.Build" PrivateAssets="All"/>

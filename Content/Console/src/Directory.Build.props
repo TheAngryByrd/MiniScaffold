@@ -47,15 +47,6 @@
         <NoWarn>$(NoWarn)</NoWarn>
     </PropertyGroup>
 
-    <!-- Dependency Quality -->
-    <PropertyGroup>
-        <!-- Since this is a console app, we should only care about all vulnerabilities 
-        https://learn.microsoft.com/en-us/nuget/concepts/auditing-packages#configuring-nuget-audit -->
-        <NuGetAuditMode>all</NuGetAuditMode>
-        <NuGetAuditLevel>low</NuGetAuditLevel>
-        <NuGetAudit>true</NuGetAudit>
-    </PropertyGroup>
-
     <ItemGroup>
         <!-- See Directory.Build.targets for FSharpAnalyzersOtherFlags -->
         <PackageReference Include="FSharp.Analyzers.Build" PrivateAssets="All"/>
