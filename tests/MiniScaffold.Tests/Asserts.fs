@@ -781,3 +781,24 @@ module Effect =
         ``disable publishToNuget function`` d
         // To make publish work locally during integration tests
         ``set environment variable`` "CI" "1" d
+
+        for launcher in
+            [
+                "build.cmd"
+                "build.sh"
+            ] do
+            let path = Path.Combine(d.FullName, launcher)
+            let source = System.IO.File.ReadAllText path
+
+            Expect.stringContains
+                source
+                "dotnet run --project"
+                $"Expected one build invocation in {launcher}."
+
+            let withTag =
+                source.Replace(
+                    "dotnet run --project",
+                    "dotnet run --environment RELEASE_TAG=v0.1.0 --project"
+                )
+
+            System.IO.File.WriteAllText(path, withTag)
