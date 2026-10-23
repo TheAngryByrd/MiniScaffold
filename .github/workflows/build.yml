@@ -49,6 +49,47 @@ jobs:
           path: '**/TestResults/testResults*.trx'
           reporter: dotnet-trx
 
+  build-arm64:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04-arm, windows-11-arm, macos-15]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup necessary dotnet SDKs
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.x
+            9.x
+            10.x
+      - name: Build package via Bash
+        if: runner.os != 'Windows'
+        run: ./build.sh DotnetPack
+        env:
+          CI: true
+      - name: Build package via Windows
+        if: runner.os == 'Windows'
+        run: ./build.cmd DotnetPack
+        env:
+          CI: true
+      - name: Test ARM64 archives
+        shell: pwsh
+        run: |
+          if ($env:RUNNER_ARCH -ne 'ARM64') { throw 'Archive tests require an ARM64 runner' }
+          $env:MINISCAFFOLD_NUPKG_LOCATION = (Get-ChildItem ./dist/MiniScaffold.*.nupkg).FullName
+          dotnet test tests/MiniScaffold.Tests/MiniScaffold.Tests.fsproj --filter 'FullyQualifiedName~console archives' --logger 'trx;LogFilePrefix=testResults'
+        env:
+          CI: true
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: ARM64 Test Results (${{ matrix.os }})
+          path: '**/TestResults/testResults*.trx'
+          reporter: dotnet-trx
+
   # Builds the project in a dev container
   build-devcontainer:
     runs-on: ubuntu-latest

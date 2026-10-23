@@ -56,8 +56,9 @@ This takes away the ambiguity that developers face when creating an OSS project.
 ### For [Applications](Content/Console/README.md)
 - Basic argument parsing example via [Argu](https://fsprojects.github.io/Argu/)
 - Builds the target framework from the application project.
-- Uses `dotnet publish` to create framework-dependent applications for `win-x64`, `osx-x64`, and `linux-x64`.
-- Creates three ZIP archives in `dist/` with names of the form `<product>-<version>-<runtime>.zip`.
+- Uses `dotnet publish` to create framework-dependent applications for Windows, macOS, and Linux.
+- Supports x64 and ARM64 architectures.
+- Creates six ZIP archives in `dist/` with names of the form `<product>-<version>-<runtime>.zip`.
 - Places the executable and supporting files at each archive root.
 - Requires the corresponding .NET runtime on the destination computer.
 

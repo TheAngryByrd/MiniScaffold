@@ -825,6 +825,90 @@ if (actual != expected)
         for name, creator, _ in headers do
             Expect.equal creator 3uy $"{name} should declare Unix creator platform 3"
 
+    let private expectApphostMachine (runtime: string) (bytes: byte array) =
+        use stream = new IO.MemoryStream(bytes, false)
+        use reader = new IO.BinaryReader(stream)
+        let isArm64 = runtime.EndsWith("-arm64", StringComparison.Ordinal)
+
+        match runtime with
+        | "linux-x64"
+        | "linux-arm64" ->
+            Expect.equal
+                (reader.ReadBytes 4)
+                [|
+                    0x7Fuy
+                    0x45uy
+                    0x4Cuy
+                    0x46uy
+                |]
+                $"{runtime} should contain an ELF apphost"
+
+            Expect.equal (reader.ReadByte()) 2uy $"{runtime} should use a 64-bit ELF apphost"
+            Expect.equal (reader.ReadByte()) 1uy $"{runtime} should use little-endian ELF fields"
+            stream.Position <- 18L
+
+            Expect.equal
+                (reader.ReadUInt16())
+                (if isArm64 then 183us else 62us)
+                $"{runtime} should contain the matching ELF machine"
+
+        | "osx-x64"
+        | "osx-arm64" ->
+            Expect.equal
+                (reader.ReadUInt32())
+                0xFEEDFACFu
+                $"{runtime} should contain a 64-bit Mach-O apphost"
+
+            Expect.equal
+                (reader.ReadUInt32())
+                (if isArm64 then 0x0100000Cu else 0x01000007u)
+                $"{runtime} should contain the matching Mach-O CPU type"
+
+        | "win-x64"
+        | "win-arm64" ->
+            Expect.equal (reader.ReadUInt16()) 0x5A4Dus $"{runtime} should contain a DOS header"
+            stream.Position <- 0x3CL
+            let peOffset = reader.ReadUInt32()
+            stream.Position <- int64 peOffset
+            Expect.equal (reader.ReadUInt32()) 0x00004550u $"{runtime} should contain a PE apphost"
+
+            Expect.equal
+                (reader.ReadUInt16())
+                (if isArm64 then 0xAA64us else 0x8664us)
+                $"{runtime} should contain the matching PE machine"
+
+        | _ -> failtestf "Unsupported apphost runtime identifier: %s" runtime
+
+    let private expectArchiveApphostMachine runtime apphost (bytes: byte array) =
+        use stream = new IO.MemoryStream(bytes, false)
+        use archive = new ZipArchive(stream, ZipArchiveMode.Read)
+        use apphostStream = archive.GetEntry(apphost).Open()
+        use apphostBytes = new IO.MemoryStream()
+        apphostStream.CopyTo apphostBytes
+        expectApphostMachine runtime (apphostBytes.ToArray())
+
+    let private replaceArchiveApphost
+        (archiveBytes: byte array)
+        apphost
+        (apphostBytes: byte array)
+        =
+        use stream = new IO.MemoryStream()
+        stream.Write(archiveBytes, 0, archiveBytes.Length)
+        stream.Position <- 0L
+
+        do
+            use archive = new ZipArchive(stream, ZipArchiveMode.Update, true)
+            use apphostStream = archive.GetEntry(apphost).Open()
+            apphostStream.SetLength 0L
+            apphostStream.Write(apphostBytes, 0, apphostBytes.Length)
+
+        let bytes = stream.ToArray()
+
+        for _, _, creatorOffset in readCentralHeaders bytes do
+            bytes.[creatorOffset] <- 3uy
+
+        bytes
+
     let private verifyConsoleArchives directory version metadata =
         let product = "ArchiveApp"
 
@@ -832,6 +916,9 @@ if (actual != expected)
             "linux-x64"
             "osx-x64"
             "win-x64"
+            "linux-arm64"
+            "osx-arm64"
+            "win-arm64"
         ]
 
         let dist = IO.Path.Combine(directory, "dist")
@@ -849,7 +936,7 @@ if (actual != expected)
         Expect.equal
             actualNames
             expectedNames
-            "CreatePackages should produce exactly three named ZIP archives"
+            "CreatePackages should produce exactly six named ZIP archives"
 
         let project =
             XDocument.Load(
@@ -867,26 +954,38 @@ if (actual != expected)
             |> Seq.exactlyOne
             |> _.Value
 
-        let nativeRuntime =
+        let nativeOperatingSystem =
             if OperatingSystem.IsWindows() then
-                "win-x64"
+                "win"
             elif OperatingSystem.IsLinux() then
-                "linux-x64"
+                "linux"
             elif OperatingSystem.IsMacOS() then
-                "osx-x64"
+                "osx"
             else
                 failtest "Archive execution requires Windows, Linux, or macOS"
 
         Expect.equal
             RuntimeInformation.ProcessArchitecture
-            Architecture.X64
-            "The CI host must run the x64 apphost directly"
+            RuntimeInformation.OSArchitecture
+            "Archive tests must use a native process rather than architecture emulation"
+
+        let nativeArchitecture =
+            match RuntimeInformation.ProcessArchitecture with
+            | Architecture.X64 -> "x64"
+            | Architecture.Arm64 -> "arm64"
+            | architecture ->
+                failtestf "Archive execution requires x64 or ARM64, got %A" architecture
+
+        let nativeRuntime = $"{nativeOperatingSystem}-{nativeArchitecture}"
+
+        Expect.contains runtimes nativeRuntime "Archive tests must execute the native artifact"
 
         for runtime in runtimes do
             let archivePath = IO.Path.Combine(dist, $"{product}-{version}-{runtime}.zip")
+            let archiveBytes = IO.File.ReadAllBytes archivePath
 
             let headers =
-                IO.File.ReadAllBytes archivePath
+                archiveBytes
                 |> readCentralHeaders
 
             expectUnixCreators headers
@@ -895,7 +994,7 @@ if (actual != expected)
                 ZipFile.OpenRead(IO.Path.Combine(dist, $"{product}-{version}-{runtime}.zip"))
 
             let apphost =
-                if runtime = "win-x64" then
+                if runtime.StartsWith "win-" then
                     product
                     + ".exe"
                 else
@@ -964,6 +1063,55 @@ if (actual != expected)
                  || Set.contains "libcoreclr.dylib" names)
                 "Framework-dependent archives should not include the runtime"
 
+            expectArchiveApphostMachine runtime apphost archiveBytes
+
+            if runtime.EndsWith("-arm64", StringComparison.Ordinal) then
+                let x64Runtime = runtime.Replace("-arm64", "-x64")
+
+                use x64Archive =
+                    ZipFile.OpenRead(IO.Path.Combine(dist, $"{product}-{version}-{x64Runtime}.zip"))
+
+                use x64Apphost = x64Archive.GetEntry(apphost).Open()
+                use x64Bytes = new IO.MemoryStream()
+                x64Apphost.CopyTo x64Bytes
+
+                let controlBytes = replaceArchiveApphost archiveBytes apphost (x64Bytes.ToArray())
+                use controlStream = new IO.MemoryStream(controlBytes, false)
+                use controlArchive = new ZipArchive(controlStream, ZipArchiveMode.Read)
+
+                for metadataName in
+                    [
+                        $"{product}.deps.json"
+                        $"{product}.runtimeconfig.json"
+                    ] do
+                    use originalMetadata =
+                        new IO.StreamReader(archive.GetEntry(metadataName).Open())
+
+                    use controlMetadata =
+                        new IO.StreamReader(controlArchive.GetEntry(metadataName).Open())
+
+                    Expect.equal
+                        (controlMetadata.ReadToEnd())
+                        (originalMetadata.ReadToEnd())
+                        $"{runtime} control should retain its correct ARM64 manifest and framework"
+
+                let failure =
+                    try
+                        expectArchiveApphostMachine runtime apphost controlBytes
+                        None
+                    with error ->
+                        Some error.Message
+
+                match failure with
+                | Some message ->
+                    Expect.isTrue
+                        (message.Contains(
+                            $"{runtime} should contain the matching",
+                            StringComparison.Ordinal
+                        ))
+                        $"The x64 substitution should fail the {runtime} machine assertion: {message}"
+                | None -> failtestf "%s should reject an x64 apphost inside its ZIP" runtime
+
             let assemblyEntry =
                 archive.GetEntry(
                     product
@@ -1007,6 +1155,17 @@ if (actual != expected)
             Expect.isFalse
                 (fst (options.TryGetProperty "includedFrameworks"))
                 "The runtime configuration should be framework-dependent"
+
+            use dependenciesStream = archive.GetEntry($"{product}.deps.json").Open()
+            use dependencies = JsonDocument.Parse dependenciesStream
+
+            Expect.equal
+                (dependencies.RootElement
+                    .GetProperty("runtimeTarget")
+                    .GetProperty("name")
+                    .GetString())
+                $".NETCoreApp,Version=v{framework.Substring(3)}/{runtime}"
+                "The dependency manifest should match the archive RID and project framework"
 
             use extracted = Disposables.DisposableDirectory.Create()
             archive.ExtractToDirectory extracted.Directory
@@ -1053,8 +1212,7 @@ if (actual != expected)
                     if isDirectory then
                         0x41ED0010
                     elif
-                        runtime
-                        <> "win-x64"
+                        not (runtime.StartsWith "win-")
                         && entry.FullName = product
                     then
                         int 0x81ED0000u
