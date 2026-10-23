@@ -5,6 +5,7 @@ module Tests =
     open System
     open System.Diagnostics
     open System.IO.Compression
+    open System.Text.Json
     open System.Xml.Linq
     open Fake.Core
     open Expecto
@@ -397,6 +398,78 @@ if (actual != expected)
                 "--no-build"
                 "--no-restore"
             ]
+
+    [<Tests>]
+    let metadataTests =
+        testList "metadata" [
+            testCase "packaged parameters are explicitly visible in IDE dialogs"
+            <| fun _ ->
+                use archive = ZipFile.OpenRead nugetPkgPath
+
+                use templateStream =
+                    archive.GetEntry("Content/.template.config/template.json").Open()
+
+                use template = JsonDocument.Parse templateStream
+                use hostStream = archive.GetEntry("Content/.template.config/ide.host.json").Open()
+                use host = JsonDocument.Parse hostStream
+
+                let parameterIds =
+                    template.RootElement.GetProperty("symbols").EnumerateObject()
+                    |> Seq.filter (fun symbol ->
+                        symbol.Value.GetProperty("type").GetString() = "parameter"
+                    )
+                    |> Seq.map (fun symbol -> symbol.Name)
+                    |> Set.ofSeq
+
+                for id in
+                    [
+                        "githubUsername"
+                        "outputType"
+                        "releaseBranch"
+                    ] do
+                    Expect.isTrue
+                        (Set.contains id parameterIds)
+                        $"The packaged template should declare the {id} parameter"
+
+                let hostSymbols =
+                    host.RootElement.GetProperty("symbolInfo").EnumerateArray()
+                    |> Seq.toList
+
+                for id in parameterIds do
+                    let entries =
+                        hostSymbols
+                        |> List.filter (fun symbol -> symbol.GetProperty("id").GetString() = id)
+
+                    Expect.equal entries.Length 1 $"The IDE host should declare {id} exactly once"
+                    let entry = List.exactlyOne entries
+
+                    match entry.TryGetProperty "isVisible" with
+                    | true, visibility ->
+                        Expect.equal
+                            visibility.ValueKind
+                            JsonValueKind.True
+                            $"The IDE host should explicitly set isVisible to true for {id}"
+                    | false, _ ->
+                        failtestf "The IDE host should explicitly declare isVisible for %s" id
+
+            testCase "packaged IDE label uses GitHub Username spelling"
+            <| fun _ ->
+                use archive = ZipFile.OpenRead nugetPkgPath
+                use hostStream = archive.GetEntry("Content/.template.config/ide.host.json").Open()
+                use host = JsonDocument.Parse hostStream
+
+                let githubUsername =
+                    host.RootElement.GetProperty("symbolInfo").EnumerateArray()
+                    |> Seq.filter (fun symbol ->
+                        symbol.GetProperty("id").GetString() = "githubUsername"
+                    )
+                    |> Seq.exactlyOne
+
+                Expect.equal
+                    (githubUsername.GetProperty("name").GetProperty("text").GetString())
+                    "GitHub Username"
+                    "The IDE label should use GitHub capitalization"
+        ]
 
     [<Tests>]
     let tests =
