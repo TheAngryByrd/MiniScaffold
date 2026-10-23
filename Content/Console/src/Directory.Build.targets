@@ -1,4 +1,8 @@
 <Project>
+    <ItemGroup>
+        <PackageReference Include="FSharp.Core" Exclude="@(PackageReference)" />
+    </ItemGroup>
+
     <PropertyGroup>
         <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
         <FSharpAnalyzersOtherFlags>--analyzers-path "$(PkgG-Research_FSharp_Analyzers)/analyzers/dotnet/fs"</FSharpAnalyzersOtherFlags>

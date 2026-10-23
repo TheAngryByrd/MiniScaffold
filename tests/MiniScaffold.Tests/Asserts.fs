@@ -285,14 +285,12 @@ module Effect =
 
     let ``dotnet new`` argsStr (path: string) (d: DirectoryInfo) =
 
-        DotNet.exec
+        New.cmd
             (fun opt -> {
                 opt with
                     WorkingDirectory = Path.Join(d.FullName, path)
             })
-            "new"
             argsStr
-        |> failOnBadExitAndPrint
 
     let ``dotnet add reference`` args path (d: DirectoryInfo) =
         let args =
