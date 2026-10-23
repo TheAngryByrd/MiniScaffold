@@ -3,6 +3,9 @@ namespace MiniScaffold.Tests
 
 module Tests =
     open System
+    open System.Diagnostics
+    open System.IO.Compression
+    open System.Xml.Linq
     open Fake.Core
     open Expecto
     open Infrastructure
@@ -10,7 +13,6 @@ module Tests =
     let ptestCase (reason: string) name test = Expecto.Tests.ptestCase name test
 
     let logger = Expecto.Logging.Log.create "setup"
-    let nugetPkgName = "MiniScaffold"
     let templateName = "mini-scaffold"
 
     let nugetPkgPath =
@@ -68,13 +70,6 @@ module Tests =
         Fake.DotNet.DotNet.getVersion id
         |> printfn "dotnet --version %s"
 
-        printfn "Uninstalling template..."
-
-        try
-            Dotnet.New.uninstall nugetPkgName
-        with e ->
-            printfn "Uninstall failing is fine: %A" e
-
         printfn "Installing template..."
         Dotnet.New.install nugetPkgPath
         printfn "Installed template..."
@@ -117,12 +112,304 @@ module Tests =
         Assert.``README exists``
     ]
 
+    type private PackageHost =
+        | Library
+        | Console
+
+    let private packedLibrariesSupplyFSharpCore host _ =
+        let outputType, solutionName, packageNames =
+            match host with
+            | Library ->
+                "library",
+                "DependencyLibrary",
+                [
+                    "DependencyLibrary"
+                    "DependencyProjectLibrary"
+                ]
+            | Console -> "console", "DependencyConsole", [ "DependencyProjectLibrary" ]
+
+        use generated = Disposables.DisposableDirectory.Create()
+        copyGlobalJson generated.DirectoryInfo
+
+        runTemplate
+            generated.Directory
+            $"-n {solutionName} --githubUsername TestUser --outputType {outputType}"
+
+        let projectDir =
+            IO.DirectoryInfo(IO.Path.Combine(generated.Directory, solutionName))
+
+        Effect.``dotnet new``
+            "mini-scaffold -n DependencyProjectLibrary --githubUsername TestUser --outputType projLib"
+            "src"
+            projectDir
+
+        Effect.``dotnet sln add``
+            "src/DependencyProjectLibrary/DependencyProjectLibrary.fsproj"
+            projectDir
+
+        let runDotnet context workingDirectory environment arguments =
+            let startInfo =
+                ProcessStartInfo(
+                    "dotnet",
+                    WorkingDirectory = workingDirectory,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                )
+
+            for argument in arguments do
+                startInfo.ArgumentList.Add argument
+
+            for key, value in environment do
+                startInfo.Environment.[key] <- value
+
+            startInfo.Environment.Remove "MSBuildSDKsPath"
+            |> ignore
+
+            startInfo.Environment.Remove "MSBuildExtensionsPath"
+            |> ignore
+
+            use child = new Process(StartInfo = startInfo)
+            Expect.isTrue (child.Start()) $"{context} should start dotnet"
+            let output = child.StandardOutput.ReadToEndAsync()
+            let errors = child.StandardError.ReadToEndAsync()
+            child.WaitForExit()
+
+            Expect.equal
+                child.ExitCode
+                0
+                (sprintf
+                    "%s dotnet %s failed.\n%s\n%s"
+                    context
+                    (String.concat " " arguments)
+                    output.Result
+                    errors.Result)
+
+        match host with
+        | Library -> Builds.executeBuild projectDir.FullName "DotnetPack"
+        | Console ->
+            Builds.executeBuild projectDir.FullName "DotnetTest"
+
+            runDotnet "Console-hosted library pack" projectDir.FullName [] [
+                "pack"
+                "src/DependencyProjectLibrary/DependencyProjectLibrary.fsproj"
+                "--configuration"
+                "Release"
+                "--output"
+                IO.Path.Combine(projectDir.FullName, "dist")
+                "-p:PackageVersion=0.1.0"
+                "-p:PackageLicenseFile="
+                "-p:PackageReadmeFile="
+            ]
+
+
+        let attribute name (element: XElement) =
+            match element.Attribute(XName.Get name) with
+            | null -> failtestf "%s is missing attribute %s" (string element) name
+            | value -> value.Value
+
+        let centralPackages =
+            XDocument.Load(IO.Path.Combine(projectDir.FullName, "Directory.Packages.props"))
+
+        let coreVersion =
+            centralPackages.Descendants(XName.Get "PackageVersion")
+            |> Seq.filter (fun package -> attribute "Include" package = "FSharp.Core")
+            |> Seq.exactlyOne
+            |> attribute "Version"
+
+        let consumerSource =
+            """using System;
+using Say = PackageUnderTest.Say;
+
+var person = new Say.Person("Ada", 42, Say.FavoriteColor.Blue,
+    new DateTimeOffset(2000, 1, 2, 0, 0, 0, TimeSpan.Zero));
+var actual = Say.helloPerson(person);
+const string expected = "Hello Ada. You were born on 2000/01/02 and your favorite number is 42. You like Blue.";
+if (actual != expected)
+    throw new Exception($"Expected '{expected}', but got '{actual}'.");
+"""
+
+        for projectName in packageNames do
+            let project =
+                XDocument.Load(
+                    IO.Path.Combine(
+                        projectDir.FullName,
+                        "src",
+                        projectName,
+                        $"{projectName}.fsproj"
+                    )
+                )
+
+            let frameworks =
+                project.Descendants(XName.Get "TargetFrameworks")
+                |> Seq.exactlyOne
+                |> fun value ->
+                    value.Value.Split(';')
+                    |> Array.toList
+
+            let packagePath =
+                IO.Path.Combine(projectDir.FullName, "dist", $"{projectName}.0.1.0.nupkg")
+
+            Expect.isTrue (IO.File.Exists packagePath) $"{packagePath} should exist"
+            use archive = ZipFile.OpenRead packagePath
+            use nuspecStream = archive.GetEntry($"{projectName}.nuspec").Open()
+            let nuspec = XDocument.Load nuspecStream
+            let ns = nuspec.Root.Name.Namespace
+
+            let groups =
+                nuspec.Descendants(
+                    ns
+                    + "group"
+                )
+                |> Seq.toList
+
+            Expect.equal
+                (groups
+                 |> List.map (attribute "targetFramework")
+                 |> List.sort)
+                (frameworks
+                 |> List.sort)
+                $"{packagePath} should contain exactly one dependency group for each target framework"
+
+            for group in groups do
+                let framework = attribute "targetFramework" group
+
+                let dependencies =
+                    group.Elements(
+                        ns
+                        + "dependency"
+                    )
+                    |> Seq.filter (fun dependency -> attribute "id" dependency = "FSharp.Core")
+                    |> Seq.toList
+
+                let context = $"{projectName} {framework}"
+
+                Expect.equal
+                    dependencies.Length
+                    1
+                    $"{context} should declare FSharp.Core exactly once"
+
+                let dependency = List.exactlyOne dependencies
+
+                Expect.equal
+                    (attribute "version" dependency)
+                    coreVersion
+                    $"{context} should use the central FSharp.Core version as its minimum dependency version"
+
+                let assets name defaults =
+                    match dependency.Attribute(XName.Get name) with
+                    | null -> defaults
+                    | value ->
+                        value.Value.Split(
+                            [|
+                                ','
+                                ';'
+                            |],
+                            StringSplitOptions.RemoveEmptyEntries
+                        )
+                        |> Seq.map (fun asset -> asset.Trim().ToLowerInvariant())
+                        |> Set.ofSeq
+
+                let included = assets "include" (Set.singleton "all")
+                let excluded = assets "exclude" Set.empty
+
+                for asset in
+                    [
+                        "compile"
+                        "runtime"
+                    ] do
+                    Expect.isTrue
+                        ((Set.contains "all" included
+                          || Set.contains asset included)
+                         && not (
+                             Set.contains "all" excluded
+                             || Set.contains asset excluded
+                         ))
+                        $"{context} should supply FSharp.Core {asset} assets"
+
+            use consumer = Disposables.DisposableDirectory.Create()
+            copyGlobalJson consumer.DirectoryInfo
+            let element name (content: obj array) = XElement(XName.Get name, content)
+
+            let consumerProject =
+                element "Project" [|
+                    XAttribute(XName.Get "Sdk", "Microsoft.NET.Sdk")
+                    element "PropertyGroup" [|
+                        element "OutputType" [| "Exe" |]
+                        element "TargetFramework" [| "net8.0" |]
+                    |]
+                    element "ItemGroup" [|
+                        element "PackageReference" [|
+                            XAttribute(XName.Get "Include", projectName)
+                            XAttribute(XName.Get "Version", "0.1.0")
+                        |]
+                    |]
+                |]
+
+            consumerProject.Save(IO.Path.Combine(consumer.Directory, "Consumer.csproj"))
+
+            IO.File.WriteAllText(
+                IO.Path.Combine(consumer.Directory, "Program.cs"),
+                consumerSource.Replace("PackageUnderTest", projectName)
+            )
+
+            let config =
+                element "configuration" [|
+                    element "packageSources" [|
+                        element "clear" [||]
+                        element "add" [|
+                            XAttribute(XName.Get "key", "generated")
+                            XAttribute(
+                                XName.Get "value",
+                                IO.Path.Combine(projectDir.FullName, "dist")
+                            )
+                        |]
+                        element "add" [|
+                            XAttribute(XName.Get "key", "nuget.org")
+                            XAttribute(XName.Get "value", "https://api.nuget.org/v3/index.json")
+                        |]
+                    |]
+                    element "fallbackPackageFolders" [| element "clear" [||] |]
+                |]
+
+            let configPath = IO.Path.Combine(consumer.Directory, "NuGet.config")
+            config.Save configPath
+
+            let runConsumer =
+                runDotnet $"{projectName} consumer" consumer.Directory [
+                    "NUGET_PACKAGES", IO.Path.Combine(consumer.Directory, "packages")
+                ]
+
+            runConsumer [
+                "restore"
+                "--configfile"
+                configPath
+                "--no-http-cache"
+            ]
+
+            runConsumer [
+                "build"
+                "--no-restore"
+            ]
+
+            runConsumer [
+                "run"
+                "--no-build"
+                "--no-restore"
+            ]
+
     [<Tests>]
     let tests =
         testSequenced
         <| // uncomment to get better logs
         testList "samples" [
             do setup ()
+            testCase
+                "packed libraries supply FSharp.Core to clean CSharp consumers in Library solutions"
+                (packedLibrariesSupplyFSharpCore Library)
+            testCase
+                "packed libraries supply FSharp.Core to clean CSharp consumers in Console solutions"
+                (packedLibrariesSupplyFSharpCore Console)
             yield!
                 [
                     testCase,
