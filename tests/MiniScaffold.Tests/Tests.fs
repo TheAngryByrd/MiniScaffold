@@ -399,6 +399,112 @@ if (actual != expected)
                 "--no-restore"
             ]
 
+    let private consoleCommandsPreserveOptionalMetadata _ =
+        use generated = Disposables.DisposableDirectory.Create()
+        copyGlobalJson generated.DirectoryInfo
+        let projectName = "MetadataConsole"
+
+        runTemplate
+            generated.Directory
+            $"-n {projectName} --githubUsername TestUser --outputType console"
+
+        let projectDirectory = IO.Path.Combine(generated.Directory, projectName)
+
+        let projectPath =
+            IO.Path.Combine(projectDirectory, "src", projectName, $"{projectName}.fsproj")
+
+        let outputDirectory = IO.Path.Combine(projectDirectory, "runtime-output")
+        let assemblyPath = IO.Path.Combine(outputDirectory, $"{projectName}.dll")
+
+        let runDotnet arguments =
+            let startInfo =
+                ProcessStartInfo(
+                    "dotnet",
+                    WorkingDirectory = projectDirectory,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                )
+
+            for argument in arguments do
+                startInfo.ArgumentList.Add argument
+
+            startInfo.Environment.Remove "MSBuildSDKsPath"
+            |> ignore
+
+            startInfo.Environment.Remove "MSBuildExtensionsPath"
+            |> ignore
+
+            use child = new Process(StartInfo = startInfo)
+            Expect.isTrue (child.Start()) "The generated console command should start"
+            let output = child.StandardOutput.ReadToEndAsync()
+            let errors = child.StandardError.ReadToEndAsync()
+            child.WaitForExit()
+
+            Expect.equal
+                child.ExitCode
+                0
+                (sprintf
+                    "dotnet %s should succeed.\n%s\n%s"
+                    (String.concat " " arguments)
+                    output.Result
+                    errors.Result)
+
+            output.Result.TrimEnd('\r', '\n')
+
+        let check (attributes: (string * string) list) expectedVersion expectedMetadata =
+            runDotnet [
+                "build"
+                projectPath
+                "--configuration"
+                "Release"
+                "--output"
+                outputDirectory
+                if not (List.isEmpty attributes) then
+                    $"-p:AssemblyVersion={expectedVersion}"
+                for key, value in attributes do
+                    $"-p:AssemblyMetadata{key}={value}"
+            ]
+            |> ignore
+
+            Expect.equal
+                (runDotnet [
+                    assemblyPath
+                    "--info"
+                ])
+                $"{projectName} - {expectedVersion} - {expectedMetadata}"
+                "--info should preserve supplied metadata and display defaults for absent attributes"
+
+            Expect.equal
+                (runDotnet [
+                    assemblyPath
+                    "--version"
+                ])
+                expectedVersion
+                "--version should preserve the assembly version"
+
+            Expect.equal
+                (runDotnet [
+                    assemblyPath
+                    "--favorite-color"
+                    "White"
+                    "World"
+                ])
+                "Hello World"
+                "The main command should preserve its greeting"
+
+        check [] "1.0.0.0" "unreleased - unknown"
+        check [ "GitHash", "hash text" ] "2.3.4.5" "unreleased - hash text"
+        check [ "ReleaseDate", "  release date text  " ] "2.3.4.5" "  release date text   - unknown"
+
+        check
+            [
+                "ReleaseDate", "  release date text  "
+                "GitHash", "hash text"
+            ]
+            "2.3.4.5"
+            "  release date text   - hash text"
+
     [<Tests>]
     let metadataTests =
         testList "metadata" [
@@ -477,6 +583,9 @@ if (actual != expected)
         <| // uncomment to get better logs
         testList "samples" [
             do setup ()
+            testCase
+                "console commands preserve optional release metadata"
+                consoleCommandsPreserveOptionalMetadata
             testCase
                 "packed libraries supply FSharp.Core to clean CSharp consumers in Library solutions"
                 (packedLibrariesSupplyFSharpCore Library)
