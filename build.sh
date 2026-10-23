@@ -3,4 +3,4 @@
 set -eu
 set -o pipefail
 
-dotnet run -v:m --project ./build/build.fsproj -- -t "$@"
+dotnet run --project ./build/build.fsproj -p:FormatOnBuild=false -v:m -- -t "$@"

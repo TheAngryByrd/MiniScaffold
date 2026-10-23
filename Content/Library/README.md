@@ -62,6 +62,12 @@ The `.gitattributes` file is already configured to track binary files (images, d
 $ ./build.sh  <optional buildtarget>// on unix
 ```
 
+Normal builds format F# files in each project directory, including nested files.
+To disable this step, run `dotnet build -p:FormatOnBuild=false`.
+Design-time builds do not restore tools or format source files.
+To check formatting without changing source files, run `build.cmd CheckFormatCode` on Windows or `./build.sh CheckFormatCode` on Unix.
+If you delete the local tool cache, run `dotnet tool restore` before the next build.
+
 The bin of your library should look similar to:
 
 ```
@@ -103,8 +109,8 @@ src/MyLib.1/bin/
 - `PublishToNuGet` - Publishes the NuGet packages generated in `DotnetPack` to NuGet via [nuget push](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-nuget-push). Runs only from `Github Actions`.
 - `GitRelease` - Creates a commit message with the [Release Notes](https://fake.build/apidocs/v5/fake-core-releasenotes.html) and a git tag via the version in the `Release Notes`.
 - `GitHubRelease` - Publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) with the Release Notes and any NuGet packages. Runs only from `Github Actions`.
-- `FormatCode` - Runs [Fantomas](https://github.com/fsprojects/fantomas) on the solution file.
-- `CheckFormatCode` - Runs [Fantomas --check](https://fsprojects.github.io/fantomas/docs/end-users/FormattingCheck.html) on the solution file.
+- `FormatCode` - Runs [Fantomas](https://github.com/fsprojects/fantomas) on the root directory and its nested directories. Changes source files. Fails if Fantomas fails.
+- `CheckFormatCode` - Runs [Fantomas --check](https://fsprojects.github.io/fantomas/docs/end-users/FormattingCheck.html) on the root directory and its nested directories. Preserves source files. Fails if files need formatting or Fantomas fails.
 - `BuildDocs` - Generates [Documentation](https://fsprojects.github.io/FSharp.Formatting) from `docsSrc` and the [XML Documentation Comments](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/) from your libraries in `src`.
 - `WatchDocs` - Generates documentation and starts a webserver locally.  It will rebuild and hot reload if it detects any changes made to `docsSrc` files, or libraries in `src`.
 

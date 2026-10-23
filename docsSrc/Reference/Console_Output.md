@@ -26,7 +26,8 @@ The generated repository includes these directories and files:
 | `build.sh` | The macOS and Linux build command. |
 | `global.json` | The .NET SDK version and version selection policy. |
 | `Directory.Build.props` | Shared project properties. |
-| `Directory.Build.targets` | Shared build targets. |
+| `Directory.Build.targets` | Shared project targets. Builds format F# files unless `FormatOnBuild=false` or `DesignTimeBuild=true`. |
+| `Directory.Solution.targets` | Restores local tools before solution restore dispatch. Direct project commands import the same target. Design-time builds skip tool restore. |
 | `Directory.Packages.props` | Central package versions. |
 | `NuGet.config` | NuGet configuration. |
 | `CHANGELOG.md` | Release history. |

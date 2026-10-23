@@ -68,6 +68,12 @@ $ ./build.sh  <optional buildtarget>// on unix
 
 ---
 
+Normal builds format F# files in each project directory, including nested files.
+To disable this step, run `dotnet build -p:FormatOnBuild=false`.
+Design-time builds do not restore tools or format source files.
+To check formatting without changing source files, run `build.cmd CheckFormatCode` on Windows or `./build.sh CheckFormatCode` on Unix.
+If you delete the local tool cache, run `dotnet tool restore` before the next build.
+
 ### Build Targets
 
 
@@ -86,7 +92,8 @@ $ ./build.sh  <optional buildtarget>// on unix
     - Requires the corresponding .NET runtime on the destination computer.
 - `GitRelease` - Creates a commit message with the [Release Notes](https://fake.build/apidocs/v5/fake-core-releasenotes.html) and a git tag via the version in the `Release Notes`.
 - `GitHubRelease` - Publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) with the Release Notes and any NuGet packages.
-- `FormatCode` - Runs [Fantomas](https://github.com/fsprojects/fantomas) on the solution file.
+- `FormatCode` - Runs [Fantomas](https://github.com/fsprojects/fantomas) on the root directory and its nested directories. Changes source files. Fails if Fantomas fails.
+- `CheckFormatCode` - Runs [Fantomas --check](https://fsprojects.github.io/fantomas/docs/end-users/FormattingCheck.html) on the root directory and its nested directories. Preserves source files. Fails if files need formatting or Fantomas fails.
 - [`Release`](#Releasing) - Task that runs all release type tasks such as `GitRelease` and `GitHubRelease`. Make sure to read [Releasing](#Releasing) to setup your environment correctly for releases.
 
 ---
