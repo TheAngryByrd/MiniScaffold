@@ -158,7 +158,7 @@ let failOnBadExitAndPrint (p: ProcessResult) =
         failwithf "failed with exitcode %d" p.ExitCode
 
 
-let isCI = lazy environVarAsBoolOrDefault "CI" true
+let isCI = lazy environVarAsBoolOrDefault "CI" false
 
 // CI Servers can have bizarre failures that have nothing to do with your code
 let rec retryIfInCI times fn =
@@ -262,6 +262,15 @@ let failOnLocalBuild () =
 
 let allPublishChecks () =
     failOnLocalBuild ()
+
+    let expectedTag = tagFromVersionNumber latestEntry.NuGetVersion
+
+    if
+        Environment.environVarOrNone "RELEASE_TAG"
+        <> Some expectedTag
+    then
+        failwithf "RELEASE_TAG must equal %s." expectedTag
+
     Changelog.failOnEmptyChangelog latestEntry
 
 //-----------------------------------------------------------------------------
