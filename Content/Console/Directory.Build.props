@@ -22,6 +22,10 @@ https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory?vi
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/MyGithubUsername/MyLib.1</RepositoryUrl>
     </PropertyGroup>
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/" />
+        <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Pack="true" PackagePath="/" />
+    </ItemGroup>
 
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>

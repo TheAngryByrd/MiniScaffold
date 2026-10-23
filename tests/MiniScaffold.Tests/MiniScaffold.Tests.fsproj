@@ -17,6 +17,7 @@
         <Compile Include="Infrastructure.fs" />
         <Compile Include="Asserts.fs" />
         <Compile Include="Tests.fs" />
+        <Compile Include="PackageDocumentTests.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
 </Project>
