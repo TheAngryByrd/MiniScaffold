@@ -126,7 +126,8 @@ The README.md comes with a lot of information but it's recommended to fill out t
 
 ## Making a Release
 
-The release process is streamlined so you only have to start your git repository, set your NuGet keys for GitHub Actions, create `CHANGELOG` notes, and run the `Release` build target. After you've done the initial setup, you will only need to perform the last two steps for each release.
+Create your GitHub repository and configure NuGet trusted publishing before the first release.
+For each release, add `CHANGELOG` notes and run the `Release` build target.
 
 ### Create your Github Repository
 
@@ -141,12 +142,27 @@ The release process is streamlined so you only have to start your git repository
     git push -u origin master
     ```
 
-### Add your NUGET_TOKEN to your environment
+### Configure trusted publishing
 
-- Our NuGet package is created with a [GitHub Action](https://github.com/features/actions)  This action needs to be able to push to NuGet.  To do this, we need to add our NuGet API key to our GitHub repository's secrets. 
-- [Create an Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#creating-an-environment) on your repository named `nuget`.
-- [Create a NuGet API key](https://learn.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-an-api-key)
-- Add your `NUGET_TOKEN` to the [Environment Secrets](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#environment-secrets) of your newly created environment.
+1. Create a GitHub environment named `nuget` if it does not exist.
+2. Open [NuGet trusted publishing](https://www.nuget.org/account/trustedpublishing).
+3. Create a policy with the correct NuGet package owner and package scopes.
+4. Set the GitHub owner to your actual GitHub username or organization.
+5. Set the repository to `MyCoolNewLib`, or its actual name if you renamed it.
+6. Set the workflow filename to `publish.yml` and the environment to `nuget`.
+7. Add an environment variable named `NUGET_USER` in the GitHub `nuget` environment.
+8. Set the variable to the policy creator's actual NuGet profile name.
+
+Do not use an email address or assume that the NuGet profile matches the GitHub owner.
+`NuGet/login@v1` supplies the API key through the existing `NUGET_TOKEN` build input.
+The workflow has no stored-key fallback.
+
+After an authorized tag-triggered release, verify the NuGet package version and GitHub release artifacts.
+Check the complete run logs for credentials and credential fragments.
+Check that NuGet reports the policy as active and permanent.
+Only after all verification succeeds, remove the stored GitHub `NUGET_TOKEN` secret and revoke the old scoped NuGet key.
+Keep both credentials until these checks pass.
+Use the [release guide](../How_Tos/release-a-nuget-package.md) for detailed setup, failure checks, and manual emergency recovery.
 
 
 ### Prepare your CHANGELOG.md
