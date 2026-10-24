@@ -9,4 +9,11 @@ module Main =
 
     [<EntryPoint>]
     let main argv =
-        Tests.runTestsInAssemblyWithCLIArgs [] argv
+        match ProcessCaptureTests.parseWorkerArguments argv with
+        | ProcessCaptureTests.OrdinaryArguments -> Tests.runTestsInAssemblyWithCLIArgs [] argv
+        | ProcessCaptureTests.InvalidWorkerArguments _ -> 2
+        | ProcessCaptureTests.CaptureWorker request ->
+            MiniScaffold.Tests.Tests.tests
+            |> ignore
+
+            ProcessCaptureTests.runCaptureWorker request

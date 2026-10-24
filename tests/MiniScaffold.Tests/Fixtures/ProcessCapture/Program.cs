@@ -45,6 +45,16 @@ static class Program
         using var stdout = new StreamWriter(Console.OpenStandardOutput(), new System.Text.UTF8Encoding(false)) { AutoFlush = true };
         using var stderr = new StreamWriter(Console.OpenStandardError(), new System.Text.UTF8Encoding(false)) { AutoFlush = true };
 
+        if (args[0] == "gated")
+        {
+            Publish(args[1], "fixture-ready", Environment.ProcessId.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            if (!WaitForFile(Path.Combine(args[1], "emit")))
+                return 99;
+            stdout.Write(ParentOutput);
+            stderr.Write(ParentError);
+            return 17;
+        }
+
         if (args[0] == "exact" || args[0] == "running")
         {
             stdout.Write(ExactOutput);

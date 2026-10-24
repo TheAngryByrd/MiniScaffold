@@ -199,9 +199,635 @@ module ProcessCaptureTests =
             StandardError = stderr.Result
         }
 
+    type internal WorkerRequest = private {
+        FixtureAssembly: string
+        Directory: string
+    }
+
+    type internal WorkerDispatch =
+        | OrdinaryArguments
+        | CaptureWorker of WorkerRequest
+        | InvalidWorkerArguments of string
+
+    let private workerArgument = "--miniscaffold-process-capture-starved-worker"
+
+    let internal parseWorkerArguments arguments =
+        match arguments with
+        | [| token; assembly; directory |] when token = workerArgument ->
+            try
+                let assembly = Path.GetFullPath assembly
+                let directory = Path.GetFullPath directory
+
+                if
+                    File.Exists assembly
+                    && Directory.Exists directory
+                then
+                    CaptureWorker {
+                        FixtureAssembly = assembly
+                        Directory = directory
+                    }
+                else
+                    InvalidWorkerArguments "The prepared fixture and worker directory must exist."
+            with ex ->
+                InvalidWorkerArguments ex.Message
+        | arguments when Array.tryHead arguments = Some workerArgument ->
+            InvalidWorkerArguments "The private worker requires a fixture assembly and directory."
+        | _ -> OrdinaryArguments
+
+    type private WorkerPhase =
+        | Active = 0
+        | Verified = 1
+        | Recovering = 2
+
+    type private WorkerObservation = {
+        CaptureExitCode: int
+        StandardOutput: string
+        StandardError: string
+        CaptureError: string
+        DurableOutput: string
+        DurableError: string
+        MaximumBeforeCapture: int
+        AvailableBeforeCapture: int
+        MaximumAtVerdict: int
+        AvailableAtVerdict: int
+        BlockerAcknowledged: bool
+        BlockerReleased: bool
+        OutputDisposed: bool
+        ErrorDisposed: bool
+        ActiveAtVerdict: bool
+        ElapsedMilliseconds: int64
+    }
+
+    type private CompletionWriter(inner: TextWriter, completed: ManualResetEventSlim) =
+        inherit TextWriter()
+        override _.Encoding = inner.Encoding
+
+        override _.Write(buffer: char array, index: int, count: int) =
+            inner.Write(buffer, index, count)
+
+        override _.Dispose disposing =
+            if disposing then
+                try
+                    inner.Dispose()
+                finally
+                    completed.Set()
+
+    let private assertObservation observation =
+        Expect.isTrue observation.BlockerAcknowledged "The sole blocker must acknowledge entry"
+        Expect.equal observation.MaximumBeforeCapture 1 "Capture must start with maximum one worker"
+
+        Expect.equal
+            observation.AvailableBeforeCapture
+            0
+            "Capture must start with no available worker"
+
+        Expect.equal observation.MaximumAtVerdict 1 "Verification must retain maximum one worker"
+        Expect.equal observation.AvailableAtVerdict 0 "Verification must have no available worker"
+        Expect.isFalse observation.BlockerReleased "Verification must precede blocker release"
+        Expect.isTrue observation.ActiveAtVerdict "Verification must precede recovery"
+        Expect.equal observation.CaptureError "" "Capture must complete without an exception"
+        Expect.equal observation.CaptureExitCode 17 "Capture must preserve exit 17"
+
+        Expect.equal
+            observation.StandardOutput
+            parentOutput
+            "Captured stdout must preserve exact text"
+
+        Expect.equal
+            observation.StandardError
+            parentError
+            "Captured stderr must preserve exact text"
+
+        Expect.equal
+            observation.DurableOutput
+            parentOutput
+            "Durable stdout must be exact before release"
+
+        Expect.equal
+            observation.DurableError
+            parentError
+            "Durable stderr must be exact before release"
+
+        Expect.isTrue observation.OutputDisposed "The stdout writer must finish before verification"
+        Expect.isTrue observation.ErrorDisposed "The stderr writer must finish before verification"
+
+    let internal runCaptureWorker request =
+        let path name = Path.Combine(request.Directory, name)
+        use blockerEntered = new ManualResetEventSlim()
+        use blockerRelease = new ManualResetEventSlim()
+        use blockerExited = new ManualResetEventSlim()
+        use callerReady = new ManualResetEventSlim()
+        use callerBegin = new ManualResetEventSlim()
+        use readerSetup = new ManualResetEventSlim()
+        use callerFinished = new ManualResetEventSlim()
+        use outputDisposed = new ManualResetEventSlim()
+        use errorDisposed = new ManualResetEventSlim()
+
+        let stdout =
+            new CompletionWriter(
+                new StreamWriter(
+                    path "stdout.txt",
+                    false,
+                    Text.UTF8Encoding(false),
+                    AutoFlush = true
+                ),
+                outputDisposed
+            )
+
+        let stderr =
+            try
+                new CompletionWriter(
+                    new StreamWriter(
+                        path "stderr.txt",
+                        false,
+                        Text.UTF8Encoding(false),
+                        AutoFlush = true
+                    ),
+                    errorDisposed
+                )
+            with _ ->
+                stdout.Dispose()
+                reraise ()
+
+        let start =
+            startInfo request.Directory [
+                request.FixtureAssembly
+                "gated"
+                request.Directory
+            ]
+
+        let originalMinimum, originalIoMinimum = ThreadPool.GetMinThreads()
+        let originalMaximum, originalIoMaximum = ThreadPool.GetMaxThreads()
+        let elapsed = Stopwatch()
+
+        let remaining () =
+            max
+                0
+                (8000
+                 - int elapsed.ElapsedMilliseconds)
+
+        let mutable phase = int WorkerPhase.Active
+        let mutable observation: WorkerObservation option = None
+        let mutable callerFailure: exn option = None
+        let mutable supervisorFailure: exn option = None
+        let mutable captureBegun = false
+        let mutable blockerQueued = false
+
+        let caller =
+            Thread(
+                ThreadStart(fun () ->
+                    callerReady.Set()
+                    callerBegin.Wait()
+
+                    try
+                        if Volatile.Read(&phase) = int WorkerPhase.Active then
+                            let maximum, _ = ThreadPool.GetMaxThreads()
+                            let available, _ = ThreadPool.GetAvailableThreads()
+
+                            Expect.isTrue
+                                blockerEntered.IsSet
+                                "The blocker must enter before capture"
+
+                            Expect.isFalse blockerRelease.IsSet "The blocker must remain occupied"
+                            Expect.equal maximum 1 "Capture requires maximum one worker"
+                            Expect.equal available 0 "Capture requires no available worker"
+                            captureBegun <- true
+
+                            let captured =
+                                attempt (fun () ->
+                                    ProcessCapture.runWithOutputAfterReaderSetup
+                                        readerSetup.Set
+                                        stdout
+                                        stderr
+                                        (TimeSpan.FromSeconds 1.)
+                                        start
+                                )
+
+                            let verdictMaximum, _ = ThreadPool.GetMaxThreads()
+                            let verdictAvailable, _ = ThreadPool.GetAvailableThreads()
+
+                            let current = {
+                                CaptureExitCode =
+                                    match captured with
+                                    | Ok result -> result.ExitCode
+                                    | Error _ -> -1
+                                StandardOutput =
+                                    match captured with
+                                    | Ok result -> result.StandardOutput
+                                    | Error _ -> ""
+                                StandardError =
+                                    match captured with
+                                    | Ok result -> result.StandardError
+                                    | Error _ -> ""
+                                CaptureError =
+                                    match captured with
+                                    | Ok _ -> ""
+                                    | Error ex -> ex.ToString()
+                                DurableOutput = readLiveText (path "stdout.txt")
+                                DurableError = readLiveText (path "stderr.txt")
+                                MaximumBeforeCapture = maximum
+                                AvailableBeforeCapture = available
+                                MaximumAtVerdict = verdictMaximum
+                                AvailableAtVerdict = verdictAvailable
+                                BlockerAcknowledged = blockerEntered.IsSet
+                                BlockerReleased = blockerRelease.IsSet
+                                OutputDisposed = outputDisposed.IsSet
+                                ErrorDisposed = errorDisposed.IsSet
+                                ActiveAtVerdict = Volatile.Read(&phase) = int WorkerPhase.Active
+                                ElapsedMilliseconds = elapsed.ElapsedMilliseconds
+                            }
+
+                            observation <- Some current
+                            assertObservation current
+
+                            Expect.isLessThan
+                                elapsed.ElapsedMilliseconds
+                                8000L
+                                "Verification must meet the experiment deadline"
+
+                            Expect.equal
+                                (Interlocked.CompareExchange(
+                                    &phase,
+                                    int WorkerPhase.Verified,
+                                    int WorkerPhase.Active
+                                ))
+                                (int WorkerPhase.Active)
+                                "Verification must claim success before recovery"
+                    with ex ->
+                        callerFailure <- Some ex
+
+                    callerFinished.Set()
+                )
+            )
+
+        caller.IsBackground <- true
+        caller.Start()
+
+        try
+            Expect.isTrue
+                (callerReady.Wait(TimeSpan.FromSeconds 5.))
+                "The dedicated caller must become ready"
+
+            File.WriteAllText(path "worker-ready", string Environment.ProcessId)
+            elapsed.Start()
+
+            Expect.isTrue
+                (ThreadPool.SetMinThreads(1, originalIoMinimum))
+                "The worker minimum must be set"
+
+            Expect.isTrue
+                (ThreadPool.SetMaxThreads(1, originalIoMaximum))
+                "The worker maximum must be set"
+
+            Expect.isTrue
+                (SpinWait.SpinUntil(
+                    (fun () -> let available, _ = ThreadPool.GetAvailableThreads() in available = 1),
+                    remaining ()
+                ))
+                "The child pool must become idle before the blocker starts"
+
+            blockerQueued <-
+                ThreadPool.QueueUserWorkItem(
+                    WaitCallback(fun _ ->
+                        blockerEntered.Set()
+                        blockerRelease.Wait()
+                        blockerExited.Set()
+                    )
+                )
+
+            Expect.isTrue blockerQueued "The sole blocker must be queued"
+
+            Expect.isTrue
+                (blockerEntered.Wait(remaining ()))
+                "The sole blocker must acknowledge entry"
+
+            let maximum, _ = ThreadPool.GetMaxThreads()
+            let available, _ = ThreadPool.GetAvailableThreads()
+            Expect.equal maximum 1 "The child pool must have maximum one worker"
+            Expect.equal available 0 "The acknowledged blocker must occupy the sole worker"
+            callerBegin.Set()
+
+            Expect.isTrue
+                (readerSetup.Wait(remaining ()))
+                "Both readers and their observer must exist before emission"
+
+            Expect.isTrue
+                (SpinWait.SpinUntil((fun () -> File.Exists(path "fixture-ready")), remaining ()))
+                "The gated fixture must acknowledge readiness"
+
+            let available, _ = ThreadPool.GetAvailableThreads()
+            Expect.equal available 0 "The blocker must remain occupied before emission"
+            Expect.isFalse blockerRelease.IsSet "Emission must precede blocker release"
+            File.WriteAllText(path "emit", "emit")
+
+            Expect.isTrue
+                (callerFinished.Wait(remaining ()))
+                "Capture and verification must meet the fixed eight-second deadline"
+        with ex ->
+            supervisorFailure <- Some ex
+
+        let deadlineRecovery =
+            elapsed.ElapsedMilliseconds
+            >= 8000L
+
+        let claimed =
+            Interlocked.CompareExchange(&phase, int WorkerPhase.Recovering, int WorkerPhase.Active)
+
+        let releaseMilliseconds = elapsed.ElapsedMilliseconds
+
+        try
+            File.WriteAllText(path "emit", "emit")
+        with ex ->
+            if supervisorFailure.IsNone then
+                supervisorFailure <- Some ex
+
+        blockerRelease.Set()
+        let maximumRestored = ThreadPool.SetMaxThreads(originalMaximum, originalIoMaximum)
+        let minimumRestored = ThreadPool.SetMinThreads(originalMinimum, originalIoMinimum)
+        callerBegin.Set()
+        caller.Join()
+
+        if blockerQueued then
+            blockerExited.Wait()
+
+        if not captureBegun then
+            stdout.Dispose()
+            stderr.Dispose()
+
+        outputDisposed.Wait()
+        errorDisposed.Wait()
+        let restoredMaximum, restoredIoMaximum = ThreadPool.GetMaxThreads()
+        let restoredMinimum, restoredIoMinimum = ThreadPool.GetMinThreads()
+
+        let restored =
+            maximumRestored
+            && minimumRestored
+            && restoredMaximum = originalMaximum
+            && restoredIoMaximum = originalIoMaximum
+            && restoredMinimum = originalMinimum
+            && restoredIoMinimum = originalIoMinimum
+
+        let verified =
+            claimed = int WorkerPhase.Verified
+            && not deadlineRecovery
+            && callerFailure.IsNone
+            && supervisorFailure.IsNone
+            && restored
+
+        let report = {|
+            Verified = verified
+            DeadlineRecovery = deadlineRecovery
+            Phase = string (enum<WorkerPhase> (Volatile.Read(&phase)))
+            Observation =
+                observation
+                |> Option.map (fun frozen -> {|
+                    CaptureExitCode = frozen.CaptureExitCode
+                    StandardOutput = frozen.StandardOutput
+                    StandardError = frozen.StandardError
+                    CaptureError = frozen.CaptureError
+                    DurableOutput = frozen.DurableOutput
+                    DurableError = frozen.DurableError
+                    MaximumBeforeCapture = frozen.MaximumBeforeCapture
+                    AvailableBeforeCapture = frozen.AvailableBeforeCapture
+                    MaximumAtVerdict = frozen.MaximumAtVerdict
+                    AvailableAtVerdict = frozen.AvailableAtVerdict
+                    BlockerAcknowledged = frozen.BlockerAcknowledged
+                    BlockerReleased = frozen.BlockerReleased
+                    OutputDisposed = frozen.OutputDisposed
+                    ErrorDisposed = frozen.ErrorDisposed
+                    ActiveAtVerdict = frozen.ActiveAtVerdict
+                    ElapsedMilliseconds = frozen.ElapsedMilliseconds
+                |})
+                |> Option.toArray
+            CallerFailure =
+                callerFailure
+                |> Option.map string
+                |> Option.defaultValue ""
+            SupervisorFailure =
+                supervisorFailure
+                |> Option.map string
+                |> Option.defaultValue ""
+            ReleaseMilliseconds = releaseMilliseconds
+            Restored = restored
+            BlockerExited =
+                not blockerQueued
+                || blockerExited.IsSet
+            OutputDisposed = outputDisposed.IsSet
+            ErrorDisposed = errorDisposed.IsSet
+            LaterOutput = readLiveText (path "stdout.txt")
+            LaterError = readLiveText (path "stderr.txt")
+            ElapsedMilliseconds = elapsed.ElapsedMilliseconds
+        |}
+
+        File.WriteAllText(path "receipt.json", Text.Json.JsonSerializer.Serialize report)
+        if verified then 0 else 1
+
+    let private captureWithoutPoolWorkers () =
+        let assembly = fixture.Value
+        let directory = diagnosticsDirectory ()
+
+        Directory.CreateDirectory directory
+        |> ignore
+
+        let start =
+            startInfo Environment.CurrentDirectory [
+                typeof<WorkerDispatch>.Assembly.Location
+                workerArgument
+                assembly
+                directory
+            ]
+
+        start.FileName <-
+            Path.GetFullPath(
+                Path.Combine(
+                    Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(),
+                    "../../..",
+                    if OperatingSystem.IsWindows() then
+                        "dotnet.exe"
+                    else
+                        "dotnet"
+                )
+            )
+
+        start.RedirectStandardOutput <- false
+        start.RedirectStandardError <- false
+        start.StandardOutputEncoding <- null
+        start.StandardErrorEncoding <- null
+        use worker = new Process(StartInfo = start)
+        Expect.isTrue (worker.Start()) "The isolated regression worker must start"
+        let ready = Path.Combine(directory, "worker-ready")
+        let preparation = Stopwatch.StartNew()
+
+        while not worker.HasExited
+              && not (File.Exists ready)
+              && preparation.Elapsed < TimeSpan.FromSeconds 30. do
+            worker.WaitForExit(10)
+            |> ignore
+
+        let readySeen = File.Exists ready
+
+        let exited =
+            worker.HasExited
+            || (readySeen
+                && worker.WaitForExit(12000))
+
+        if not exited then
+            File.WriteAllText(
+                Path.Combine(directory, "parent-timeout.txt"),
+                "The isolated worker exceeded its preparation or experiment/cleanup bound."
+            )
+
+            worker.Kill(true)
+            worker.WaitForExit()
+
+        let receiptPath = Path.Combine(directory, "receipt.json")
+
+        let receipt =
+            if File.Exists receiptPath then
+                File.ReadAllText receiptPath
+            else
+                "No worker receipt."
+
+        let detail = sprintf "Worker evidence: %s\n%s" directory receipt
+        Expect.isTrue exited detail
+        Expect.isTrue readySeen detail
+        Expect.equal worker.ExitCode 0 detail
+        use document = Text.Json.JsonDocument.Parse receipt
+        let root = document.RootElement
+        Expect.isTrue (root.GetProperty("Verified").GetBoolean()) detail
+        Expect.isFalse (root.GetProperty("DeadlineRecovery").GetBoolean()) detail
+        Expect.isTrue (root.GetProperty("Restored").GetBoolean()) detail
+        Expect.equal (root.GetProperty("Phase").GetString()) "Verified" detail
+
+        let frozen =
+            root.GetProperty("Observation").EnumerateArray()
+            |> Seq.exactlyOne
+
+        Expect.equal (frozen.GetProperty("CaptureError").GetString()) "" detail
+        Expect.equal (frozen.GetProperty("CaptureExitCode").GetInt32()) 17 detail
+
+        for property, expected in
+            [
+                "StandardOutput", parentOutput
+                "StandardError", parentError
+                "DurableOutput", parentOutput
+                "DurableError", parentError
+            ] do
+            Expect.equal (frozen.GetProperty(property).GetString()) expected detail
+
+        for property in
+            [
+                "MaximumBeforeCapture"
+                "MaximumAtVerdict"
+            ] do
+            Expect.equal (frozen.GetProperty(property).GetInt32()) 1 detail
+
+        for property in
+            [
+                "AvailableBeforeCapture"
+                "AvailableAtVerdict"
+            ] do
+            Expect.equal (frozen.GetProperty(property).GetInt32()) 0 detail
+
+        for property in
+            [
+                "BlockerAcknowledged"
+                "OutputDisposed"
+                "ErrorDisposed"
+                "ActiveAtVerdict"
+            ] do
+            Expect.isTrue (frozen.GetProperty(property).GetBoolean()) detail
+
+        Expect.isFalse (frozen.GetProperty("BlockerReleased").GetBoolean()) detail
+
+    type private FaultingWriter(writeError: exn, disposeError: exn) =
+        inherit TextWriter()
+        let mutable writes = 0
+        let mutable disposals = 0
+        member _.Writes = writes
+        member _.Disposals = disposals
+        override _.Encoding = Text.Encoding.UTF8
+
+        override _.Write(_: char array, _: int, _: int) : unit =
+            writes <- writes + 1
+            raise writeError
+
+        override _.Dispose disposing =
+            if disposing then
+                disposals <-
+                    disposals
+                    + 1
+
+                raise disposeError
+
     [<Tests>]
     let tests =
         testList "process capture" [
+            testCase "captures exact output with no available pool workers"
+            <| fun _ -> captureWithoutPoolWorkers ()
+
+            testCase "continues capture after writer faults and disposes each writer once"
+            <| fun _ ->
+                use directory = Disposables.DisposableDirectory.Create()
+                let outputWrite = IOException "stdout write failure"
+                let outputDispose = IOException "stdout disposal failure"
+                let errorWrite = IOException "stderr write failure"
+                let errorDispose = IOException "stderr disposal failure"
+                let stdout = new FaultingWriter(outputWrite, outputDispose)
+                let stderr = new FaultingWriter(errorWrite, errorDispose)
+
+                let error =
+                    attempt (fun () ->
+                        fixtureStart directory.Directory [ "exact" ]
+                        |> ProcessCapture.runWithOutput stdout stderr (TimeSpan.FromSeconds 1.)
+                    )
+                    |> failure
+
+                Expect.isTrue
+                    (error :? InvalidOperationException)
+                    "Writer faults must retain their context wrapper"
+
+                Expect.stringContains
+                    error.Message
+                    exactOutput
+                    "Capture must continue after the stdout writer fails"
+
+                Expect.stringContains
+                    error.Message
+                    exactError
+                    "Capture must continue after the stderr writer fails"
+
+                let causes = (error.InnerException :?> AggregateException).Flatten().InnerExceptions
+
+                Expect.equal
+                    causes.Count
+                    4
+                    "Both write and disposal failures from both streams must survive"
+
+                for cause in
+                    [
+                        outputWrite
+                        outputDispose
+                        errorWrite
+                        errorDispose
+                    ] do
+                    Expect.isTrue
+                        (causes
+                         |> Seq.exists (fun actual -> Object.ReferenceEquals(actual, cause)))
+                        "The original writer exception must survive"
+
+                for writer in
+                    [
+                        stdout
+                        stderr
+                    ] do
+                    Expect.equal writer.Writes 1 "A failed writer must not receive later blocks"
+
+                    Expect.equal
+                        writer.Disposals
+                        1
+                        "Each launched reader must dispose its writer once"
+
             testCase "keeps success streams separate"
             <| fun _ ->
                 use directory = Disposables.DisposableDirectory.Create()

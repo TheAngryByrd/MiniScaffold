@@ -132,45 +132,51 @@ module internal ProcessCapture =
         sprintf "%s %s in %s" startInfo.FileName arguments startInfo.WorkingDirectory
 
     let private readStream (reader: StreamReader) (writer: TextWriter) (captured: StringBuilder) =
-        task {
-            let failures = ResizeArray<exn>()
-            let buffer = Array.zeroCreate<char> 4096
-            let mutable writeOutput = true
+        Task.Factory.StartNew<unit>(
+            (fun () ->
+                let failures = ResizeArray<exn>()
+                let buffer = Array.zeroCreate<char> 4096
+                let mutable writeOutput = true
 
-            try
-                let mutable reading = true
+                try
+                    let mutable reading = true
 
-                while reading do
-                    let! count = reader.ReadAsync(buffer, 0, buffer.Length)
-                    reading <- count <> 0
+                    while reading do
+                        let count = reader.Read(buffer, 0, buffer.Length)
+                        reading <- count <> 0
 
-                    if reading then
-                        lock
-                            captured
-                            (fun () ->
-                                captured.Append(buffer, 0, count)
-                                |> ignore
-                            )
+                        if reading then
+                            lock
+                                captured
+                                (fun () ->
+                                    captured.Append(buffer, 0, count)
+                                    |> ignore
+                                )
 
-                        if writeOutput then
-                            try
-                                writer.Write(buffer, 0, count)
-                            with ex ->
-                                failures.Add ex
-                                writeOutput <- false
-            with ex ->
-                failures.Add ex
+                            if writeOutput then
+                                try
+                                    writer.Write(buffer, 0, count)
+                                with ex ->
+                                    failures.Add ex
+                                    writeOutput <- false
+                with ex ->
+                    failures.Add ex
 
-            try
-                writer.Dispose()
-            with ex ->
-                failures.Add ex
+                try
+                    writer.Dispose()
+                with ex ->
+                    failures.Add ex
 
-            if failures.Count > 0 then
-                raise (AggregateException(failures))
-        }
+                if failures.Count > 0 then
+                    raise (AggregateException(failures))
+            ),
+            System.Threading.CancellationToken.None,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default
+        )
 
-    let runWithOutput
+    let runWithOutputAfterReaderSetup
+        (onReaderSetup: unit -> unit)
         (stdout: TextWriter)
         (stderr: TextWriter)
         (drainTimeout: TimeSpan)
@@ -196,8 +202,43 @@ module internal ProcessCapture =
 
         let output = StringBuilder()
         let errors = StringBuilder()
-        let outputRead = readStream child.StandardOutput stdout output
-        let errorRead = readStream child.StandardError stderr errors
+
+        let outputRead =
+            try
+                readStream child.StandardOutput stdout output
+            with _ ->
+                for writer in
+                    [
+                        stdout
+                        stderr
+                    ] do
+                    try
+                        writer.Dispose()
+                    with _ ->
+                        ()
+
+                reraise ()
+
+        let errorRead =
+            try
+                readStream child.StandardError stderr errors
+            with _ ->
+                outputRead.ContinueWith(
+                    (fun (completed: Task<unit>) ->
+                        if completed.IsFaulted then
+                            completed.Exception
+                            |> ignore
+                    ),
+                    TaskScheduler.Default
+                )
+                |> ignore
+
+                try
+                    stderr.Dispose()
+                with _ ->
+                    ()
+
+                reraise ()
 
         let outputDrain =
             Task.WhenAll [|
@@ -215,6 +256,7 @@ module internal ProcessCapture =
         )
         |> ignore
 
+        onReaderSetup ()
         child.WaitForExit()
         let context = sprintf "%s exited with code %d" (describe startInfo) child.ExitCode
 
@@ -256,6 +298,9 @@ module internal ProcessCapture =
             StandardOutput = snapshot output
             StandardError = snapshot errors
         }
+
+    let runWithOutput stdout stderr drainTimeout startInfo =
+        runWithOutputAfterReaderSetup ignore stdout stderr drainTimeout startInfo
 
     let run drainTimeout startInfo =
         runWithOutput TextWriter.Null TextWriter.Null drainTimeout startInfo
