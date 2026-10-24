@@ -15,6 +15,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Infrastructure.fs" />
+        <Compile Include="ProcessCaptureTests.fs" />
         <Compile Include="Asserts.fs" />
         <Compile Include="Tests.fs" />
         <Compile Include="ReleasePolicyTests.fs" />

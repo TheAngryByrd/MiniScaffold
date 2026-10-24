@@ -5,7 +5,6 @@ module PackageDocumentTests =
     open System.Diagnostics
     open System.IO
     open System.IO.Compression
-    open System.Threading.Tasks
     open System.Xml.Linq
     open Expecto
     open Infrastructure
@@ -35,48 +34,17 @@ module PackageDocumentTests =
 
         startInfo.Environment["MSBUILDDISABLENODEREUSE"] <- "1"
 
-        use child = new Process(StartInfo = startInfo)
-        Expect.isTrue (child.Start()) "The package command should start"
-        let output = child.StandardOutput.ReadToEndAsync()
-        let errors = child.StandardError.ReadToEndAsync()
-        child.WaitForExit()
-
-        let outputDrain =
-            Task.WhenAll [|
-                output
-                errors
-            |]
-
-        let outputDrained = (outputDrain :> Task).Wait(TimeSpan.FromSeconds 30.)
-
-        if not outputDrained then
-            outputDrain.ContinueWith(
-                (fun (completed: Task<string array>) ->
-                    if completed.IsFaulted then
-                        completed.Exception
-                        |> ignore
-                ),
-                TaskScheduler.Default
-            )
-            |> ignore
-
-        Expect.isTrue
-            outputDrained
-            (sprintf
-                "dotnet %s exited with code %d in %s, but its output pipes did not close within 30 seconds."
-                (String.concat " " arguments)
-                child.ExitCode
-                workingDirectory)
+        let result = ProcessCapture.run (TimeSpan.FromSeconds 30.) startInfo
 
         Expect.equal
-            child.ExitCode
+            result.ExitCode
             0
             (sprintf
-                "dotnet %s should succeed in %s.\n%s\n%s"
+                "dotnet %s should succeed in %s.\nstdout:\n%s\nstderr:\n%s"
                 (String.concat " " arguments)
                 workingDirectory
-                output.Result
-                errors.Result)
+                result.StandardOutput
+                result.StandardError)
 
     let private packagesContainHostDocuments host _ =
         let outputType =
