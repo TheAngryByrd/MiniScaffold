@@ -173,21 +173,24 @@ module Tests =
             startInfo.Environment.Remove "MSBuildExtensionsPath"
             |> ignore
 
-            use child = new Process(StartInfo = startInfo)
-            Expect.isTrue (child.Start()) $"{context} should start dotnet"
-            let output = child.StandardOutput.ReadToEndAsync()
-            let errors = child.StandardError.ReadToEndAsync()
-            child.WaitForExit()
+            startInfo.Environment["MSBUILDDISABLENODEREUSE"] <- "1"
+
+            let result =
+                try
+                    ProcessCapture.run (TimeSpan.FromSeconds 30.) startInfo
+                with ex ->
+                    raise (InvalidOperationException($"{context}: {ex.Message}", ex))
 
             Expect.equal
-                child.ExitCode
+                result.ExitCode
                 0
                 (sprintf
-                    "%s dotnet %s failed.\n%s\n%s"
+                    "%s dotnet %s failed in %s.\nstdout:\n%s\nstderr:\n%s"
                     context
                     (String.concat " " arguments)
-                    output.Result
-                    errors.Result)
+                    workingDirectory
+                    result.StandardOutput
+                    result.StandardError)
 
         match host with
         | Library -> Builds.executeBuild projectDir.FullName "DotnetPack"
@@ -438,17 +441,14 @@ if (actual != expected)
             startInfo.Environment.Remove "MSBuildExtensionsPath"
             |> ignore
 
-            use child = new Process(StartInfo = startInfo)
-            Expect.isTrue (child.Start()) "The generated console command should start"
-            let output = child.StandardOutput.ReadToEndAsync()
-            let errors = child.StandardError.ReadToEndAsync()
-            child.WaitForExit()
+            startInfo.Environment["MSBUILDDISABLENODEREUSE"] <- "1"
+            let result = ProcessCapture.run (TimeSpan.FromSeconds 30.) startInfo
 
             {|
                 Arguments = String.concat " " arguments
-                ExitCode = child.ExitCode
-                Stdout = output.Result
-                Stderr = errors.Result
+                ExitCode = result.ExitCode
+                Stdout = result.StandardOutput
+                Stderr = result.StandardError
             |}
 
         let expectSuccess
@@ -582,19 +582,16 @@ if (actual != expected)
 
         startInfo.Environment.["DISABLE_COVERAGE"] <- "true"
         startInfo.Environment.["CI"] <- "false"
-        use child = new Process(StartInfo = startInfo)
-        Expect.isTrue (child.Start()) $"{fileName} should start"
-        let output = child.StandardOutput.ReadToEndAsync()
-        let errors = child.StandardError.ReadToEndAsync()
-        child.WaitForExit()
+        startInfo.Environment["MSBUILDDISABLENODEREUSE"] <- "1"
+        let result = ProcessCapture.run (TimeSpan.FromSeconds 30.) startInfo
 
         {|
-            ExitCode = child.ExitCode
-            Stdout = output.Result
-            Stderr = errors.Result
+            ExitCode = result.ExitCode
+            Stdout = result.StandardOutput
+            Stderr = result.StandardError
             Output =
-                output.Result
-                + errors.Result
+                result.StandardOutput
+                + result.StandardError
         |}
 
     let private runArchiveBuild directory =

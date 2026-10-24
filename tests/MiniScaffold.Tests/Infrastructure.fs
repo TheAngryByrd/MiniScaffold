@@ -107,12 +107,260 @@ module Dotnet =
             cmd id args.ToStartInfo
 
 
-module Builds =
-    open Fake.Core
+module internal ProcessCapture =
+    open System
+    open System.Diagnostics
+    open System.IO
+    open System.Text
+    open System.Threading.Tasks
 
-    let executeBuild workingDir testTarget =
+    type ProcessOutput = {
+        ExitCode: int
+        StandardOutput: string
+        StandardError: string
+    }
+
+    let describe (startInfo: ProcessStartInfo) =
+        let arguments =
+            if startInfo.ArgumentList.Count = 0 then
+                startInfo.Arguments
+            else
+                startInfo.ArgumentList
+                |> Seq.map (sprintf "%A")
+                |> String.concat " "
+
+        sprintf "%s %s in %s" startInfo.FileName arguments startInfo.WorkingDirectory
+
+    let private readStream (reader: StreamReader) (writer: TextWriter) (captured: StringBuilder) =
+        task {
+            let failures = ResizeArray<exn>()
+            let buffer = Array.zeroCreate<char> 4096
+            let mutable writeOutput = true
+
+            try
+                let mutable reading = true
+
+                while reading do
+                    let! count = reader.ReadAsync(buffer, 0, buffer.Length)
+                    reading <- count <> 0
+
+                    if reading then
+                        lock
+                            captured
+                            (fun () ->
+                                captured.Append(buffer, 0, count)
+                                |> ignore
+                            )
+
+                        if writeOutput then
+                            try
+                                writer.Write(buffer, 0, count)
+                            with ex ->
+                                failures.Add ex
+                                writeOutput <- false
+            with ex ->
+                failures.Add ex
+
+            try
+                writer.Dispose()
+            with ex ->
+                failures.Add ex
+
+            if failures.Count > 0 then
+                raise (AggregateException(failures))
+        }
+
+    let runWithOutput
+        (stdout: TextWriter)
+        (stderr: TextWriter)
+        (drainTimeout: TimeSpan)
+        (startInfo: ProcessStartInfo)
+        =
+        use child = new Process(StartInfo = startInfo)
+
+        try
+            child.Start()
+            |> ignore
+        with _ ->
+            for writer in
+                [
+                    stdout
+                    stderr
+                ] do
+                try
+                    writer.Dispose()
+                with _ ->
+                    ()
+
+            reraise ()
+
+        let output = StringBuilder()
+        let errors = StringBuilder()
+        let outputRead = readStream child.StandardOutput stdout output
+        let errorRead = readStream child.StandardError stderr errors
+
+        let outputDrain =
+            Task.WhenAll [|
+                outputRead
+                errorRead
+            |]
+
+        outputDrain.ContinueWith(
+            (fun (completed: Task<unit array>) ->
+                if completed.IsFaulted then
+                    completed.Exception
+                    |> ignore
+            ),
+            TaskScheduler.Default
+        )
+        |> ignore
+
+        child.WaitForExit()
+        let context = sprintf "%s exited with code %d" (describe startInfo) child.ExitCode
+
+        let snapshot (captured: StringBuilder) =
+            lock captured (fun () -> captured.ToString())
+
+        let failureMessage reason =
+            sprintf
+                "%s, %s\nstdout:\n%s\nstderr:\n%s"
+                context
+                reason
+                (snapshot output)
+                (snapshot errors)
+
+        let drained =
+            try
+                (outputDrain :> Task).Wait drainTimeout
+            with ex ->
+                raise (
+                    InvalidOperationException(
+                        failureMessage (sprintf "but output draining failed: %s" ex.Message),
+                        ex
+                    )
+                )
+
+        if not drained then
+            raise (
+                TimeoutException(
+                    failureMessage (
+                        sprintf
+                            "but stdout/stderr did not close within %g seconds after exit."
+                            drainTimeout.TotalSeconds
+                    )
+                )
+            )
+
+        {
+            ExitCode = child.ExitCode
+            StandardOutput = snapshot output
+            StandardError = snapshot errors
+        }
+
+    let run drainTimeout startInfo =
+        runWithOutput TextWriter.Null TextWriter.Null drainTimeout startInfo
+
+module Builds =
+    open System
+    open System.Diagnostics
+    open System.IO
+    open System.Text
+
+    let internal diagnosticsRoot =
+        Path.GetFullPath(Path.Combine(__SOURCE_DIRECTORY__, "../../TestResults/generated-builds"))
+
+    let private retainFailure destination workingDir diagnostics =
+        try
+            Directory.CreateDirectory destination
+            |> ignore
+
+            File.WriteAllText(Path.Combine(destination, "process.txt"), diagnostics)
+
+            for file in Directory.EnumerateFiles(workingDir, "*.trx", SearchOption.AllDirectories) do
+                let relative = Path.GetRelativePath(workingDir, file)
+
+                if
+                    relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                    |> Array.contains "TestResults"
+                then
+                    let retained = Path.Combine(destination, relative)
+
+                    Directory.CreateDirectory(Path.GetDirectoryName retained)
+                    |> ignore
+
+                    File.Copy(file, retained)
+
+            sprintf "Diagnostics retained in %s" destination
+        with ex ->
+            sprintf "Could not retain all diagnostics in %s: %s" destination ex.Message
+
+    let private executeProcess destination drainTimeout (startInfo: ProcessStartInfo) =
+        let recordingFailures = ResizeArray<string>()
+
+        try
+            Directory.CreateDirectory destination
+            |> ignore
+
+            File.WriteAllText(
+                Path.Combine(destination, "command.txt"),
+                ProcessCapture.describe startInfo
+            )
+        with ex ->
+            recordingFailures.Add ex.Message
+
+        let writer name =
+            try
+                new StreamWriter(
+                    Path.Combine(destination, name),
+                    false,
+                    UTF8Encoding(false),
+                    AutoFlush = true
+                )
+                :> TextWriter
+            with ex ->
+                recordingFailures.Add ex.Message
+                TextWriter.Null
+
+        let stdout = writer "stdout.txt"
+        let stderr = writer "stderr.txt"
+
+        let result =
+            try
+                ProcessCapture.runWithOutput stdout stderr drainTimeout startInfo
+            with ex ->
+                let retained = retainFailure destination startInfo.WorkingDirectory (ex.ToString())
+                raise (InvalidOperationException(sprintf "%s\n%s" ex.Message retained, ex))
+
+        let diagnostics =
+            sprintf
+                "%s exited with code %d.\nstdout:\n%s\nstderr:\n%s"
+                (ProcessCapture.describe startInfo)
+                result.ExitCode
+                result.StandardOutput
+                result.StandardError
+
+        if
+            result.ExitCode
+            <> 0
+            || recordingFailures.Count > 0
+        then
+            let diagnostics =
+                if recordingFailures.Count = 0 then
+                    diagnostics
+                else
+                    sprintf
+                        "%s\nOutput recording failed: %s"
+                        diagnostics
+                        (String.concat "\n" recordingFailures)
+
+            let retained = retainFailure destination startInfo.WorkingDirectory diagnostics
+            invalidOp (sprintf "%s\n%s" diagnostics retained)
+        else
+            File.WriteAllText(Path.Combine(destination, "process.txt"), diagnostics)
+
+    let internal executeBuildWithDiagnostics destination drainTimeout workingDir testTarget =
         let cmd, args =
-            if Environment.isUnix then
+            if not (OperatingSystem.IsWindows()) then
                 "bash",
                 [
                     sprintf "./build.sh"
@@ -125,17 +373,30 @@ module Builds =
                     ".\\build.cmd"
                     testTarget
                 ]
-        // printfn "running %s" cmd
-        let result =
-            CreateProcess.fromRawCommand cmd args
-            |> CreateProcess.withWorkingDirectory workingDir
-            |> fun process ->
-                let environment = CreateProcess.getEnvironmentMap process
 
-                CreateProcess.withEnvironmentMap
-                    (environment.Remove("MSBuildSDKsPath").Remove("MSBuildExtensionsPath"))
-                    process
-            |> CreateProcess.ensureExitCode
-            |> Proc.run
+        let startInfo =
+            ProcessStartInfo(
+                cmd,
+                WorkingDirectory = workingDir,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8
+            )
 
-        ()
+        args
+        |> List.iter startInfo.ArgumentList.Add
+
+        startInfo.Environment.Remove "MSBuildSDKsPath"
+        |> ignore
+
+        startInfo.Environment.Remove "MSBuildExtensionsPath"
+        |> ignore
+
+        startInfo.Environment["MSBUILDDISABLENODEREUSE"] <- "1"
+        executeProcess destination drainTimeout startInfo
+
+    let executeBuild workingDir testTarget =
+        let destination = Path.Combine(diagnosticsRoot, Guid.NewGuid().ToString("N"))
+        executeBuildWithDiagnostics destination (TimeSpan.FromSeconds 30.) workingDir testTarget
