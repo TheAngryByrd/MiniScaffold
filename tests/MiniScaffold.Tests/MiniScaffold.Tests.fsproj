@@ -22,6 +22,7 @@
         <Compile Include="AuditPolicyTests.fs" />
         <Compile Include="GeneratedReleasePolicyTests.fs" />
         <Compile Include="FormattingTests.fs" />
+        <Compile Include="TrustedPublishingTests.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
 </Project>

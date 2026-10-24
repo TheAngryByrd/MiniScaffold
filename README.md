@@ -104,6 +104,32 @@ Stable | Prerelease
 
 ---
 
+## Maintainer trusted publishing setup
+
+The root workflow publishes the MiniScaffold template package through [NuGet trusted publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing).
+Before a release, create a policy with the correct NuGet package owner and package scopes.
+Use these GitHub policy fields:
+
+| Field | Value |
+| --- | --- |
+| GitHub owner | `TheAngryByrd` |
+| Repository | `MiniScaffold` |
+| Workflow filename | `publish.yml` |
+| Environment | `nuget` |
+
+Add an environment variable named `NUGET_USER` to the existing `nuget` environment.
+Use the policy creator's actual NuGet profile name, not an email address or an assumed GitHub username.
+The NuGet package owner can be an organization with a different name.
+`NuGet/login@v1` supplies a short-lived API key through the existing `NUGET_TOKEN` build input.
+The workflow has no stored-key fallback.
+
+After an authorized tag-triggered release, verify the NuGet package version and the GitHub release artifacts.
+Check the complete run logs for credentials and credential fragments.
+Check that NuGet reports the policy as active and permanent.
+Only after all verification succeeds, remove the stored GitHub `NUGET_TOKEN` secret and revoke the old scoped NuGet key.
+Keep both credentials until these checks pass.
+See the [release guide](docsSrc/How_Tos/release-a-nuget-package.md) for failure checks and manual emergency recovery.
+
 ## Options
 
 ### githubUserName

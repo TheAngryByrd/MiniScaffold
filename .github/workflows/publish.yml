@@ -29,6 +29,9 @@ jobs:
 
   build:
     needs: set_version
+    permissions:
+      contents: write
+      id-token: write
     environment:
       name: nuget
       url: https://www.nuget.org/packages/MiniScaffold/${{ needs.set_version.outputs.no-v }}
@@ -41,10 +44,15 @@ jobs:
           global-json-file: global.json
           dotnet-version: |
             6.x
+      - name: NuGet login
+        id: nuget_login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
       - name: publish
         env:
           RELEASE_TAG: ${{ github.ref_name }}
-          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+          NUGET_TOKEN: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FAKE_DETAILED_ERRORS: true
         run: |

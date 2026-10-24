@@ -130,10 +130,40 @@ git remote add origin https://github.com/MyGithubUsername/MyLib.1.git
 git push -u origin MyReleaseBranch
 ```
 
-- [Create an Environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#creating-an-environment) on your repository named `nuget`.
-- [Create a NuGet API key](https://learn.microsoft.com/en-us/nuget/nuget-org/publish-a-package#create-an-api-key)
-- Add your `NUGET_TOKEN` to the [Environment Secrets](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#environment-secrets) of your newly created environment.
-- Then update the `CHANGELOG.md` with an "Unreleased" section containing release notes for this version, in [KeepAChangelog](https://keepachangelog.com/en/1.1.0/) format.
+#### Configure trusted publishing
+
+1. Create a GitHub environment named `nuget` if it does not exist.
+2. Create a [NuGet trusted publishing policy](https://www.nuget.org/account/trustedpublishing) with the correct NuGet package owner and package scopes.
+3. Use these GitHub policy fields:
+
+| Field | Value |
+| --- | --- |
+| GitHub owner | `MyGithubUsername` |
+| Repository | `MyLib.1` |
+| Workflow filename | `publish.yml` |
+| Environment | `nuget` |
+
+If you rename the repository, use its actual name in the policy.
+The workflow filename is `publish.yml`, not the workflow display name or its full path.
+
+4. Add an environment variable named `NUGET_USER` in the `nuget` environment.
+5. Set the variable to the policy creator's actual NuGet profile name.
+
+Do not use an email address or assume that the NuGet profile matches the GitHub owner.
+The NuGet package owner can be an organization with a different name.
+`NuGet/login@v1` supplies a short-lived API key through the existing `NUGET_TOKEN` build input.
+The workflow has no stored-key fallback.
+
+Before you remove an existing key, authorize a tag-triggered release and verify the NuGet package version and GitHub release artifacts.
+Check the complete run logs for credentials and credential fragments.
+Check that NuGet reports the policy as active and permanent.
+Only after all verification succeeds, remove the stored GitHub `NUGET_TOKEN` secret and revoke the old scoped NuGet key.
+Keep both credentials until these checks pass.
+See the [release guide](https://TheAngryByrd.github.io/MiniScaffold/How_Tos/release-a-nuget-package.html) for failure checks and manual emergency recovery.
+
+#### Prepare the release notes
+
+Update `CHANGELOG.md` with an "Unreleased" section in [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
 NOTE: Its highly recommend to add a link to the Pull Request next to the release note that it affects. The reason for this is when the `RELEASE` target is run, it will add these new notes into the body of git commit. GitHub will notice the links and will update the Pull Request with what commit referenced it saying ["added a commit that referenced this pull request"](https://github.com/TheAngryByrd/MiniScaffold/pull/179#ref-commit-837ad59). Since the build script automates the commit message, it will say "Bump Version to x.y.z". The benefit of this is when users goto a Pull Request, it will be clear when and which version those code changes released. Also when reading the `CHANGELOG`, if someone is curious about how or why those changes were made, they can easily discover the work and discussions.
 
