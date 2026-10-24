@@ -358,8 +358,13 @@ module ProcessCaptureTests =
                     ]
 
                 let run =
-                    Task.Run(fun () ->
-                        attempt (fun () -> ProcessCapture.run (TimeSpan.FromSeconds 1.) start)
+                    Task.Factory.StartNew(
+                        (fun () ->
+                            attempt (fun () -> ProcessCapture.run (TimeSpan.FromSeconds 1.) start)
+                        ),
+                        CancellationToken.None,
+                        TaskCreationOptions.LongRunning,
+                        TaskScheduler.Default
                     )
 
                 use descendant = descendantProcess directory.Directory
@@ -679,14 +684,19 @@ module ProcessCaptureTests =
                 ]
 
                 let run =
-                    Task.Run(fun () ->
-                        attempt (fun () ->
-                            Builds.executeBuildWithDiagnostics
-                                diagnostics
-                                (TimeSpan.FromSeconds 1.)
-                                directory.Directory
-                                "ControlledDrain"
-                        )
+                    Task.Factory.StartNew(
+                        (fun () ->
+                            attempt (fun () ->
+                                Builds.executeBuildWithDiagnostics
+                                    diagnostics
+                                    (TimeSpan.FromSeconds 1.)
+                                    directory.Directory
+                                    "ControlledDrain"
+                            )
+                        ),
+                        CancellationToken.None,
+                        TaskCreationOptions.LongRunning,
+                        TaskScheduler.Default
                     )
 
                 use descendant = descendantProcess directory.Directory
