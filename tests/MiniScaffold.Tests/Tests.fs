@@ -444,16 +444,37 @@ if (actual != expected)
             let errors = child.StandardError.ReadToEndAsync()
             child.WaitForExit()
 
-            Expect.equal
-                child.ExitCode
-                0
-                (sprintf
-                    "dotnet %s should succeed.\n%s\n%s"
-                    (String.concat " " arguments)
-                    output.Result
-                    errors.Result)
+            {|
+                Arguments = String.concat " " arguments
+                ExitCode = child.ExitCode
+                Stdout = output.Result
+                Stderr = errors.Result
+            |}
 
-            output.Result.TrimEnd('\r', '\n')
+        let expectSuccess
+            (result:
+                {|
+                    Arguments: string
+                    ExitCode: int
+                    Stdout: string
+                    Stderr: string
+                |})
+            =
+            Expect.equal
+                result.ExitCode
+                0
+                $"dotnet {result.Arguments} should succeed.\n{result.Stdout}\n{result.Stderr}"
+
+        let runCommand arguments =
+            let result =
+                runDotnet (
+                    assemblyPath
+                    :: arguments
+                )
+
+            expectSuccess result
+            Expect.isEmpty result.Stderr $"The command should not write to stderr.\n{result.Stderr}"
+            result.Stdout.TrimEnd('\r', '\n')
 
         let check (attributes: (string * string) list) expectedVersion expectedMetadata =
             runDotnet [
@@ -468,33 +489,65 @@ if (actual != expected)
                 for key, value in attributes do
                     $"-p:AssemblyMetadata{key}={value}"
             ]
-            |> ignore
+            |> expectSuccess
 
             Expect.equal
-                (runDotnet [
-                    assemblyPath
-                    "--info"
-                ])
+                (runCommand [ "--info" ])
                 $"{projectName} - {expectedVersion} - {expectedMetadata}"
                 "--info should preserve supplied metadata and display defaults for absent attributes"
 
             Expect.equal
-                (runDotnet [
-                    assemblyPath
-                    "--version"
-                ])
+                (runCommand [ "--version" ])
                 expectedVersion
                 "--version should preserve the assembly version"
 
             Expect.equal
-                (runDotnet [
-                    assemblyPath
+                (runCommand [
                     "--favorite-color"
                     "White"
                     "World"
                 ])
                 "Hello World"
                 "The main command should preserve its greeting"
+
+            Expect.equal
+                (runCommand [ "World" ])
+                "Hello World"
+                "The greeting should use the default favorite color from App.config"
+
+            let help = runCommand [ "--help" ]
+            Expect.stringContains help "USAGE:" "Help should print usage to stdout"
+
+            Expect.stringContains
+                help
+                "--favorite-color"
+                "Help should describe the available options"
+
+            let invalid =
+                runDotnet [
+                    assemblyPath
+                    "--favorite-color"
+                ]
+
+            Expect.notEqual invalid.ExitCode 0 "An invalid option should fail"
+            Expect.isEmpty invalid.Stdout "An invalid option should not write to stdout"
+
+            Expect.stringContains
+                invalid.Stderr
+                "--favorite-color"
+                "The error should identify the invalid option"
+
+            Expect.stringContains invalid.Stderr "USAGE:" "The error should include usage"
+
+            for exceptionText in
+                [
+                    "Unhandled exception"
+                    "ArguParseException"
+                    "   at "
+                ] do
+                Expect.isFalse
+                    (invalid.Stderr.Contains exceptionText)
+                    $"An invalid option should not print a CLR exception.\n{invalid.Stderr}"
 
         check [] "1.0.0.0" "unreleased - unknown"
         check [ "GitHash", "hash text" ] "2.3.4.5" "unreleased - hash text"
@@ -537,6 +590,8 @@ if (actual != expected)
 
         {|
             ExitCode = child.ExitCode
+            Stdout = output.Result
+            Stderr = errors.Result
             Output =
                 output.Result
                 + errors.Result
@@ -560,7 +615,15 @@ if (actual != expected)
 
         runArchiveProcess directory fileName arguments
 
-    let private expectArchiveSuccess (result: {| ExitCode: int; Output: string |}) =
+    let private expectArchiveSuccess
+        (result:
+            {|
+                ExitCode: int
+                Stdout: string
+                Stderr: string
+                Output: string
+            |})
+        =
         Expect.equal result.ExitCode 0 result.Output
 
     let private generateArchiveProject directory =
@@ -1277,6 +1340,29 @@ if (actual != expected)
                     "The extracted native apphost should report the changelog version"
 
                 let standardExecutable = IO.Path.Combine(standardExtracted.Directory, apphost)
+
+                for extractedDirectory, extractedExecutable in
+                    [
+                        extracted.Directory, executable
+                        if not (OperatingSystem.IsWindows()) then
+                            standardExtracted.Directory, standardExecutable
+                    ] do
+                    let help = runArchiveProcess extractedDirectory extractedExecutable [ "--help" ]
+                    expectArchiveSuccess help
+
+                    Expect.isEmpty
+                        help.Stderr
+                        $"Native help should not write to stderr.\n{help.Stderr}"
+
+                    Expect.stringContains
+                        help.Stdout
+                        "USAGE:"
+                        "Native help should print usage to stdout"
+
+                    Expect.stringContains
+                        help.Stdout
+                        "--favorite-color"
+                        "Native help should describe the available options"
 
                 if not (OperatingSystem.IsWindows()) then
                     Expect.isTrue
