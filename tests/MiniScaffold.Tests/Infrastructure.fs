@@ -135,7 +135,7 @@ module internal ProcessCapture =
         Task.Factory.StartNew<unit>(
             (fun () ->
                 let failures = ResizeArray<exn>()
-                let buffer = Array.zeroCreate<char> 4096
+                let buffer = Array.zeroCreate<char> 1
                 let mutable writeOutput = true
 
                 try
