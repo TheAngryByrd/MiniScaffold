@@ -397,10 +397,25 @@ let assemblyInfoMsBuildArgs () =
     ]
 
 
+let private coverageEnabled (ctx: TargetParameter) =
+    enableCodeCoverage
+    || ctx.Context.TryFindTarget("GenerateCoverageReport").IsSome
+
+let private buildAssemblyInfoMsBuildArgs (ctx: TargetParameter) =
+    if
+        ctx.Context.TryFindTarget("DotnetPack").IsSome
+        && latestEntry.Date.IsSome
+        && not (coverageEnabled ctx)
+    then
+        assemblyInfoMsBuildArgs ()
+    else
+        []
+
 let dotnetBuild ctx =
     let args = [
         sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
         "--no-restore"
+        yield! buildAssemblyInfoMsBuildArgs ctx
     ]
 
     DotNet.build
@@ -448,10 +463,7 @@ let dotnetTest ctx =
 
     let args = [
         "--no-build"
-        if
-            enableCodeCoverage
-            || isGenerateCoverageReport
-        then
+        if coverageEnabled ctx then
             sprintf "/p:AltCover=true"
 
             if not isGenerateCoverageReport then
