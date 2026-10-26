@@ -71,105 +71,28 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-  integration-macos-other-release:
-    name: integration-macos (other-release)
-    runs-on: macos-15-intel
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          ref: ${{ github.sha }}
-          clean: true
-      - name: Setup necessary dotnet SDKs
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: |
-            8.x
-            9.x
-            10.x
-      - name: Other Release workload
-        uses: ./.github/actions/integration-workload
-        with:
-          configuration: Release
-          partition: other
-
   integration-macos:
     name: integration-macos (${{ matrix.recipe.id }})
     strategy:
       fail-fast: false
       matrix:
         recipe:
-          - id: other-debug
+          - id: other-debug-contracts
             first: { configuration: Debug, partition: other }
-            second: { configuration: '', partition: '' }
+            second: { configuration: Debug, partition: sample-contracts }
             third: { configuration: '', partition: '' }
-          - id: library-a
-            first: { configuration: Release, partition: generated-library-a }
-            second: { configuration: Debug, partition: generated-library-a }
-            third: { configuration: '', partition: '' }
-          - id: library-debug-b
-            first: { configuration: Debug, partition: generated-library-b }
+          - id: other-release-console
+            first: { configuration: Release, partition: other }
             second: { configuration: Debug, partition: generated-console }
-            third: { configuration: Debug, partition: sample-contracts }
-    runs-on: macos-15-intel
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          ref: ${{ github.sha }}
-          clean: true
-      - name: Setup necessary dotnet SDKs
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: |
-            8.x
-            9.x
-            10.x
-      - name: First workload
-        id: first
-        uses: ./.github/actions/integration-workload
-        with:
-          configuration: ${{ matrix.recipe.first.configuration }}
-          partition: ${{ matrix.recipe.first.partition }}
-      - name: Clean checkout for second workload
-        id: second_checkout
-        if: success() && matrix.recipe.second.configuration != '' && matrix.recipe.second.partition != '' && steps.first.outcome == 'success'
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.sha }}
-          clean: true
-      - name: Second workload
-        id: second
-        if: success() && steps.second_checkout.outcome == 'success'
-        uses: ./.github/actions/integration-workload
-        with:
-          configuration: ${{ matrix.recipe.second.configuration }}
-          partition: ${{ matrix.recipe.second.partition }}
-      - name: Clean checkout for third workload
-        id: third_checkout
-        if: success() && matrix.recipe.third.configuration != '' && matrix.recipe.third.partition != '' && steps.second.outcome == 'success'
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.sha }}
-          clean: true
-      - name: Third workload
-        id: third
-        if: success() && steps.third_checkout.outcome == 'success'
-        uses: ./.github/actions/integration-workload
-        with:
-          configuration: ${{ matrix.recipe.third.configuration }}
-          partition: ${{ matrix.recipe.third.partition }}
-
-  integration-macos-library-release-b:
-    name: integration-macos (library-release-b)
-    needs: build-arm64-macos
-    if: ${{ !cancelled() }}
-    strategy:
-      fail-fast: false
-      matrix:
-        recipe:
+            third: { configuration: '', partition: '' }
           - id: library-release-b
             first: { configuration: Release, partition: generated-library-b }
             second: { configuration: Release, partition: generated-console }
             third: { configuration: Release, partition: sample-contracts }
+          - id: library-a-debug-b
+            first: { configuration: Release, partition: generated-library-a }
+            second: { configuration: Debug, partition: generated-library-b }
+            third: { configuration: Debug, partition: generated-library-a }
     runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v5
@@ -236,7 +159,7 @@ jobs:
 
   build:
     name: build (${{ matrix.configuration }}, ${{ matrix.os }})
-    needs: [integration-tests, integration-macos, integration-macos-other-release, integration-macos-library-release-b, verifier-controls, build-arm64, build-arm64-macos]
+    needs: [integration-tests, integration-macos, verifier-controls, build-arm64, build-arm64-macos]
     if: always()
     strategy:
       fail-fast: false
@@ -255,7 +178,7 @@ jobs:
         if: always()
         shell: pwsh
         env:
-          WORKERS_RESULT: ${{ needs.integration-tests.result == 'success' && needs.integration-macos.result == 'success' && needs.integration-macos-other-release.result == 'success' && needs.integration-macos-library-release-b.result == 'success' && needs.verifier-controls.result == 'success' && needs.build-arm64.result == 'success' && needs.build-arm64-macos.result == 'success' && 'success' || 'failure' }}
+          WORKERS_RESULT: ${{ needs.integration-tests.result == 'success' && needs.integration-macos.result == 'success' && needs.verifier-controls.result == 'success' && needs.build-arm64.result == 'success' && needs.build-arm64-macos.result == 'success' && 'success' || 'failure' }}
           TEST_CONFIGURATION: ${{ matrix.configuration }}
           TEST_OS: ${{ matrix.os }}
           PARTITION_BUNDLES: ${{ runner.temp }}/partitions
