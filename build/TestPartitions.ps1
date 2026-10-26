@@ -53,7 +53,8 @@ function Get-PartitionPlan([string]$OperatingSystem) {
     switch -CaseSensitive ($OperatingSystem) {
         'macOS-latest' {
             return @(
-                @{ Token = 'generated-library'; Group = 'samples.generated builds.Library.'; Include = $true },
+                @{ Token = 'generated-library-a'; Group = 'samples.generated builds.Library.A.'; Include = $true },
+                @{ Token = 'generated-library-b'; Group = 'samples.generated builds.Library.B.'; Include = $true },
                 @{ Token = 'generated-console'; Group = 'samples.generated builds.Console.'; Include = $true },
                 @{ Token = 'sample-contracts'; Group = 'samples.contracts.'; Include = $true },
                 @{ Token = 'other'; Group = 'samples.'; Include = $false }

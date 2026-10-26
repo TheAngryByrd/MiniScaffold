@@ -1967,31 +1967,38 @@ if (actual != expected)
                     ]
 
                  ]
-                 |> List.map (fun (host, testCase, args, additionalAsserts) ->
-                     let hostName =
+                 |> List.mapFold
+                     (fun libraryIndex (host, testCase, args, additionalAsserts) ->
+                         let tests = [
+                             testCase args
+                             <| fun _ ->
+                                 use d = Disposables.DisposableDirectory.Create()
+                                 copyGlobalJson d.DirectoryInfo
+
+                                 showTemplateHelp
+                                 <| Some d.Directory
+
+                                 runTemplate d.Directory args
+
+                                 // The project we just generated is the only one in here
+                                 let projectDir =
+                                     d.DirectoryInfo.GetDirectories()
+                                     |> Seq.head
+
+                                 additionalAsserts
+                                 |> Seq.iter (fun asserter -> asserter projectDir)
+                         ]
+
                          match host with
-                         | Library -> "Library"
-                         | Console -> "Console"
+                         | Library ->
+                             let group = if libraryIndex % 2 = 0 then "A" else "B"
 
-                     testList hostName [
-                         testCase args
-                         <| fun _ ->
-                             use d = Disposables.DisposableDirectory.Create()
-                             copyGlobalJson d.DirectoryInfo
-
-                             showTemplateHelp
-                             <| Some d.Directory
-
-                             runTemplate d.Directory args
-
-                             // The project we just generated is the only one in here
-                             let projectDir =
-                                 d.DirectoryInfo.GetDirectories()
-                                 |> Seq.head
-
-                             additionalAsserts
-                             |> Seq.iter (fun asserter -> asserter projectDir)
-                     ]
-                 ))
+                             testList "Library" [ testList group tests ],
+                             libraryIndex
+                             + 1
+                         | Console -> testList "Console" tests, libraryIndex
+                     )
+                     0
+                 |> fst)
 
         ]

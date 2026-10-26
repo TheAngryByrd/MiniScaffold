@@ -26,7 +26,7 @@ catch {
 '@ | Set-Content -LiteralPath $wrapper -Encoding utf8
 $revision = 'a' * 40
 $inventory = @(
-    'samples.generated builds.Library.one', 'samples.generated builds.Library.two',
+    'samples.generated builds.Library.A.one', 'samples.generated builds.Library.B.two',
     'samples.generated builds.Console.one', 'samples.generated builds.Console.two',
     'samples.contracts.one', 'samples.contracts.two', 'remaining.one', 'remaining.two'
 )
@@ -63,6 +63,8 @@ function New-Bundle([string]$Directory, [string]$Partition, [string]$OperatingSy
     $group = switch ($Partition) {
         'generated-builds' { 'samples.generated builds.' }
         'generated-library' { 'samples.generated builds.Library.' }
+        'generated-library-a' { 'samples.generated builds.Library.A.' }
+        'generated-library-b' { 'samples.generated builds.Library.B.' }
         'generated-console' { 'samples.generated builds.Console.' }
         'sample-contracts' { 'samples.contracts.' }
         'other' { if ($OperatingSystem -ceq 'macOS-latest') { 'samples.' } else { 'samples.generated builds.' } }
@@ -214,15 +216,23 @@ $cases = @(
     @{ Name = 'valid-linux'; OS = 'ubuntu-latest'; Expected = 'Verified 8 tests'; Edit = {} },
     @{ Name = 'valid-mac'; OS = 'macOS-latest'; Expected = 'Verified 8 tests'; Edit = {} },
     @{ Name = 'valid-mac-reordered-tokens'; OS = 'macOS-latest'; Reorder = $true; Expected = 'Verified 8 tests'; Edit = {} },
-    @{ Name = 'mac-missing-fourth'; OS = 'macOS-latest'; Target = 'other'; Expected = 'Expected exactly 4 worker manifests'; SkipHashes = $true; Edit = {
+    @{ Name = 'mac-missing-fifth'; OS = 'macOS-latest'; Target = 'other'; Expected = 'Expected exactly 5 worker manifests'; SkipHashes = $true; Edit = {
         param($d) Remove-Item -LiteralPath (Join-Path $d 'manifest.json')
     } },
-    @{ Name = 'mac-extra-old-token'; OS = 'macOS-latest'; Expected = 'Expected exactly 4 worker manifests'; Edit = {
+    @{ Name = 'mac-extra-old-token'; OS = 'macOS-latest'; Expected = 'Expected exactly 5 worker manifests'; Edit = {
         param($d, $b) New-Bundle (Join-Path $b 'generated-builds') 'generated-builds' 'macOS-latest' $inventory
     } },
-    @{ Name = 'mac-old-plan'; OS = 'macOS-latest'; Tokens = @('generated-builds', 'other'); Expected = 'Expected exactly 4 worker manifests'; Edit = {} },
-    @{ Name = 'wrong-standard-plan'; Tokens = @('generated-library', 'other'); Target = 'generated-library'; Expected = "Unexpected partition bundle 'generated-library'"; Edit = {} },
-    @{ Name = 'wrong-mac-plan'; OS = 'macOS-latest'; Tokens = @('generated-builds', 'generated-console', 'sample-contracts', 'other'); Target = 'generated-builds'; Expected = "Unexpected partition bundle 'generated-builds'"; Edit = {} },
+    @{ Name = 'mac-old-plan'; OS = 'macOS-latest'; Tokens = @('generated-builds', 'other'); Expected = 'Expected exactly 5 worker manifests'; Edit = {} },
+    @{ Name = 'wrong-standard-plan'; Tokens = @('generated-library-a', 'other'); Target = 'generated-library-a'; Expected = "Unexpected partition bundle 'generated-library-a'"; Edit = {} },
+    @{ Name = 'wrong-mac-plan'; OS = 'macOS-latest'; Tokens = @('generated-builds', 'generated-library-b', 'generated-console', 'sample-contracts', 'other'); Target = 'generated-builds'; Expected = "Unexpected partition bundle 'generated-builds'"; Edit = {} },
+    @{ Name = 'mac-missing-library-a'; OS = 'macOS-latest'; Target = 'generated-library-a'; Expected = 'Expected exactly 5 worker manifests'; SkipHashes = $true; Edit = {
+        param($d) Remove-Item -LiteralPath (Join-Path $d 'manifest.json')
+    } },
+    @{ Name = 'mac-missing-library-b'; OS = 'macOS-latest'; Target = 'generated-library-b'; Expected = 'Expected exactly 5 worker manifests'; SkipHashes = $true; Edit = {
+        param($d) Remove-Item -LiteralPath (Join-Path $d 'manifest.json')
+    } },
+    @{ Name = 'mac-legacy-four-plan'; OS = 'macOS-latest'; Tokens = @('generated-library', 'generated-console', 'sample-contracts', 'other'); Expected = 'Expected exactly 5 worker manifests'; Edit = {} },
+    @{ Name = 'mac-legacy-library-token'; OS = 'macOS-latest'; Tokens = @('generated-library', 'generated-library-b', 'generated-console', 'sample-contracts', 'other'); Expected = "Unexpected partition bundle 'generated-library'"; Edit = {} },
     @{ Name = 'schema-one'; OS = 'macOS-latest'; Expected = 'Unknown manifest schema'; Edit = {
         param($d) Edit-Manifest $d { param($m) $m.schemaVersion = 1 }
     } },
@@ -235,11 +245,12 @@ $cases = @(
     @{ Name = 'duplicate-host-case'; OS = 'macOS-latest'; Expected = 'Duplicate identity in TRX results'; Edit = {
         param($d) Edit-Trx $d { param($x) $null = $x.TestRun.Results.AppendChild($x.TestRun.Results.FirstChild.CloneNode($true)) }
     } },
-    @{ Name = 'overlap-hosts'; OS = 'macOS-latest'; Names = @($inventory + 'samples.generated builds.Library.cross.samples.generated builds.Console.cross'); Expected = 'Partitions overlap'; Edit = {} },
-    @{ Name = 'overlap-nonadjacent'; OS = 'macOS-latest'; Names = @($inventory + 'samples.generated builds.Library.cross.samples.contracts.cross'); Expected = 'Partitions overlap'; Edit = {} },
+    @{ Name = 'overlap-hosts'; OS = 'macOS-latest'; Names = @($inventory + 'samples.generated builds.Library.A.cross.samples.generated builds.Console.cross'); Expected = 'Partitions overlap'; Edit = {} },
+    @{ Name = 'overlap-nonadjacent'; OS = 'macOS-latest'; Names = @($inventory + 'samples.generated builds.Library.A.cross.samples.contracts.cross'); Expected = 'Partitions overlap'; Edit = {} },
+    @{ Name = 'future-library-c-gap'; OS = 'macOS-latest'; Names = @($inventory + 'samples.generated builds.Library.C.one'); Expected = 'Partitions do not cover the inventory'; Edit = {} },
     @{ Name = 'future-generated-gap'; OS = 'macOS-latest'; Names = @($inventory + 'samples.generated builds.Future.one'); Expected = 'Partitions do not cover the inventory'; Edit = {} },
     @{ Name = 'future-samples-gap'; OS = 'macOS-latest'; Names = @($inventory + 'samples.future.one'); Expected = 'Partitions do not cover the inventory'; Edit = {} },
-    @{ Name = 'run-wrong-standard-token'; RunToken = 'generated-library'; Expected = "Unknown partition 'generated-library' for windows-latest"; Edit = {} },
+    @{ Name = 'run-wrong-standard-token'; RunToken = 'generated-library-a'; Expected = "Unknown partition 'generated-library-a' for windows-latest"; Edit = {} },
     @{ Name = 'run-wrong-mac-token'; OS = 'macOS-latest'; RunToken = 'generated-builds'; Expected = "Unknown partition 'generated-builds' for macOS-latest"; Edit = {} }
 )
 
@@ -249,7 +260,7 @@ $results = @(foreach ($case in $cases) {
     $null = New-Item -ItemType Directory -Path $bundles
     $os = if ($case.ContainsKey('OS')) { $case.OS } else { 'windows-latest' }
     $tokens = if ($case.ContainsKey('Tokens')) { $case.Tokens } elseif ($os -ceq 'macOS-latest') {
-        @('generated-library', 'generated-console', 'sample-contracts', 'other')
+        @('generated-library-a', 'generated-library-b', 'generated-console', 'sample-contracts', 'other')
     } else { @('generated-builds', 'other') }
     $names = if ($case.ContainsKey('Names')) { $case.Names } else { $inventory }
     foreach ($partition in $tokens) {
@@ -287,8 +298,9 @@ $results = @(foreach ($case in $cases) {
         $exitCode -ne 0 -and $null -ne $message -and $message.Contains($case.Expected)
     }
     $needsRerunMessage = $case.Name -in @('wrong-source', 'wrong-run', 'wrong-attempt', 'missing-bundle', 'duplicate-bundle',
-        'upstream-failure', 'upstream-skipped', 'upstream-cancelled', 'mac-missing-fourth', 'mac-extra-old-token',
-        'mac-old-plan', 'wrong-standard-plan', 'wrong-mac-plan')
+        'upstream-failure', 'upstream-skipped', 'upstream-cancelled', 'mac-missing-fifth', 'mac-extra-old-token',
+        'mac-old-plan', 'wrong-standard-plan', 'wrong-mac-plan', 'mac-missing-library-a', 'mac-missing-library-b',
+        'mac-legacy-four-plan', 'mac-legacy-library-token')
     if ($needsRerunMessage) { $passed = $passed -and $null -ne $message -and $message.Contains('Re-run all jobs') }
     @{ name = $case.Name; os = $os; tokens = $tokens; positive = $positive; expected = $case.Expected; exitCode = $exitCode; passed = $passed }
 })

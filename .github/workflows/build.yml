@@ -1,5 +1,8 @@
 name: Build master
 
+env:
+  DOTNET_ADD_GLOBAL_TOOLS_TO_PATH: "false"
+
 on:
   push:
     branches:
@@ -68,27 +71,9 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-  integration-macos:
-    name: integration-macos (${{ matrix.recipe.id }})
-    strategy:
-      fail-fast: false
-      matrix:
-        recipe:
-          - id: library-release
-            first: { configuration: Release, partition: generated-library }
-            second: { configuration: Debug, partition: sample-contracts }
-          - id: library-debug
-            first: { configuration: Debug, partition: generated-library }
-            second: { configuration: Release, partition: generated-console }
-          - id: other-release
-            first: { configuration: Release, partition: other }
-            second: { configuration: Release, partition: sample-contracts }
-          - id: other-debug
-            first: { configuration: Debug, partition: other }
-            second: { configuration: Debug, partition: generated-console }
+  integration-macos-other-release:
+    name: integration-macos (other-release)
     runs-on: macos-15-intel
-    env:
-      MINISCAFFOLD_TEST_OS: macOS-latest
     steps:
       - uses: actions/checkout@v5
         with:
@@ -101,80 +86,83 @@ jobs:
             8.x
             9.x
             10.x
-      - name: Build first workload
+      - name: Other Release workload
+        uses: ./.github/actions/integration-workload
+        with:
+          configuration: Release
+          partition: other
+
+  integration-macos:
+    name: integration-macos (${{ matrix.recipe.id }})
+    strategy:
+      fail-fast: false
+      matrix:
+        recipe:
+          - id: other-debug
+            first: { configuration: Debug, partition: other }
+            second: { configuration: '', partition: '' }
+            third: { configuration: '', partition: '' }
+          - id: library-a
+            first: { configuration: Release, partition: generated-library-a }
+            second: { configuration: Debug, partition: generated-library-a }
+            third: { configuration: '', partition: '' }
+          - id: library-release-b
+            first: { configuration: Release, partition: generated-library-b }
+            second: { configuration: Release, partition: generated-console }
+            third: { configuration: Release, partition: sample-contracts }
+          - id: library-debug-b
+            first: { configuration: Debug, partition: generated-library-b }
+            second: { configuration: Debug, partition: generated-console }
+            third: { configuration: Debug, partition: sample-contracts }
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          clean: true
+      - name: Setup necessary dotnet SDKs
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.x
+            9.x
+            10.x
+      - name: First workload
         id: first
-        run: |
-          chmod +x ./build.sh
-          ./build.sh IntegrationTests
-        env:
-          CONFIGURATION: ${{ matrix.recipe.first.configuration }}
-          MINISCAFFOLD_TEST_PARTITION: ${{ matrix.recipe.first.partition }}
-          CI: true
-      - name: Upload first partition evidence
-        id: first_bundle
-        if: (success() || failure()) && (steps.first.outcome == 'success' || steps.first.outcome == 'failure')
-        uses: actions/upload-artifact@v4
+        uses: ./.github/actions/integration-workload
         with:
-          name: partition-macOS-latest-${{ matrix.recipe.first.configuration }}-${{ matrix.recipe.first.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: TestResults/partitions/${{ matrix.recipe.first.partition }}/
-          if-no-files-found: error
-          retention-days: 7
-      - name: Upload first test diagnostics
-        id: first_diagnostics
-        if: (success() || failure()) && (steps.first.outcome == 'success' || steps.first.outcome == 'failure')
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-diagnostics-macOS-latest-${{ matrix.recipe.first.configuration }}-${{ matrix.recipe.first.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            **/TestResults/**/*.trx
-            TestResults/generated-builds/**
-          if-no-files-found: error
-          retention-days: 7
+          configuration: ${{ matrix.recipe.first.configuration }}
+          partition: ${{ matrix.recipe.first.partition }}
       - name: Clean checkout for second workload
         id: second_checkout
-        if: success() && steps.first.outcome == 'success' && steps.first_bundle.outcome == 'success' && steps.first_diagnostics.outcome == 'success'
+        if: success() && matrix.recipe.second.configuration != '' && matrix.recipe.second.partition != '' && steps.first.outcome == 'success'
         uses: actions/checkout@v5
         with:
           ref: ${{ github.sha }}
           clean: true
-      - name: Build second workload
+      - name: Second workload
         id: second
         if: success() && steps.second_checkout.outcome == 'success'
-        run: |
-          chmod +x ./build.sh
-          ./build.sh IntegrationTests
-        env:
-          CONFIGURATION: ${{ matrix.recipe.second.configuration }}
-          MINISCAFFOLD_TEST_PARTITION: ${{ matrix.recipe.second.partition }}
-          CI: true
-      - name: Upload second partition evidence
-        if: (success() || failure()) && (steps.second.outcome == 'success' || steps.second.outcome == 'failure')
-        uses: actions/upload-artifact@v4
+        uses: ./.github/actions/integration-workload
         with:
-          name: partition-macOS-latest-${{ matrix.recipe.second.configuration }}-${{ matrix.recipe.second.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: TestResults/partitions/${{ matrix.recipe.second.partition }}/
-          if-no-files-found: error
-          retention-days: 7
-      - name: Upload second test diagnostics
-        if: (success() || failure()) && (steps.second.outcome == 'success' || steps.second.outcome == 'failure')
-        uses: actions/upload-artifact@v4
+          configuration: ${{ matrix.recipe.second.configuration }}
+          partition: ${{ matrix.recipe.second.partition }}
+      - name: Clean checkout for third workload
+        id: third_checkout
+        if: success() && matrix.recipe.third.configuration != '' && matrix.recipe.third.partition != '' && steps.second.outcome == 'success'
+        uses: actions/checkout@v5
         with:
-          name: test-diagnostics-macOS-latest-${{ matrix.recipe.second.configuration }}-${{ matrix.recipe.second.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            **/TestResults/**/*.trx
-            TestResults/generated-builds/**
-          if-no-files-found: error
-          retention-days: 7
+          ref: ${{ github.sha }}
+          clean: true
+      - name: Third workload
+        id: third
+        if: success() && steps.third_checkout.outcome == 'success'
+        uses: ./.github/actions/integration-workload
+        with:
+          configuration: ${{ matrix.recipe.third.configuration }}
+          partition: ${{ matrix.recipe.third.partition }}
 
-  build:
-    name: build (${{ matrix.configuration }}, ${{ matrix.os }})
-    needs: [integration-tests, integration-macos]
-    if: always()
-    strategy:
-      fail-fast: false
-      matrix:
-        configuration: [Debug, Release]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+  verifier-controls:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -185,10 +173,23 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: verifier-controls-${{ matrix.os }}-${{ matrix.configuration }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: verifier-controls-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/verifier-controls/
           if-no-files-found: error
           retention-days: 7
+
+  build:
+    name: build (${{ matrix.configuration }}, ${{ matrix.os }})
+    needs: [integration-tests, integration-macos, integration-macos-other-release, verifier-controls, build-arm64, build-arm64-macos]
+    if: always()
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Release]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
       - name: Download partition evidence
         uses: actions/download-artifact@v4
         with:
@@ -198,7 +199,7 @@ jobs:
         if: always()
         shell: pwsh
         env:
-          WORKERS_RESULT: ${{ needs.integration-tests.result == 'success' && needs.integration-macos.result == 'success' && 'success' || 'failure' }}
+          WORKERS_RESULT: ${{ needs.integration-tests.result == 'success' && needs.integration-macos.result == 'success' && needs.integration-macos-other-release.result == 'success' && needs.verifier-controls.result == 'success' && needs.build-arm64.result == 'success' && needs.build-arm64-macos.result == 'success' && 'success' || 'failure' }}
           TEST_CONFIGURATION: ${{ matrix.configuration }}
           TEST_OS: ${{ matrix.os }}
           PARTITION_BUNDLES: ${{ runner.temp }}/partitions
@@ -216,7 +217,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04-arm, windows-11-arm, macos-15]
+        os: [ubuntu-24.04-arm, windows-11-arm]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
@@ -263,6 +264,56 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+  build-arm64-macos:
+    name: build-arm64 (macos-15)
+    needs: integration-macos-other-release
+    if: ${{ !cancelled() }}
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup necessary dotnet SDKs
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.x
+            9.x
+            10.x
+      - name: Build package via Bash
+        if: runner.os != 'Windows'
+        run: ./build.sh DotnetPack
+        env:
+          CI: true
+      - name: Build package via Windows
+        if: runner.os == 'Windows'
+        run: ./build.cmd DotnetPack
+        env:
+          CI: true
+      - name: Test ARM64 archives
+        shell: pwsh
+        run: |
+          if ($env:RUNNER_ARCH -ne 'ARM64') { throw 'Archive tests require an ARM64 runner' }
+          $env:MINISCAFFOLD_NUPKG_LOCATION = (Get-ChildItem ./dist/MiniScaffold.*.nupkg).FullName
+          dotnet test tests/MiniScaffold.Tests/MiniScaffold.Tests.fsproj --filter 'FullyQualifiedName~console archives' --logger 'trx;LogFilePrefix=testResults'
+        env:
+          CI: true
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: ARM64 Test Results (macos-15)
+          path: '**/TestResults/testResults*.trx'
+          reporter: dotnet-trx
+      - name: Upload test diagnostics
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-diagnostics-arm64-macos-15
+          path: |
+            **/TestResults/**/*.trx
+            TestResults/generated-builds/**
+          if-no-files-found: warn
+          retention-days: 7
+
   # Builds the project in a dev container
   build-devcontainer:
     runs-on: ubuntu-latest
@@ -274,5 +325,6 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           runCmd: |
+            export DOTNET_ADD_GLOBAL_TOOLS_TO_PATH=false
             chmod +x ./build.sh
             ./build.sh

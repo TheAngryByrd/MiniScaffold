@@ -1,0 +1,41 @@
+name: Integration workload
+description: Build and upload one macOS integration partition
+inputs:
+  configuration:
+    description: Build configuration
+    required: true
+  partition:
+    description: Canonical test partition
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Build workload
+      id: build
+      shell: bash
+      run: |
+        chmod +x ./build.sh
+        ./build.sh IntegrationTests
+      env:
+        CONFIGURATION: ${{ inputs.configuration }}
+        MINISCAFFOLD_TEST_PARTITION: ${{ inputs.partition }}
+        MINISCAFFOLD_TEST_OS: macOS-latest
+        CI: true
+    - name: Upload partition evidence
+      if: (success() || failure()) && (steps.build.outcome == 'success' || steps.build.outcome == 'failure')
+      uses: actions/upload-artifact@v4
+      with:
+        name: partition-macOS-latest-${{ inputs.configuration }}-${{ inputs.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
+        path: TestResults/partitions/${{ inputs.partition }}/
+        if-no-files-found: error
+        retention-days: 7
+    - name: Upload test diagnostics
+      if: (success() || failure()) && (steps.build.outcome == 'success' || steps.build.outcome == 'failure')
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-diagnostics-macOS-latest-${{ inputs.configuration }}-${{ inputs.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |
+          **/TestResults/**/*.trx
+          TestResults/generated-builds/**
+        if-no-files-found: error
+        retention-days: 7

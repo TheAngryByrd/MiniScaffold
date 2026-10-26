@@ -360,7 +360,8 @@ let getPkgPath () =
 type private TestPartition =
     | All
     | GeneratedBuilds
-    | GeneratedLibrary
+    | GeneratedLibraryA
+    | GeneratedLibraryB
     | GeneratedConsole
     | SampleContracts
     | Other
@@ -369,7 +370,8 @@ let private testPartition =
     match System.Environment.GetEnvironmentVariable "MINISCAFFOLD_TEST_PARTITION" with
     | null -> All
     | "generated-builds" -> GeneratedBuilds
-    | "generated-library" -> GeneratedLibrary
+    | "generated-library-a" -> GeneratedLibraryA
+    | "generated-library-b" -> GeneratedLibraryB
     | "generated-console" -> GeneratedConsole
     | "sample-contracts" -> SampleContracts
     | "other" -> Other
@@ -379,7 +381,8 @@ let private partitionSelection partition =
     match partition with
     | All -> None
     | GeneratedBuilds -> Some "generated-builds"
-    | GeneratedLibrary -> Some "generated-library"
+    | GeneratedLibraryA -> Some "generated-library-a"
+    | GeneratedLibraryB -> Some "generated-library-b"
     | GeneratedConsole -> Some "generated-console"
     | SampleContracts -> Some "sample-contracts"
     | Other -> Some "other"
