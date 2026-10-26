@@ -40,6 +40,7 @@ module FormattingTests =
         start.Environment.["NUGET_HTTP_CACHE_PATH"] <- Path.Combine(directory, ".http-cache")
         start.Environment.["DOTNET_NOLOGO"] <- "1"
         start.Environment.["CI"] <- "false"
+        start.Environment.["MSBUILDDISABLENODEREUSE"] <- "1"
 
         start.Environment.Remove "MSBuildSDKsPath"
         |> ignore

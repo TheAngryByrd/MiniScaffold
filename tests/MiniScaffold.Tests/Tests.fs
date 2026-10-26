@@ -1669,8 +1669,9 @@ if (actual != expected)
             testCase
                 "packed libraries supply FSharp.Core to clean CSharp consumers in Console solutions"
                 (packedLibrariesSupplyFSharpCore Console)
-            yield!
-                [
+            testList
+                "generated builds"
+                ([
                     testCase,
                     "-n MyCoolLib --githubUsername CoolPersonNo2",
                     [
@@ -1935,25 +1936,25 @@ if (actual != expected)
                         Assert.``build target with failure expected`` "Release"
                     ]
 
-                ]
-                |> Seq.map (fun (testCase, args, additionalAsserts) ->
-                    testCase args
-                    <| fun _ ->
-                        use d = Disposables.DisposableDirectory.Create()
-                        copyGlobalJson d.DirectoryInfo
+                 ]
+                 |> List.map (fun (testCase, args, additionalAsserts) ->
+                     testCase args
+                     <| fun _ ->
+                         use d = Disposables.DisposableDirectory.Create()
+                         copyGlobalJson d.DirectoryInfo
 
-                        showTemplateHelp
-                        <| Some d.Directory
+                         showTemplateHelp
+                         <| Some d.Directory
 
-                        runTemplate d.Directory args
+                         runTemplate d.Directory args
 
-                        // The project we just generated is the only one in here
-                        let projectDir =
-                            d.DirectoryInfo.GetDirectories()
-                            |> Seq.head
+                         // The project we just generated is the only one in here
+                         let projectDir =
+                             d.DirectoryInfo.GetDirectories()
+                             |> Seq.head
 
-                        additionalAsserts
-                        |> Seq.iter (fun asserter -> asserter projectDir)
-                )
+                         additionalAsserts
+                         |> Seq.iter (fun asserter -> asserter projectDir)
+                 ))
 
         ]
