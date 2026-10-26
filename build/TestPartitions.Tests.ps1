@@ -8,6 +8,22 @@ if (Test-Path -LiteralPath $ResultsDirectory) { throw 'Control results directory
 $null = New-Item -ItemType Directory -Path $ResultsDirectory
 $ResultsDirectory = (Resolve-Path -LiteralPath $ResultsDirectory).Path
 $verifier = Join-Path $PSScriptRoot 'TestPartitions.ps1'
+$wrapper = Join-Path $ResultsDirectory 'invoke-verifier.ps1'
+@'
+param([Parameter(Mandatory)][string]$InvocationPath)
+$ErrorActionPreference = 'Stop'
+$invocation = Get-Content -Raw -LiteralPath $InvocationPath | ConvertFrom-Json -AsHashtable
+$parameters = $invocation.parameters
+$LASTEXITCODE = 0
+try {
+    & $invocation.script @parameters
+    exit $LASTEXITCODE
+}
+catch {
+    [IO.File]::WriteAllText($invocation.errorPath, $_.Exception.Message)
+    throw
+}
+'@ | Set-Content -LiteralPath $wrapper -Encoding utf8
 $revision = 'a' * 40
 $inventory = @(
     'samples.generated builds.Library.one', 'samples.generated builds.Library.two',
@@ -249,24 +265,31 @@ $results = @(foreach ($case in $cases) {
         }
     }
     $workers = if ($case.ContainsKey('Workers')) { $case.Workers } else { 'success' }
-    $arguments = @('-NoProfile', '-NonInteractive', '-File', $verifier, '-Mode', 'Verify',
-        '-Configuration', 'Release', '-OperatingSystem', $os, '-RunId', '350', '-RunAttempt', '1',
-        '-SourceRevision', $revision, '-BundleRoot', $bundles, '-WorkersResult', $workers)
-    if ($case.ContainsKey('RunToken')) {
-        $arguments[$arguments.IndexOf('Verify')] = 'Run'
-        $arguments += @('-Partition', $case.RunToken)
+    $parameters = @{
+        Mode = 'Verify'; Configuration = 'Release'; OperatingSystem = $os; RunId = '350'; RunAttempt = '1'
+        SourceRevision = $revision; BundleRoot = $bundles; WorkersResult = $workers
     }
+    if ($case.ContainsKey('RunToken')) {
+        $parameters.Mode = 'Run'
+        $parameters.Partition = $case.RunToken
+    }
+    $errorPath = Join-Path $directory 'exception-message.txt'
+    $invocationPath = Join-Path $directory 'invocation.json'
+    Save-Json $invocationPath @{ script = $verifier; parameters = $parameters; errorPath = $errorPath }
+    $arguments = @('-NoProfile', '-NonInteractive', '-File', $wrapper, '-InvocationPath', $invocationPath)
     Save-Json (Join-Path $directory 'command.json') @{ executable = 'pwsh'; arguments = $arguments }
     & pwsh @arguments 1> (Join-Path $directory 'stdout.txt') 2> (Join-Path $directory 'stderr.txt')
     $exitCode = $LASTEXITCODE
-    $text = (Get-Content -Raw -LiteralPath (Join-Path $directory 'stdout.txt')) +
-        (Get-Content -Raw -LiteralPath (Join-Path $directory 'stderr.txt'))
+    $stdout = [IO.File]::ReadAllText((Join-Path $directory 'stdout.txt'))
+    $message = if (Test-Path -LiteralPath $errorPath -PathType Leaf) { [IO.File]::ReadAllText($errorPath) } else { $null }
     $positive = $case.Name.StartsWith('valid')
-    $passed = (($exitCode -eq 0) -eq $positive) -and $text.Contains($case.Expected)
+    $passed = if ($positive) { $exitCode -eq 0 -and $stdout.Contains($case.Expected) } else {
+        $exitCode -ne 0 -and $null -ne $message -and $message.Contains($case.Expected)
+    }
     $needsRerunMessage = $case.Name -in @('wrong-source', 'wrong-run', 'wrong-attempt', 'missing-bundle', 'duplicate-bundle',
         'upstream-failure', 'upstream-skipped', 'upstream-cancelled', 'mac-missing-fourth', 'mac-extra-old-token',
         'mac-old-plan', 'wrong-standard-plan', 'wrong-mac-plan')
-    if ($needsRerunMessage) { $passed = $passed -and $text.Contains('Re-run all jobs') }
+    if ($needsRerunMessage) { $passed = $passed -and $null -ne $message -and $message.Contains('Re-run all jobs') }
     @{ name = $case.Name; os = $os; tokens = $tokens; positive = $positive; expected = $case.Expected; exitCode = $exitCode; passed = $passed }
 })
 $failed = @($results | Where-Object { -not $_.passed })
