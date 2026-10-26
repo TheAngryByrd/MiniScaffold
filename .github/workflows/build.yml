@@ -48,6 +48,16 @@ jobs:
           name: Test Results (${{ matrix.os }}-${{ matrix.configuration }})
           path: '**/TestResults/testResults*.trx'
           reporter: dotnet-trx
+      - name: Upload test diagnostics
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-diagnostics-${{ matrix.os }}-${{ matrix.configuration }}
+          path: |
+            **/TestResults/**/*.trx
+            TestResults/generated-builds/**
+          if-no-files-found: warn
+          retention-days: 7
 
   build-arm64:
     strategy:
@@ -89,6 +99,16 @@ jobs:
           name: ARM64 Test Results (${{ matrix.os }})
           path: '**/TestResults/testResults*.trx'
           reporter: dotnet-trx
+      - name: Upload test diagnostics
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-diagnostics-arm64-${{ matrix.os }}
+          path: |
+            **/TestResults/**/*.trx
+            TestResults/generated-builds/**
+          if-no-files-found: warn
+          retention-days: 7
 
   # Builds the project in a dev container
   build-devcontainer:
