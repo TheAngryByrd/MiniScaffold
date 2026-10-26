@@ -10,16 +10,24 @@ on:
 
 jobs:
   integration-tests:
+    name: integration-tests (${{ matrix.configuration }}, ${{ matrix.target.os }}, ${{ matrix.target.partition }})
     strategy:
       fail-fast: false
       matrix:
+        target:
+          - { os: ubuntu-latest, partition: generated-builds }
+          - { os: ubuntu-latest, partition: other }
+          - { os: windows-latest, partition: generated-builds }
+          - { os: windows-latest, partition: other }
+          - { os: macOS-latest, partition: other }
+          - { os: macOS-latest, partition: generated-library }
+          - { os: macOS-latest, partition: generated-console }
+          - { os: macOS-latest, partition: sample-contracts }
         configuration: [Debug, Release]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
-        partition: [generated-builds, other]
-    runs-on: ${{ matrix.os == 'macOS-latest' && 'macos-15-intel' || matrix.os }}
+    runs-on: ${{ matrix.target.os == 'macOS-latest' && 'macos-15-intel' || matrix.target.os }}
     env:
-      MINISCAFFOLD_TEST_PARTITION: ${{ matrix.partition }}
-      MINISCAFFOLD_TEST_OS: ${{ matrix.os }}
+      MINISCAFFOLD_TEST_PARTITION: ${{ matrix.target.partition }}
+      MINISCAFFOLD_TEST_OS: ${{ matrix.target.os }}
 
     steps:
       - uses: actions/checkout@v5
@@ -49,15 +57,15 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: partition-${{ matrix.os }}-${{ matrix.configuration }}-${{ matrix.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: TestResults/partitions/${{ matrix.partition }}/
+          name: partition-${{ matrix.target.os }}-${{ matrix.configuration }}-${{ matrix.target.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: TestResults/partitions/${{ matrix.target.partition }}/
           if-no-files-found: error
           retention-days: 7
       - name: Upload test diagnostics
         if: success() || failure()
         uses: actions/upload-artifact@v4
         with:
-          name: test-diagnostics-${{ matrix.os }}-${{ matrix.configuration }}-${{ matrix.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: test-diagnostics-${{ matrix.target.os }}-${{ matrix.configuration }}-${{ matrix.target.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             **/TestResults/**/*.trx
             TestResults/generated-builds/**

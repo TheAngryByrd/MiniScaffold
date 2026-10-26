@@ -6,8 +6,7 @@ param(
     [Parameter(Mandatory)][string]$RunAttempt,
     [Parameter(Mandatory)][string]$SourceRevision,
     [string]$Project,
-    [ValidateSet('generated-builds', 'other')][string]$Partition,
-    [string]$Filter,
+    [string]$Partition,
     [Parameter(Mandatory)][string]$BundleRoot,
     [string]$WorkersResult
 )
@@ -50,24 +49,47 @@ function Discover-Names([string]$Text) {
     return ,$names
 }
 
-function Parse-Filter([string]$Expression, [string]$Token) {
-    Require ($Expression -cmatch '^FullyQualifiedName(?<operator>!?~)(?<group>[^&|=~!]+)$') 'Unsupported partition filter'
-    $operator = $Matches.operator
-    $group = $Matches.group
-    Require (($Token -ceq 'generated-builds' -and $operator -ceq '~') -or ($Token -ceq 'other' -and $operator -ceq '!~')) 'Partition and filter disagree'
-    return @{ Group = $group; Include = ($operator -ceq '~') }
+function Get-PartitionPlan([string]$OperatingSystem) {
+    switch -CaseSensitive ($OperatingSystem) {
+        'macOS-latest' {
+            return @(
+                @{ Token = 'generated-library'; Group = 'samples.generated builds.Library.'; Include = $true },
+                @{ Token = 'generated-console'; Group = 'samples.generated builds.Console.'; Include = $true },
+                @{ Token = 'sample-contracts'; Group = 'samples.contracts.'; Include = $true },
+                @{ Token = 'other'; Group = 'samples.'; Include = $false }
+            )
+        }
+        { $_ -cin @('ubuntu-latest', 'windows-latest') } {
+            return @(
+                @{ Token = 'generated-builds'; Group = 'samples.generated builds.'; Include = $true },
+                @{ Token = 'other'; Group = 'samples.generated builds.'; Include = $false }
+            )
+        }
+        default { throw 'Unknown worker OS' }
+    }
+}
+
+function Get-Selection([string]$OperatingSystem, [string]$Partition) {
+    $matches = @(Get-PartitionPlan $OperatingSystem | Where-Object { $_.Token -ceq $Partition })
+    Require ($matches.Count -eq 1) "Unknown partition '$Partition' for $OperatingSystem"
+    return $matches[0]
+}
+
+function Get-Filter($Selection) {
+    $operator = if ($Selection.Include) { '~' } else { '!~' }
+    return "FullyQualifiedName$operator$($Selection.Group)"
 }
 
 function Select-Names($Names, $Selection) {
     return ,@($Names | Where-Object { $_.Contains($Selection.Group, [StringComparison]::OrdinalIgnoreCase) -eq $Selection.Include })
 }
 
-function Check-Bundle([string]$Directory, [string]$ExpectedPartition) {
+function Check-Bundle([string]$Directory, $Selection) {
     $manifest = Read-Json (Join-Path $Directory 'manifest.json')
-    Require ($manifest.schemaVersion -eq 1) 'Unknown manifest schema'
+    Require ($manifest.schemaVersion -eq 2) 'Unknown manifest schema'
     foreach ($pair in @(
         @('runId', $RunId), @('runAttempt', $RunAttempt), @('sourceRevision', $SourceRevision),
-        @('configuration', $Configuration), @('os', $OperatingSystem), @('partition', $ExpectedPartition)
+        @('configuration', $Configuration), @('os', $OperatingSystem), @('partition', $Selection.Token)
     )) {
         Require ($manifest.($pair[0]) -ceq $pair[1]) "Wrong manifest $($pair[0]). Re-run all jobs; bundles must come from the same source, run, and attempt."
     }
@@ -95,7 +117,7 @@ function Check-Bundle([string]$Directory, [string]$ExpectedPartition) {
     $inventorySet = Unique-Names $inventory 'full inventory'
     $rawInventory = Discover-Names (Get-Content -Raw -LiteralPath (Join-Path $Directory 'discovery.stdout.txt'))
     Require ($inventorySet.SetEquals([string[]]$rawInventory)) 'Raw discovery and inventory disagree'
-    $selection = Parse-Filter $manifest.filter $ExpectedPartition
+    Require ($manifest.filter -ceq (Get-Filter $Selection)) 'Manifest filter differs from the canonical partition filter'
     $selected = Read-Json (Join-Path $Directory 'selected.json')
     $selectedSet = Unique-Names $selected 'selected inventory'
     Require ($selectedSet.SetEquals([string[]](Select-Names $inventory $selection))) 'Selection does not match the filter'
@@ -129,47 +151,50 @@ function Check-Bundle([string]$Directory, [string]$ExpectedPartition) {
             Require ([int]$attribute.Value -eq 0) "Nonzero TRX counter: $($attribute.Name)"
         }
     }
-    return @{ Manifest = $manifest; Inventory = $inventorySet; Selected = $selectedSet; Group = $selection.Group }
+    return @{ Manifest = $manifest; Inventory = $inventorySet; Selected = $selectedSet }
 }
 
 Require ($RunId -match '^\d+$' -and $RunAttempt -match '^[1-9]\d*$') 'Invalid run ID or attempt'
 Require ($SourceRevision -match '^[0-9a-f]{40}$') 'Invalid source revision'
-Require ($OperatingSystem -cin @('ubuntu-latest', 'windows-latest', 'macOS-latest')) 'Unknown worker OS'
+$plan = @(Get-PartitionPlan $OperatingSystem)
 
 if ($Mode -eq 'Verify') {
     Require ($WorkersResult -ceq 'success') "Worker matrix did not succeed: $WorkersResult. Re-run all jobs."
     Require (Test-Path -LiteralPath $BundleRoot -PathType Container) 'Missing worker bundles. Re-run all jobs.'
     $manifests = @(Get-ChildItem -LiteralPath $BundleRoot -Recurse -Filter manifest.json -File)
-    Require ($manifests.Count -eq 2) 'Expected exactly two worker manifests from this attempt. Re-run all jobs.'
+    Require ($manifests.Count -eq $plan.Count) "Expected exactly $($plan.Count) worker manifests from this attempt. Re-run all jobs."
     $checked = @{}
     foreach ($file in $manifests) {
         $token = (Read-Json $file.FullName).partition
-        Require ($token -cin @('generated-builds', 'other') -and -not $checked.ContainsKey($token)) 'Missing or duplicate partition bundle. Re-run all jobs.'
-        $checked[$token] = Check-Bundle $file.DirectoryName $token
+        Require ($token -cin $plan.Token) "Unexpected partition bundle '$token' for $OperatingSystem. Re-run all jobs."
+        Require (-not $checked.ContainsKey($token)) 'Duplicate partition bundle. Re-run all jobs.'
+        $checked[$token] = Check-Bundle $file.DirectoryName (Get-Selection $OperatingSystem $token)
     }
-    $generated = $checked['generated-builds']
-    $other = $checked['other']
-    foreach ($field in 'sourceFingerprint', 'assemblySha256', 'adapterSha256', 'sdkVersion', 'architecture') {
-        Require ($generated.Manifest.$field -ceq $other.Manifest.$field) "Worker $field mismatch"
+    $first = $checked[$plan[0].Token]
+    $union = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($selection in $plan) {
+        $bundle = $checked[$selection.Token]
+        foreach ($field in 'sourceFingerprint', 'assemblySha256', 'adapterSha256', 'sdkVersion', 'architecture') {
+            Require ($first.Manifest.$field -ceq $bundle.Manifest.$field) "Worker $field mismatch"
+        }
+        Require ($first.Inventory.SetEquals($bundle.Inventory)) 'Worker inventories differ'
+        Require (-not $union.Overlaps($bundle.Selected)) 'Partitions overlap'
+        $union.UnionWith($bundle.Selected)
     }
-    Require ($generated.Group -ceq $other.Group) 'Filters are not complementary'
-    Require ($generated.Inventory.SetEquals($other.Inventory)) 'Worker inventories differ'
-    Require (-not $generated.Selected.Overlaps($other.Selected)) 'Partitions overlap'
-    $union = [Collections.Generic.HashSet[string]]::new($generated.Selected, [StringComparer]::Ordinal)
-    $union.UnionWith($other.Selected)
-    Require ($union.SetEquals($generated.Inventory)) 'Partitions do not cover the inventory'
+    Require ($union.SetEquals($first.Inventory)) 'Partitions do not cover the inventory'
     Write-Host "Verified $($union.Count) tests for $OperatingSystem $Configuration in run $RunId attempt $RunAttempt."
     exit 0
 }
 
-$selection = Parse-Filter $Filter $Partition
+$selection = Get-Selection $OperatingSystem $Partition
+$filter = Get-Filter $selection
 Require (Test-Path -LiteralPath $Project -PathType Leaf) 'Missing test project'
 Require (-not (Test-Path -LiteralPath $BundleRoot)) 'Evidence directory already exists'
 $null = New-Item -ItemType Directory -Path $BundleRoot
 $BundleRoot = (Resolve-Path -LiteralPath $BundleRoot).Path
 $repository = Split-Path $PSScriptRoot -Parent
 $manifest = [ordered]@{
-    schemaVersion = 1; runId = $RunId; runAttempt = $RunAttempt; sourceRevision = $SourceRevision
+    schemaVersion = 2; runId = $RunId; runAttempt = $RunAttempt; sourceRevision = $SourceRevision
     configuration = $Configuration; os = $OperatingSystem; partition = $Partition; filter = $Filter
     platform = if ($IsWindows) { 'Windows' } elseif ($IsLinux) { 'Linux' } elseif ($IsMacOS) { 'macOS' } else { throw 'Unsupported worker platform' }
     architecture = [Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString()
@@ -390,4 +415,4 @@ foreach ($file in Get-ChildItem -LiteralPath $BundleRoot -Recurse -File | Where-
     $manifest.files[$relative] = (Get-FileHash -LiteralPath $file.FullName).Hash
 }
 Write-Json (Join-Path $BundleRoot 'manifest.json') $manifest
-$null = Check-Bundle $BundleRoot $Partition
+$null = Check-Bundle $BundleRoot $selection

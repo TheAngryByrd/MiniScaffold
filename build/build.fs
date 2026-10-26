@@ -360,22 +360,29 @@ let getPkgPath () =
 type private TestPartition =
     | All
     | GeneratedBuilds
+    | GeneratedLibrary
+    | GeneratedConsole
+    | SampleContracts
     | Other
 
 let private testPartition =
     match System.Environment.GetEnvironmentVariable "MINISCAFFOLD_TEST_PARTITION" with
     | null -> All
     | "generated-builds" -> GeneratedBuilds
+    | "generated-library" -> GeneratedLibrary
+    | "generated-console" -> GeneratedConsole
+    | "sample-contracts" -> SampleContracts
     | "other" -> Other
     | value -> failwith $"Unknown MINISCAFFOLD_TEST_PARTITION value: '{value}'"
 
 let private partitionSelection partition =
-    let group = "samples.generated builds."
-
     match partition with
     | All -> None
-    | GeneratedBuilds -> Some("generated-builds", $"FullyQualifiedName~{group}")
-    | Other -> Some("other", $"FullyQualifiedName!~{group}")
+    | GeneratedBuilds -> Some "generated-builds"
+    | GeneratedLibrary -> Some "generated-library"
+    | GeneratedConsole -> Some "generated-console"
+    | SampleContracts -> Some "sample-contracts"
+    | Other -> Some "other"
 
 let private integrationTestsAll ctx =
     !!testsGlob
@@ -415,7 +422,7 @@ let private integrationTestsAll ctx =
 let integrationTests ctx =
     match partitionSelection testPartition with
     | None -> integrationTestsAll ctx
-    | Some(partition, filter) ->
+    | Some partition ->
         let project =
             match
                 !!testsGlob
@@ -459,8 +466,6 @@ let integrationTests ctx =
                 project
                 "-Partition"
                 partition
-                "-Filter"
-                filter
                 "-BundleRoot"
                 rootDirectory
                 </> "TestResults/partitions"

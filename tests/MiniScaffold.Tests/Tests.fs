@@ -1660,18 +1660,21 @@ if (actual != expected)
         <| // uncomment to get better logs
         testList "samples" [
             do setup ()
-            testCase
-                "console commands preserve optional release metadata"
-                consoleCommandsPreserveOptionalMetadata
-            testCase
-                "packed libraries supply FSharp.Core to clean CSharp consumers in Library solutions"
-                (packedLibrariesSupplyFSharpCore Library)
-            testCase
-                "packed libraries supply FSharp.Core to clean CSharp consumers in Console solutions"
-                (packedLibrariesSupplyFSharpCore Console)
+            testList "contracts" [
+                testCase
+                    "console commands preserve optional release metadata"
+                    consoleCommandsPreserveOptionalMetadata
+                testCase
+                    "packed libraries supply FSharp.Core to clean CSharp consumers in Library solutions"
+                    (packedLibrariesSupplyFSharpCore Library)
+                testCase
+                    "packed libraries supply FSharp.Core to clean CSharp consumers in Console solutions"
+                    (packedLibrariesSupplyFSharpCore Console)
+            ]
             testList
                 "generated builds"
                 ([
+                    Library,
                     testCase,
                     "-n MyCoolLib --githubUsername CoolPersonNo2",
                     [
@@ -1683,6 +1686,7 @@ if (actual != expected)
                     ]
 
 
+                    Library,
                     testCase,
                     "-n ProjLibTest --githubUsername CoolPersonNo0",
                     [
@@ -1697,6 +1701,7 @@ if (actual != expected)
                         Assert.``project can build target`` "DotnetPack"
                     ]
 
+                    Library,
                     testCase,
                     "-n ProjConsoleTest --githubUsername CoolPersonNo0",
                     [
@@ -1713,6 +1718,7 @@ if (actual != expected)
                     ]
 
 
+                    Library,
                     testCase,
                     "-n ProjTestTest --githubUsername CoolPersonNo0",
                     [
@@ -1735,12 +1741,14 @@ if (actual != expected)
                     ]
 
                     // test for dashes in name https://github.com/dotnet/templating/issues/1168#issuecomment-364592031
+                    Library,
                     testCase,
                     "-n fsharp-data-sample --githubUsername CoolPersonNo2",
                     [
                         yield! projectStructureAsserts
                         Assert.``project can build target`` "DotnetPack"
                     ]
+                    Console,
                     testCase,
                     "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console",
                     [
@@ -1750,6 +1758,7 @@ if (actual != expected)
                     // Test that CHANGELOG.md is not modified during build failures,
                     // *unless* at least one step has pushed a release to the outside world.
 
+                    Library,
                     testCase,
                     "-n AssemblyInfoFail --githubUsername TestAccount",
                     [
@@ -1759,6 +1768,7 @@ if (actual != expected)
                         Assert.``build target with failure expected`` "Release"
                         Assert.``CHANGELOG contains Unreleased section``
                     ]
+                    Library,
                     testCase,
                     "-n GitReleaseFailBeforeCommit --githubUsername TestAccount",
                     [
@@ -1768,6 +1778,7 @@ if (actual != expected)
                         Assert.``build target with failure expected`` "Release"
                         Assert.``CHANGELOG contains Unreleased section``
                     ]
+                    Library,
                     testCase,
                     "-n GitReleaseFailAfterCommit --githubUsername TestAccount",
                     [
@@ -1777,6 +1788,7 @@ if (actual != expected)
                         Assert.``build target with failure expected`` "Release"
                         Assert.``CHANGELOG does not contain Unreleased section``
                     ]
+                    Library,
                     testCase,
                     "-n GitReleaseSuccess --githubUsername TestAccount",
                     [
@@ -1786,6 +1798,7 @@ if (actual != expected)
                         Assert.``CHANGELOG does not contain Unreleased section``
                     ]
 
+                    Library,
                     testCase,
                     "-n DotnetRestoreFail --githubUsername TestAccount",
                     [
@@ -1793,6 +1806,7 @@ if (actual != expected)
                         Effect.``make build function fail`` "let dotnetRestore"
                         Assert.``build target with failure expected`` "Publish"
                     ]
+                    Library,
                     testCase,
                     "-n DotnetBuildFail --githubUsername TestAccount",
                     [
@@ -1800,6 +1814,7 @@ if (actual != expected)
                         Effect.``make build function fail`` "let dotnetBuild"
                         Assert.``build target with failure expected`` "Publish"
                     ]
+                    Library,
                     testCase,
                     "-n DotnetTestFail --githubUsername TestAccount",
                     [
@@ -1807,6 +1822,7 @@ if (actual != expected)
                         Effect.``make build function fail`` "let dotnetTest"
                         Assert.``build target with failure expected`` "Publish"
                     ]
+                    Library,
                     testCase,
                     "-n CoverageReportFail --githubUsername TestAccount",
                     [
@@ -1814,6 +1830,7 @@ if (actual != expected)
                         Effect.``make build function fail`` "let generateCoverageReport"
                         Assert.``build target with failure expected`` "Publish"
                     ]
+                    Library,
                     testCase,
                     "-n DotnetPackFail --githubUsername TestAccount",
                     [
@@ -1822,6 +1839,7 @@ if (actual != expected)
                         Assert.``build target with failure expected`` "Publish"
                     ]
 
+                    Library,
                     testCase,
                     "-n PublishToNugetFail --githubUsername TestAccount",
                     [
@@ -1829,6 +1847,7 @@ if (actual != expected)
                         Effect.``make build function fail`` "let publishToNuget"
                         Assert.``build target with failure expected`` "Publish"
                     ]
+                    Library,
                     testCase,
                     "-n PublishToNugetSuccess --githubUsername TestAccount",
                     [
@@ -1836,6 +1855,7 @@ if (actual != expected)
                         Assert.``project can build target`` "PublishToNuget"
                     ]
 
+                    Library,
                     testCase,
                     "-n GitHubReleaseFail --githubUsername TestAccount",
                     [
@@ -1844,6 +1864,7 @@ if (actual != expected)
                         Assert.``build target with failure expected`` "GitHubRelease"
                     ]
 
+                    Console,
                     testCase,
                     "-n DotnetRestoreFail --githubUsername TestAccount --outputType Console",
                     [
@@ -1853,6 +1874,7 @@ if (actual != expected)
                         Assert.``build target with failure expected`` "Release"
                         Assert.``CHANGELOG contains Unreleased section``
                     ]
+                    Console,
                     testCase,
                     "-n AssemblyInfoFail --githubUsername TestAccount --outputType Console",
                     [
@@ -1862,6 +1884,7 @@ if (actual != expected)
                         Assert.``build target with failure expected`` "Release"
                         Assert.``CHANGELOG contains Unreleased section``
                     ]
+                    Console,
                     testCase,
                     "-n DotnetBuildFail --githubUsername TestAccount --outputType Console",
                     [
@@ -1871,6 +1894,7 @@ if (actual != expected)
                         Assert.``build target with failure expected`` "Release"
                         Assert.``CHANGELOG contains Unreleased section``
                     ]
+                    Console,
                     testCase,
                     "-n DotnetTestFail --githubUsername TestAccount --outputType Console",
                     [
@@ -1880,6 +1904,7 @@ if (actual != expected)
                         Assert.``build target with failure expected`` "Release"
                         Assert.``CHANGELOG contains Unreleased section``
                     ]
+                    Console,
                     testCase,
                     "-n CoverageReportFail --githubUsername TestAccount --outputType Console",
                     [
@@ -1889,6 +1914,7 @@ if (actual != expected)
                         Assert.``build target with failure expected`` "Release"
                         Assert.``CHANGELOG contains Unreleased section``
                     ]
+                    Console,
                     testCase,
                     "-n CreatePackagesFail --githubUsername TestAccount --outputType Console",
                     [
@@ -1898,6 +1924,7 @@ if (actual != expected)
                         Assert.``build target with failure expected`` "Release"
                         Assert.``CHANGELOG contains Unreleased section``
                     ]
+                    Console,
                     testCase,
                     "-n GitReleaseFail --githubUsername TestAccount --outputType Console",
                     [
@@ -1907,6 +1934,7 @@ if (actual != expected)
                         Assert.``build target with failure expected`` "Release"
                         Assert.``CHANGELOG contains Unreleased section``
                     ]
+                    Console,
                     testCase,
                     "-n GitHubReleaseFail --githubUsername TestAccount --outputType Console",
                     [
@@ -1920,6 +1948,7 @@ if (actual != expected)
                     ]
 
                     // Try to run a release on an alternate release branch name.
+                    Library,
                     testCase,
                     "-n AlternateReleaseBranch --githubUsername TestAccount --releaseBranch alternateBranch",
                     [
@@ -1929,6 +1958,7 @@ if (actual != expected)
 
                     // This should fail since the release branch specified in the build script doesn't match the
                     // branch from which the script is executed.
+                    Library,
                     testCase,
                     "-n ReleaseBranchMissingFailure --githubUsername TestAccount --releaseBranch notExist",
                     [
@@ -1937,24 +1967,31 @@ if (actual != expected)
                     ]
 
                  ]
-                 |> List.map (fun (testCase, args, additionalAsserts) ->
-                     testCase args
-                     <| fun _ ->
-                         use d = Disposables.DisposableDirectory.Create()
-                         copyGlobalJson d.DirectoryInfo
+                 |> List.map (fun (host, testCase, args, additionalAsserts) ->
+                     let hostName =
+                         match host with
+                         | Library -> "Library"
+                         | Console -> "Console"
 
-                         showTemplateHelp
-                         <| Some d.Directory
+                     testList hostName [
+                         testCase args
+                         <| fun _ ->
+                             use d = Disposables.DisposableDirectory.Create()
+                             copyGlobalJson d.DirectoryInfo
 
-                         runTemplate d.Directory args
+                             showTemplateHelp
+                             <| Some d.Directory
 
-                         // The project we just generated is the only one in here
-                         let projectDir =
-                             d.DirectoryInfo.GetDirectories()
-                             |> Seq.head
+                             runTemplate d.Directory args
 
-                         additionalAsserts
-                         |> Seq.iter (fun asserter -> asserter projectDir)
+                             // The project we just generated is the only one in here
+                             let projectDir =
+                                 d.DirectoryInfo.GetDirectories()
+                                 |> Seq.head
+
+                             additionalAsserts
+                             |> Seq.iter (fun asserter -> asserter projectDir)
+                     ]
                  ))
 
         ]
