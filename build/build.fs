@@ -357,7 +357,37 @@ let getPkgPath () =
     !!distGlob
     |> Seq.head
 
-let integrationTests ctx =
+type private TestPartition =
+    | All
+    | GeneratedBuilds
+    | GeneratedLibraryA
+    | GeneratedLibraryB
+    | GeneratedConsole
+    | SampleContracts
+    | Other
+
+let private testPartition =
+    match System.Environment.GetEnvironmentVariable "MINISCAFFOLD_TEST_PARTITION" with
+    | null -> All
+    | "generated-builds" -> GeneratedBuilds
+    | "generated-library-a" -> GeneratedLibraryA
+    | "generated-library-b" -> GeneratedLibraryB
+    | "generated-console" -> GeneratedConsole
+    | "sample-contracts" -> SampleContracts
+    | "other" -> Other
+    | value -> failwith $"Unknown MINISCAFFOLD_TEST_PARTITION value: '{value}'"
+
+let private partitionSelection partition =
+    match partition with
+    | All -> None
+    | GeneratedBuilds -> Some "generated-builds"
+    | GeneratedLibraryA -> Some "generated-library-a"
+    | GeneratedLibraryB -> Some "generated-library-b"
+    | GeneratedConsole -> Some "generated-console"
+    | SampleContracts -> Some "sample-contracts"
+    | Other -> Some "other"
+
+let private integrationTestsAll ctx =
     !!testsGlob
     |> Seq.iter (fun proj ->
         let runSettingsArgs =
@@ -391,6 +421,71 @@ let integrationTests ctx =
             })
             proj
     )
+
+let integrationTests ctx =
+    match partitionSelection testPartition with
+    | None -> integrationTestsAll ctx
+    | Some partition ->
+        let project =
+            match
+                !!testsGlob
+                |> Seq.toList
+            with
+            | [ project ] -> project
+            | _ -> failwith "Partitioned integration tests require one outer test project"
+
+        let requiredEnvironment name =
+            match System.Environment.GetEnvironmentVariable name with
+            | null
+            | "" -> failwith $"Partitioned integration tests require {name}"
+            | value -> value
+
+        let start =
+            Diagnostics.ProcessStartInfo(
+                "pwsh",
+                WorkingDirectory = rootDirectory,
+                UseShellExecute = false
+            )
+
+        for argument in
+            [
+                "-NoProfile"
+                "-File"
+                rootDirectory
+                </> "build/TestPartitions.ps1"
+                "-Mode"
+                "Run"
+                "-Configuration"
+                string (configuration ctx.Context.AllExecutingTargets)
+                "-OperatingSystem"
+                requiredEnvironment "MINISCAFFOLD_TEST_OS"
+                "-RunId"
+                requiredEnvironment "GITHUB_RUN_ID"
+                "-RunAttempt"
+                requiredEnvironment "GITHUB_RUN_ATTEMPT"
+                "-SourceRevision"
+                requiredEnvironment "GITHUB_SHA"
+                "-Project"
+                project
+                "-Partition"
+                partition
+                "-BundleRoot"
+                rootDirectory
+                </> "TestResults/partitions"
+                </> partition
+            ] do
+            start.ArgumentList.Add argument
+
+        start.Environment.["MINISCAFFOLD_NUPKG_LOCATION"] <- getPkgPath ()
+        use child = Diagnostics.Process.Start start
+        child.WaitForExit()
+
+        if
+            child.ExitCode
+            <> 0
+        then
+            failwith
+                $"Integration test partition {partition} failed with exit code {child.ExitCode}"
 
 let dotnetPack ctx =
     // Get release notes with properly-linked version number
