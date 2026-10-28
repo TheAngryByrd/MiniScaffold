@@ -39,7 +39,7 @@ flowchart LR
     Clean --> DotnetPack
 ```
 
-`FSharpAnalyzers`, `SourceLinkTest`, `FormatCode`, `RevertChangelog`, and `DeleteChangelogBackupFile` are outside these chains.
+`SourceLinkTest`, `FormatCode`, `RevertChangelog`, and `DeleteChangelogBackupFile` are outside these chains.
 The source states: `// Do NOT put this in the dependency chain` for `RevertChangelog` and `DeleteChangelogBackupFile`.
 
 ## Release contract
@@ -56,7 +56,8 @@ The same contract as the root build applies. See [../build/release-and-publish.m
 ## Build settings
 
 - Fantomas runs on each build through `Directory.Build.targets`. Set `FormatOnBuild=false` to skip it.
-- `src/Directory.Build.props` enables `TreatWarningsAsErrors` and `Nullable`, and adds the Ionide and G-Research analyzers.
+- `src/Directory.Build.props` enables `TreatWarningsAsErrors` and `Nullable`, and adds the Ionide and G-Research analyzers with `GeneratePathProperty="true"`.
+- FSharp.Analyzers.Build runs the analyzers after each build with the `$(PkgIonide_Analyzers)` and `$(PkgG-Research_FSharp_Analyzers)` paths (`src/Directory.Build.targets`). Analyzer findings do not fail the build.
 - `GenerateCoverageReport` writes the HTML report to `docs/coverage`. `Content/Library/docsSrc/index.md` has no link to it ([issue #226](https://github.com/TheAngryByrd/MiniScaffold/issues/226)).
 - Coverage is opt-in through `ENABLE_COVERAGE`. The `publish.yml` comment states: "AltCover doesn't work with Release builds".
 - `Directory.Packages.props` sets `RestorePackagesWithLockFile` and `RestoreLockedMode`. The template ships no `packages.lock.json`, so the first restore creates it.

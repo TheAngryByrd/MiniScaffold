@@ -15,7 +15,7 @@
 
 "DotnetPack"
 ==> "PublishToNuGet"
-==> "GithubRelease"
+==> "GitHubRelease"
 ==>! "Publish"
 ```
 
@@ -41,7 +41,7 @@ Soft orderings (`?=>`): `Clean` before `DotnetRestore`, and `DotnetRestore` befo
 - `Publish` (comment: "For CI") packs, pushes to NuGet, and creates the GitHub release.
 - `RevertChangelog` is a build-failure target and `DeleteChangelogBackupFile` is a final target. The source states: `// Do NOT put this in the dependency chain`.
 - `FormatCode` and `CheckFormatCode` run Fantomas. `CheckFormatCode` treats Fantomas exit code 99 as "needs formatting".
-- FAKE matches target names without case (`StringComparer.OrdinalIgnoreCase` in Fake.Core.Target). The chain spells `"GithubRelease"` for the `"GitHubRelease"` target, and the docs workflow calls `builddocs`.
+- FAKE matches target names without case (`StringComparer.OrdinalIgnoreCase` in Fake.Core.Target). The docs workflow calls `builddocs` for the `BuildDocs` target.
 
 ## Build inputs
 

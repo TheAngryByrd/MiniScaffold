@@ -61,6 +61,7 @@ Before the run, it removes `MSBuildSDKsPath` and `MSBuildExtensionsPath` and set
 - `setup for release tests` and `setup for publish tests` (`Asserts.fs`) run `git init` and patch the generated `build/build.fs`.
 - The patches comment out restore, build, tests, pack, and similar calls, blank the tokens, and turn off the git push.
 - Publish cases also set `CI=1` and add `--environment RELEASE_TAG=v0.1.0` to `build.sh` and `build.cmd`.
+- The `ChangelogTagLinks` cases run `Release` for 0.2.0 in a library and a console repository, and check that the CHANGELOG compare links use `v` tags.
 - `make build function fail` adds a `failwith` to a named function. The tests then check that `CHANGELOG.md` rolls back, unless a step already pushed a release.
 
 ## Invariants

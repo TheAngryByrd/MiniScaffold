@@ -110,6 +110,32 @@ module Assert =
              |> Array.contains "## [Unreleased]")
             "Changelog should not contain Unreleased section"
 
+    let ``CHANGELOG links compare v-prefixed release tags``
+        githubUsername
+        repositoryName
+        previousVersion
+        newVersion
+        (d: DirectoryInfo)
+        =
+        let repositoryUrl = $"https://github.com/{githubUsername}/{repositoryName}/"
+
+        let actual =
+            Path.Combine(d.FullName, "CHANGELOG.md")
+            |> File.ReadAllLines
+            |> Array.filter (fun line ->
+                line.StartsWith "[Unreleased]:"
+                || line.StartsWith $"[{newVersion}]:"
+            )
+            |> Array.toList
+
+        Expect.equal
+            actual
+            [
+                $"[Unreleased]: {repositoryUrl}/compare/v{newVersion}...HEAD"
+                $"[{newVersion}]: {repositoryUrl}/compare/v{previousVersion}...v{newVersion}"
+            ]
+            "CHANGELOG link references should compare the v-prefixed tags that GitRelease pushes"
+
     let ``.config/dotnet-tools.json exists`` = tryFindFile ".config/dotnet-tools.json"
 
     let ``.github ISSUE_TEMPLATE bug_report exists`` =
@@ -410,30 +436,6 @@ module Effect =
             |> File.writeNew buildScript
 
         ``format build`` d
-
-    let ``disable fsharpAnalyzers`` (d: DirectoryInfo) =
-        let buildScript = ``get build.fs`` d
-        let lines = File.ReadAllLines buildScript
-        let startPred = (fun (idx, line: string) -> line.Contains "let fsharpAnalyzers")
-
-        let endPred =
-            (snd
-             >> (fun (x: string) -> x.StartsWith "let ")
-             >> not)
-
-        match ``find section`` startPred endPred lines with
-        | None -> ()
-        | Some(startIdx, endIdx) ->
-            ``replace section with``
-                (startIdx
-                 + 1)
-                endIdx
-                "    ()"
-                lines
-            |> File.writeNew buildScript
-
-        ``format build`` d
-
 
     let ``disable tests`` (d: DirectoryInfo) =
         let buildScript = ``get build.fs`` d
@@ -752,7 +754,6 @@ module Effect =
         ``git init`` d branchName
         ``disable restore`` d
         ``disable build`` d
-        ``disable fsharpAnalyzers`` d
         ``disable tests`` d
         ``disable generateCoverage`` d
         ``disable createPackages`` d

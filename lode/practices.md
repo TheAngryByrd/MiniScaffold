@@ -27,7 +27,7 @@ Targets from `build/build.fs`:
 - Keep `CHANGELOG.md` in Keep a Changelog form. The build takes the package version and release notes from it.
 - Put each documentation page in the Divio directory that matches the reader need, and link it from that directory's `0-toc.md`.
 - Write documentation in Simplified Technical English, as the existing `docsSrc/` pages do.
-- Keep `Content/Library/build/Changelog.fs` and the root `build/Changelog.fs` identical. They are identical now.
+- Keep `build/Changelog.fs`, `Content/Library/build/Changelog.fs`, and `Content/Console/build/Changelog.fs` byte-identical. The ReleasePolicy test "template Changelog.fs copies match the root build" fails when they differ.
 
 ## Gotchas
 

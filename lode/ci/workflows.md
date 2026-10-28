@@ -41,7 +41,7 @@ After `Verify`, `dorny/test-reporter@v1` reports `**/outer/outer.trx`.
 
 - A change to the partition plan must change `build/build.fs`, `build/TestPartitions.ps1`, `build.yml`, and `build/TestPartitions.Tests.ps1` together.
 - Evidence artifact names include `run_id` and `run_attempt`. A failed partition needs "Re-run all jobs", because `Verify` requires bundles from one run attempt.
-- `publish.yml` and `fsdocs-gh-pages.yml` install SDKs from `global.json` plus 6.x.
+- `publish.yml` and `fsdocs-gh-pages.yml` install SDKs from `global.json` plus `8.x`, the runtime of `build/build.fsproj`.
 
 ## Related
 

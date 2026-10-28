@@ -30,6 +30,7 @@ flowchart LR
 - Bad tag forms include whitespace, `vv`, `V`, `refs/tags/`, a suffix, and a partial version.
 - A local release on the wrong branch must fail.
 - `publish.yml` must trigger on `v*` and pass `RELEASE_TAG: ${{ github.ref_name }}`.
+- The three `Changelog.fs` copies (root, library, console) must be byte-identical.
 
 ## GeneratedReleasePolicy (`GeneratedReleasePolicyTests.fs`)
 

@@ -10,7 +10,6 @@ open Fake.IO.Globbing.Operators
 open Fake.Core.TargetOperators
 open Fake.Api
 open Fake.BuildServer
-open Argu
 
 let environVarAsBoolOrDefault varName defaultValue =
     let truthyConsts = [
@@ -213,22 +212,7 @@ module dotnet =
 
     let fcswatch optionConfig args = tool optionConfig "fcswatch" args
 
-    let fsharpAnalyzer optionConfig args =
-        tool optionConfig "fsharp-analyzers" args
-
     let fantomas args = DotNet.exec id "fantomas" args
-
-module FSharpAnalyzers =
-    type Arguments =
-        | Project of string
-        | Analyzers_Path of string
-        | Fail_On_Warnings of string list
-        | Ignore_Files of string list
-        | Verbose
-
-        interface IArgParserTemplate with
-            member s.Usage = ""
-
 
 module DocsTool =
     let quoted s = $"\"%s{s}\""
@@ -429,28 +413,6 @@ let dotnetBuild ctx =
 
         })
         sln
-
-let fsharpAnalyzers _ =
-    let argParser =
-        ArgumentParser.Create<FSharpAnalyzers.Arguments>(programName = "fsharp-analyzers")
-
-    !!srcGlob
-    |> Seq.iter (fun proj ->
-        let args =
-            [
-                FSharpAnalyzers.Analyzers_Path(
-                    rootDirectory
-                    </> "packages/analyzers"
-                )
-                FSharpAnalyzers.Arguments.Project proj
-                FSharpAnalyzers.Arguments.Fail_On_Warnings [ "BDH0002" ]
-                FSharpAnalyzers.Arguments.Ignore_Files [ "*AssemblyInfo.fs" ]
-                FSharpAnalyzers.Verbose
-            ]
-            |> argParser.PrintCommandLineArgumentsFlat
-
-        dotnet.fsharpAnalyzer id args
-    )
 
 let dotnetTest ctx =
     let excludeCoverage =
@@ -711,7 +673,6 @@ let initTargets () =
     Target.createBuildFailure "RevertChangelog" revertChangelog // Do NOT put this in the dependency chain
     Target.createFinal "DeleteChangelogBackupFile" deleteChangelogBackupFile // Do NOT put this in the dependency chain
     Target.create "DotnetBuild" dotnetBuild
-    Target.create "FSharpAnalyzers" fsharpAnalyzers
     Target.create "DotnetTest" dotnetTest
     Target.create "GenerateCoverageReport" generateCoverageReport
     Target.create "ShowCoverageReport" showCoverageReport

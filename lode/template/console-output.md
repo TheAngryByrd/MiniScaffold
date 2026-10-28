@@ -52,11 +52,10 @@ The archives are framework-dependent, so the destination computer needs the .NET
 - `isRelease` looks for the `Release` target. The library output looks for `PublishToNuGet`.
 - Coverage is on by default. Set `DISABLE_COVERAGE` to turn it off.
 
-## Differences from the library build
+## Changelog module
 
-- `Content/Console/build/Changelog.fs` uses `isChangelogEmpty` where the library uses `failOnEmptyChangelog`.
-- The console `Changelog.fs` formats tags as `"%s"` (no `v`), but `build.fs` pushes git tags with a `v` prefix.
-- `Content/Library/build/Changelog.fs` and the root `build/Changelog.fs` are identical.
+`Content/Console/build/Changelog.fs` is byte-identical to the library and root copies. Tags and compare links use `v<version>`.
+The console build deactivates `RevertChangelog` after the tag push. The library build deactivates it after the release commit.
 
 ## Related
 

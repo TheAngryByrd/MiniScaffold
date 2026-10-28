@@ -1,4 +1,3 @@
-open Argu
 open System
 open Fake.SystemHelper
 open Fake.Core
@@ -117,8 +116,6 @@ let gitHubRepoUrl = sprintf "https://github.com/%s/%s/" gitOwner gitRepoName
 
 let releaseBranch = "MyReleaseBranch"
 
-let tagFromVersionNumber versionNumber = sprintf "v%s" versionNumber
-
 let changelogFilename =
     __SOURCE_DIRECTORY__
     </> ".."
@@ -218,7 +215,7 @@ let rec retryIfInCI times fn =
 
 let allReleaseChecks () =
     isReleaseBranchCheck ()
-    Changelog.isChangelogEmpty latestEntry
+    Changelog.failOnEmptyChangelog latestEntry
 
 module dotnet =
     let watch cmdParam program args =
@@ -231,21 +228,7 @@ module dotnet =
     let reportgenerator optionConfig args =
         tool optionConfig "reportgenerator" args
 
-    let fsharpAnalyzer optionConfig args =
-        tool optionConfig "fsharp-analyzers" args
-
     let fantomas args = DotNet.exec id "fantomas" args
-
-module FSharpAnalyzers =
-    type Arguments =
-        | Project of string
-        | Analyzers_Path of string
-        | Fail_On_Warnings of string list
-        | Ignore_Files of string list
-        | Verbose
-
-        interface IArgParserTemplate with
-            member s.Usage = ""
 
 //-----------------------------------------------------------------------------
 // Target Implementations
@@ -323,28 +306,6 @@ let dotnetBuild ctx =
                     |> DotNet.Options.withAdditionalArgs args
         })
         sln
-
-let fsharpAnalyzers _ =
-    let argParser =
-        ArgumentParser.Create<FSharpAnalyzers.Arguments>(programName = "fsharp-analyzers")
-
-    !!srcGlob
-    |> Seq.iter (fun proj ->
-        let args =
-            [
-                FSharpAnalyzers.Analyzers_Path(
-                    __SOURCE_DIRECTORY__
-                    </> ".."
-                    </> "packages/analyzers"
-                )
-                FSharpAnalyzers.Arguments.Project proj
-                FSharpAnalyzers.Arguments.Fail_On_Warnings [ "BDH0002" ]
-                FSharpAnalyzers.Verbose
-            ]
-            |> argParser.PrintCommandLineArgumentsFlat
-
-        dotnet.fsharpAnalyzer id args
-    )
 
 let dotnetTest ctx =
     let excludeCoverage =
@@ -581,7 +542,7 @@ let gitRelease _ =
 
     Git.Branches.push ""
 
-    let tag = tagFromVersionNumber latestEntry.NuGetVersion
+    let tag = Changelog.tagFromVersionNumber latestEntry.NuGetVersion
 
     Git.Branches.tag "" tag
     Git.Branches.pushTag "" "origin" tag
@@ -606,7 +567,7 @@ let githubRelease _ =
     |> GitHub.draftNewRelease
         gitOwner
         gitRepoName
-        (tagFromVersionNumber latestEntry.NuGetVersion)
+        (Changelog.tagFromVersionNumber latestEntry.NuGetVersion)
         (latestEntry.SemVer.PreRelease
          <> None)
         (releaseNotes
@@ -666,7 +627,6 @@ let initTargets () =
     Target.createBuildFailure "RevertChangelog" revertChangelog // Do NOT put this in the dependency chain
     Target.createFinal "DeleteChangelogBackupFile" deleteChangelogBackupFile // Do NOT put this in the dependency chain
     Target.create "DotnetBuild" dotnetBuild
-    Target.create "FSharpAnalyzers" fsharpAnalyzers
     Target.create "DotnetTest" dotnetTest
     Target.create "GenerateCoverageReport" generateCoverageReport
     Target.create "WatchApp" watchApp
@@ -701,7 +661,6 @@ let initTargets () =
     "DotnetRestore"
     =?> ("CheckFormatCode", isCI.Value)
     ==> "DotnetBuild"
-    // ==> "FSharpAnalyzers"
     ==> "DotnetTest"
     =?> ("GenerateCoverageReport", not disableCodeCoverage)
     ==> "CreatePackages"
