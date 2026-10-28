@@ -29,7 +29,7 @@ read lode/lode-map.md, lode/terminology.md, lode/summary.md
 - [template/console-output.md](template/console-output.md)
 - [template/project-outputs.md](template/project-outputs.md)
 
-## build/ (`build/`, root MSBuild files, `MiniScaffold.csproj`, `docsSrc/`)
+## build/ (`build/`, root MSBuild files, `MiniScaffold.csproj`, `docsSrc/`, `tools/`)
 
 - [build/summary.md](build/summary.md)
 - [build/fake-targets.md](build/fake-targets.md)
@@ -37,6 +37,7 @@ read lode/lode-map.md, lode/terminology.md, lode/summary.md
 - [build/template-package.md](build/template-package.md)
 - [build/msbuild-infrastructure.md](build/msbuild-infrastructure.md)
 - [build/documentation-site.md](build/documentation-site.md)
+- [build/release-notes-script.md](build/release-notes-script.md)
 
 ## ci/ (`.github/`)
 
@@ -62,4 +63,4 @@ read lode/lode-map.md, lode/terminology.md, lode/summary.md
 - [CHANGELOG.md](../CHANGELOG.md) - release history and version source.
 - [docsSrc/](../docsSrc/index.md) - human documentation (Divio).
 - ADR folder - none exists yet.
-- Out of scope: `.vscode/`, `.devcontainer/`, `.config/` (see [build/msbuild-infrastructure.md](build/msbuild-infrastructure.md)), `tools/` (see [practices.md](practices.md)), `CODE_OF_CONDUCT.md`, `LICENSE.md`, `.editorconfig`, `.gitattributes`, `.git-blame-ignore-revs`.
+- Out of scope: `.vscode/`, `.devcontainer/`, `.config/` (see [build/msbuild-infrastructure.md](build/msbuild-infrastructure.md)), `CODE_OF_CONDUCT.md`, `LICENSE.md`, `.editorconfig`, `.gitattributes`, `.git-blame-ignore-revs`.

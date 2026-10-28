@@ -38,7 +38,7 @@ Targets from `build/build.fs`:
 - A new top-level test group under `samples.` breaks the partition coverage proof. See [tests/test-partitions.md](tests/test-partitions.md).
 - Publish targets fail outside CI by design. Use the tag workflow. See [build/release-and-publish.md](build/release-and-publish.md).
 - `RevertChangelog` and `DeleteChangelogBackupFile` must stay out of the dependency chain (source comment in `build/build.fs`).
-- `tools/releaseToChangelog.fsx` uses Paket syntax and reads `RELEASE_NOTES.md`. No build step calls it.
+- No build step calls `tools/releaseToChangelog.fsx`. Its tests keep it working. See [build/release-notes-script.md](build/release-notes-script.md).
 
 ## Related
 

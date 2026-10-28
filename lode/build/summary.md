@@ -30,6 +30,7 @@ dotnet run --project ./build/build.fsproj -p:FormatOnBuild=false -v:m -- -t "$@"
 - [template-package.md](template-package.md) - how `MiniScaffold.csproj` packs `Content/`.
 - [msbuild-infrastructure.md](msbuild-infrastructure.md) - tool restore, format on build, NuGet audit, and central package management.
 - [documentation-site.md](documentation-site.md) - the fsdocs site from `docsSrc/`.
+- [release-notes-script.md](release-notes-script.md) - the `tools/releaseToChangelog.fsx` conversion script.
 
 ## Related
 
