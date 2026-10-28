@@ -59,7 +59,7 @@ Soft orderings (`?=>`): `Clean` before `DotnetRestore`, and `DotnetRestore` befo
 
 ## Common commands
 
-Copied from `.github/workflows/build.yml` and `.github/copilot-instructions.md`:
+Target names from `build/build.fs`. `.github/workflows/build.yml` runs `IntegrationTests`:
 
 ```bash
 ./build.sh                    # DotnetPack

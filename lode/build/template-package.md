@@ -34,7 +34,6 @@ The `ValidatePackage` target runs after `Pack`. It calls `AnalyzeTemplate` from 
 
 - Generated-repository artifacts (`bin`, `obj`, `dist`, `temp`, `packages.lock.json`) must not enter the package. The `Exclude` list enforces this.
 - The build passes `PackageVersion` from `CHANGELOG.md`. See [release-and-publish.md](release-and-publish.md).
-- The package description in `MiniScaffold.csproj` still names .NET 6.0. The template content targets net8.0, net9.0, and net10.0.
 
 ## Related
 

@@ -57,8 +57,7 @@ read lode/lode-map.md, lode/terminology.md, lode/summary.md
 
 ## Outside Lode
 
-- [AGENTS.md](../AGENTS.md) - Lode Coding prompt and precedence rule.
-- [.github/copilot-instructions.md](../.github/copilot-instructions.md) - repository guidelines.
+- [AGENTS.md](../AGENTS.md) - Lode Coding prompt and the GitHub issues rule.
 - [README.md](../README.md) - user and maintainer overview.
 - [CHANGELOG.md](../CHANGELOG.md) - release history and version source.
 - [docsSrc/](../docsSrc/index.md) - human documentation (Divio).

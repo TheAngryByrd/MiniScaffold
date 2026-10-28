@@ -20,7 +20,7 @@ Command (`.github/workflows/build.yml`):
 ./build.sh IntegrationTests
 ```
 
-`.github/copilot-instructions.md` states that this run takes 30+ minutes.
+Without a partition, this runs every test. The last unpartitioned CI run took 111 to 133 minutes on ubuntu and windows (build run 40257326330). Partitioned CI jobs take 13 to 29 minutes (build run 40426768755).
 
 ## Files
 

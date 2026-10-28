@@ -1,6 +1,6 @@
 # Practices
 
-`.github/copilot-instructions.md` holds the repository guidelines. `AGENTS.md` gives them precedence over the Lode.
+`AGENTS.md` holds the agent rules for this repository and the Lode Coding prompt.
 
 ## Change loop for template content
 
@@ -12,12 +12,12 @@ flowchart LR
     GenBuild --> IT["./build.sh IntegrationTests"]
 ```
 
-Copied from `.github/copilot-instructions.md`:
+Targets from `build/build.fs`:
 
 ```bash
-./build.sh FormatCode      # Format all code
-./build.sh CheckFormatCode # Verify formatting (must pass)
-./build.sh                 # Verify builds successfully
+./build.sh FormatCode
+./build.sh CheckFormatCode
+./build.sh
 ```
 
 ## Conventions
@@ -31,7 +31,7 @@ Copied from `.github/copilot-instructions.md`:
 
 ## Gotchas
 
-- Integration tests take 30+ minutes (`.github/copilot-instructions.md`). Do not cancel them.
+- A full local `IntegrationTests` run takes more than an hour. See [tests/summary.md](tests/summary.md). Do not cancel it.
 - `.gitignore` ignores every directory named `docs`, `temp`, or `tmp`. Git does not track new files in such a directory.
 - `.gitignore` ignores `Content/**/packages.lock.json`, and `MiniScaffold.csproj` excludes them from the package.
 - The release and publish tests patch the generated `build/build.fs` by text match. A rename of a build function in `Content/*/build/build.fs` breaks them. See [tests/integration-tests.md](tests/integration-tests.md).

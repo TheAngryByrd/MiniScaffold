@@ -31,7 +31,6 @@ chmod +x ./build.sh
 ## Other `.github` files
 
 - `.github/actions/integration-workload/action.yml` - a composite action that runs one macOS integration partition. See [workflows.md](workflows.md).
-- `.github/copilot-instructions.md` - agent guidelines. `AGENTS.md` gives them precedence over the Lode.
 - `.github/ISSUE_TEMPLATE*`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/FUNDING.yml` - GitHub community files.
 
 ## Related

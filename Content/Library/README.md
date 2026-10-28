@@ -8,7 +8,7 @@
 
 GitHub Actions |
 :---: |
-[![GitHub Actions](https://github.com/MyGithubUsername/MyLib.1/workflows/Build%20MyReleaseBranch/badge.svg)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3AMyReleaseBranch) |
+[![GitHub Actions](https://github.com/MyGithubUsername/MyLib.1/actions/workflows/build.yml/badge.svg?branch=MyReleaseBranch)](https://github.com/MyGithubUsername/MyLib.1/actions/workflows/build.yml?query=branch%3AMyReleaseBranch) |
 [![Build History](https://buildstats.info/github/chart/MyGithubUsername/MyLib.1)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3AMyReleaseBranch) |
 
 ## NuGet
@@ -46,7 +46,7 @@ The `.gitattributes` file is already configured to track binary files (images, d
 
 ### Environment Variables
 
-- `CONFIGURATION` will set the [configuration](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build?tabs=netcore2x#options) of the dotnet commands.  If not set, it will default to Release.
+- `CONFIGURATION` will set the [configuration](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build?tabs=netcore2x#options) of the dotnet commands.  If not set, it defaults to Debug, or to Release when the build runs a release target.
   - `CONFIGURATION=Debug ./build.sh` will result in `-c` additions to commands such as in `dotnet build -c Debug`
 - `ENABLE_COVERAGE` Will enable running code coverage metrics.  AltCover can have [severe performance degradation](https://github.com/SteveGilham/altcover/issues/57) so code coverage evaluation are disabled by default to speed up the feedback loop.
   - `ENABLE_COVERAGE=1 ./build.sh` will enable code coverage evaluation

@@ -2,7 +2,6 @@
 
 Source: https://github.com/fjzeit/lode/blob/7a21c1c1f47d45eeeb851f5a2c85d5e8abecd78f/prompts/SystemPrompt.txt
 
-The repository guidelines in `.github/copilot-instructions.md` take precedence over this section. If a Lode rule conflicts with them, follow the repository guidelines.
 Tickets, plans, roadmaps, and TODOs live in GitHub issues for TheAngryByrd/MiniScaffold, not in the Lode. Do not write plan files in `lode/plans/`. `lode/plans/github-issues.md` points to the issue tracker.
 
 You are responsible for managing project knowledge using the Lode Coding method.
