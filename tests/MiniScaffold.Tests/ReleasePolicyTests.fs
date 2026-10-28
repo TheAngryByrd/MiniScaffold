@@ -534,5 +534,22 @@ let private interceptPublication boundary (_callee: 'a) : 'a =
                         "./build.sh Publish"
                         "The workflow must invoke the guarded Publish graph."
                 )
+            testCase
+                "template Changelog.fs copies match the root build"
+                (fun () ->
+                    let read relativePath =
+                        File.ReadAllBytes(Path.Combine(sourceRoot, relativePath))
+
+                    let root = read "build/Changelog.fs"
+
+                    for copy in
+                        [
+                            "Content/Library/build/Changelog.fs"
+                            "Content/Console/build/Changelog.fs"
+                        ] do
+                        Expect.isTrue
+                            (read copy = root)
+                            $"{copy} must be byte-identical to build/Changelog.fs"
+                )
         ]
         |> testSequenced

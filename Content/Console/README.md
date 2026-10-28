@@ -9,14 +9,12 @@
 
 GitHub Actions |
 :---: |
-[![GitHub Actions](https://github.com/MyGithubUsername/MyLib.1/workflows/Build%20master/badge.svg)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3Amaster) |
-[![Build History](https://buildstats.info/github/chart/MyGithubUsername/MyLib.1)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3Amaster) |
+[![GitHub Actions](https://github.com/MyGithubUsername/MyLib.1/actions/workflows/build.yml/badge.svg?branch=MyReleaseBranch)](https://github.com/MyGithubUsername/MyLib.1/actions/workflows/build.yml?query=branch%3AMyReleaseBranch) |
+[![Build History](https://buildstats.info/github/chart/MyGithubUsername/MyLib.1)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3AMyReleaseBranch) |
 
-## NuGet
+## Releases
 
-Package | Stable | Prerelease
---- | --- | ---
-MyLib.1 | [![NuGet Badge](https://buildstats.info/nuget/MyLib.1)](https://www.nuget.org/packages/MyLib.1/) | [![NuGet Badge](https://buildstats.info/nuget/MyLib.1?includePreReleases=true)](https://www.nuget.org/packages/MyLib.1/)
+[![GitHub Release](https://img.shields.io/github/v/release/MyGithubUsername/MyLib.1?include_prereleases)](https://github.com/MyGithubUsername/MyLib.1/releases)
 
 
 ---
@@ -48,9 +46,9 @@ The `.gitattributes` file is already configured to track binary files (images, d
 
 ### Environment Variables
 
-- `CONFIGURATION` will set the [configuration](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build?tabs=netcore2x#options) of the dotnet commands.  If not set, it will default to Release.
+- `CONFIGURATION` will set the [configuration](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build?tabs=netcore2x#options) of the dotnet commands.  If not set, it defaults to Debug, or to Release when the build runs a release target.
   - `CONFIGURATION=Debug ./build.sh` will result in `-c` additions to commands such as in `dotnet build -c Debug`
-- `GITHUB_TOKEN` will be used to upload release notes and NuGet packages to GitHub.
+- `GITHUB_TOKEN` will be used to upload release notes and the ZIP archives in `dist/` to GitHub.
   - Be sure to set this before releasing
 - `DISABLE_COVERAGE` Will disable running code coverage metrics.  AltCover can have [severe performance degradation](https://github.com/SteveGilham/altcover/issues/57) so it's worth disabling when looking to do a quicker feedback loop.
   - `DISABLE_COVERAGE=1 ./build.sh`
@@ -91,7 +89,7 @@ If you delete the local tool cache, run `dotnet tool restore` before the next bu
     - Preserves executable permissions for Unix apphosts after ZIP extraction.
     - Requires the corresponding .NET runtime on the destination computer.
 - `GitRelease` - Creates a commit message with the [Release Notes](https://fake.build/apidocs/v5/fake-core-releasenotes.html) and a git tag via the version in the `Release Notes`.
-- `GitHubRelease` - Publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) with the Release Notes and any NuGet packages.
+- `GitHubRelease` - Publishes a [GitHub Release](https://help.github.com/en/articles/creating-releases) with the Release Notes and the ZIP archives in `dist/`.
 - `FormatCode` - Runs [Fantomas](https://github.com/fsprojects/fantomas) on the root directory and its nested directories. Changes source files. Fails if Fantomas fails.
 - `CheckFormatCode` - Runs [Fantomas --check](https://fsprojects.github.io/fantomas/docs/end-users/FormattingCheck.html) on the root directory and its nested directories. Preserves source files. Fails if files need formatting or Fantomas fails.
 - [`Release`](#Releasing) - Task that runs all release type tasks such as `GitRelease` and `GitHubRelease`. Make sure to read [Releasing](#Releasing) to setup your environment correctly for releases.
@@ -106,13 +104,12 @@ If you delete the local tool cache, run `dotnet tool restore` before the next bu
 ```sh
 git add .
 git commit -m "Scaffold"
-git remote add origin https://github.com/user/MyCoolNewApp.git
-git push -u origin master
+git remote add origin https://github.com/MyGithubUsername/MyLib.1.git
+git push -u origin MyReleaseBranch
 ```
 
 - [Create a GitHub OAuth Token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
-  - You can then set the `GITHUB_TOKEN` to upload release notes and artifacts to github
-  - Otherwise it will fallback to username/password
+  - You must set the `GITHUB_TOKEN` to upload release notes and artifacts to GitHub. The `GitHubRelease` target fails without it.
 
 - Then update the `CHANGELOG.md` with an "Unreleased" section containing release notes for this version, in [KeepAChangelog](https://keepachangelog.com/en/1.1.0/) format.
 

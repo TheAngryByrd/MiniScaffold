@@ -697,7 +697,7 @@ let initTargets () =
 
     "DotnetPack"
     ==> "PublishToNuGet"
-    ==> "GithubRelease"
+    ==> "GitHubRelease"
     ==>! "Publish"
 
 

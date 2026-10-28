@@ -67,7 +67,6 @@ When you do an initial scaffold, your folder will be filled with this set of fil
     │   ├── Directory.Build.props
     │   ├── Directory.Build.targets
     │   └── MyLib.1
-    │       ├── AssemblyInfo.fs
     │       ├── Library.fs
     │       └── MyLib.1.fsproj
     └── tests

@@ -1966,6 +1966,35 @@ if (actual != expected)
                         Assert.``build target with failure expected`` "Release"
                     ]
 
+                    Library,
+                    testCase,
+                    "-n ChangelogTagLinks --githubUsername TestAccount",
+                    [
+                        Effect.``setup for release tests``
+                        Effect.``set environment variable`` "RELEASE_VERSION" "0.2.0"
+                        Assert.``project can build target`` "Release"
+                        Assert.``CHANGELOG links compare v-prefixed release tags``
+                            "TestAccount"
+                            "ChangelogTagLinks"
+                            "0.1.0"
+                            "0.2.0"
+                    ]
+
+                    Console,
+                    testCase,
+                    "-n ChangelogTagLinks --githubUsername TestAccount --outputType Console",
+                    [
+                        Effect.``setup for release tests``
+                        Effect.``set environment variable`` "RELEASE_VERSION" "0.2.0"
+                        Effect.``change githubRelease function to only run release checks``
+                        Assert.``project can build target`` "Release"
+                        Assert.``CHANGELOG links compare v-prefixed release tags``
+                            "TestAccount"
+                            "ChangelogTagLinks"
+                            "0.1.0"
+                            "0.2.0"
+                    ]
+
                  ]
                  |> List.mapFold
                      (fun libraryIndex (host, testCase, args, additionalAsserts) ->

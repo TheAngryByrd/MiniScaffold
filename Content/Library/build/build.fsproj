@@ -24,6 +24,5 @@
     <PackageReference Include="Fake.Api.GitHub" />
     <PackageReference Include="Fake.BuildServer.GitHubActions" />
     <PackageReference Include="MSBuild.StructuredLogger" />
-    <PackageReference Include="Argu" />
   </ItemGroup>
 </Project>

@@ -294,7 +294,7 @@ let updateChangelog changelogPath (changelog: Fake.Core.Changelog.Changelog) git
 
     File.write false changelogPath updatedLines
 
-    // If build fails after this point but before we commit changes, undo our modifications
+    // If the build fails before the release step deactivates RevertChangelog, undo our modifications
     Target.activateBuildFailure "RevertChangelog"
 
     newEntry

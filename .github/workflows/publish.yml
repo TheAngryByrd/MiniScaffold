@@ -43,7 +43,7 @@ jobs:
         with:
           global-json-file: global.json
           dotnet-version: |
-            6.x
+            8.x
       - name: NuGet login
         id: nuget_login
         uses: NuGet/login@v1

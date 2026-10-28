@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <Description>F# Template for creating and publishing libraries targeting .NET 6.0 or console
-            apps .NET 6.0</Description>
+        <Description>F# template for creating and publishing libraries and console applications</Description>
         <Authors>Jimmy Byrd</Authors>
         <PackageProjectUrl>https://github.com/TheAngryByrd/MiniScaffold</PackageProjectUrl>
         <RepositoryUrl>https://github.com/TheAngryByrd/MiniScaffold.git</RepositoryUrl>

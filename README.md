@@ -4,7 +4,7 @@
 
 This is an [F# Template](https://docs.microsoft.com/en-us/dotnet/core/tools/custom-templates) for:
 
-- creating and publishing [libraries](https://docs.microsoft.com/en-us/dotnet/standard/glossary#library) targeting .NET 8.0 `net8.0`
+- creating and publishing [libraries](https://docs.microsoft.com/en-us/dotnet/standard/glossary#library) targeting `net8.0`, `net9.0`, and `net10.0`
 - creating and publishing [applications](https://docs.microsoft.com/en-us/dotnet/core/tutorials/cli-create-console-app#hello-console-app) with the target framework from the application project
 
 ## Why use MiniScaffold
@@ -39,8 +39,8 @@ This takes away the ambiguity that developers face when creating an OSS project.
 - [Continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) via [GitHub Actions](https://github.com/features/actions)
 
 ### For [Libraries](Content/Library/README.md)
-- Builds for `net8.0` - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
-    - To build for `net8.0` [.NET 8.0 ](https://dotnet.microsoft.com/download) installed
+- Builds for `net8.0`, `net9.0`, and `net10.0` - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
+    - To build, install the [.NET SDK](https://dotnet.microsoft.com/download) that `global.json` specifies, and the .NET 8.0 runtime for the build project
 - [Sourcelink](https://github.com/dotnet/sourcelink) which enables a great source debugging experience for your users, by adding source control metadata to your built assets
 - [Documentation Generation](https://github.com/fsprojects/FSharp.Formatting) - Generates Documentation from markdown files, fsx files, and the [XML Documentation Comments](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/) from your library.
 - [Continuous deployment](https://en.wikipedia.org/wiki/Continuous_deployment) via [GitHub Actions](https://github.com/features/actions)
@@ -53,8 +53,8 @@ This takes away the ambiguity that developers face when creating an OSS project.
 ### For [Applications](Content/Console/README.md)
 - Basic argument parsing example via [Argu](https://fsprojects.github.io/Argu/)
 - Builds the target framework from the application project.
-- Uses `dotnet publish` to create framework-dependent applications for `win-x64`, `osx-x64`, and `linux-x64`.
-- Creates three ZIP archives in `dist/` with names of the form `<product>-<version>-<runtime>.zip`.
+- Uses `dotnet publish` to create framework-dependent applications for `win-x64`, `osx-x64`, `linux-x64`, `win-arm64`, `osx-arm64`, and `linux-arm64`.
+- Creates six ZIP archives in `dist/` with names of the form `<product>-<version>-<runtime>.zip`.
 - Places the executable and supporting files at each archive root.
 - Requires the corresponding .NET runtime on the destination computer.
 

@@ -8,7 +8,7 @@
 
 GitHub Actions |
 :---: |
-[![GitHub Actions](https://github.com/MyGithubUsername/MyLib.1/workflows/Build%20MyReleaseBranch/badge.svg)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3AMyReleaseBranch) |
+[![GitHub Actions](https://github.com/MyGithubUsername/MyLib.1/actions/workflows/build.yml/badge.svg?branch=MyReleaseBranch)](https://github.com/MyGithubUsername/MyLib.1/actions/workflows/build.yml?query=branch%3AMyReleaseBranch) |
 [![Build History](https://buildstats.info/github/chart/MyGithubUsername/MyLib.1)](https://github.com/MyGithubUsername/MyLib.1/actions?query=branch%3AMyReleaseBranch) |
 
 ## NuGet
@@ -46,7 +46,7 @@ The `.gitattributes` file is already configured to track binary files (images, d
 
 ### Environment Variables
 
-- `CONFIGURATION` will set the [configuration](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build?tabs=netcore2x#options) of the dotnet commands.  If not set, it will default to Release.
+- `CONFIGURATION` will set the [configuration](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build?tabs=netcore2x#options) of the dotnet commands.  If not set, it defaults to Debug, or to Release when the build runs a release target.
   - `CONFIGURATION=Debug ./build.sh` will result in `-c` additions to commands such as in `dotnet build -c Debug`
 - `ENABLE_COVERAGE` Will enable running code coverage metrics.  AltCover can have [severe performance degradation](https://github.com/SteveGilham/altcover/issues/57) so code coverage evaluation are disabled by default to speed up the feedback loop.
   - `ENABLE_COVERAGE=1 ./build.sh` will enable code coverage evaluation
@@ -99,7 +99,6 @@ src/MyLib.1/bin/
 - `Clean` - Cleans artifact and temp directories.
 - `DotnetRestore` - Runs [dotnet restore](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-restore?tabs=netcore2x) on the [solution file](https://devblogs.microsoft.com/dotnet/introducing-slnx-support-dotnet-cli/).
 - [`DotnetBuild`](#Building) - Runs [dotnet build](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build?tabs=netcore2x) on the [solution file](https://devblogs.microsoft.com/dotnet/introducing-slnx-support-dotnet-cli/).
-- `FSharpAnalyzers` - Runs [BinaryDefense.FSharp.Analyzers](https://github.com/BinaryDefense/BinaryDefense.FSharp.Analyzers).
 - `DotnetTest` - Runs [dotnet test](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test?tabs=netcore21) on the [solution file](https://devblogs.microsoft.com/dotnet/introducing-slnx-support-dotnet-cli/).
 - `GenerateCoverageReport` - Code coverage is run during `DotnetTest` and this generates a report via [ReportGenerator](https://github.com/danielpalme/ReportGenerator).
 - `ShowCoverageReport` - Shows the report generated in `GenerateCoverageReport`.

@@ -14,3 +14,4 @@ index: 1
 - [Build and preview the documentation locally](./build-and-preview-docs.md)
 - [Use a custom release branch](./use-a-custom-release-branch.md)
 - [Release a NuGet package](./release-a-nuget-package.md)
+- [Move release notes to a changelog](./move-release-notes-to-a-changelog.md)

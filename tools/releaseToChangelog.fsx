@@ -1,128 +1,125 @@
-#r "paket:
-nuget Fake.IO.FileSystem
-nuget Fake.Core.ReleaseNotes
-nuget Fake.Core.Target //"
-#load "./.fake/releaseToChangelog.fsx/intellisense.fsx"
+#r "nuget: Fake.Core.ReleaseNotes, 6.2.0"
 
 open System
-open Fake.Core
-open Fake.IO
+open System.IO
 open System.Text.RegularExpressions
+open Fake.Core
 
-let allReleaseNotes =
-    System.IO.File.ReadLines "RELEASE_NOTES.md"
-    |> ReleaseNotes.parseAll
+let usage =
+    sprintf
+        "Usage: dotnet fsi %s <github-owner> <github-repository> <release-notes-path>"
+        fsi.CommandLineArgs[0]
 
-let notesTitleRegexp = Regex("[a-zA-Z]+?:", RegexOptions.Multiline)
+let fail (message: string) =
+    eprintfn "%s" message
+    exit 1
 
-// Use this to figure out what your categories are
-// Assumes `TITLE: Some notes`
-let discoverTitleGroups (releaseNotes: list<ReleaseNotes.ReleaseNotes>) =
-    let titles =
-        releaseNotes
-        |> Seq.collect (fun rn -> rn.Notes)
-        |> Seq.map (fun n -> (notesTitleRegexp.Match n).Value)
-        |> Seq.distinct
+let owner, repository, releaseNotesPath =
+    match
+        fsi.CommandLineArgs
+        |> Array.tail
+    with
+    | [| owner; repository; path |] -> owner, repository, Path.GetFullPath path
+    | _ -> fail usage
 
-    titles
-    |> Seq.iter (printfn "%A")
+if not (File.Exists releaseNotesPath) then
+    fail (sprintf "Release notes file not found: %s\n%s" releaseNotesPath usage)
 
-let convertTileToCategory title note =
-    let newTitle =
-        // https://github.com/fsharp/FAKE/blob/master/src/app/Fake.Core.ReleaseNotes/Changelog.fs#L82
-        match title with
-        | "FEATURE:" -> "added"
-        | "BUGFIX:" -> "fixed"
-        | "MINOR:"
-        | "MAINTENANCE:" -> "changed"
-        | s -> s
+let changelogPath =
+    Path.Combine(Path.GetDirectoryName releaseNotesPath, "CHANGELOG.md")
 
-    Changelog.Change.New(newTitle, note)
+if File.Exists changelogPath then
+    fail (sprintf "%s already exists. Move or delete it, then run the script again." changelogPath)
 
-let notesToChanges (releaseNote: ReleaseNotes.ReleaseNotes) =
-    releaseNote.Notes
-    |> Seq.map (fun n ->
-        let title = (notesTitleRegexp.Match n).Value
+let gitHubRepoUrl = sprintf "https://github.com/%s/%s" owner repository
 
-        let remainingNote =
-            n.Substring(title.Length).Trim()
-            |> sprintf "-  %s"
+let tagFromVersion (version: SemVerInfo) = sprintf "v%s" version.AsString
 
-        convertTileToCategory title remainingNote
+let dashBullet = Regex(@"^-\s+")
+
+let titledNote = Regex(@"^(?<title>[A-Za-z]+):\s+(?<text>.*)$")
+
+let changeText text : Changelog.ChangeText = {
+    CleanedText = text
+    OriginalText = None
+}
+
+let toChange (note: string) =
+    let note = dashBullet.Replace(note, "")
+    let titled = titledNote.Match note
+
+    if titled.Success then
+        let text = changeText titled.Groups["text"].Value
+
+        match titled.Groups["title"].Value with
+        | "FEATURE" -> Changelog.Change.Added text
+        | "BUGFIX" -> Changelog.Change.Fixed text
+        | "MINOR"
+        | "MAINTENANCE" -> Changelog.Change.Changed text
+        | title -> Changelog.Change.Custom(title, text)
+    else
+        Changelog.Change.Changed(changeText note)
+
+let toEntry (releaseNotes: ReleaseNotes.ReleaseNotes) =
+    Changelog.ChangelogEntry.New(
+        releaseNotes.AssemblyVersion,
+        releaseNotes.NugetVersion,
+        releaseNotes.Date,
+        None,
+        List.map toChange releaseNotes.Notes,
+        false
     )
-    |> Seq.toList
 
-let longstr (s: string) =
-    System.Text.RegularExpressions.Regex.Replace(s, "\s+", " ")
+let reference version (url: string) : Changelog.Reference = { SemVer = version; RepoUrl = Uri url }
 
-let changeLogDescription =
-    """
-All notable changes to this project will be documented in this file.
+let noVersions = sprintf "No versions found in %s" releaseNotesPath
+
+let releaseNotesLines = File.ReadAllLines releaseNotesPath
+
+let parsedReleaseNotes =
+    try
+        ReleaseNotes.parseAll releaseNotesLines
+    with ex ->
+        fail (sprintf "%s: %s" noVersions ex.Message)
+
+let entries = List.map toEntry parsedReleaseNotes
+
+let latest, oldest =
+    match entries with
+    | [] -> fail noVersions
+    | latest :: _ -> latest, List.last entries
+
+let linkReferences = [
+    reference
+        Changelog.UnreleasedRef
+        (sprintf "%s/compare/%s...HEAD" gitHubRepoUrl (tagFromVersion latest.SemVer))
+    for newer, older in List.pairwise entries do
+        reference
+            (Changelog.SemVerRef newer.SemVer)
+            (sprintf
+                "%s/compare/%s...%s"
+                gitHubRepoUrl
+                (tagFromVersion older.SemVer)
+                (tagFromVersion newer.SemVer))
+    reference
+        (Changelog.SemVerRef oldest.SemVer)
+        (sprintf "%s/releases/tag/%s" gitHubRepoUrl (tagFromVersion oldest.SemVer))
+]
+
+let description =
+    """All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-        """
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)."""
 
-let gitOwner = "TheAngryByrd"
-let gitRepoName = "MiniScaffold"
-let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
+// An empty description makes FAKE render the Unreleased heading, which the release target fills.
+Changelog.Changelog.New(
+    "Changelog",
+    Some description,
+    Changelog.Unreleased.New(Some "", []),
+    entries,
+    linkReferences
+)
+|> Changelog.save changelogPath
 
-// let tagFromVersionNumber versionNumber = sprintf "v%s" versionNumber
-
-let createLinkReferences (entries: Changelog.ChangelogEntry list) =
-    let init = []
-
-    let rec step state (entries: Changelog.ChangelogEntry list) =
-        match entries with
-        | x :: y :: tail ->
-            let link =
-                sprintf "%s/compare/%s...%s" gitHubRepoUrl (y.SemVer.AsString) (x.SemVer.AsString)
-
-            let reference = sprintf "[%s]: %s" x.SemVer.AsString link
-            // printfn "%A -> %A" x.NuGetVersion y.NuGetVersion
-            step
-                (reference
-                 :: state)
-                (y :: tail)
-        | [ x ] ->
-            let link = sprintf "%s/releases/tag/%s" gitHubRepoUrl (x.SemVer.AsString)
-            let reference = sprintf "[%s]: %s" x.SemVer.AsString link
-            // printfn "%A" x.NuGetVersion
-            reference
-            :: state
-        | [] -> state
-
-    step init entries
-    |> List.rev
-
-let changelogFilename = "CHANGELOG.md"
-
-let convert _ =
-    // discoverTitleGroups allReleaseNotes
-    let changeLogEntries =
-        allReleaseNotes
-        |> List.map (fun rn ->
-            let changes = notesToChanges rn
-
-            Changelog.ChangelogEntry.New(
-                rn.AssemblyVersion,
-                rn.NugetVersion,
-                rn.Date,
-                None,
-                changes,
-                false
-            )
-        )
-
-    let links =
-        [ Environment.NewLine ]
-        @ createLinkReferences changeLogEntries
-    // links |> Seq.iter(printfn "%A")
-    Changelog.Changelog.New("Changelog", Some changeLogDescription, None, changeLogEntries)
-    |> Changelog.save changelogFilename
-
-    File.write true changelogFilename links
-
-Target.create "Convert" convert
-
-Target.runOrDefaultWithArguments "Convert"
+printfn "Wrote %s" changelogPath
