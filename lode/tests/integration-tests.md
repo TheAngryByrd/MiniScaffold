@@ -69,6 +69,54 @@ Before the run, it removes `MSBuildSDKsPath` and `MSBuildExtensionsPath` and set
 - The patches match text such as `let dotnetRestore` in `Content/*/build/build.fs`. A rename of those functions breaks the tests.
 - Template installation runs while the `samples` list is built. Other test modules force it through `Tests.tests |> ignore`.
 - Most lists use `testSequenced`. CI runs with `Expecto.fail-on-focused-tests=true`, so a focused test fails CI.
+- Tests that start `dotnet fsi` on a script with `#r "nuget:"` must not run in parallel. Put them in a `testSequenced` list. See [Script package cache](#script-package-cache).
+
+## Script package cache
+
+`dotnet fsi` keeps the package resolution of each `#r "nuget:"` set in `~/.packagemanagement/nuget/Cache/<hash>.resolvedReferences.paths` and `<hash>.fsx`.
+The hash covers the script extension, the package lines, the target framework, and the runtime identifier.
+On a cache miss, a process restores the packages, writes `<hash>.fsx`, and overwrites the `.paths` file with `File.Copy(..., true)`. On a cache hit, a process only reads them.
+A failed read of the `.paths` file gives an empty resolution with no error, and the cache hit then has zero references.
+
+When parallel processes start on a cold cache, they fail in one of two ways:
+
+- A process with a cache miss cannot overwrite the file while another process reads or writes it:
+
+  ```text
+  tools/releaseToChangelog.fsx(1,1): error FS0999: The process cannot access the file '/home/runner/.packagemanagement/nuget/Cache/<hash>.resolvedReferences.paths' because it is being used by another process.
+  ```
+
+- A process that reads the file during a write gets no references or only part of them. The first `open` of a package namespace fails:
+
+  ```text
+  tools/releaseToChangelog.fsx(6,6): error FS0039: The namespace or module 'Fake' is not defined.
+  ```
+
+```mermaid
+sequenceDiagram
+    participant A as dotnet fsi A, cache miss
+    participant B as dotnet fsi B
+    participant C as Cache/hash.resolvedReferences.paths
+    A->>C: File.Copy(overwrite)
+    alt B also had a cache miss
+        B->>C: File.Copy(overwrite)
+        C-->>B: FS0999, file in use
+    else B reads the file
+        B->>C: ReadAllText fails or reads part
+        B-->>B: FS0039, namespace not defined
+    end
+```
+
+The `release notes to changelog` list in `ReleaseToChangelogTests.fs` runs `tools/releaseToChangelog.fsx` in five tests, so it uses `testSequenced`.
+The release policy probes run `dotnet fsi` with `#r @"<path>.dll"` references only. They do not use the package cache.
+
+`testSequenced` orders the tests of one test process only. The cache is per user, so two test runs on one machine can still race on a cold cache.
+A process that stops during `File.Copy` can leave an empty or partial `.paths` file. Each later run then fails with FS0039, or with `Internal error - Invalid resolutions file format` when the file ends in the middle of a line.
+To recover, delete the cache directory. `dotnet fsi` fills it again on the next run:
+
+```bash
+rm -rf ~/.packagemanagement/nuget/Cache
+```
 
 ## Related
 

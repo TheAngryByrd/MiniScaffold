@@ -16,6 +16,7 @@
 - partition - a named subset of the integration tests, selected with `MINISCAFFOLD_TEST_PARTITION`.
 - partition evidence - the bundle under `TestResults/partitions/<token>/` with `manifest.json`.
 - gate job - the `build` job in `build.yml` that runs `TestPartitions.ps1 -Mode Verify`.
+- script package cache - `~/.packagemanagement/nuget/Cache`, where `dotnet fsi` keeps the resolved references of each `#r "nuget:"` set.
 - drain timeout - the time `ProcessCapture` waits for output streams to close after the direct child exits.
 - format on build - the `Format` MSBuild target that runs Fantomas on each `.fsproj` build.
 - `ready-for-agent` - the GitHub issue label for work that an agent can implement.
