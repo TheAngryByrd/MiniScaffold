@@ -39,10 +39,11 @@ read lode/lode-map.md, lode/terminology.md, lode/summary.md
 - [build/documentation-site.md](build/documentation-site.md)
 - [build/release-notes-script.md](build/release-notes-script.md)
 
-## ci/ (`.github/`)
+## ci/ (`.github/`, `.devcontainer/`)
 
 - [ci/summary.md](ci/summary.md)
 - [ci/workflows.md](ci/workflows.md)
+- [ci/action-versions.md](ci/action-versions.md)
 
 ## tests/ (`tests/`, `build/TestPartitions*.ps1`)
 
@@ -63,4 +64,4 @@ read lode/lode-map.md, lode/terminology.md, lode/summary.md
 - [CHANGELOG.md](../CHANGELOG.md) - release history and version source.
 - [docsSrc/](../docsSrc/index.md) - human documentation (Divio).
 - ADR folder - none exists yet.
-- Out of scope: `.vscode/`, `.devcontainer/`, `.config/` (see [build/msbuild-infrastructure.md](build/msbuild-infrastructure.md)), `CODE_OF_CONDUCT.md`, `LICENSE.md`, `.editorconfig`, `.gitattributes`, `.git-blame-ignore-revs`.
+- Out of scope: `.vscode/`, `.config/` (see [build/msbuild-infrastructure.md](build/msbuild-infrastructure.md)), `CODE_OF_CONDUCT.md`, `LICENSE.md`, `.editorconfig`, `.gitattributes`, `.git-blame-ignore-revs`.
