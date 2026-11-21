@@ -48,6 +48,18 @@ A move to MTP must handle these differences:
 `build/TestPartitions.ps1` parses the VSTest discovery output and passes inline Expecto settings.
 `tests/MiniScaffold.Tests/Main.fs` has a worker mode for the process capture tests, so that project needs a custom MTP entry point.
 
+## Options for MTP
+
+The evidence comment https://github.com/TheAngryByrd/MiniScaffold/issues/356#issuecomment-7056883306 compares four options.
+The chosen option is 1.
+
+1. Keep VSTest until AltCover supports MTP (AltCover issue #270). This is the current state.
+2. Move only `tests/MiniScaffold.Tests` to MTP. The root tests do not use coverage, but the partition scripts need a rewrite, and the root and the template then use different platforms.
+3. Replace AltCover in the template with `Microsoft.Testing.Extensions.CodeCoverage`. That package has a Microsoft license file with `requireLicenseAcceptance=true` and no coverage threshold. The maintainer decides on a license change of a template dependency.
+4. Run AltCover in its offline mode: build, instrument in place, run the MTP executable, then collect. Each generated `build.fs` gets these steps for each TFM.
+
+Resume the MTP move when an AltCover release collects coverage under `dotnet test` in MTP mode, or when the maintainer selects option 3.
+
 ## Invariants
 
 - Keep `Microsoft.NET.Test.Sdk` in each test project while the tests run on VSTest.
