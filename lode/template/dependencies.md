@@ -58,7 +58,7 @@ The library sets locked mode only on CI:
 - Without a lock file, a locked-mode restore writes the lock file and succeeds. NuGet behaves this way on SDK `11.0.100`. The NuGet documentation does not state it.
 - With `CI=true`, a restore fails with `NU1004` when a lock file does not match the project dependencies. MSBuild compares the value without case, so `True` also locks.
 - With another `CI` value (`false`, `1`) or no `CI`, a restore updates the lock file. A developer commits the updated lock file with the version change.
-- The condition is the same as the CI condition of the NuGet audit rule in `Directory.Build.props`. The generated workflows set `CI: true`. The generated devcontainer job does not set `CI`, so it restores without locked mode.
+- The condition is the same as the CI condition of the NuGet audit rule in `Directory.Build.props`. The generated `build.yml` sets `CI: true` for its build steps, and GitHub Actions sets `CI=true` on each runner. The generated devcontainer job does not set `CI`, so it restores without locked mode.
 - The console output and the root set `RestorePackagesWithLockFile` without `RestoreLockedMode`.
 - `AuditPolicyTests.fs` restores generated projects with `--force` and `-p:RestoreLockedMode=false`.
 - The contract test "library restore creates lock files and locks them only in CI" checks these rules. See [../tests/integration-tests.md](../tests/integration-tests.md).
