@@ -179,27 +179,47 @@ module Assert =
         let trxNamespace =
             XNamespace.Get "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"
 
+        let requiredAttribute trx name (element: XElement) =
+            match element.Attribute(XName.Get name) with
+            | null -> failtestf "%s has a %s without a %s attribute" trx element.Name.LocalName name
+            | attribute -> attribute.Value
+
+        let passedFrameworks trx =
+            let document = XDocument.Load(trx: string)
+
+            let frameworkByTest =
+                document.Descendants(
+                    trxNamespace
+                    + "UnitTest"
+                )
+                |> Seq.map (fun test ->
+                    requiredAttribute trx "id" test,
+                    Path.GetFileName(Path.GetDirectoryName(requiredAttribute trx "storage" test))
+                )
+                |> Map.ofSeq
+
+            document.Descendants(
+                trxNamespace
+                + "UnitTestResult"
+            )
+            |> Seq.filter (fun result -> requiredAttribute trx "outcome" result = "Passed")
+            |> Seq.map (fun result ->
+                let testId = requiredAttribute trx "testId" result
+
+                match Map.tryFind testId frameworkByTest with
+                | Some framework -> framework
+                | None -> failtestf "%s has a result for unknown test %s" trx testId
+            )
+
         let testedFrameworks =
             Directory.GetFiles(resultsDirectory, "*.trx")
-            |> Seq.collect (fun trx ->
-                XDocument
-                    .Load(trx)
-                    .Descendants(
-                        trxNamespace
-                        + "UnitTest"
-                    )
-                |> Seq.map (fun test ->
-                    match test.Attribute(XName.Get "storage") with
-                    | null -> failtestf "%s has a UnitTest without a storage attribute" trx
-                    | storage -> Path.GetFileName(Path.GetDirectoryName storage.Value)
-                )
-            )
+            |> Seq.collect passedFrameworks
             |> Set.ofSeq
 
         Expect.equal
             testedFrameworks
             (Set.ofList frameworks)
-            $"{resultsDirectory} should hold test results for each library target framework"
+            $"{resultsDirectory} should hold passed test results for each library target framework"
 
     let ``assembly info values are set after pack`` projectName (d: DirectoryInfo) =
         let mutable extractedDllDir: string option = None

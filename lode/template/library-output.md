@@ -69,10 +69,10 @@ flowchart LR
     Tests --> Trx["one TRX file for each framework"]
 ```
 
-- Change the TFM list only in this property, so CI tests each packed framework on its own runtime.
-- `ProjLib` keeps a literal `net10.0;net11.0`, because a console host does not define `LibraryTargetFrameworks`.
+- Change the TFM list of the generated library only in this property, so CI tests each packed framework on its own runtime.
+- `ProjLib` keeps a literal `net10.0;net11.0`, because a console host does not define `LibraryTargetFrameworks`. `ProjTest` targets `net10.0` only, so the `net11.0` assembly of a `projLib` project is packed but not tested. The contract test "library projects share their target frameworks" checks that the library and its tests read the property.
 - FSharp.Core stays at `10.0.102` in `Directory.Packages.props`. The package has one dependency group for each TFM, and each group has one FSharp.Core dependency at that version.
-- The SDK pin `11.0.100` is necessary to build `net11.0`. The build project stays on net10.0 (LTS).
+- `global.json` pins SDK `11.0.100`, because only an SDK 11 can build `net11.0`. `build/build.fsproj` targets net10.0 (LTS).
 
 ## Build settings
 

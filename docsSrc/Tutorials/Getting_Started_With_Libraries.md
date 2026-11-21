@@ -12,7 +12,8 @@ In this tutorial, we'll take a look at getting started with MiniScaffold and pub
 ## Prerequisites
 
 - Install [git](https://git-scm.com/download)
-- Install [.Net core](https://dotnet.microsoft.com/download)
+- Install the [.NET 11 SDK](https://dotnet.microsoft.com/download/dotnet/11.0)
+- Install the [.NET 10 runtime](https://dotnet.microsoft.com/download/dotnet/10.0) for the build project and the `net10.0` tests
 - Recommended IDE is [VSCode with Ionide](https://docs.microsoft.com/en-us/dotnet/fsharp/get-started/install-fsharp#install-f-with-visual-studio-code)
 - Create a [NuGet account](https://www.nuget.org/)
 - Create a [GitHub account](https://github.com/)
