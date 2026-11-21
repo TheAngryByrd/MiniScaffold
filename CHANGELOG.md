@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- [Update GitHub Actions and devcontainer features in the generated repositories](https://github.com/TheAngryByrd/MiniScaffold/issues/357) from @TheAngryByrd
+- [Update GitHub Actions and devcontainer features in the generated repositories](https://github.com/TheAngryByrd/MiniScaffold/pull/359) from @TheAngryByrd
 
 ## [0.40.0-beta001] - 2026-03-09
 
