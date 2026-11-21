@@ -172,6 +172,56 @@ module Assert =
         let filepath = Path.Combine(d.FullName, file)
         Expect.isFalse (File.Exists filepath) (sprintf "%s should not exist" filepath)
 
+    let ``docs have no unresolved substitutions`` (d: DirectoryInfo) =
+        let docs = Path.Combine(d.FullName, "docs")
+
+        // fsdocs leaves the edit link key unresolved on API pages (issue #366).
+        let isKnownGap (page: string) placeholder =
+            placeholder = "{{fsdocs-source-filename}}"
+            && page.StartsWith "reference/"
+
+        let pages =
+            Directory.EnumerateFiles(docs, "*.html", SearchOption.AllDirectories)
+            |> Seq.toList
+
+        Expect.isNonEmpty pages $"{docs} should contain the generated documentation pages"
+
+        let unresolved = [
+            for file in pages do
+                let page =
+                    Path.GetRelativePath(docs, file).Replace(Path.DirectorySeparatorChar, '/')
+
+                for placeholder in
+                    System.Text.RegularExpressions.Regex.Matches(
+                        File.ReadAllText file,
+                        @"\{\{[a-z0-9-]+\}\}"
+                    ) do
+                    if not (isKnownGap page placeholder.Value) then
+                        page, placeholder.Value
+        ]
+
+        Expect.isEmpty
+            unresolved
+            $"fsdocs should replace each template substitution: %A{unresolved}"
+
+    let ``docs use the fsdocs search contract`` (d: DirectoryInfo) =
+        let index = File.ReadAllText(Path.Combine(d.FullName, "docs", "index.html"))
+
+        for required in
+            [
+                "data-root=\""
+                "id=\"search-btn\""
+                "<dialog"
+            ] do
+            Expect.stringContains index required "fsdocs-search.js needs this element in each page"
+
+        Expect.isTrue
+            (System.Text.RegularExpressions.Regex.IsMatch(
+                index,
+                """<script type="module" src="[^"]*content/fsdocs-search\.js["]"""
+            ))
+            "fsdocs-search.js is an ES module, so the page must load it with type=\"module\""
+
     let ``tests ran on each target framework`` testProjectName frameworks (d: DirectoryInfo) =
         let resultsDirectory =
             Path.Combine(d.FullName, "tests", testProjectName, "TestResults")

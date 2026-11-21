@@ -235,6 +235,7 @@ module DocsTool =
                     // https://fsprojects.github.io/FSharp.Formatting/content.html#Templates-and-Substitutions
                     "root", quoted documentationRootUrl
                     "fsdocs-collection-name", quoted productName
+                    "fsdocs-collection-name-link", quoted gitHubRepoUrl
                     "fsdocs-repository-branch", quoted releaseBranch
                     "fsdocs-package-version", quoted latestEntry.NuGetVersion
                     "fsdocs-readme-link", quoted (READMElink.ToString())

@@ -5,10 +5,10 @@ Each `Directory.Packages.props` uses central package management, so a `.fsproj` 
 
 ```mermaid
 flowchart LR
-    Props["Directory.Packages.props"] --> Restore["dotnet restore"]
+    Props["Directory.Packages.props"] --> Restore["dotnet restore of the solution"]
     Restore -->|no lock file| Create["write packages.lock.json"]
-    Restore -->|lock file, CI=true| Locked["locked mode: NU1004 on drift"]
-    Restore -->|lock file, no CI| Update["update packages.lock.json"]
+    Restore -->|library, lock file, CI=true| Locked["locked mode: NU1004 on drift"]
+    Restore -->|lock file, other cases| Update["update packages.lock.json"]
     Tools[".config/dotnet-tools.json"] --> ToolRestore["dotnet tool restore"]
 ```
 
@@ -30,7 +30,8 @@ flowchart LR
 
 - The content FSharp.Core stays at `10.0.102`. It is the FSharp.Core dependency of each packed generated library, so consumers do not need a newer FSharp.Core. The highest FSharp.Core floor of a package in the table is `8.0.400` (FAKE).
 - The root projects set `DisableImplicitFSharpCoreReference` and do not pin transitive versions. `build/build.fsproj` and `tests/MiniScaffold.Tests` reference FSharp.Core directly, so the root `11.0.101` entry applies. Without the direct reference, FAKE brings FSharp.Core `8.0.400`.
-- The library `Directory.Packages.props` sets `CentralPackageTransitivePinningEnabled`. The console file does not.
+- The library `Directory.Packages.props` sets `CentralPackageTransitivePinningEnabled`, so each library project, `build/build.fsproj` included, resolves FSharp.Core `10.0.102`.
+- The console file does not pin transitive versions. The console `build/build.fsproj` has no FSharp.Core reference, so FAKE brings FSharp.Core `8.0.400` there.
 
 ## Tool versions
 
@@ -45,7 +46,7 @@ The root tool restore and the format on build are in [../build/msbuild-infrastru
 
 ## Lock files
 
-Each `Directory.Packages.props` sets `RestorePackagesWithLockFile`. The template package ships no `packages.lock.json` (`MiniScaffold.csproj` excludes them), so the first restore of a generated repository writes one for `src`, `tests`, and `build`.
+Each `Directory.Packages.props` sets `RestorePackagesWithLockFile`. The template package ships no `packages.lock.json` (`MiniScaffold.csproj` excludes them), so the first solution restore of a generated repository writes one for `src`, `tests`, and `build`. A restore of one project writes only the lock file of that project.
 
 The library sets locked mode only on CI:
 
@@ -55,8 +56,9 @@ The library sets locked mode only on CI:
 ```
 
 - Without a lock file, a locked-mode restore writes the lock file and succeeds. NuGet behaves this way on SDK `11.0.100`. The NuGet documentation does not state it.
-- With `CI=true`, a restore fails with `NU1004` when a lock file does not match the project dependencies.
-- Without `CI`, a restore updates the lock file. A developer commits the updated lock file with the version change.
+- With `CI=true`, a restore fails with `NU1004` when a lock file does not match the project dependencies. MSBuild compares the value without case, so `True` also locks.
+- With another `CI` value (`false`, `1`) or no `CI`, a restore updates the lock file. A developer commits the updated lock file with the version change.
+- The condition is the same as the CI condition of the NuGet audit rule in `Directory.Build.props`. The generated workflows set `CI: true`. The generated devcontainer job does not set `CI`, so it restores without locked mode.
 - The console output and the root set `RestorePackagesWithLockFile` without `RestoreLockedMode`.
 - `AuditPolicyTests.fs` restores generated projects with `--force` and `-p:RestoreLockedMode=false`.
 - The contract test "library restore creates lock files and locks them only in CI" checks these rules. See [../tests/integration-tests.md](../tests/integration-tests.md).
@@ -71,12 +73,15 @@ A Release pack writes the SourceLink JSON into each PDB, and the nuspec `reposit
 
 AltCover 9 writes one `$(TEMP)/tmp*.altcover.runsettings` file for each test run and deletes only that file (`AltCoverDeleteTempRunSettingsFile` in `build/AltCover.proj` of the package).
 The test runs of the two library TFMs can run in parallel with coverage, so `tests/Directory.Build.props` does not change `TestTfmsInParallel`.
+Since AltCover 9, the default is deferred recording at unload or exit time, and one visit for each context (`--all` and `--eager` restore the old counts). Coverage percentages do not change, but visit counts can be lower than AltCover 8 counts.
+No test in the suite runs coverage with parallel TFMs. Generated repositories run it in their `build.yml` with `ENABLE_COVERAGE: true`.
 
 ## Analyzers
 
-FSharp.Analyzers.Build runs the `fsharp-analyzers` tool after each `src` build (see [library-output.md](library-output.md)).
+FSharp.Analyzers.Build runs the `fsharp-analyzers` tool after each `src` build that compiles (see [library-output.md](library-output.md)). It passes the compiler arguments in `obj/<configuration>/<tfm>/fsc-analyzers.rsp` with `--fsc-args-file`. When `CoreCompile` skips, the analyzers do not run unless `FSharpAnalyzersAlwaysRunAfterBuild` is `true`.
 The tool loads the Ionide and G-Research analyzers (27 analyzers from 2 assemblies).
-The template code gets one hint, `IONIDE-012` ("Consider adding [<Struct>] to Discriminated Union"). A hint does not fail the build.
+The library and console code gets one hint, `IONIDE-012` ("Consider adding [<Struct>] to Discriminated Union"). A hint does not fail the build.
+`Content/ProjConsole/Program.fs` calls `System.Console.WriteLine`, because `printfn` with no format specifier gets `IONIDE-014`.
 
 ## Related
 

@@ -490,6 +490,7 @@ if (actual != expected)
                     "restore"
                     "LockLib.slnx"
                     "-nologo"
+                    "-p:NuGetAudit=false"
                 ] do
                 startInfo.ArgumentList.Add argument
 
@@ -503,87 +504,108 @@ if (actual != expected)
                 startInfo.Environment.Remove name
                 |> ignore
 
-            if ci then
-                startInfo.Environment["CI"] <- "true"
+            ci
+            |> Option.iter (fun value -> startInfo.Environment["CI"] <- value)
 
             startInfo.Environment["MSBUILDDISABLENODEREUSE"] <- "1"
             ProcessCapture.run (TimeSpan.FromSeconds 30.) startInfo
 
-        let describe (result: ProcessCapture.ProcessOutput) =
-            sprintf "stdout:\n%s\nstderr:\n%s" result.StandardOutput result.StandardError
+        let describe ci (result: ProcessCapture.ProcessOutput) =
+            sprintf
+                "CI=%A
+stdout:
+%s
+stderr:
+%s"
+                ci
+                result.StandardOutput
+                result.StandardError
+
+        let expectRestore ci message =
+            let result = restore ci
+
+            Expect.equal
+                result.ExitCode
+                0
+                $"{message}
+{describe ci result}"
+
+        let expectStale ci =
+            let result = restore ci
+
+            Expect.notEqual
+                result.ExitCode
+                0
+                $"A locked restore must reject stale lock files.
+{describe ci result}"
+
+            Expect.stringContains
+                result.StandardOutput
+                "NU1004"
+                $"A locked restore must report the stale lock file.
+{describe ci result}"
+
+        let packagesProps = IO.Path.Combine(projectDirectory, "Directory.Packages.props")
+
+        let updateExpectoVersion (update: string -> string) =
+            let document = XDocument.Load packagesProps
+
+            let expecto =
+                document.Descendants(XName.Get "PackageVersion")
+                |> Seq.filter (fun element ->
+                    element.Attribute(XName.Get "Include").Value = "Expecto"
+                )
+                |> Seq.exactlyOne
+
+            let previous = expecto.Attribute(XName.Get "Version").Value
+            expecto.SetAttributeValue(XName.Get "Version", update previous)
+            document.Save packagesProps
+            previous
+
+        let requestedExpecto () =
+            use lock = JsonDocument.Parse(IO.File.ReadAllText(lockFile "tests/LockLib.Tests"))
+
+            [
+                for framework in lock.RootElement.GetProperty("dependencies").EnumerateObject() do
+                    framework.Value.GetProperty("Expecto").GetProperty("requested").GetString()
+            ]
+
+        let expectRequested range message =
+            let requested = requestedExpecto ()
+            Expect.isNonEmpty requested "The test lock file must list each target framework"
+            Expect.allEqual requested range message
 
         for file in lockFiles do
             Expect.isFalse (IO.File.Exists file) $"The template must not ship {file}"
 
-        let first = restore true
-
-        Expect.equal
-            first.ExitCode
-            0
-            $"The first CI restore must create the lock files.\n{describe first}"
+        expectRestore (Some "true") "The first CI restore must create the lock files."
 
         for file in lockFiles do
             Expect.isTrue (IO.File.Exists file) $"The first restore must create {file}"
 
-        let unchanged = restore true
+        expectRestore (Some "true") "A CI restore must accept current lock files."
 
-        Expect.equal
-            unchanged.ExitCode
-            0
-            $"A CI restore must accept current lock files.\n{describe unchanged}"
+        let version = updateExpectoVersion (fun version -> $"[{version}]")
+        expectStale (Some "true")
+        expectRestore (Some "false") "A restore with CI=false must update stale lock files."
 
-        let packagesProps = IO.Path.Combine(projectDirectory, "Directory.Packages.props")
+        expectRequested
+            $"[{version}, {version}]"
+            "A restore with CI=false must write the changed dependency to the lock file"
 
-        let expecto =
-            Text.RegularExpressions.Regex.Match(
-                IO.File.ReadAllText packagesProps,
-                "<PackageVersion Include=\"Expecto\" Version=\"([^\"]+)\" />"
-            )
+        expectRestore (Some "true") "A CI restore must accept updated lock files."
 
-        Expect.isTrue expecto.Success "Directory.Packages.props must pin Expecto"
-        let version = expecto.Groups[1].Value
-        let exactRange = $"[{version}]"
+        updateExpectoVersion (fun _ -> version)
+        |> ignore
 
-        IO.File.WriteAllText(
-            packagesProps,
-            IO.File
-                .ReadAllText(packagesProps)
-                .Replace(
-                    expecto.Value,
-                    $"<PackageVersion Include=\"Expecto\" Version=\"{exactRange}\" />"
-                )
-        )
+        expectStale (Some "true")
+        expectRestore None "A restore without CI must update stale lock files."
 
-        let ciChanged = restore true
+        expectRequested
+            $"[{version}, )"
+            "A restore without CI must write the changed dependency to the lock file"
 
-        Expect.notEqual
-            ciChanged.ExitCode
-            0
-            $"A CI restore must reject stale lock files.\n{describe ciChanged}"
-
-        Expect.stringContains
-            ciChanged.StandardOutput
-            "NU1004"
-            $"A CI restore must report the stale lock file.\n{describe ciChanged}"
-
-        let localChanged = restore false
-
-        Expect.equal
-            localChanged.ExitCode
-            0
-            $"A local restore must update stale lock files.\n{describe localChanged}"
-
-        Expect.stringContains
-            (IO.File.ReadAllText(lockFile "tests/LockLib.Tests"))
-            $"\"requested\": \"[{version}, {version}]\""
-            "A local restore must write the changed dependency to the lock file"
-
-        let ciUpdated = restore true
-
-        Expect.equal
-            ciUpdated.ExitCode
-            0
-            $"A CI restore must accept updated lock files.\n{describe ciUpdated}"
+        expectRestore (Some "true") "A CI restore must accept updated lock files."
 
     let private consoleCommandsPreserveOptionalMetadata _ =
         use generated = Disposables.DisposableDirectory.Create()
@@ -1882,6 +1904,8 @@ if (actual != expected)
                         ]
                         Assert.``assembly info values are set after pack`` "MyCoolLib"
                         Assert.``project can build target`` "BuildDocs"
+                        Assert.``docs have no unresolved substitutions``
+                        Assert.``docs use the fsdocs search contract``
                     ]
 
 

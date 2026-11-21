@@ -197,6 +197,44 @@ module AuditPolicyTests =
 
         config.Save path
 
+    let private addTransitiveDependency (solution: string) (project: string) =
+        let packageId = "Argu"
+
+        let version =
+            XDocument
+                .Load(Path.Combine(repository, "Content/Console/Directory.Packages.props"))
+                .Descendants(XName.Get "PackageVersion")
+            |> Seq.tryFind (fun element -> element.Attribute(XName.Get "Include").Value = packageId)
+            |> Option.map (fun element -> element.Attribute(XName.Get "Version").Value)
+            |> Option.defaultWith (fun () ->
+                failtestf "Content/Console/Directory.Packages.props has no %s version" packageId
+            )
+
+        let addItem (path: string) (name: string) (attributes: (string * string) list) =
+            let document = XDocument.Load path
+
+            document.Root.Add(
+                XElement(
+                    XName.Get "ItemGroup",
+                    XElement(
+                        XName.Get name,
+                        [|
+                            for key, value in attributes do
+                                XAttribute(XName.Get key, value)
+                        |]
+                    )
+                )
+            )
+
+            document.Save path
+
+        addItem (Path.Combine(solution, "Directory.Packages.props")) "PackageVersion" [
+            "Include", packageId
+            "Version", version
+        ]
+
+        addItem project "PackageReference" [ "Include", packageId ]
+
     let private generateProject (directory: Disposables.DisposableDirectory) scenario =
         Tests.copyGlobalJson directory.DirectoryInfo
 
@@ -234,9 +272,17 @@ module AuditPolicyTests =
                 | Build -> "build/build.fsproj"
                 | Test -> "tests/AuditFixture.Tests/AuditFixture.Tests.fsproj"
 
+            let project = Path.Combine(solution, relativePath)
+
+            if
+                scenario.Host = Library
+                && scenario.Role = Source
+            then
+                addTransitiveDependency solution project
+
             {
                 Directory = solution
-                ProjectFile = Path.Combine(solution, relativePath)
+                ProjectFile = project
             }
 
     let private properties directory project ci framework =
