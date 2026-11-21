@@ -17,14 +17,13 @@
 
     <!-- Main -->
     <PackageVersion Include="FSharp.Core" Version="10.0.102" />
-    <PackageVersion Include="Argu" Version="6.0" />
+    <PackageVersion Include="Argu" Version="6.2.5" />
 
     <!-- Tests -->
-    <PackageVersion Include="Expecto" Version="10.2.2" />
-    <PackageVersion Include="YoloDev.Expecto.TestSdk" Version="0.15.3" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.1.0" PrivateAssets="All" />
-    <PackageVersion Include="altcover" Version="8.2.825" />
+    <PackageVersion Include="Expecto" Version="11.1.1" />
+    <PackageVersion Include="YoloDev.Expecto.TestSdk" Version="0.16.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
+    <PackageVersion Include="altcover" Version="9.0.189" />
 
     <!-- Build -->
     <PackageVersion Include="Fake.IO.FileSystem" Version="$(FakeVersion)" />
@@ -36,13 +35,13 @@
     <PackageVersion Include="Fake.Tools.Git" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.Api.GitHub" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.BuildServer.GitHubActions" Version="$(FakeVersion)" />
-    <PackageVersion Include="MSBuild.StructuredLogger" Version="2.2.441" />
+    <PackageVersion Include="MSBuild.StructuredLogger" Version="2.3.269" />
     <PackageVersion Include="SharpZipLib" Version="1.4.2" />
 
     <!-- Analyzers -->
-    <PackageVersion Include="FSharp.Analyzers.Build" Version="0.4.0" />
-    <PackageVersion Include="Ionide.Analyzers" Version="0.14.9" />
-    <PackageVersion Include="G-Research.FSharp.Analyzers" Version="0.19.0" />
+    <PackageVersion Include="FSharp.Analyzers.Build" Version="0.5.0" />
+    <PackageVersion Include="Ionide.Analyzers" Version="0.22.0" />
+    <PackageVersion Include="G-Research.FSharp.Analyzers" Version="0.28.0" />
 
   </ItemGroup>
 </Project>

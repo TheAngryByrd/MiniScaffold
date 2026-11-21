@@ -3,13 +3,13 @@
   "isRoot": true,
   "tools": {
     "dotnet-reportgenerator-globaltool": {
-      "version": "5.1.18",
+      "version": "5.6.1",
       "commands": [
         "reportgenerator"
       ]
     },
     "fsharp-analyzers": {
-      "version": "0.33.1",
+      "version": "0.43.0",
       "commands": [
         "fsharp-analyzers"
       ]

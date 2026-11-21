@@ -80,9 +80,9 @@ flowchart LR
 - `src/Directory.Build.props` enables `TreatWarningsAsErrors` and `Nullable`, and adds the Ionide and G-Research analyzers with `GeneratePathProperty="true"`.
 - FSharp.Analyzers.Build runs the analyzers after each build with the `$(PkgIonide_Analyzers)` and `$(PkgG-Research_FSharp_Analyzers)` paths (`src/Directory.Build.targets`). Analyzer findings do not fail the build.
 - `GenerateCoverageReport` writes the HTML report to `docs/coverage`. `Content/Library/docsSrc/index.md` has no link to it ([issue #226](https://github.com/TheAngryByrd/MiniScaffold/issues/226)).
-- With `AltCover=true`, `tests/Directory.Build.props` sets `TestTfmsInParallel=false`. AltCover 8 deletes every `$(TEMP)/*.altcover.runsettings` after each test run, so a parallel run of the other TFM can lose its open settings file (`MSB3061 ... Access to the path ... is denied` on Windows). AltCover 9 deletes only its own file.
+- With `AltCover=true`, the test runs of the two TFMs run in parallel. AltCover 9 deletes only the settings file of its own run. See [dependencies.md](dependencies.md).
 - Coverage is opt-in through `ENABLE_COVERAGE`. The `publish.yml` comment states: "AltCover doesn't work with Release builds".
-- `Directory.Packages.props` sets `RestorePackagesWithLockFile` and `RestoreLockedMode`. The template ships no `packages.lock.json`, so the first restore creates it.
+- `Directory.Packages.props` sets `RestorePackagesWithLockFile`, and sets `RestoreLockedMode` only when `CI` is `true`. The template ships no `packages.lock.json`, so the first restore creates it. See [dependencies.md](dependencies.md).
 - The generated `build.yml` runs Debug and Release on ubuntu, windows, and macOS, plus a devcontainer job.
 - The generated workflows and devcontainer use the versions in [../ci/action-versions.md](../ci/action-versions.md).
 - `fsdocs-gh-pages.yml` runs `./build.sh builddocs` and deploys `docs/` to GitHub Pages.

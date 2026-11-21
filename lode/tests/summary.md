@@ -1,7 +1,7 @@
 # Tests domain
 
 The tests domain is `tests/MiniScaffold.Tests` and the partition scripts `build/TestPartitions.ps1` and `build/TestPartitions.Tests.ps1`.
-The test project is an Expecto 10.2.2 `Exe` on net10.0. YoloDev.Expecto.TestSdk lets `dotnet test` run it.
+The test project is an Expecto 11.1.1 `Exe` on net10.0. YoloDev.Expecto.TestSdk lets `dotnet test` run it.
 The tests need a packed template package, so `IntegrationTests` depends on `DotnetPack`.
 
 ```mermaid

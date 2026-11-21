@@ -11,7 +11,7 @@ The root `Directory.*` files apply to every project in `MiniScaffold.slnx` (`tes
 | `Directory.Packages.props` | Central package management and lock files |
 | `NuGet.config` | Clears sources and maps all packages to nuget.org |
 | `global.json` | SDK `11.0.100`, `rollForward: latestMinor` |
-| `.config/dotnet-tools.json` | `fantomas` 7.0.3 and `fsdocs-tool` 18.1.0 |
+| `.config/dotnet-tools.json` | `fantomas` 8.1.3 and `fsdocs-tool` 22.2.0 |
 
 ```mermaid
 flowchart TD
@@ -59,7 +59,8 @@ High and critical advisories (NU1903, NU1904) fail the build only when `CI` is e
 ## Packages
 
 - `Directory.Packages.props` sets `ManagePackageVersionsCentrally`, `RestorePackagesWithLockFile`, and `DisableImplicitFSharpCoreReference`.
-- The root does not set `RestoreLockedMode`. `packages.lock.json` and `build/packages.lock.json` are tracked.
+- The root does not set `RestoreLockedMode`. `packages.lock.json`, `build/packages.lock.json`, and `tests/MiniScaffold.Tests/packages.lock.json` are tracked.
+- `build/build.fsproj` and `tests/MiniScaffold.Tests` reference FSharp.Core directly. See [../template/dependencies.md](../template/dependencies.md) for the versions.
 - `.gitignore` ignores `Content/**/packages.lock.json`.
 
 ## Related

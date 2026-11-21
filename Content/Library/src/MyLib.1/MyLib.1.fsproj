@@ -8,9 +8,6 @@
     <Description>MyLib.1 does the thing!</Description>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Library.fs" />
   </ItemGroup>
 </Project>

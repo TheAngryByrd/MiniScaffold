@@ -26,6 +26,7 @@ dotnet new mini-scaffold -n MyCoolNewApp --githubUsername MyGithubUsername --out
 - [library-output.md](library-output.md) - the generated library repository.
 - [console-output.md](console-output.md) - the generated console repository.
 - [project-outputs.md](project-outputs.md) - the single-project outputs for an existing solution.
+- [dependencies.md](dependencies.md) - package and tool versions, lock files, SourceLink, AltCover, and analyzers.
 
 ## Related
 

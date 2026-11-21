@@ -13,6 +13,7 @@
     <Compile Include="build.fs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FSharp.Core" />
     <PackageReference Include="Fake.IO.FileSystem" />
     <PackageReference Include="Fake.Core.Target" />
     <PackageReference Include="Fake.Core.ReleaseNotes" />

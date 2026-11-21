@@ -60,7 +60,8 @@ Before the run, it removes `MSBuildSDKsPath` and `MSBuildExtensionsPath` and set
 
 - The `MyCoolLib` library case runs `DotnetPack`, then ``tests ran on each target framework`` (`Asserts.fs`). It reads each TRX file in `tests/MyCoolLib.Tests/TestResults`, joins `UnitTestResult/@testId` to `UnitTest/@id`, and takes the TFM from the `UnitTest/@storage` path. Each of `net10.0` and `net11.0` must have a `Passed` result.
 - `packed libraries supply FSharp.Core ...` compares the nuspec dependency groups with the literal list `net10.0; net11.0`, and requires one FSharp.Core dependency in each group.
-- `library projects share their target frameworks` (`samples.contracts`) runs `dotnet msbuild -getProperty:TargetFrameworks,TestTfmsInParallel` on the generated library and test projects. Both must give `net10.0;net11.0`, both must follow `-p:LibraryTargetFrameworks=net11.0`, and the test project must give `TestTfmsInParallel=false` with `-p:AltCover=true`.
+- `library projects share their target frameworks` (`samples.contracts`) runs `dotnet msbuild -getProperty:TargetFrameworks` on the generated library and test projects. Both must give `net10.0;net11.0`, and both must follow `-p:LibraryTargetFrameworks=net11.0`.
+- `library restore creates lock files and locks them only in CI` (`samples.contracts`) restores a generated library with `CI=true` and no lock files, then changes the `Expecto` version to an exact range. A CI restore must fail with `NU1004`, and a restore without `CI` must update `tests/<name>.Tests/packages.lock.json`. See [../template/dependencies.md](../template/dependencies.md).
 - The assertion reads VSTest TRX files. A change of test runner must keep TRX output with `UnitTest/@storage`, or change the assertion.
 
 ```fsharp

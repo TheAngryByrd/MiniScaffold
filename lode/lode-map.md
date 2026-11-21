@@ -28,6 +28,7 @@ read lode/lode-map.md, lode/terminology.md, lode/summary.md
 - [template/library-output.md](template/library-output.md)
 - [template/console-output.md](template/console-output.md)
 - [template/project-outputs.md](template/project-outputs.md)
+- [template/dependencies.md](template/dependencies.md)
 
 ## build/ (`build/`, root MSBuild files, `MiniScaffold.csproj`, `docsSrc/`, `tools/`)
 
