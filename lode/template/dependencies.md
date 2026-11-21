@@ -74,7 +74,7 @@ A Release pack writes the SourceLink JSON into each PDB, and the nuspec `reposit
 AltCover 9 writes one `$(TEMP)/tmp*.altcover.runsettings` file for each test run and deletes only that file (`AltCoverDeleteTempRunSettingsFile` in `build/AltCover.proj` of the package).
 The test runs of the two library TFMs can run in parallel with coverage, so `tests/Directory.Build.props` does not change `TestTfmsInParallel`.
 Since AltCover 9, the default is deferred recording at unload or exit time, and one visit for each context (`--all` and `--eager` restore the old counts). Coverage percentages do not change, but visit counts can be lower than AltCover 8 counts.
-No test in the suite runs coverage with parallel TFMs. Generated libraries run it in their `build.yml` with `ENABLE_COVERAGE: true`. The console tests have one TFM, and the console build turns coverage off with `DISABLE_COVERAGE`.
+The `MyCoolLib` generated build case runs `GenerateCoverageReport` with `CI` unset (issue #360) and requires visited sequence points in `coverage.net10.0.xml` and `coverage.net11.0.xml`. A single run does not prove that the old race is gone, so the evidence for that is the AltCover source. Generated libraries run coverage in their `build.yml` with `ENABLE_COVERAGE: true`. The console tests have one TFM, and the console build turns coverage off with `DISABLE_COVERAGE`.
 
 ## Analyzers
 

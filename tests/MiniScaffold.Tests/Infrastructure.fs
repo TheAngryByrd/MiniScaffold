@@ -403,7 +403,7 @@ module Builds =
         else
             File.WriteAllText(Path.Combine(destination, "process.txt"), diagnostics)
 
-    let internal executeBuildWithDiagnostics destination drainTimeout workingDir testTarget =
+    let private buildStartInfo workingDir testTarget =
         let cmd, args =
             if not (OperatingSystem.IsWindows()) then
                 "bash",
@@ -440,8 +440,28 @@ module Builds =
         |> ignore
 
         startInfo.Environment["MSBUILDDISABLENODEREUSE"] <- "1"
-        executeProcess destination drainTimeout startInfo
+        startInfo
+
+    let internal executeBuildWithDiagnostics destination drainTimeout workingDir testTarget =
+        buildStartInfo workingDir testTarget
+        |> executeProcess destination drainTimeout
+
+    let executeBuildWithEnvironment
+        (environment: (string * string option) list)
+        workingDir
+        testTarget
+        =
+        let startInfo = buildStartInfo workingDir testTarget
+
+        for name, value in environment do
+            match value with
+            | Some value -> startInfo.Environment[name] <- value
+            | None ->
+                startInfo.Environment.Remove name
+                |> ignore
+
+        let destination = Path.Combine(diagnosticsRoot, Guid.NewGuid().ToString("N"))
+        executeProcess destination (TimeSpan.FromSeconds 30.) startInfo
 
     let executeBuild workingDir testTarget =
-        let destination = Path.Combine(diagnosticsRoot, Guid.NewGuid().ToString("N"))
-        executeBuildWithDiagnostics destination (TimeSpan.FromSeconds 30.) workingDir testTarget
+        executeBuildWithEnvironment [] workingDir testTarget

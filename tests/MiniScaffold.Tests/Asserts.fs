@@ -248,6 +248,42 @@ module Assert =
                 required
                 "fsdocs-search.js needs this element in the dialog"
 
+    let ``coverage report covers each target framework``
+        testProjectName
+        frameworks
+        (d: DirectoryInfo)
+        =
+        // CI=true gives AltCover 0 visits in generated repositories (issue #360).
+        Builds.executeBuildWithEnvironment
+            [
+                "CI", None
+                "ENABLE_COVERAGE", None
+                "DISABLE_COVERAGE", None
+            ]
+            d.FullName
+            "GenerateCoverageReport"
+
+        for framework in frameworks do
+            let report =
+                Path.Combine(d.FullName, "tests", testProjectName, $"coverage.{framework}.xml")
+
+            Expect.isTrue (File.Exists report) $"AltCover should write {report}"
+
+            let summary = XDocument.Load(report).Root.Element(XName.Get "Summary")
+
+            let visited =
+                summary.Attribute(XName.Get "visitedSequencePoints").Value
+                |> int
+
+            Expect.isGreaterThan
+                visited
+                0
+                $"The {framework} tests should visit library code ({report})"
+
+        Expect.isTrue
+            (File.Exists(Path.Combine(d.FullName, "docs", "coverage", "index.html")))
+            "reportgenerator should write docs/coverage/index.html"
+
     let ``tests ran on each target framework`` testProjectName frameworks (d: DirectoryInfo) =
         let resultsDirectory =
             Path.Combine(d.FullName, "tests", testProjectName, "TestResults")

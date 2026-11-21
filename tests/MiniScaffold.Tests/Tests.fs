@@ -1906,6 +1906,10 @@ stderr:
                         Assert.``project can build target`` "BuildDocs"
                         Assert.``docs have no unresolved substitutions``
                         Assert.``docs use the fsdocs search contract``
+                        Assert.``coverage report covers each target framework`` "MyCoolLib.Tests" [
+                            "net10.0"
+                            "net11.0"
+                        ]
                     ]
 
 
