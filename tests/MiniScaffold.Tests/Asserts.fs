@@ -207,20 +207,46 @@ module Assert =
     let ``docs use the fsdocs search contract`` (d: DirectoryInfo) =
         let index = File.ReadAllText(Path.Combine(d.FullName, "docs", "index.html"))
 
-        for required in
-            [
-                "data-root=\""
-                "id=\"search-btn\""
-                "<dialog"
-            ] do
-            Expect.stringContains index required "fsdocs-search.js needs this element in each page"
+        let matches (pattern: string) =
+            System.Text.RegularExpressions.Regex.IsMatch(index, pattern)
 
         Expect.isTrue
-            (System.Text.RegularExpressions.Regex.IsMatch(
-                index,
-                """<script type="module" src="[^"]*content/fsdocs-search\.js["]"""
-            ))
+            (matches """<html[^>]* data-root="[^"]+["]""")
+            "fsdocs-search.js reads the site root from a non-empty data-root on <html>"
+
+        Expect.isTrue
+            (matches """<[a-z]+ id="search-btn["]""")
+            "fsdocs-search.js opens the dialog from #search-btn"
+
+        Expect.isTrue
+            (matches """<script type="module" src="[^"]*content/fsdocs-search\.js["]""")
             "fsdocs-search.js is an ES module, so the page must load it with type=\"module\""
+
+        let searchDialog = index.IndexOf "<dialog id=\"fsdocs-search\""
+        Expect.isGreaterThanOrEqual searchDialog 0 "The page must contain the search dialog"
+
+        Expect.equal
+            (index.IndexOf "<dialog")
+            searchDialog
+            "fsdocs-search.js uses the first <dialog> of the page, so the search dialog must come first"
+
+        let dialog =
+            index.Substring(
+                searchDialog,
+                index.IndexOf("</dialog>", searchDialog)
+                - searchDialog
+            )
+
+        for required in
+            [
+                "<input type=\"search\""
+                "<ul"
+                "class=\"empty\""
+            ] do
+            Expect.stringContains
+                dialog
+                required
+                "fsdocs-search.js needs this element in the dialog"
 
     let ``tests ran on each target framework`` testProjectName frameworks (d: DirectoryInfo) =
         let resultsDirectory =

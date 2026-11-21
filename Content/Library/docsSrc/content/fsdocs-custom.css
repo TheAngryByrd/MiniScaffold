@@ -33,6 +33,8 @@ nav.navbar .dropdown-item img.fsharp-icon-logo {
 
 div.fsdocs-tip:popover-open {
     display: block;
+    position: fixed;
+    inset: unset;
     margin: 0;
     border: 0;
 }

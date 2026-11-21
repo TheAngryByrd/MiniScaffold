@@ -46,7 +46,7 @@ The root tool restore and the format on build are in [../build/msbuild-infrastru
 
 ## Lock files
 
-Each `Directory.Packages.props` sets `RestorePackagesWithLockFile`. The template package ships no `packages.lock.json` (`MiniScaffold.csproj` excludes them), so the first solution restore of a generated repository writes one for `src`, `tests`, and `build`. A restore of one project writes only the lock file of that project.
+Each `Directory.Packages.props` sets `RestorePackagesWithLockFile`. The template package ships no `packages.lock.json` (`MiniScaffold.csproj` excludes them), so the first solution restore of a generated repository writes one for `src`, `tests`, and `build`. A restore of one project writes the lock files of that project and of the projects it references.
 
 The library sets locked mode only on CI:
 
@@ -74,7 +74,7 @@ A Release pack writes the SourceLink JSON into each PDB, and the nuspec `reposit
 AltCover 9 writes one `$(TEMP)/tmp*.altcover.runsettings` file for each test run and deletes only that file (`AltCoverDeleteTempRunSettingsFile` in `build/AltCover.proj` of the package).
 The test runs of the two library TFMs can run in parallel with coverage, so `tests/Directory.Build.props` does not change `TestTfmsInParallel`.
 Since AltCover 9, the default is deferred recording at unload or exit time, and one visit for each context (`--all` and `--eager` restore the old counts). Coverage percentages do not change, but visit counts can be lower than AltCover 8 counts.
-No test in the suite runs coverage with parallel TFMs. Generated repositories run it in their `build.yml` with `ENABLE_COVERAGE: true`.
+No test in the suite runs coverage with parallel TFMs. Generated libraries run it in their `build.yml` with `ENABLE_COVERAGE: true`. The console tests have one TFM, and the console build turns coverage off with `DISABLE_COVERAGE`.
 
 ## Analyzers
 

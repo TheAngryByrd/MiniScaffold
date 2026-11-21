@@ -548,5 +548,55 @@ let private interceptPublication boundary (_callee: 'a) : 'a =
                             (read copy = root)
                             $"{copy} must be byte-identical to build/Changelog.fs"
                 )
+            testCase
+                "root and library docs templates share the fsdocs script markup"
+                (fun () ->
+                    let read relativePath =
+                        File.ReadAllText(Path.Combine(sourceRoot, relativePath))
+
+                    let scriptMarkup relativePath =
+                        (read relativePath).Split('\n')
+                        |> Array.map (fun line -> line.Trim())
+                        |> Array.filter (fun line ->
+                            [
+                                "search"
+                                "dialog"
+                                "data-root"
+                                "iconify"
+                                "<ul></ul>"
+                                "class=\"results\""
+                                "class=\"empty\""
+                            ]
+                            |> List.exists (fun marker ->
+                                line.Contains(marker, StringComparison.OrdinalIgnoreCase)
+                            )
+                        )
+
+                    Expect.sequenceEqual
+                        (scriptMarkup "Content/Library/docsSrc/_template.html")
+                        (scriptMarkup "docsSrc/_template.html")
+                        "Content/Library/docsSrc/_template.html must keep the search markup of docsSrc/_template.html"
+
+                    for template in
+                        [
+                            "docsSrc/_template.html"
+                            "Content/Library/docsSrc/_template.html"
+                        ] do
+                        let text = read template
+                        let searchDialog = text.IndexOf "<dialog id=\"fsdocs-search\""
+                        let content = text.IndexOf "{{fsdocs-content}}"
+
+                        Expect.isTrue
+                            (searchDialog
+                             >= 0
+                             && searchDialog < content
+                             && text.IndexOf "<dialog" = searchDialog)
+                            $"{template}: fsdocs-search.js uses the first <dialog> of the page, so the search dialog must come before {{{{fsdocs-content}}}}"
+
+                    Expect.equal
+                        (read "Content/Library/docsSrc/content/fsdocs-custom.css")
+                        (read "docsSrc/content/fsdocs-custom.css")
+                        "Content/Library/docsSrc/content/fsdocs-custom.css must match docsSrc/content/fsdocs-custom.css"
+                )
         ]
         |> testSequenced

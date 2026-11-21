@@ -78,7 +78,7 @@ flowchart LR
 
 - Fantomas runs on each build through `Directory.Build.targets`. Set `FormatOnBuild=false` to skip it.
 - `src/Directory.Build.props` enables `TreatWarningsAsErrors` and `Nullable`, and adds the Ionide and G-Research analyzers with `GeneratePathProperty="true"`.
-- FSharp.Analyzers.Build runs the analyzers after each build with the `$(PkgIonide_Analyzers)` and `$(PkgG-Research_FSharp_Analyzers)` paths (`src/Directory.Build.targets`). Analyzer findings do not fail the build.
+- FSharp.Analyzers.Build runs the analyzers after each `src` build that compiles (see [dependencies.md](dependencies.md)), with the `$(PkgIonide_Analyzers)` and `$(PkgG-Research_FSharp_Analyzers)` paths (`src/Directory.Build.targets`). Analyzer findings do not fail the build.
 - `GenerateCoverageReport` writes the HTML report to `docs/coverage`. `Content/Library/docsSrc/index.md` has no link to it ([issue #226](https://github.com/TheAngryByrd/MiniScaffold/issues/226)).
 - With `AltCover=true`, the test runs of the two TFMs run in parallel. AltCover 9 deletes only the settings file of its own run. See [dependencies.md](dependencies.md).
 - Coverage is opt-in through `ENABLE_COVERAGE`. The `publish.yml` comment states: "AltCover doesn't work with Release builds".

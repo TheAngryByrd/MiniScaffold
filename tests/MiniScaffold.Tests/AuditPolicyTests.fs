@@ -228,7 +228,17 @@ module AuditPolicyTests =
 
             document.Save path
 
-        addItem (Path.Combine(solution, "Directory.Packages.props")) "PackageVersion" [
+        let packagesProps = Path.Combine(solution, "Directory.Packages.props")
+
+        if
+            XDocument.Load(packagesProps).Descendants(XName.Get "PackageVersion")
+            |> Seq.exists (fun element -> element.Attribute(XName.Get "Include").Value = packageId)
+        then
+            failtestf
+                "The generated library already pins %s. Pick another fixture package with a transitive dependency."
+                packageId
+
+        addItem packagesProps "PackageVersion" [
             "Include", packageId
             "Version", version
         ]
