@@ -29,9 +29,9 @@ jobs:
       MINISCAFFOLD_TEST_OS: ${{ matrix.target.os }}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Setup necessary dotnet SDKs
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             8.x
@@ -54,7 +54,7 @@ jobs:
           CI: true
       - name: Upload partition evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: partition-${{ matrix.target.os }}-${{ matrix.configuration }}-${{ matrix.target.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: TestResults/partitions/${{ matrix.target.partition }}/
@@ -62,7 +62,7 @@ jobs:
           retention-days: 7
       - name: Upload test diagnostics
         if: success() || failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-diagnostics-${{ matrix.target.os }}-${{ matrix.configuration }}-${{ matrix.target.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
@@ -95,12 +95,12 @@ jobs:
             third: { configuration: Debug, partition: generated-library-a }
     runs-on: macos-15-intel
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           clean: true
       - name: Setup necessary dotnet SDKs
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             8.x
@@ -115,7 +115,7 @@ jobs:
       - name: Clean checkout for second workload
         id: second_checkout
         if: success() && matrix.recipe.second.configuration != '' && matrix.recipe.second.partition != '' && steps.first.outcome == 'success'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           clean: true
@@ -129,7 +129,7 @@ jobs:
       - name: Clean checkout for third workload
         id: third_checkout
         if: success() && matrix.recipe.third.configuration != '' && matrix.recipe.third.partition != '' && steps.second.outcome == 'success'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           clean: true
@@ -144,13 +144,13 @@ jobs:
   verifier-controls:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Test partition verifier
         shell: pwsh
         run: ./build/TestPartitions.Tests.ps1 -ResultsDirectory "${{ runner.temp }}/verifier-controls"
       - name: Upload verifier controls
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: verifier-controls-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/verifier-controls/
@@ -168,9 +168,9 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Download partition evidence
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: partition-${{ matrix.os }}-${{ matrix.configuration }}-*-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/partitions
@@ -185,7 +185,7 @@ jobs:
         run: |
           ./build/TestPartitions.ps1 -Mode Verify -Configuration $env:TEST_CONFIGURATION -OperatingSystem $env:TEST_OS -RunId $env:GITHUB_RUN_ID -RunAttempt $env:GITHUB_RUN_ATTEMPT -SourceRevision $env:GITHUB_SHA -BundleRoot $env:PARTITION_BUNDLES -WorkersResult $env:WORKERS_RESULT
       - name: Test Report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v3
         if: always()
         with:
           name: Test Results (${{ matrix.os }}-${{ matrix.configuration }})
@@ -199,9 +199,9 @@ jobs:
         os: [ubuntu-24.04-arm, windows-11-arm]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Setup necessary dotnet SDKs
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             8.x
@@ -226,7 +226,7 @@ jobs:
         env:
           CI: true
       - name: Test Report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v3
         if: always()
         with:
           name: ARM64 Test Results (${{ matrix.os }})
@@ -234,7 +234,7 @@ jobs:
           reporter: dotnet-trx
       - name: Upload test diagnostics
         if: success() || failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-diagnostics-arm64-${{ matrix.os }}
           path: |
@@ -248,9 +248,9 @@ jobs:
     if: ${{ !cancelled() }}
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Setup necessary dotnet SDKs
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             8.x
@@ -275,7 +275,7 @@ jobs:
         env:
           CI: true
       - name: Test Report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v3
         if: always()
         with:
           name: ARM64 Test Results (macos-15)
@@ -283,7 +283,7 @@ jobs:
           reporter: dotnet-trx
       - name: Upload test diagnostics
         if: success() || failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-diagnostics-arm64-macos-15
           path: |
@@ -297,12 +297,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Build and run dev container task
         uses: devcontainers/ci@v0.3
         with:
+          push: never
           runCmd: |
             export DOTNET_ADD_GLOBAL_TOOLS_TO_PATH=false
             chmod +x ./build.sh
             ./build.sh
+
+  build-template-devcontainer:
+    name: build-template-devcontainer (${{ matrix.subFolder }})
+    strategy:
+      fail-fast: false
+      matrix:
+        subFolder: [Content/Library, Content/Console]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build template dev container and check its features
+        uses: devcontainers/ci@v0.3
+        with:
+          push: never
+          subFolder: ${{ matrix.subFolder }}
+          runCmd: |
+            set -e
+            dotnet --info
+            starship --version

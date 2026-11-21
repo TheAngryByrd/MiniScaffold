@@ -17,9 +17,9 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Setup necessary dotnet SDKs
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             8.x
@@ -42,7 +42,7 @@ jobs:
           CONFIGURATION: ${{ matrix.configuration }}
           ENABLE_COVERAGE: true
       - name: Test Report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v3
         if: always()
         with:
           name: Test Results (${{ matrix.os }}-${{ matrix.configuration }})
@@ -53,11 +53,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Build and run dev container task
         uses: devcontainers/ci@v0.3
         with:
+          push: never
           runCmd: |
             chmod +x ./build.sh
             ./build.sh
