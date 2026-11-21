@@ -74,6 +74,7 @@ Root `build.yml` builds each devcontainer. Each `devcontainers/ci` step sets `pu
 - `build-devcontainer` builds the root devcontainer and runs `./build.sh` in it.
 - `build-template-devcontainer` builds `Content/Library` and `Content/Console` with the `subFolder` input and runs `dotnet --info` and `starship --version` in each, after `set -e`. `devcontainers/ci` runs `runCmd` with `bash -c`, so without `set -e` only the last command sets the result.
 - The gate job `build` does not need the devcontainer jobs. A failed devcontainer job does not fail a required check.
+- The starship feature downloads its binary through the GitHub API without a token. When the runner's shared rate limit is used up, the feature install fails with `HTTP Error 403: rate limit exceeded`, and the devcontainer job fails. [Issue #362](https://github.com/TheAngryByrd/MiniScaffold/issues/362) tracks a fix.
 
 ## Lessons
 
