@@ -62,6 +62,7 @@ The same contract as the root build applies. See [../build/release-and-publish.m
 - Coverage is opt-in through `ENABLE_COVERAGE`. The `publish.yml` comment states: "AltCover doesn't work with Release builds".
 - `Directory.Packages.props` sets `RestorePackagesWithLockFile` and `RestoreLockedMode`. The template ships no `packages.lock.json`, so the first restore creates it.
 - The generated `build.yml` runs Debug and Release on ubuntu, windows, and macOS, plus a devcontainer job.
+- The generated workflows and devcontainer use the versions in [../ci/action-versions.md](../ci/action-versions.md).
 - `fsdocs-gh-pages.yml` runs `./build.sh builddocs` and deploys `docs/` to GitHub Pages.
 
 ## Related

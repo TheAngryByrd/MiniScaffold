@@ -12,6 +12,7 @@ flowchart TD
     ArmMac["build-arm64-macos: macos-15"] --> Gate
     Gate["build: Debug, Release x ubuntu, windows, macOS (runs on ubuntu)"]
     Dev["build-devcontainer: ./build.sh"]
+    TplDev["build-template-devcontainer: Content/Library, Content/Console"]
 ```
 
 ## Jobs
@@ -25,6 +26,7 @@ flowchart TD
 - `build-arm64` and `build-arm64-macos` run `./build.sh DotnetPack` and then only the `console archives` tests.
 - `build` is the gate. It has `needs` on all jobs above and `if: always()`. Each matrix cell downloads the evidence for one OS and configuration and runs `Verify`.
 - `build-devcontainer` runs `./build.sh` in the dev container.
+- `build-template-devcontainer` builds the `Content/Library` and `Content/Console` dev containers and runs `dotnet --info` and `starship --version` in each.
 
 ## Gate command
 
@@ -35,7 +37,8 @@ Copied from `.github/workflows/build.yml`:
 ```
 
 `WORKERS_RESULT` is `success` only when all five worker jobs succeed.
-After `Verify`, `dorny/test-reporter@v1` reports `**/outer/outer.trx`.
+After `Verify`, `dorny/test-reporter@v3` reports `**/outer/outer.trx` in the job summary.
+See [action-versions.md](action-versions.md) for the action versions and the artifact contracts.
 
 ## Invariants
 
@@ -46,5 +49,6 @@ After `Verify`, `dorny/test-reporter@v1` reports `**/outer/outer.trx`.
 ## Related
 
 - [summary.md](summary.md)
+- [action-versions.md](action-versions.md)
 - [../tests/test-partitions.md](../tests/test-partitions.md)
 - [../tests/process-capture.md](../tests/process-capture.md) - the source of `TestResults/generated-builds/**`.

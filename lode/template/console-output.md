@@ -11,6 +11,7 @@ The layout matches the [library output](library-output.md), with these differenc
 - `src/MyLib.1/` targets net10.0 and uses Argu for argument parsing.
 - There is no `docsSrc/`, `build/FsDocs.fs`, `.fantomasignore`, or `publish.yml`.
 - The only workflow is `.github/workflows/build.yml`, with `paths-ignore` for `*.md`.
+- The workflow and devcontainer use the versions in [../ci/action-versions.md](../ci/action-versions.md).
 
 ## FAKE target graph
 
