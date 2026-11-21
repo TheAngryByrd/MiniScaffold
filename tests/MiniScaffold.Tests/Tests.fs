@@ -850,7 +850,9 @@ if (actual != expected)
                            offset
                            + 20
                        )
-                   ) = bytes.Length
+                   )
+                    =
+                    bytes.Length
             )
 
         let count =

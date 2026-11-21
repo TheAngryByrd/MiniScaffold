@@ -49,7 +49,9 @@ module TrustedPublishingTests =
             |> List.takeWhile (fun line ->
                 String.IsNullOrWhiteSpace line
                 || line.Length
-                   - line.TrimStart().Length > indent
+                   - line.TrimStart().Length
+                    >
+                    indent
             )
 
     let private buildBlock text =
@@ -116,7 +118,9 @@ module TrustedPublishingTests =
                 fun text ->
                     (steps text
                      |> List.filter loginStep
-                     |> List.length) = 1
+                     |> List.length)
+                        =
+                        1
                     && Regex.Matches(text, @"(?m)^\s*uses: NuGet/login@").Count = 1
         }
         {

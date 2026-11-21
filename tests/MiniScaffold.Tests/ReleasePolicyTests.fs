@@ -388,10 +388,7 @@ let private interceptPublication boundary (_callee: 'a) : 'a =
         let expectedOutcome, expectedAttempts =
             match scenario.Expected with
             | Intercepted ->
-                "intercepted",
-                [
-                    if target = "PublishToNuGet" then "NuGet" else "GitHub"
-                ]
+                "intercepted", [ if target = "PublishToNuGet" then "NuGet" else "GitHub" ]
             | Rejected message ->
                 "rejected: "
                 + message,
