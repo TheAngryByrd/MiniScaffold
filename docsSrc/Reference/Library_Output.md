@@ -86,7 +86,7 @@ When you do an initial scaffold, your folder will be filled with this set of fil
 - `.gitignore` - Good set of defaults for dotnet related repositories.
 - `.vscode\extensions.json` - File containing all recommended VSCode plugins for this repository.
 - `.vscode\settings.json` - File containing all VSCode settings for this repository.
-- `Directory.Build.props` - Top level configuration for project files. See [Microsoft Docs](https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2019#directorybuildprops-and-directorybuildtargets) for more info.
+- `Directory.Build.props` - Top level configuration for project files. Its `LibraryTargetFrameworks` property (`net10.0;net11.0`) sets the target frameworks of the library and its tests. See [Microsoft Docs](https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2019#directorybuildprops-and-directorybuildtargets) for more info.
 - `Directory.Build.targets` - Shared project targets. Builds format F# files unless `FormatOnBuild=false` or `DesignTimeBuild=true`.
 - `Directory.Solution.targets` - Restores local tools before solution restore dispatch. Direct project commands import the same target. Design-time builds skip tool restore.
 - `Directory.Packages.props` - Central package version management for NuGet packages. See [Microsoft Docs](https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management) for more info.

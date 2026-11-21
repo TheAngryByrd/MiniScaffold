@@ -69,6 +69,9 @@ Design-time builds do not restore tools or format source files.
 To check formatting without changing source files, run `build.cmd CheckFormatCode` on Windows or `./build.sh CheckFormatCode` on Unix.
 If you delete the local tool cache, run `dotnet tool restore` before the next build.
 
+The library and its tests read their target frameworks from the `LibraryTargetFrameworks` property in `Directory.Build.props` (`net10.0;net11.0`).
+To change the target frameworks, change that property, delete the `packages.lock.json` files, and restore again.
+
 The bin of your library should look similar to:
 
 ```
