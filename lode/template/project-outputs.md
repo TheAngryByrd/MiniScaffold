@@ -12,7 +12,7 @@ Each output contains only an `.fsproj` and its source files. It has no solution,
 ## Contract with the host solution
 
 - Each `.fsproj` omits package versions, so the host solution must use central package management.
-- `ProjLib` targets net8.0, net9.0, and net10.0 and has no FSharp.Core reference. It relies on the host `src/Directory.Build.targets`.
+- `ProjLib` targets net10.0 and net11.0 and has no FSharp.Core reference. It relies on the host `src/Directory.Build.targets`.
 - `ProjTest` has no `ProjectReference`. The user adds the reference.
 
 ```mermaid
@@ -33,7 +33,7 @@ dotnet sln add src/MyNewLibrary/MyNewLibrary.fsproj
 ## Tests
 
 The `PackageDocuments` tests pack a `projLib` project inside library and console hosts.
-They check that the package has README.md and LICENSE.md, and one DLL for each of net8.0, net9.0, and net10.0.
+They check that the package has README.md and LICENSE.md, and one DLL for each of net10.0 and net11.0.
 See [../tests/policy-tests.md](../tests/policy-tests.md).
 
 ## Related

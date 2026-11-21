@@ -23,7 +23,8 @@ GitHub Actions |
 
 Make sure the following **requirements** are installed on your system:
 
-- [dotnet SDK](https://www.microsoft.com/net/download/core) 10.0 or higher
+- [.NET SDK](https://dotnet.microsoft.com/download/dotnet/11.0) 11.0.100 or a later 11.0 SDK, as `global.json` specifies
+- [.NET runtime](https://dotnet.microsoft.com/download/dotnet/10.0) 10.0 for the build project, the application, and the tests
 - [Git LFS](https://git-lfs.com/) for handling binary assets
 
 or

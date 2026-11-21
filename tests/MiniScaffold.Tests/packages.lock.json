@@ -1,7 +1,7 @@
 {
   "version": 2,
   "dependencies": {
-    "net8.0": {
+    "net10.0": {
       "Expecto": {
         "type": "Direct",
         "requested": "[10.2.2, )",
@@ -61,8 +61,7 @@
         "contentHash": "ZeCbPs35NnxHwmnJIYeU9WEklKA1ZY3YxT0+Y/nmvie21JfVdxeKy/Dt0rn7haJwXJmM8nvhUEtxjbUaJQWAGA==",
         "dependencies": {
           "Microsoft.Build.Framework": "17.5.0",
-          "Microsoft.Build.Utilities.Core": "17.5.0",
-          "System.Collections.Immutable": "8.0.0"
+          "Microsoft.Build.Utilities.Core": "17.5.0"
         }
       },
       "YoloDev.Expecto.TestSdk": {
@@ -82,8 +81,7 @@
         "resolved": "1.1.0",
         "contentHash": "rqIFENkurSkGU0ecXG21Ez96pXDwIXUoE9f4DhEDRE4T3iYVIKMHPaQ0XUQH4Rgf9bqUHUW1TO87UR7xEndqNQ==",
         "dependencies": {
-          "FSharp.Core": "4.2.3",
-          "Microsoft.Win32.Registry": "4.7.0"
+          "FSharp.Core": "4.2.3"
         }
       },
       "Fake.Core.Context": {
@@ -193,10 +191,7 @@
       "Microsoft.ApplicationInsights": {
         "type": "Transitive",
         "resolved": "2.22.0",
-        "contentHash": "3AOM9bZtku7RQwHyMEY3tQMrHIgjcfRDa6YQpd/QG2LDGvMydSlL9Di+8LLMt7J2RDdfJ7/2jdYv6yHcMJAnNw==",
-        "dependencies": {
-          "System.Diagnostics.DiagnosticSource": "5.0.0"
-        }
+        "contentHash": "3AOM9bZtku7RQwHyMEY3tQMrHIgjcfRDa6YQpd/QG2LDGvMydSlL9Di+8LLMt7J2RDdfJ7/2jdYv6yHcMJAnNw=="
       },
       "Microsoft.Build.Framework": {
         "type": "Transitive",
@@ -213,7 +208,6 @@
         "dependencies": {
           "Microsoft.Build.Framework": "17.5.0",
           "Microsoft.NET.StringTools": "17.5.0",
-          "System.Collections.Immutable": "6.0.0",
           "System.Configuration.ConfigurationManager": "6.0.0"
         }
       },
@@ -271,10 +265,7 @@
       "Microsoft.TestPlatform.ObjectModel": {
         "type": "Transitive",
         "resolved": "17.13.0",
-        "contentHash": "bt0E0Dx+iqW97o4A59RCmUmz/5NarJ7LRL+jXbSHod72ibL5XdNm1Ke+UO5tFhBG4VwHLcSjqq9BUSblGNWamw==",
-        "dependencies": {
-          "System.Reflection.Metadata": "1.6.0"
-        }
+        "contentHash": "bt0E0Dx+iqW97o4A59RCmUmz/5NarJ7LRL+jXbSHod72ibL5XdNm1Ke+UO5tFhBG4VwHLcSjqq9BUSblGNWamw=="
       },
       "Microsoft.TestPlatform.TestHost": {
         "type": "Transitive",
@@ -283,15 +274,6 @@
         "dependencies": {
           "Microsoft.TestPlatform.ObjectModel": "17.13.0",
           "Newtonsoft.Json": "13.0.1"
-        }
-      },
-      "Microsoft.Win32.Registry": {
-        "type": "Transitive",
-        "resolved": "4.7.0",
-        "contentHash": "KSrRMb5vNi0CWSGG1++id2ZOs/1QhRqROt+qgbEAdQuGjGrFcl4AOl4/exGPUYz2wUnU42nvJqon1T3U0kPXLA==",
-        "dependencies": {
-          "System.Security.AccessControl": "4.7.0",
-          "System.Security.Principal.Windows": "4.7.0"
         }
       },
       "Microsoft.Win32.SystemEvents": {
@@ -344,7 +326,6 @@
           "Newtonsoft.Json": "13.0.3",
           "NuGet.Configuration": "6.12.4",
           "NuGet.Versioning": "6.12.4",
-          "System.Formats.Asn1": "8.0.1",
           "System.Security.Cryptography.Pkcs": "6.0.4"
         }
       },
@@ -361,11 +342,6 @@
         "resolved": "6.12.4",
         "contentHash": "xBdzy6+JLZNYvEY0ij2FvHmAL1OZnpgC9S3UvUNXoFCvWnRhw9DBvuR2W43zhtQmtO692F/bnK6VnQi1flpstQ=="
       },
-      "System.Collections.Immutable": {
-        "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "AurL6Y5BA1WotzlEvVaIDpqzpIPvYnnldxru8oXJU2yFxFUy3+pNXjXd1ymO+RA0rq0+590Q8gaz2l3Sr7fmqg=="
-      },
       "System.Configuration.ConfigurationManager": {
         "type": "Transitive",
         "resolved": "6.0.0",
@@ -375,11 +351,6 @@
           "System.Security.Permissions": "6.0.0"
         }
       },
-      "System.Diagnostics.DiagnosticSource": {
-        "type": "Transitive",
-        "resolved": "5.0.0",
-        "contentHash": "tCQTzPsGZh/A9LhhA6zrqCRV4hOHsK90/G7q3Khxmn6tnB1PuNU0cRaKANP2AWcF9bn0zsuOoZOSrHuJk6oNBA=="
-      },
       "System.Drawing.Common": {
         "type": "Transitive",
         "resolved": "6.0.0",
@@ -388,28 +359,10 @@
           "Microsoft.Win32.SystemEvents": "6.0.0"
         }
       },
-      "System.Formats.Asn1": {
-        "type": "Transitive",
-        "resolved": "8.0.1",
-        "contentHash": "XqKba7Mm/koKSjKMfW82olQdmfbI5yqeoLV/tidRp7fbh5rmHAQ5raDI/7SU0swTzv+jgqtUGkzmFxuUg0it1A=="
-      },
-      "System.Reflection.Metadata": {
-        "type": "Transitive",
-        "resolved": "1.6.0",
-        "contentHash": "COC1aiAJjCoA5GBF+QKL2uLqEBew4JsCkQmoHKbN3TlOZKa2fKLz5CpiRQKDz0RsAOEGsVKqOD5bomsXq/4STQ=="
-      },
-      "System.Security.AccessControl": {
-        "type": "Transitive",
-        "resolved": "6.0.0",
-        "contentHash": "AUADIc0LIEQe7MzC+I0cl0rAT8RrTAKFHl53yHjEUzNVIaUlhFY11vc2ebiVJzVBuOzun6F7FBA+8KAbGTTedQ=="
-      },
       "System.Security.Cryptography.Pkcs": {
         "type": "Transitive",
         "resolved": "6.0.4",
-        "contentHash": "LGbXi1oUJ9QgCNGXRO9ndzBL/GZgANcsURpMhNR8uO+rca47SZmciS3RSQUvlQRwK3QHZSHNOXzoMUASKA+Anw==",
-        "dependencies": {
-          "System.Formats.Asn1": "6.0.0"
-        }
+        "contentHash": "LGbXi1oUJ9QgCNGXRO9ndzBL/GZgANcsURpMhNR8uO+rca47SZmciS3RSQUvlQRwK3QHZSHNOXzoMUASKA+Anw=="
       },
       "System.Security.Cryptography.ProtectedData": {
         "type": "Transitive",
@@ -421,14 +374,8 @@
         "resolved": "6.0.0",
         "contentHash": "T/uuc7AklkDoxmcJ7LGkyX1CcSviZuLCa4jg3PekfJ7SU0niF0IVTXwUiNVP9DSpzou2PpxJ+eNY2IfDM90ZCg==",
         "dependencies": {
-          "System.Security.AccessControl": "6.0.0",
           "System.Windows.Extensions": "6.0.0"
         }
-      },
-      "System.Security.Principal.Windows": {
-        "type": "Transitive",
-        "resolved": "4.7.0",
-        "contentHash": "ojD0PX0XhneCsUbAZVKdb7h/70vyYMDYs85lwEI+LngEONe/17A0cFaRFqZU+sOEidcVswYWikYOQ9PPfjlbtQ=="
       },
       "System.Windows.Extensions": {
         "type": "Transitive",
@@ -458,8 +405,7 @@
           "Fake.Core.FakeVar": "6.2.0",
           "Fake.Core.String": "6.2.0",
           "Fake.Core.Trace": "6.2.0",
-          "Fake.IO.FileSystem": "6.2.0",
-          "System.Collections.Immutable": "8.0.0"
+          "Fake.IO.FileSystem": "6.2.0"
         }
       },
       "Fake.IO.FileSystem": {

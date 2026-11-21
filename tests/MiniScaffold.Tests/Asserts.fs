@@ -5,6 +5,7 @@ open System.IO.Compression
 open System.Diagnostics
 open System.Reflection
 open System.Runtime.Loader
+open System.Xml.Linq
 open Expecto
 open Infrastructure
 open Fake.IO.FileSystemOperators
@@ -171,6 +172,35 @@ module Assert =
         let filepath = Path.Combine(d.FullName, file)
         Expect.isFalse (File.Exists filepath) (sprintf "%s should not exist" filepath)
 
+    let ``tests ran on each target framework`` testProjectName frameworks (d: DirectoryInfo) =
+        let resultsDirectory =
+            Path.Combine(d.FullName, "tests", testProjectName, "TestResults")
+
+        let trxNamespace =
+            XNamespace.Get "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"
+
+        let testedFrameworks =
+            Directory.GetFiles(resultsDirectory, "*.trx")
+            |> Seq.collect (fun trx ->
+                XDocument
+                    .Load(trx)
+                    .Descendants(
+                        trxNamespace
+                        + "UnitTest"
+                    )
+                |> Seq.map (fun test ->
+                    match test.Attribute(XName.Get "storage") with
+                    | null -> failtestf "%s has a UnitTest without a storage attribute" trx
+                    | storage -> Path.GetFileName(Path.GetDirectoryName storage.Value)
+                )
+            )
+            |> Set.ofSeq
+
+        Expect.equal
+            testedFrameworks
+            (Set.ofList frameworks)
+            $"{resultsDirectory} should hold test results for each library target framework"
+
     let ``assembly info values are set after pack`` projectName (d: DirectoryInfo) =
         let mutable extractedDllDir: string option = None
 
@@ -183,7 +213,7 @@ module Assert =
         let entry =
             archive.Entries
             |> Seq.tryFind (fun x ->
-                x.FullName.StartsWith("lib/net8.0/")
+                x.FullName.StartsWith("lib/net10.0/")
                 && x.FullName.EndsWith($"/{projectName}.dll")
             )
 
@@ -201,7 +231,7 @@ module Assert =
                 extractedDllDir <- Some tempDir
 
                 tempPath
-            | None -> failtestf "Could not find lib/net8.0/%s.dll in %s" projectName nupkgPath
+            | None -> failtestf "Could not find lib/net10.0/%s.dll in %s" projectName nupkgPath
 
         let assemblyName = AssemblyName.GetAssemblyName(dllPath)
         Expect.equal assemblyName.Version (Version "0.1.0.0") "AssemblyVersion should be 0.1.0.0"

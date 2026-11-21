@@ -236,24 +236,12 @@ if (actual != expected)
     throw new Exception($"Expected '{expected}', but got '{actual}'.");
 """
 
+        let frameworks = [
+            "net10.0"
+            "net11.0"
+        ]
+
         for projectName in packageNames do
-            let project =
-                XDocument.Load(
-                    IO.Path.Combine(
-                        projectDir.FullName,
-                        "src",
-                        projectName,
-                        $"{projectName}.fsproj"
-                    )
-                )
-
-            let frameworks =
-                project.Descendants(XName.Get "TargetFrameworks")
-                |> Seq.exactlyOne
-                |> fun value ->
-                    value.Value.Split(';')
-                    |> Array.toList
-
             let packagePath =
                 IO.Path.Combine(projectDir.FullName, "dist", $"{projectName}.0.1.0.nupkg")
 
@@ -343,7 +331,7 @@ if (actual != expected)
                     XAttribute(XName.Get "Sdk", "Microsoft.NET.Sdk")
                     element "PropertyGroup" [|
                         element "OutputType" [| "Exe" |]
-                        element "TargetFramework" [| "net8.0" |]
+                        element "TargetFramework" [| "net10.0" |]
                     |]
                     element "ItemGroup" [|
                         element "PackageReference" [|
@@ -1468,7 +1456,7 @@ if (actual != expected)
 
                 project.Descendants(XName.Get "TargetFramework")
                 |> Seq.exactlyOne
-                |> fun element -> element.Value <- "net9.0"
+                |> fun element -> element.Value <- "net11.0"
 
                 project.Save projectPath
 
@@ -1681,6 +1669,10 @@ if (actual != expected)
                         yield! projectStructureAsserts
                         Assert.``File does not exist`` "src/MyCoolLib/AssemblyInfo.fs"
                         Assert.``project can build target`` "DotnetPack"
+                        Assert.``tests ran on each target framework`` "MyCoolLib.Tests" [
+                            "net10.0"
+                            "net11.0"
+                        ]
                         Assert.``assembly info values are set after pack`` "MyCoolLib"
                         Assert.``project can build target`` "BuildDocs"
                     ]

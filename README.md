@@ -4,7 +4,7 @@
 
 This is an [F# Template](https://docs.microsoft.com/en-us/dotnet/core/tools/custom-templates) for:
 
-- creating and publishing [libraries](https://docs.microsoft.com/en-us/dotnet/standard/glossary#library) targeting `net8.0`, `net9.0`, and `net10.0`
+- creating and publishing [libraries](https://docs.microsoft.com/en-us/dotnet/standard/glossary#library) targeting `net10.0` and `net11.0`
 - creating and publishing [applications](https://docs.microsoft.com/en-us/dotnet/core/tutorials/cli-create-console-app#hello-console-app) with the target framework from the application project
 
 ## Why use MiniScaffold
@@ -39,8 +39,8 @@ This takes away the ambiguity that developers face when creating an OSS project.
 - [Continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) via [GitHub Actions](https://github.com/features/actions)
 
 ### For [Libraries](Content/Library/README.md)
-- Builds for `net8.0`, `net9.0`, and `net10.0` - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
-    - To build, install the [.NET SDK](https://dotnet.microsoft.com/download) that `global.json` specifies, and the .NET 8.0 runtime for the build project
+- Builds for `net10.0` and `net11.0` - [Target Frameworks](https://docs.microsoft.com/en-us/dotnet/standard/frameworks)
+    - To build, install the [.NET SDK](https://dotnet.microsoft.com/download) that `global.json` specifies, and the .NET 10 runtime for the build project and the `net10.0` tests
 - [Sourcelink](https://github.com/dotnet/sourcelink) which enables a great source debugging experience for your users, by adding source control metadata to your built assets
 - [Documentation Generation](https://github.com/fsprojects/FSharp.Formatting) - Generates Documentation from markdown files, fsx files, and the [XML Documentation Comments](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/) from your library.
 - [Continuous deployment](https://en.wikipedia.org/wiki/Continuous_deployment) via [GitHub Actions](https://github.com/features/actions)

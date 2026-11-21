@@ -13,7 +13,7 @@ The `BuildDocs` and `WatchDocs` targets use `fsdocs` to generate a site from `do
 ## Prepare the repository
 
 1. Install the .NET SDK that the repository's `global.json` specifies.
-2. Install the .NET 8 runtime for the build project.
+2. Install the .NET 10 runtime for the build project.
 3. Open a terminal in the repository root.
 4. Add each new page to the applicable `docsSrc/` directory.
 5. Add a link to the page in that directory's `0-toc.md` file.

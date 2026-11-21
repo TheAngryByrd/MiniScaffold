@@ -12,8 +12,8 @@ In this tutorial, you create a console application, run its tests, and create pa
 ## Prerequisites
 
 1. Install [Git](https://git-scm.com/download).
-2. Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
-3. Install the [.NET 8 runtime](https://dotnet.microsoft.com/download/dotnet/8.0) for the build project.
+2. Install the [.NET 11 SDK](https://dotnet.microsoft.com/download/dotnet/11.0).
+3. Install the [.NET 10 runtime](https://dotnet.microsoft.com/download/dotnet/10.0) for the build project, the application, and the tests.
 4. Open a terminal in the directory that will contain your new repository.
 
 ## Install MiniScaffold

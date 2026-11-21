@@ -5,7 +5,7 @@ The build domain is the root FAKE build in `build/` and the MSBuild files at the
 
 ```mermaid
 flowchart LR
-    Scripts["build.sh / build.cmd"] --> Fake["build/build.fsproj (net8.0)"]
+    Scripts["build.sh / build.cmd"] --> Fake["build/build.fsproj (net10.0)"]
     Fake --> Targets["build/build.fs targets"]
     Targets --> Pack["MiniScaffold.csproj pack"]
     Targets --> Tests["tests/MiniScaffold.Tests"]

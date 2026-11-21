@@ -414,7 +414,7 @@ let private interceptPublication boundary (_callee: 'a) : 'a =
             | GitHub -> "GitHubRelease", "GitHub"
             | LocalGit -> "GitRelease", "GitRelease"
 
-        let assemblyDirectory = Path.Combine(root, "build/bin/Debug/net8.0")
+        let assemblyDirectory = Path.Combine(root, "build/bin/Debug/net10.0")
 
         let reference name =
             $"#r @\"{Path.Combine(assemblyDirectory, name)}\""

@@ -270,7 +270,7 @@ module FormattingTests =
         File.WriteAllText(
             project,
             """<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><TargetFramework>net8.0</TargetFramework></PropertyGroup>
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup>
   <Target Name="ObserveProjectDispatch" BeforeTargets="_IsProjectRestoreSupported;_GenerateRestoreGraphProjectEntry">
     <Error Condition="!Exists('$(_DotnetToolRestoreOutputFile)')" Text="Project dispatched before tool restore" />
     <WriteLinesToFile File="dispatch-observed" Lines="dispatched" Overwrite="true" />
@@ -345,7 +345,7 @@ module FormattingTests =
         File.WriteAllText(
             project,
             """<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks></PropertyGroup>
+  <PropertyGroup><TargetFrameworks>net10.0;net11.0</TargetFrameworks></PropertyGroup>
   <ItemGroup><Compile Include="RouteProbe.fs" /><PackageReference Include="FSharp.Core" /></ItemGroup>
 </Project>"""
         )
@@ -383,9 +383,9 @@ module FormattingTests =
             first
             "An unchanged multi-target build must skip formatting"
 
-        assertFormatsOnce "Build" [ "-p:TargetFramework=net8.0" ]
+        assertFormatsOnce "Build" [ "-p:TargetFramework=net10.0" ]
         assertFormatsOnce "Rebuild" []
-        assertFormatsOnce "Publish" [ "-p:TargetFramework=net8.0" ]
+        assertFormatsOnce "Publish" [ "-p:TargetFramework=net10.0" ]
 
         msbuild directory project "Clean" []
         |> succeeds
