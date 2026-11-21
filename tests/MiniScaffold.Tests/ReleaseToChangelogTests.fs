@@ -263,7 +263,9 @@ module ReleaseToChangelogTests =
 
     [<Tests>]
     let tests =
-        testList "release notes to changelog" [
+        // On a cold script cache, parallel `dotnet fsi` runs race on one NuGet cache file and fail with FS0999 or FS0039.
+        testSequenced
+        <| testList "release notes to changelog" [
             testCase "converts RELEASE_NOTES.md" converts
             testCase "rejects a missing argument" rejectsMissingArgument
             testCase "rejects a missing input file" rejectsMissingInput

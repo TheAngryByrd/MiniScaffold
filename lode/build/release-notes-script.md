@@ -35,6 +35,7 @@ flowchart LR
 
 `tests/MiniScaffold.Tests/ReleaseToChangelogTests.fs` holds the "release notes to changelog" list. It runs in the `other` partition.
 The tests run the script on a sample file, check the sections and links, check the error paths, and check the version pin.
+The list uses `testSequenced`, because parallel `dotnet fsi` runs of the script race on the script package cache. See [../tests/integration-tests.md](../tests/integration-tests.md#script-package-cache).
 
 ## Related
 
