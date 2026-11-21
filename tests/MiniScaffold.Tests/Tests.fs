@@ -421,11 +421,16 @@ if (actual != expected)
                 @ properties do
                 startInfo.ArgumentList.Add argument
 
-            startInfo.Environment.Remove "MSBuildSDKsPath"
-            |> ignore
-
-            startInfo.Environment.Remove "MSBuildExtensionsPath"
-            |> ignore
+            for name in
+                [
+                    "MSBuildSDKsPath"
+                    "MSBuildExtensionsPath"
+                    "TestTfmsInParallel"
+                    "AltCover"
+                    "LibraryTargetFrameworks"
+                ] do
+                startInfo.Environment.Remove name
+                |> ignore
 
             let result = ProcessCapture.run (TimeSpan.FromSeconds 30.) startInfo
 
