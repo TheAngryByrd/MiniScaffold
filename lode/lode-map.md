@@ -53,6 +53,7 @@ read lode/lode-map.md, lode/terminology.md, lode/summary.md
 - [tests/test-partitions.md](tests/test-partitions.md)
 - [tests/process-capture.md](tests/process-capture.md)
 - [tests/policy-tests.md](tests/policy-tests.md)
+- [tests/test-platform.md](tests/test-platform.md)
 
 ## plans/
 
