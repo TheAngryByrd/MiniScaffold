@@ -37,15 +37,6 @@ jobs:
             10.x
             11.x
 
-      - name: Probe failure-file upload (temporary)
-        if: matrix.target.os == 'windows-latest' && matrix.configuration == 'Debug' && matrix.target.partition == 'other'
-        shell: pwsh
-        run: |
-          $dir = Join-Path $env:RUNNER_TEMP 'msbuild-debug'
-          New-Item -ItemType Directory -Force $dir | Out-Null
-          Set-Content (Join-Path $dir 'MSBuild_pid-0_probe.failure.txt') 'probe'
-          throw 'probe: fail the job so that the failure upload runs'
-
       - name: Build via Bash
         if: runner.os != 'Windows'
         run: |
