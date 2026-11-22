@@ -51,12 +51,13 @@ The site URL is `https://www.jimmybyrd.me/MiniScaffold/` (`documentationRootUrl`
 <dialog id="fsdocs-search" aria-label="Search documentation"><input type="search" /> <div class="results"><ul></ul><p class="empty"></p></div></dialog>
 <button id="search-btn" ...>Search</button>
 {{fsdocs-content}}
+<script>document.documentElement.setAttribute("data-root", new URL(..., location.href).href.replace(/\/$/, ""));</script>
 <script type="module" src="{{root}}content/fsdocs-search.js"></script>
 ```
 
 - `fsdocs-search.js` is an ES module. It reads `data-root`, loads `${root}/index.json`, opens the first `<dialog>` of the page from `#search-btn`, `/`, or `Ctrl+K`, and hides `#search-btn` when `index.json` does not load. The search dialog is the first element of `<body>`, so a `<dialog>` in page content cannot take its place.
 - The script imports Fuse.js from `esm.sh`. If a network blocks that host, the module stops before it adds its handlers, and the Search button does nothing. The fsdocs 22 default template has the same dependency.
-- `data-root` takes `{{root}}`, which both builds set to an absolute URL. With `fsdocs watch --root /`, the script requests `//index.json`, which the browser reads as another host. The fsdocs 22 default template has the same behavior.
+- `data-root` takes `{{root}}`. An inline script before the module resolves it against the page URL and removes the trailing slash, because the module requests `${root}/index.json`. Without it, the root `https://<owner>.github.io/<repo>/` gives `//index.json`, and `fsdocs watch --root /` gives a request to the host `index.json`.
 - Each search result has an `iconify-icon` element, so the templates load the Iconify component, as the fsdocs 22 default template does.
 - `fsdocs-tips.js` opens each API tooltip with the popover API. `fsdocs-main.css` hides `div.fsdocs-tip`, so `fsdocs-custom.css` shows `div.fsdocs-tip:popover-open` with `position: fixed`, because the script sets `left` and `top` from viewport coordinates.
 - fsdocs 20 removed `FsDocsNavbarPosition`, so the templates link `content/navbar-fixed-left.css` directly.

@@ -258,7 +258,6 @@ module Assert =
             [
                 "CI", None
                 "ENABLE_COVERAGE", None
-                "DISABLE_COVERAGE", None
             ]
             d.FullName
             "GenerateCoverageReport"
