@@ -96,7 +96,7 @@ The integration tests generate repositories without git, so their CI builds keep
 
 ### Instrumented assembly symbols
 
-AltCover 9 writes each instrumented assembly with `Mono.Cecil.Cil.EmbeddedPortablePdbWriterProvider` (`writeAssembly` in `AltCover.Engine/Instrument.fs`), a managed writer. AltCover 8.2.825, which the template used until 9.0.189, chose `Mono.Cecil.Pdb.PdbWriterProvider` for a `.pdb` on Windows. That writer calls the native COM PDB writer. AltCover commit `0edadc43c` (2021-12-09, "Embed the written symbols for all instrumented assemblies") replaced it, after the 8.2.825 release (2021-10-22).
+AltCover 9 writes each instrumented assembly with `Mono.Cecil.Cil.EmbeddedPortablePdbWriterProvider` (`writeAssembly` in `AltCover.Engine/Instrument.fs`), a managed writer. AltCover 8.2.825, which the template used until 9.0.189, chose `Mono.Cecil.Pdb.PdbWriterProvider` for a module with symbols and a `.pdb` on Windows. That provider selects the native COM PDB writer unless the module was read with the portable PDB reader. Both recorded crashes took the native branch. AltCover commit `0edadc43c` (2021-12-09, "Embed the written symbols for all instrumented assemblies") replaced it, after the 8.2.825 release (2021-10-22).
 
 The native writer crashed the MSBuild worker node of the AltCover `Prepare` task in the generated console `dotnet test` on `windows-latest` ([issue #365](https://github.com/TheAngryByrd/MiniScaffold/issues/365)). The node printed this stack to stderr, and the parent build reported `MSB4166`:
 
@@ -114,7 +114,9 @@ Fatal error.
 
 - The stack is in the `test-diagnostics-*` artifact of run 44855679941 (`TestResults/generated-builds/<id>/stderr.txt`). The integration tests keep stdout and stderr of each generated build there (see [../tests/process-capture.md](../tests/process-capture.md)).
 - Both recorded crashes (2026-10-24 and 2026-11-21) ran AltCover 8.2.825. AltCover 9.0.189 does not call the native PDB writer, so this crash path is gone.
-- A new crash of a worker node shows its managed stack in the same `stderr.txt`. A crash in native code with no managed frames would need a process dump, which the CI does not collect.
+- A new crash of a worker node shows in the same `stderr.txt` whatever frames the node wrote before it ended. A crash in native code with no managed frames would need a process dump, which the CI does not collect.
+- The build steps of the `integration-tests` job set `MSBUILDDEBUGPATH` to `$RUNNER_TEMP/msbuild-debug`, so MSBuild writes its `MSBuild_pid-<pid>_<guid>.failure.txt` files there (`DebugUtils.cs` in dotnet/msbuild; without `MSBuildDebugEngine`, the variable only sets this folder). A failed job uploads the folder as `msbuild-failures-<os>-<configuration>-<partition>-<run_id>-<run_attempt>`. The generated builds inherit the variable, because `Builds.executeBuild` removes only `MSBuildSDKsPath` and `MSBuildExtensionsPath`.
+- A console repository generated before #367 still pins AltCover 8.2.825 and can reach the native writer on Windows until it updates the package.
 
 ## Analyzers
 
