@@ -24,11 +24,12 @@ Without a partition, this runs every test. The last unpartitioned CI run took 11
 
 ## Files
 
-The compile order in `MiniScaffold.Tests.fsproj` is fixed: Infrastructure, ProcessCaptureTests, Asserts, Tests, ReleasePolicyTests, PackageDocumentTests, AuditPolicyTests, GeneratedReleasePolicyTests, FormattingTests, DevcontainerPolicyTests, TrustedPublishingTests, ReleaseToChangelogTests, Main.
+The compile order in `MiniScaffold.Tests.fsproj` is fixed: Infrastructure, ProcessCaptureTests, DependabotConfig, Asserts, Tests, ReleasePolicyTests, PackageDocumentTests, AuditPolicyTests, GeneratedReleasePolicyTests, FormattingTests, DevcontainerPolicyTests, DependabotPolicyTests, TrustedPublishingTests, ReleaseToChangelogTests, Main.
 
 | File | Role |
 | --- | --- |
 | `Infrastructure.fs` | `DisposableDirectory`, `Dotnet.New` with a custom hive, `ProcessCapture`, `Builds` |
+| `DependabotConfig.fs` | Parses a Dependabot file into records for `DependabotPolicyTests.fs` and `Asserts.fs` |
 | `Asserts.fs` | `Assert` checks and `Effect` steps on a generated repository |
 | `Tests.fs` | The `samples` integration tests, `console archives`, and `metadata` |
 | `ProcessCaptureTests.fs` | Tests for the process capture helper |
@@ -40,7 +41,7 @@ The compile order in `MiniScaffold.Tests.fsproj` is fixed: Infrastructure, Proce
 - [integration-tests.md](integration-tests.md) - the end-to-end flow of one `samples` case.
 - [test-partitions.md](test-partitions.md) - how CI splits and verifies the tests.
 - [process-capture.md](process-capture.md) - process execution, drain timeouts, and diagnostics.
-- [policy-tests.md](policy-tests.md) - audit, release, trusted publishing, formatting, devcontainer, and package document contracts.
+- [policy-tests.md](policy-tests.md) - audit, release, trusted publishing, formatting, devcontainer, Dependabot, and package document contracts.
 - [test-platform.md](test-platform.md) - VSTest, the Expecto adapter, and why the tests do not use MTP.
 
 ## Related

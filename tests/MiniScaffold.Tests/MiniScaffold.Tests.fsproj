@@ -13,10 +13,12 @@
         <PackageReference Include="Expecto" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="YoloDev.Expecto.TestSdk" />
+        <PackageReference Include="YamlDotNet" />
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Infrastructure.fs" />
         <Compile Include="ProcessCaptureTests.fs" />
+        <Compile Include="DependabotConfig.fs" />
         <Compile Include="Asserts.fs" />
         <Compile Include="Tests.fs" />
         <Compile Include="ReleasePolicyTests.fs" />
@@ -25,6 +27,7 @@
         <Compile Include="GeneratedReleasePolicyTests.fs" />
         <Compile Include="FormattingTests.fs" />
         <Compile Include="DevcontainerPolicyTests.fs" />
+        <Compile Include="DependabotPolicyTests.fs" />
         <Compile Include="TrustedPublishingTests.fs" />
         <Compile Include="ReleaseToChangelogTests.fs" />
         <Compile Include="Main.fs" />
