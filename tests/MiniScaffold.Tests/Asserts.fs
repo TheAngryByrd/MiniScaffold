@@ -183,19 +183,23 @@ module Assert =
             )
             |> Seq.toList
 
+        let apiPrefix = $"reference/{d.Name.ToLowerInvariant()}"
+
         Expect.exists
             pages
-            (fun (page, _) -> page.StartsWith "reference/")
-            $"{docs} should contain the API reference pages"
+            (fun (page, _) -> page.StartsWith apiPrefix)
+            $"{docs} should contain the API reference pages ({apiPrefix}*)"
 
         let unresolved = [
             for page, file in pages do
+                let html = File.ReadAllText file
+
                 for placeholder in
-                    System.Text.RegularExpressions.Regex.Matches(
-                        File.ReadAllText file,
-                        @"\{\{[a-z0-9-]+\}\}"
-                    ) do
+                    System.Text.RegularExpressions.Regex.Matches(html, @"\{\{[^{}\s]+\}\}") do
                     page, placeholder.Value
+
+                if html.Contains "{{fsdocs-" then
+                    page, "{{fsdocs-"
         ]
 
         Expect.isEmpty
@@ -204,9 +208,18 @@ module Assert =
 
     let ``API page template is the page template without the edit link`` (d: DirectoryInfo) =
         let read path =
-            File.ReadAllText(Path.Combine(d.FullName, "docsSrc", path)).ReplaceLineEndings("\n")
+            File.ReadAllText(Path.Combine(d.FullName, path)).ReplaceLineEndings("\n")
 
-        let pageTemplate = read "_template.html"
+        Expect.isMatch
+            (read "docs/index.html")
+            @"href=""https://github\.com/[^""]+/edit/[^""/]+/docsSrc/index\.md"""
+            "A guide page should keep its edit link to its docsSrc file"
+
+        Expect.isFalse
+            ((read "docs/reference/index.html").Contains "id=\"edit-this-page\"")
+            "An API page should have no edit link"
+
+        let pageTemplate = read "docsSrc/_template.html"
 
         let editLink =
             System.Text.RegularExpressions.Regex(
@@ -220,7 +233,7 @@ module Assert =
             "docsSrc/_template.html should have one edit link"
 
         Expect.equal
-            (read "reference/_template.html")
+            (read "docsSrc/reference/_template.html")
             (editLink.Replace(pageTemplate, ""))
             "docsSrc/reference/_template.html should equal docsSrc/_template.html without the edit link"
 
