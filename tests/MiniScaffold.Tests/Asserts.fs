@@ -376,14 +376,43 @@ module Assert =
             d
 
     let ``CI workflow collects coverage only in Debug`` (d: DirectoryInfo) =
-        let values =
+        let expected = "ENABLE_COVERAGE: ${{ matrix.configuration == 'Debug' }}"
+
+        let steps =
             File.ReadAllLines(Path.Combine(d.FullName, ".github", "workflows", "build.yml"))
-            |> Array.map _.Trim()
-            |> Array.filter _.StartsWith("ENABLE_COVERAGE:")
+            |> Array.fold
+                (fun steps line ->
+                    match steps with
+                    | _ when line.StartsWith("      - ") ->
+                        [ line.Trim() ]
+                        :: steps
+                    | step :: rest ->
+                        (line.Trim()
+                         :: step)
+                        :: rest
+                    | [] -> []
+                )
+                []
+            |> List.rev
+            |> List.map List.rev
+
+        let coverageByStep =
+            steps
+            |> List.choose (fun step ->
+                match
+                    step
+                    |> List.filter _.StartsWith("ENABLE_COVERAGE:")
+                with
+                | [] -> None
+                | settings -> Some(List.head step, settings)
+            )
 
         Expect.equal
-            (List.ofArray values)
-            [ for _ in 1..2 -> "ENABLE_COVERAGE: ${{ matrix.configuration == 'Debug' }}" ]
+            coverageByStep
+            [
+                "- name: Build via Bash", [ expected ]
+                "- name: Build via Windows", [ expected ]
+            ]
             "The Bash and Windows build steps should each collect coverage in the Debug leg only"
 
     let ``tests ran on each target framework`` testProjectName frameworks (d: DirectoryInfo) =
@@ -922,20 +951,8 @@ module Effect =
         | _ -> failwith "couldn't find bounds of `let githubRelease` function in build.fs"
 
     let ``git init`` (d: DirectoryInfo) (branchName: string) =
-        for name in
-            [
-                "GIT_DIR"
-                "GIT_WORK_TREE"
-                "GIT_INDEX_FILE"
-            ] do
-            Expect.isNull
-                (Environment.GetEnvironmentVariable name)
-                $"{name} would send the fixture git commands to another repository"
-
-        let ok, _, error =
-            Git.CommandHelper.runGitCommand d.FullName $"init --initial-branch={branchName}"
-
-        Expect.isTrue ok $"git init failed in {d.FullName}: {error}"
+        Git.CommandHelper.runGitCommand d.FullName $"init --initial-branch={branchName}"
+        |> ignore
 
         Git.CommandHelper.runGitCommand d.FullName "config --local user.email nobody@example.org"
         |> ignore
@@ -949,6 +966,32 @@ module Effect =
 
     // The SDK maps PDB source paths to /_/ in a CI build only when the project has a source root, which git provides
     let ``commit the repository`` (d: DirectoryInfo) =
+        let fixture = d.FullName
+
+        // Git resolves a relative value against the fixture, as in a hook that sets GIT_INDEX_FILE=.git/index.lock
+        for name in
+            [
+                "GIT_DIR"
+                "GIT_WORK_TREE"
+                "GIT_INDEX_FILE"
+                "GIT_COMMON_DIR"
+                "GIT_OBJECT_DIRECTORY"
+            ] do
+            match Environment.GetEnvironmentVariable name with
+            | null -> ()
+            | value ->
+                let relative =
+                    Path.GetRelativePath(fixture, Path.GetFullPath(Path.Combine(fixture, value)))
+
+                Expect.isFalse
+                    (relative = ".."
+                     || relative.StartsWith(
+                         ".."
+                         + string Path.DirectorySeparatorChar
+                     )
+                     || Path.IsPathRooted relative)
+                    $"{name}={value} resolves outside the fixture, so its git commands would write to another repository"
+
         ``git init`` d "main"
         ``git commit all`` "Initial commit" d
 
