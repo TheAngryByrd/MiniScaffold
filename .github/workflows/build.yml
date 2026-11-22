@@ -50,6 +50,20 @@ jobs:
           New-ItemProperty -Force -Path $key -Name DumpCount -PropertyType DWord -Value 10 | Out-Null
           New-ItemProperty -Force -Path $key -Name DumpType -PropertyType DWord -Value 1 | Out-Null
 
+      - name: Probe crash dump (temporary)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Set-Content probe.fsx 'System.Runtime.InteropServices.Marshal.ReadInt32(nativeint 0x1234567890L) |> printfn "%d"'
+          dotnet fsi probe.fsx
+          "dotnet fsi exit code: $LASTEXITCODE"
+          Remove-Item probe.fsx
+          $dumps = Join-Path $env:RUNNER_TEMP 'crash-dumps'
+          for ($i = 0; $i -lt 30 -and -not (Get-ChildItem $dumps -Filter *.dmp); $i++) { Start-Sleep -Seconds 1 }
+          Get-ChildItem $dumps | Format-Table Name, Length
+          if (-not (Get-ChildItem $dumps -Filter *.dmp)) { throw "no crash dump in $dumps" }
+          Remove-Item (Join-Path $dumps '*.dmp')
+
       - name: Build via Bash
         if: runner.os != 'Windows'
         run: |
