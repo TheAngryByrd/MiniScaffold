@@ -19,8 +19,6 @@
         },
         // https://github.com/devcontainers/features/blob/main/src/github-cli/README.md
         "ghcr.io/devcontainers/features/github-cli:1": {},
-        // https://github.com/devcontainers-extra/features/blob/main/src/starship/README.md
-        "ghcr.io/devcontainers-extra/features/starship:1": {},
         // https://github.com/devcontainers/features/blob/main/src/dotnet/README.md
         "ghcr.io/devcontainers/features/dotnet:2": {
             "version": "11.0",
@@ -30,7 +28,6 @@
     "overrideFeatureInstallOrder": [
         "ghcr.io/devcontainers/features/common-utils",
         "ghcr.io/devcontainers/features/github-cli",
-        "ghcr.io/devcontainers-extra/features/starship",
         "ghcr.io/devcontainers/features/dotnet"
     ],
     "customizations": {

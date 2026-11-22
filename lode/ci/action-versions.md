@@ -59,22 +59,37 @@ Example from `.github/workflows/build.yml`:
 ## Devcontainer features
 
 `.devcontainer/devcontainer.json`, `Content/Library/.devcontainer/devcontainer.json`, and `Content/Console/.devcontainer/devcontainer.json` have the same features.
-The starship feature uses the `ghcr.io/devcontainers-extra/features` namespace. The `devcontainers-contrib` namespace is the old name.
+No feature needs the GitHub REST API on its normal path. `common-utils` installs with apt and clones Oh My Zsh with git. `dotnet` uses the .NET install script and Microsoft feeds. `github-cli` (1.1.3, the image that `:1` resolves to) resolves the gh version with `git ls-remote` and downloads `gh_<version>_linux_<arch>.deb` from GitHub Releases, because `installDirectlyFromGitHubRelease` defaults to `true`. If `git ls-remote` gives no version, its installer exits 1 and the build fails. Unreleased code on upstream `main` adds a REST API fallback and a last known version. The feature tags float (`:1`, `:2`), so a later feature version can change these paths.
 Each ID in `overrideFeatureInstallOrder` must be a key of `features` without its version tag. The devcontainer CLI does not compare the two lists, and an ID that matches no feature has no effect on the install order.
 
 ```json
 "ghcr.io/devcontainers/features/common-utils:2": { },
 "ghcr.io/devcontainers/features/github-cli:1": {},
-"ghcr.io/devcontainers-extra/features/starship:1": {},
 "ghcr.io/devcontainers/features/dotnet:2": { }
 ```
 
 Root `build.yml` builds each devcontainer. Each `devcontainers/ci` step sets `push: never`, because the jobs set no `imageName` and the default `push: filter` reports an error on a push to `master`.
 
 - `build-devcontainer` builds the root devcontainer and runs `./build.sh` in it.
-- `build-template-devcontainer` builds `Content/Library` and `Content/Console` with the `subFolder` input and runs `dotnet --info` and `starship --version` in each, after `set -e`. `devcontainers/ci` runs `runCmd` with `bash -c`, so without `set -e` only the last command sets the result.
+- `build-template-devcontainer` builds `Content/Library` and `Content/Console` with the `subFolder` input and runs `dotnet --info`, `starship --version`, and a check that `command -v starship` is `/usr/local/bin/starship` (the install script location) in each, after `set -e`. `devcontainers/ci` runs `runCmd` with `bash -c`, so without `set -e` only the last command sets the result.
 - The gate job `build` does not need the devcontainer jobs. A failed devcontainer job does not fail a required check.
-- The starship feature downloads its binary through the GitHub API without a token. When the runner's shared rate limit is used up, the feature install fails with `HTTP Error 403: rate limit exceeded`, and the devcontainer job fails. [Issue #362](https://github.com/TheAngryByrd/MiniScaffold/issues/362) tracks a fix.
+
+## Starship in the devcontainers
+
+The three devcontainer `Dockerfile`s are the same file. Each installs the latest starship release with the official install script, not with a devcontainer feature:
+
+```dockerfile
+RUN curl -sS https://starship.rs/install.sh | sh -s -- --yes && starship --version
+```
+
+- The script supports `--version`, and the `Dockerfile` does not pass it, so a build that runs this layer gets the latest release. A fresh CI runner starts with no layer cache and runs it. A second build in the same job, or a local rebuild, can reuse the cached layer and keep the old starship. The script downloads `https://github.com/starship/starship/releases/latest/download/starship-<target>.tar.gz` and makes no `api.github.com` call (`BASE_URL` and `URL` in `install.sh`). The Docker build runs as root, so it writes to `/usr/local/bin` without `sudo`. `--yes` skips the prompt.
+- The script needs `tar` and `gzip` for the Linux archive, and the `buildpack-deps:trixie-curl` image has both. It needs `unzip` only for Windows.
+- `/bin/sh` runs the pipe without `pipefail`. When curl gets no script (for example a DNS failure), `sh` reads an empty script and exits 0. An HTTP error body runs as a script and fails with a non-zero code (2 for an HTML page, 127 for a plain-text body), and a failed archive download makes the script exit non-zero. The `&& starship --version` part fails the layer in the exit-0 case, so the image build fails and Docker caches no layer without starship.
+- Trade-offs: the script and the release are not pinned, so two uncached builds can get different starship versions, and a change of the script reaches the next uncached build. The script extracts the archive with no checksum check. The curl calls set no timeout, and the download and the extraction have no size limit. The script leaves its archive (about 5 MB) in `/tmp` of the image.
+- The `ghcr.io/devcontainers-extra/features/starship` feature installs through the `gh-release` feature and nanolayer v0.5.6. nanolayer resolves `latest` from git tags when git is present, and from `https://api.github.com/repos/<repo>/releases` otherwise. For every version it then reads `https://api.github.com/repos/<repo>/releases/tags/<tag>` to find the asset, without a token. The feature has no token option. On a GitHub-hosted runner the shared unauthenticated rate limit can be used up, and the build failed with `HTTP Error 403: rate limit exceeded` at the `releases/tags` call. A fixed version does not remove that call.
+- Rejected options: the feature with a fixed version (it still calls `releases/tags`), a token for the feature (no option), the Debian package (trixie has `starship` 1.22.1, older than the latest release, and bookworm has none), and an image cache (`cacheFrom`, the first build still calls the API).
+- `onCreateCommand` adds `eval "$(starship init zsh)"` to `~/.zshrc`. It runs as `vscode` after the features, so the install in the Dockerfile does not change the prompt setup.
+- `DevcontainerPolicyTests.fs` fails if a non-comment line of a `devcontainer.json` names a starship feature, or if a `Dockerfile` has no active install line (a commented line fails it). The path check in `build-template-devcontainer` fails if another starship is in front of the script one.
 
 ## Lessons
 
