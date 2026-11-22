@@ -37,12 +37,6 @@ jobs:
             10.x
             11.x
 
-      # createdump writes no dump into a missing folder
-      - name: Create crash dump folder
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: New-Item -ItemType Directory -Force (Join-Path $env:RUNNER_TEMP 'crash-dumps') | Out-Null
-
       - name: Build via Bash
         if: runner.os != 'Windows'
         run: |
@@ -51,18 +45,12 @@ jobs:
         env:
           CONFIGURATION: ${{ matrix.configuration }}
           CI: true
-          MSBUILDDEBUGPATH: ${{ runner.temp }}/msbuild-debug
       - name: Build via Windows
         if: runner.os == 'Windows'
         run: ./build.cmd IntegrationTests
         env:
           CONFIGURATION: ${{ matrix.configuration }}
           CI: true
-          MSBUILDDEBUGPATH: ${{ runner.temp }}/msbuild-debug
-          # Every .NET process that crashes or ends with an unhandled exception writes a mini dump. Only dotnet.exe dumps (MSBuild nodes) are uploaded.
-          DOTNET_DbgEnableMiniDump: 1
-          DOTNET_DbgMiniDumpType: 1
-          DOTNET_DbgMiniDumpName: ${{ runner.temp }}\crash-dumps\%e.%p.dmp
       - name: Upload partition evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -80,16 +68,6 @@ jobs:
             **/TestResults/**/*.trx
             TestResults/generated-builds/**
           if-no-files-found: warn
-          retention-days: 7
-      - name: Upload crash evidence
-        if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: crash-evidence-${{ matrix.target.os }}-${{ matrix.configuration }}-${{ matrix.target.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            ${{ runner.temp }}/msbuild-debug/
-            ${{ runner.temp }}/crash-dumps/dotnet.exe.*.dmp
-          if-no-files-found: ignore
           retention-days: 7
 
   integration-macos:

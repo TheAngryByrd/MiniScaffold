@@ -20,7 +20,7 @@ flowchart TD
 ## Jobs
 
 - `integration-tests` runs `./build.sh IntegrationTests` or `./build.cmd IntegrationTests` with `CI: true`, `MINISCAFFOLD_TEST_PARTITION`, and `MINISCAFFOLD_TEST_OS`.
-  It uploads `TestResults/partitions/<partition>/` as partition evidence and `TestResults/generated-builds/**` as diagnostics. A failed job also uploads MSBuild failure files and Windows `dotnet.exe` crash dumps (see [crash-evidence.md](crash-evidence.md)).
+  It uploads `TestResults/partitions/<partition>/` as partition evidence and `TestResults/generated-builds/**` as diagnostics.
 - `integration-macos` runs up to three workloads in sequence through `.github/actions/integration-workload`, with a clean checkout between workloads.
   The action sets `MINISCAFFOLD_TEST_OS: macOS-latest`.
   The four recipes together run each macOS partition once in Debug and once in Release.
