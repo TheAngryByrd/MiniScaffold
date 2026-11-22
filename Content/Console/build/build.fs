@@ -294,6 +294,9 @@ let dotnetBuild ctx =
     let args = [
         sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
         "--no-restore"
+        // AltCoverLocalSource needs the local source paths that ContinuousIntegrationBuild maps to /_/
+        if not disableCodeCoverage then
+            "/p:ContinuousIntegrationBuild=false"
     ]
 
     DotNet.build

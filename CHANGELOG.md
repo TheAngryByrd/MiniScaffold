@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#354 Target net10.0 and net11.0 in generated libraries and pin SDK 11](https://github.com/TheAngryByrd/MiniScaffold/pull/363) from @TheAngryByrd
 - [#355 Update packages and .NET tools to current stable versions](https://github.com/TheAngryByrd/MiniScaffold/pull/367) from @TheAngryByrd
 
+### Fixed
+- #360 Generated builds collect coverage again when `CI=true` in a git repository from @TheAngryByrd
+
 ## [0.40.0-beta001] - 2026-03-09
 
 ### Added

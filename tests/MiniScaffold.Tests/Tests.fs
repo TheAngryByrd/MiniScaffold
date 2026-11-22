@@ -1896,6 +1896,7 @@ stderr:
                     "-n MyCoolLib --githubUsername CoolPersonNo2",
                     [
                         yield! projectStructureAsserts
+                        Effect.``commit the repository``
                         Assert.``File does not exist`` "src/MyCoolLib/AssemblyInfo.fs"
                         Assert.``project can build target`` "DotnetPack"
                         Assert.``tests ran on each target framework`` "MyCoolLib.Tests" [
@@ -1980,7 +1981,9 @@ stderr:
                     "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console",
                     [
                         yield! projectStructureAsserts
+                        Effect.``commit the repository``
                         Assert.``project can build target`` "CreatePackages"
+                        Assert.``CI coverage report has visits`` "MyCoolApp.Tests"
                     ]
                     // Test that CHANGELOG.md is not modified during build failures,
                     // *unless* at least one step has pushed a release to the outside world.

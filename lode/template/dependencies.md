@@ -74,7 +74,18 @@ A Release pack writes the SourceLink JSON into each PDB, and the nuspec `reposit
 AltCover 9 writes one `$(TEMP)/tmp*.altcover.runsettings` file for each test run and deletes only that file (`AltCoverDeleteTempRunSettingsFile` in `build/AltCover.proj` of the package).
 The test runs of the two library TFMs can run in parallel with coverage, so `tests/Directory.Build.props` does not change `TestTfmsInParallel`.
 Since AltCover 9, the default is deferred recording at unload or exit time, and one visit for each context (`--all` and `--eager` restore the old counts). Coverage percentages do not change, but visit counts can be lower than AltCover 8 counts.
-The `MyCoolLib` generated build case runs `GenerateCoverageReport` with `CI` unset (issue #360) and requires visited sequence points in `coverage.net10.0.xml` and `coverage.net11.0.xml`. A single run does not prove that the old race is gone, so the evidence for that is the AltCover source. Generated libraries run coverage in their `build.yml` with `ENABLE_COVERAGE: true`. The console tests have one TFM, and the console build turns coverage off with `DISABLE_COVERAGE`.
+The `MyCoolLib` generated build case runs `GenerateCoverageReport` with `CI=true` and `ENABLE_COVERAGE=true` in a committed git repository, and requires visited sequence points in `coverage.net10.0.xml` and `coverage.net11.0.xml`. A single run does not prove that the old race is gone, so the evidence for that is the AltCover source. Generated libraries run coverage in their `build.yml` with `ENABLE_COVERAGE: true`. The console build has coverage on unless `DISABLE_COVERAGE` is set.
+
+## Coverage with ContinuousIntegrationBuild
+
+`src/Directory.Build.props` sets `ContinuousIntegrationBuild` when `CI` is `true`. In a git repository, SourceLink then maps source paths in the PDBs to `/_/`. `dotnetTest` passes `/p:AltCoverLocalSource=true`, which skips an assembly whose first source path does not exist, so it would skip every project assembly and fail the threshold with 0 of 0 points. So `dotnetBuild` passes `/p:ContinuousIntegrationBuild=false` when coverage is on (`coverageEnabled` in the library build, `not disableCodeCoverage` in the console build):
+
+```fsharp
+if coverageEnabled ctx then
+    "/p:ContinuousIntegrationBuild=false"
+```
+
+No release artifact comes from such a build: the library `publish.yml` sets `ENABLE_COVERAGE: false`, and the console `CreatePackages` target rebuilds with `dotnet publish -c Release`. Without a `.git` folder the paths stay local, so a test must commit the generated repository to see the problem (`Effect.``commit the repository```).
 
 ## Analyzers
 

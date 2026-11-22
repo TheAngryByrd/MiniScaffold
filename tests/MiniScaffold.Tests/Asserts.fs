@@ -248,40 +248,51 @@ module Assert =
                 required
                 "fsdocs-search.js needs this element in the dialog"
 
+    let private ``report has visits`` (report: string) =
+        Expect.isTrue (File.Exists report) $"AltCover should write {report}"
+
+        let summary = XDocument.Load(report).Root.Element(XName.Get "Summary")
+
+        let visited =
+            summary.Attribute(XName.Get "visitedSequencePoints").Value
+            |> int
+
+        Expect.isGreaterThan visited 0 $"The tests should visit project code ({report})"
+
     let ``coverage report covers each target framework``
         testProjectName
         frameworks
         (d: DirectoryInfo)
         =
-        // CI=true gives AltCover 0 visits in generated repositories (issue #360).
-        Builds.executeBuildWithEnvironment
-            [
-                "CI", None
-                "ENABLE_COVERAGE", None
-            ]
-            d.FullName
-            "GenerateCoverageReport"
+        let environment = [
+            "CI", Some "true"
+            "ENABLE_COVERAGE", Some "true"
+            "DISABLE_COVERAGE", None
+        ]
+
+        // An incremental build keeps PDB source paths from an earlier build with another CI value
+        Builds.executeBuildWithEnvironment environment d.FullName "Clean"
+        Builds.executeBuildWithEnvironment environment d.FullName "GenerateCoverageReport"
 
         for framework in frameworks do
-            let report =
+            ``report has visits`` (
                 Path.Combine(d.FullName, "tests", testProjectName, $"coverage.{framework}.xml")
-
-            Expect.isTrue (File.Exists report) $"AltCover should write {report}"
-
-            let summary = XDocument.Load(report).Root.Element(XName.Get "Summary")
-
-            let visited =
-                summary.Attribute(XName.Get "visitedSequencePoints").Value
-                |> int
-
-            Expect.isGreaterThan
-                visited
-                0
-                $"The {framework} tests should visit library code ({report})"
+            )
 
         Expect.isTrue
             (File.Exists(Path.Combine(d.FullName, "docs", "coverage", "index.html")))
             "reportgenerator should write docs/coverage/index.html"
+
+    let ``CI coverage report has visits`` testProjectName (d: DirectoryInfo) =
+        let environment = [
+            "CI", Some "true"
+            "DISABLE_COVERAGE", None
+        ]
+
+        Builds.executeBuildWithEnvironment environment d.FullName "Clean"
+        Builds.executeBuildWithEnvironment environment d.FullName "DotnetTest"
+
+        ``report has visits`` (Path.Combine(d.FullName, "tests", testProjectName, "coverage.xml"))
 
     let ``tests ran on each target framework`` testProjectName frameworks (d: DirectoryInfo) =
         let resultsDirectory =
@@ -831,6 +842,11 @@ module Effect =
     let ``git commit all`` message (d: DirectoryInfo) =
         Git.Staging.stageAll d.FullName
         Git.Commit.exec d.FullName message
+
+    // SourceLink maps source paths to /_/ in a ContinuousIntegrationBuild only inside a git repository
+    let ``commit the repository`` (d: DirectoryInfo) =
+        ``git init`` d "main"
+        ``git commit all`` "Initial commit" d
 
     let ``make build function fail`` (failureFunction: string) (d: DirectoryInfo) =
         let buildScript = ``get build.fs`` d
