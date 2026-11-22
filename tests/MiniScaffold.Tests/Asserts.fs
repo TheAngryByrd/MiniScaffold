@@ -345,14 +345,21 @@ module Assert =
 
         ``CI coverage after a CI build`` projectName coverage "DotnetTest" reports d
 
+        for report in reports do
+            File.Delete report
+
         Builds.executeBuildWithEnvironment
-            ([
+            [
                 "CI", Some "true"
                 "CONFIGURATION", Some "Debug"
-             ]
-             @ coverage)
+                "ENABLE_COVERAGE", None
+                "DISABLE_COVERAGE", None
+            ]
             d.FullName
             "GenerateCoverageReport"
+
+        for report in reports do
+            ``product module has visits`` projectName report
 
         Expect.isTrue
             (File.Exists(Path.Combine(d.FullName, "docs", "coverage", "index.html")))
@@ -374,13 +381,10 @@ module Assert =
             |> Array.map _.Trim()
             |> Array.filter _.StartsWith("ENABLE_COVERAGE:")
 
-        Expect.isNonEmpty values "build.yml should set ENABLE_COVERAGE"
-
-        for value in values do
-            Expect.equal
-                value
-                "ENABLE_COVERAGE: ${{ matrix.configuration == 'Debug' }}"
-                "Release builds lower the measured coverage below the threshold"
+        Expect.equal
+            (List.ofArray values)
+            [ for _ in 1..2 -> "ENABLE_COVERAGE: ${{ matrix.configuration == 'Debug' }}" ]
+            "The Bash and Windows build steps should each collect coverage in the Debug leg only"
 
     let ``tests ran on each target framework`` testProjectName frameworks (d: DirectoryInfo) =
         let resultsDirectory =
@@ -918,8 +922,20 @@ module Effect =
         | _ -> failwith "couldn't find bounds of `let githubRelease` function in build.fs"
 
     let ``git init`` (d: DirectoryInfo) (branchName: string) =
-        Git.CommandHelper.runGitCommand d.FullName $"init --initial-branch={branchName}"
-        |> ignore
+        for name in
+            [
+                "GIT_DIR"
+                "GIT_WORK_TREE"
+                "GIT_INDEX_FILE"
+            ] do
+            Expect.isNull
+                (Environment.GetEnvironmentVariable name)
+                $"{name} would send the fixture git commands to another repository"
+
+        let ok, _, error =
+            Git.CommandHelper.runGitCommand d.FullName $"init --initial-branch={branchName}"
+
+        Expect.isTrue ok $"git init failed in {d.FullName}: {error}"
 
         Git.CommandHelper.runGitCommand d.FullName "config --local user.email nobody@example.org"
         |> ignore
@@ -936,15 +952,15 @@ module Effect =
         ``git init`` d "main"
         ``git commit all`` "Initial commit" d
 
-        let ok, lines, error =
-            Git.CommandHelper.runGitCommand d.FullName "rev-parse --show-toplevel"
+        let ok, prefix, error =
+            Git.CommandHelper.runGitCommand d.FullName "rev-parse --show-prefix"
 
         Expect.isTrue ok $"git rev-parse failed in {d.FullName}: {error}"
 
-        Expect.equal
-            (Path.GetFullPath(List.head lines).TrimEnd('/', '\\'))
-            (d.FullName.TrimEnd('/', '\\'))
-            "The fixture should be its own git repository"
+        Expect.all
+            prefix
+            String.IsNullOrWhiteSpace
+            $"The fixture should be the root of its own git repository, not {prefix}"
 
     let ``make build function fail`` (failureFunction: string) (d: DirectoryInfo) =
         let buildScript = ``get build.fs`` d
