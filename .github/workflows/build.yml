@@ -37,6 +37,19 @@ jobs:
             10.x
             11.x
 
+      # MSBuild worker nodes run as dotnet.exe. The FAKE build runs as build.exe, so its expected failures write no dump.
+      - name: Keep crash dumps of dotnet.exe
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $dumps = Join-Path $env:RUNNER_TEMP 'crash-dumps'
+          New-Item -ItemType Directory -Force $dumps | Out-Null
+          $key = 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\dotnet.exe'
+          New-Item -Force $key | Out-Null
+          New-ItemProperty -Force -Path $key -Name DumpFolder -PropertyType ExpandString -Value $dumps | Out-Null
+          New-ItemProperty -Force -Path $key -Name DumpCount -PropertyType DWord -Value 10 | Out-Null
+          New-ItemProperty -Force -Path $key -Name DumpType -PropertyType DWord -Value 1 | Out-Null
+
       - name: Build via Bash
         if: runner.os != 'Windows'
         run: |
@@ -45,12 +58,14 @@ jobs:
         env:
           CONFIGURATION: ${{ matrix.configuration }}
           CI: true
+          MSBUILDDEBUGPATH: ${{ runner.temp }}/msbuild-debug
       - name: Build via Windows
         if: runner.os == 'Windows'
         run: ./build.cmd IntegrationTests
         env:
           CONFIGURATION: ${{ matrix.configuration }}
           CI: true
+          MSBUILDDEBUGPATH: ${{ runner.temp }}/msbuild-debug
       - name: Upload partition evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -68,6 +83,16 @@ jobs:
             **/TestResults/**/*.trx
             TestResults/generated-builds/**
           if-no-files-found: warn
+          retention-days: 7
+      - name: Upload crash evidence
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: crash-evidence-${{ matrix.target.os }}-${{ matrix.configuration }}-${{ matrix.target.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/msbuild-debug/
+            ${{ runner.temp }}/crash-dumps/
+          if-no-files-found: ignore
           retention-days: 7
 
   integration-macos:
