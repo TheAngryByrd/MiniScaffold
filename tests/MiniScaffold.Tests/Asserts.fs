@@ -176,34 +176,66 @@ module Assert =
     let ``docs have no unresolved substitutions`` (d: DirectoryInfo) =
         let docs = Path.Combine(d.FullName, "docs")
 
-        // fsdocs leaves the edit link key unresolved on API pages (issue #366).
-        let isKnownGap (page: string) placeholder =
-            placeholder = "{{fsdocs-source-filename}}"
-            && page.StartsWith "reference/"
-
         let pages =
             Directory.EnumerateFiles(docs, "*.html", SearchOption.AllDirectories)
+            |> Seq.map (fun file ->
+                Path.GetRelativePath(docs, file).Replace(Path.DirectorySeparatorChar, '/'), file
+            )
             |> Seq.toList
 
-        Expect.isNonEmpty pages $"{docs} should contain the generated documentation pages"
+        let apiPrefix = $"reference/{d.Name.ToLowerInvariant()}"
+
+        Expect.exists
+            pages
+            (fun (page, _) -> page.StartsWith apiPrefix)
+            $"{docs} should contain the API reference pages ({apiPrefix}*)"
 
         let unresolved = [
-            for file in pages do
-                let page =
-                    Path.GetRelativePath(docs, file).Replace(Path.DirectorySeparatorChar, '/')
+            for page, file in pages do
+                let html = File.ReadAllText file
 
                 for placeholder in
-                    System.Text.RegularExpressions.Regex.Matches(
-                        File.ReadAllText file,
-                        @"\{\{[a-z0-9-]+\}\}"
-                    ) do
-                    if not (isKnownGap page placeholder.Value) then
-                        page, placeholder.Value
+                    System.Text.RegularExpressions.Regex.Matches(html, @"\{\{[^{}\s]+\}\}") do
+                    page, placeholder.Value
+
+                if html.Contains "{{fsdocs-" then
+                    page, "{{fsdocs-"
         ]
 
         Expect.isEmpty
             unresolved
             $"fsdocs should replace each template substitution: %A{unresolved}"
+
+    let ``API page template is the page template without the edit link`` (d: DirectoryInfo) =
+        let read path =
+            File.ReadAllText(Path.Combine(d.FullName, path)).ReplaceLineEndings("\n")
+
+        Expect.isMatch
+            (read "docs/index.html")
+            @"href=""https://github\.com/[^""]+/edit/[^""/]+/docsSrc/index\.md"""
+            "A guide page should keep its edit link to its docsSrc file"
+
+        Expect.isFalse
+            ((read "docs/reference/index.html").Contains "id=\"edit-this-page\"")
+            "An API page should have no edit link"
+
+        let pageTemplate = read "docsSrc/_template.html"
+
+        let editLink =
+            System.Text.RegularExpressions.Regex(
+                """ *<div class="float-right" id="edit-this-page">.*?</div>\n""",
+                System.Text.RegularExpressions.RegexOptions.Singleline
+            )
+
+        Expect.equal
+            (editLink.Matches(pageTemplate).Count)
+            1
+            "docsSrc/_template.html should have one edit link"
+
+        Expect.equal
+            (read "docsSrc/reference/_template.html")
+            (editLink.Replace(pageTemplate, ""))
+            "docsSrc/reference/_template.html should equal docsSrc/_template.html without the edit link"
 
     let ``docs use the fsdocs search contract`` (d: DirectoryInfo) =
         let index = File.ReadAllText(Path.Combine(d.FullName, "docs", "index.html"))

@@ -61,7 +61,9 @@ When you do an initial scaffold, your folder will be filled with this set of fil
     │   │   ├── fsdocs-main.css
     │   │   ├── navbar-fixed-left.css
     │   │   └── theme-toggle.js
-    │   └── index.md
+    │   ├── index.md
+    │   └── reference
+    │       └── _template.html
     ├── global.json
     ├── src
     │   ├── Directory.Build.props
@@ -99,5 +101,7 @@ When you do an initial scaffold, your folder will be filled with this set of fil
 - `build.sh` - Nix specific entry point for building the repository.
 - `build\` - Build script for building the repository. See [FAKE Docs](https://fake.build/) for more info.
 - `docsSrc\` - Contains the source files for your [GitHub documentation](https://help.github.com/en/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+  - `docsSrc\_template.html` is the page template of the guides. `docsSrc\reference\_template.html` is the page template of the API reference pages. It is the same file without the "Edit this page" link, because an API page has no source file to edit. Make each layout change in both files.
+  - fsdocs uses `reference\_template.html` for every page in `docsSrc\reference`, so a guide there has no edit link. Put guides in the other folders. On Windows and macOS, folder names are not case-sensitive, so this also applies to `docsSrc\Reference`.
 - `src\` - Folder containing your repository's [project files](https://docs.microsoft.com/en-us/aspnet/web-forms/overview/deployment/web-deployment-in-the-enterprise/understanding-the-project-file) and code.
 - `tests\` - Folder containing tests running against your code in `src`.

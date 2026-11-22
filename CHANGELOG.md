@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - [#360 Collect coverage in generated CI builds in a git repository](https://github.com/TheAngryByrd/MiniScaffold/pull/369) from @TheAngryByrd
+- [#366 Give generated API reference pages a template without the edit link](https://github.com/TheAngryByrd/MiniScaffold/pull/370) from @TheAngryByrd
 
 ## [0.40.0-beta001] - 2026-03-09
 
