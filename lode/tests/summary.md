@@ -1,7 +1,7 @@
 # Tests domain
 
 The tests domain is `tests/MiniScaffold.Tests` and the partition scripts `build/TestPartitions.ps1` and `build/TestPartitions.Tests.ps1`.
-The test project is an Expecto 11.1.1 `Exe` on net10.0. YoloDev.Expecto.TestSdk lets `dotnet test` run it.
+The test project is an Expecto 11.1.1 `Exe` on net10.0. YoloDev.Expecto.TestSdk lets `dotnet test` run it on VSTest. See [test-platform.md](test-platform.md).
 The tests need a packed template package, so `IntegrationTests` depends on `DotnetPack`.
 
 ```mermaid
@@ -41,6 +41,7 @@ The compile order in `MiniScaffold.Tests.fsproj` is fixed: Infrastructure, Proce
 - [test-partitions.md](test-partitions.md) - how CI splits and verifies the tests.
 - [process-capture.md](process-capture.md) - process execution, drain timeouts, and diagnostics.
 - [policy-tests.md](policy-tests.md) - audit, release, trusted publishing, formatting, and package document contracts.
+- [test-platform.md](test-platform.md) - VSTest, the Expecto adapter, and why the tests do not use MTP.
 
 ## Related
 
