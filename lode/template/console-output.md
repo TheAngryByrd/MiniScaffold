@@ -51,7 +51,7 @@ The archives are framework-dependent, so the destination computer needs the .NET
 - `Release` runs locally. `GitHubRelease` needs `GITHUB_TOKEN` and runs the branch check, not a tag check.
 - `GitHubRelease` uploads the zip, tgz, and tar.gz files from `dist/`.
 - `isRelease` looks for the `Release` target. The library output looks for `PublishToNuGet`.
-- Coverage is on by default. Set `DISABLE_COVERAGE` to turn it off.
+- Coverage is on by default. Set `DISABLE_COVERAGE=true` to turn it off.
 
 ## Changelog module
 

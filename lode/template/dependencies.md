@@ -74,7 +74,25 @@ A Release pack writes the SourceLink JSON into each PDB, and the nuspec `reposit
 AltCover 9 writes one `$(TEMP)/tmp*.altcover.runsettings` file for each test run and deletes only that file (`AltCoverDeleteTempRunSettingsFile` in `build/AltCover.proj` of the package).
 The test runs of the two library TFMs can run in parallel with coverage, so `tests/Directory.Build.props` does not change `TestTfmsInParallel`.
 Since AltCover 9, the default is deferred recording at unload or exit time, and one visit for each context (`--all` and `--eager` restore the old counts). Coverage percentages do not change, but visit counts can be lower than AltCover 8 counts.
-The `MyCoolLib` generated build case runs `GenerateCoverageReport` with `CI` unset (issue #360) and requires visited sequence points in `coverage.net10.0.xml` and `coverage.net11.0.xml`. A single run does not prove that the old race is gone, so the evidence for that is the AltCover source. Generated libraries run coverage in their `build.yml` with `ENABLE_COVERAGE: true`. The console tests have one TFM, and the console build turns coverage off with `DISABLE_COVERAGE`.
+The `MyCoolLib` generated build case runs `DotnetTest` with `CI=true` and `ENABLE_COVERAGE=true` in a committed git repository, and requires visited sequence points in the `MyCoolLib` module of `coverage.net10.0.xml` and `coverage.net11.0.xml`. A single run does not prove that the old race is gone, so the evidence for that is the AltCover source. Generated libraries run coverage in the Debug leg of their `build.yml` (see [Coverage with ContinuousIntegrationBuild](#coverage-with-continuousintegrationbuild)). The console build has coverage on unless `DISABLE_COVERAGE` has a true value (`1`, `y`, `yes`, `t`, or `true`).
+
+## Coverage with ContinuousIntegrationBuild
+
+`src/Directory.Build.props` sets `ContinuousIntegrationBuild` when `CI` is `true`. When the project has a source root (git provides one), the F# SDK then maps the PDB source paths to `/_/` (`DeterministicSourcePaths`, `_SetPathMapFromSourceRoots` in `Microsoft.FSharp.NetSdk.targets`). `dotnetTest` passes `/p:AltCoverLocalSource=true`, which skips an assembly whose first source path does not exist, so AltCover would skip every project assembly and fail the threshold with 0 of 0 points. `AltCoverLocalSource` stays, because FSharp.Core, the test platform, and AltCover.Monitor embed PDBs whose sources are not local.
+
+For a coverage run on CI, `dotnetBuild` passes `/p:UseLocalSourcePaths=true` (`isCI.Value && coverageEnabled ctx` in the library build, `isCI.Value && not disableCodeCoverage` in the console build). Only `src/Directory.Build.props` reads it:
+
+```xml
+<DeterministicSourcePaths Condition="'$(UseLocalSourcePaths)' == 'true'">false</DeterministicSourcePaths>
+
+<CoreCompileCache Include="ContinuousIntegrationBuild=$(ContinuousIntegrationBuild);DeterministicSourcePaths=$(DeterministicSourcePaths)" />
+```
+
+F# sets `PathMap` after `_GenerateCompileDependencyCache` hashes the compile inputs, so a change of the mapping alone does not compile again. The `CoreCompileCache` item puts the mapping mode into that hash, so a `src` project compiles again when the mode changes in either direction. The build project is not under `src`, so it does not compile again (a forced rebuild would try to overwrite the running `build.exe`). The library `DotnetPack` after a coverage build compiles again with the mapped paths.
+
+The generated library `build.yml` sets `ENABLE_COVERAGE: ${{ matrix.configuration == 'Debug' }}`, because Release optimizations lower the measured coverage below the 80% threshold (2 of 3 points in a new library). The shipped binaries come from builds without `UseLocalSourcePaths`. The library `publish.yml` sets `ENABLE_COVERAGE: false`. The console `CreatePackages` target runs the tests (with coverage unless `DISABLE_COVERAGE` is true), then publishes each RID with `dotnet publish -c Release`. On CI that publish compiles again with mapped paths. A local `CreatePackages` without `CI` has no mapping, so its archives hold PDBs with the local checkout path. A coverage build leaves the local checkout path in the PDBs under `bin` and `obj` and in the `File/@fullPath` values of the coverage XML. The generated workflows upload neither.
+
+The integration tests generate repositories without git, so their CI builds keep local paths. The `MyCoolLib` and `MyCoolApp` cases commit the repository before their coverage check (`Effect.``commit the repository```). See [../tests/integration-tests.md](../tests/integration-tests.md).
 
 ## Analyzers
 

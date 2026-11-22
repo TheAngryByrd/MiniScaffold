@@ -1906,6 +1906,8 @@ stderr:
                         Assert.``project can build target`` "BuildDocs"
                         Assert.``docs have no unresolved substitutions``
                         Assert.``docs use the fsdocs search contract``
+                        Assert.``CI workflow collects coverage only in Debug``
+                        Effect.``commit the repository``
                         Assert.``coverage report covers each target framework`` "MyCoolLib.Tests" [
                             "net10.0"
                             "net11.0"
@@ -1981,6 +1983,8 @@ stderr:
                     [
                         yield! projectStructureAsserts
                         Assert.``project can build target`` "CreatePackages"
+                        Effect.``commit the repository``
+                        Assert.``CI coverage report has visits`` "MyCoolApp.Tests"
                     ]
                     // Test that CHANGELOG.md is not modified during build failures,
                     // *unless* at least one step has pushed a release to the outside world.

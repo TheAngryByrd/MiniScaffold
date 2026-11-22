@@ -81,7 +81,7 @@ flowchart LR
 - FSharp.Analyzers.Build runs the analyzers after each `src` build that compiles (see [dependencies.md](dependencies.md)), with the `$(PkgIonide_Analyzers)` and `$(PkgG-Research_FSharp_Analyzers)` paths (`src/Directory.Build.targets`). Analyzer findings do not fail the build.
 - `GenerateCoverageReport` writes the HTML report to `docs/coverage`. `Content/Library/docsSrc/index.md` has no link to it ([issue #226](https://github.com/TheAngryByrd/MiniScaffold/issues/226)).
 - With `AltCover=true`, the test runs of the two TFMs run in parallel. AltCover 9 deletes only the settings file of its own run. See [dependencies.md](dependencies.md).
-- Coverage is opt-in through `ENABLE_COVERAGE`. The `publish.yml` comment states: "AltCover doesn't work with Release builds".
+- Coverage is opt-in through `ENABLE_COVERAGE`, or on when the `GenerateCoverageReport` target runs (`coverageEnabled`). The `publish.yml` comment states: "AltCover doesn't work with Release builds". The generated `build.yml` turns it on for the Debug leg only. See [dependencies.md](dependencies.md#coverage-with-continuousintegrationbuild).
 - `Directory.Packages.props` sets `RestorePackagesWithLockFile`, and sets `RestoreLockedMode` only when `CI` is `true`. The template ships no `packages.lock.json`, so the first restore creates it. See [dependencies.md](dependencies.md).
 - The generated `build.yml` runs Debug and Release on ubuntu, windows, and macOS, plus a devcontainer job.
 - The generated workflows and devcontainer use the versions in [../ci/action-versions.md](../ci/action-versions.md).

@@ -401,6 +401,11 @@ let dotnetBuild ctx =
         sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
         "--no-restore"
         yield! buildAssemblyInfoMsBuildArgs ctx
+        if
+            isCI.Value
+            && coverageEnabled ctx
+        then
+            "/p:UseLocalSourcePaths=true"
     ]
 
     DotNet.build

@@ -32,14 +32,16 @@ jobs:
         env:
           CI: true
           CONFIGURATION: ${{ matrix.configuration }}
-          ENABLE_COVERAGE: true
+          # Release optimizations lower the measured coverage below the threshold
+          ENABLE_COVERAGE: ${{ matrix.configuration == 'Debug' }}
       - name: Build via Windows
         if: runner.os == 'Windows'
         run: ./build.cmd
         env:
           CI: true
           CONFIGURATION: ${{ matrix.configuration }}
-          ENABLE_COVERAGE: true
+          # Release optimizations lower the measured coverage below the threshold
+          ENABLE_COVERAGE: ${{ matrix.configuration == 'Debug' }}
       - name: Test Report
         uses: dorny/test-reporter@v3
         if: always()

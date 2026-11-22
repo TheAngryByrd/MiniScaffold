@@ -23,6 +23,8 @@
         <!--
         https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#continuousintegrationbuild -->
         <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+        <!-- A coverage run on CI sets UseLocalSourcePaths, because AltCoverLocalSource skips an assembly whose PDB has /_/ paths -->
+        <DeterministicSourcePaths Condition="'$(UseLocalSourcePaths)' == 'true'">false</DeterministicSourcePaths>
         <!--
         https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/output#producereferenceassembly -->
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
@@ -34,6 +36,11 @@
         https://learn.microsoft.com/en-us/dotnet/fundamentals/apicompat/package-validation/overview -->
         <EnablePackageValidation>true</EnablePackageValidation>
     </PropertyGroup>
+
+    <!-- F# sets PathMap after it hashes the compile inputs, so a change of the source path mode alone does not rebuild -->
+    <ItemGroup>
+        <CoreCompileCache Include="ContinuousIntegrationBuild=$(ContinuousIntegrationBuild);DeterministicSourcePaths=$(DeterministicSourcePaths)" />
+    </ItemGroup>
 
     <!-- Code Quality -->
     <PropertyGroup>

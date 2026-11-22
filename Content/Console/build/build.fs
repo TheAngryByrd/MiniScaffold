@@ -294,6 +294,11 @@ let dotnetBuild ctx =
     let args = [
         sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
         "--no-restore"
+        if
+            isCI.Value
+            && not disableCodeCoverage
+        then
+            "/p:UseLocalSourcePaths=true"
     ]
 
     DotNet.build
