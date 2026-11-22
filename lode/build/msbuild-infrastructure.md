@@ -60,6 +60,7 @@ High and critical advisories (NU1903, NU1904) fail the build only when `CI` is e
 
 - `Directory.Packages.props` sets `ManagePackageVersionsCentrally`, `RestorePackagesWithLockFile`, and `DisableImplicitFSharpCoreReference`.
 - The root does not set `RestoreLockedMode`. `packages.lock.json`, `build/packages.lock.json`, and `tests/MiniScaffold.Tests/packages.lock.json` are tracked.
+- `Directory.Build.props` sets `DisableImplicitLibraryPacksFolder=true`. Without it, the F# SDK adds its `FSharp/library-packs` folder as a restore source. The Linux and macOS SDK 11.0.100 copy of FSharp.Core 11.0.101 has a different content hash (`/Us61...`) than nuget.org and the Windows SDK copy (`XL1wf...`, the lock file value). A restore with an empty package folder and no `NuGet.config` source mapping (the formatting test fixture) can take the SDK copy and fail with `NU1403`.
 - `build/build.fsproj` and `tests/MiniScaffold.Tests` reference FSharp.Core directly. See [../template/dependencies.md](../template/dependencies.md) for the versions.
 - `.gitignore` ignores `Content/**/packages.lock.json`.
 

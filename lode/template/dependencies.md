@@ -29,7 +29,7 @@ flowchart LR
 | FAKE packages (`FakeVersion`) | 6.2.0 | 6.2.0 | 6.2.0 |
 
 - The content FSharp.Core stays at `10.0.102`. It is the FSharp.Core dependency of each packed generated library, so consumers do not need a newer FSharp.Core. The highest FSharp.Core floor of a package in the table is `8.0.400` (FAKE).
-- The root projects set `DisableImplicitFSharpCoreReference` and do not pin transitive versions. `build/build.fsproj` and `tests/MiniScaffold.Tests` reference FSharp.Core directly, so the root `11.0.101` entry applies. Without the direct reference, FAKE brings FSharp.Core `8.0.400`.
+- The root projects set `DisableImplicitFSharpCoreReference` and do not pin transitive versions. `build/build.fsproj` and `tests/MiniScaffold.Tests` reference FSharp.Core directly, so the root `11.0.101` entry applies. Without the direct reference, FAKE brings FSharp.Core `8.0.400`. The root sets `DisableImplicitLibraryPacksFolder=true`, so restore takes FSharp.Core only from nuget.org (see [../build/msbuild-infrastructure.md](../build/msbuild-infrastructure.md)). The template content does not need it: the SDK folder holds FSharp.Core 11.0.101 only, and the content uses 10.0.102.
 - The library `Directory.Packages.props` sets `CentralPackageTransitivePinningEnabled`, so each library project, `build/build.fsproj` included, resolves FSharp.Core `10.0.102`.
 - The console file does not pin transitive versions. The console `build/build.fsproj` has no FSharp.Core reference, so FAKE brings FSharp.Core `8.0.400` there.
 

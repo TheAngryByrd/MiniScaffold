@@ -8,6 +8,10 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
     <PropertyGroup>
+        <!-- The SDK library-packs copy of FSharp.Core is unsigned, so its content hash differs from the nuget.org package that the lock files record. -->
+        <DisableImplicitLibraryPacksFolder>true</DisableImplicitLibraryPacksFolder>
+    </PropertyGroup>
+    <PropertyGroup>
         <NuGetAudit>true</NuGetAudit>
         <NuGetAuditMode>all</NuGetAuditMode>
         <NuGetAuditLevel>low</NuGetAuditLevel>
