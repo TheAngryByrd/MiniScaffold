@@ -45,12 +45,14 @@ jobs:
         env:
           CONFIGURATION: ${{ matrix.configuration }}
           CI: true
+          MSBUILDDEBUGPATH: ${{ runner.temp }}/msbuild-debug
       - name: Build via Windows
         if: runner.os == 'Windows'
         run: ./build.cmd IntegrationTests
         env:
           CONFIGURATION: ${{ matrix.configuration }}
           CI: true
+          MSBUILDDEBUGPATH: ${{ runner.temp }}/msbuild-debug
       - name: Upload partition evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -68,6 +70,14 @@ jobs:
             **/TestResults/**/*.trx
             TestResults/generated-builds/**
           if-no-files-found: warn
+          retention-days: 7
+      - name: Upload MSBuild failure files
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: msbuild-failures-${{ matrix.target.os }}-${{ matrix.configuration }}-${{ matrix.target.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/msbuild-debug/
+          if-no-files-found: ignore
           retention-days: 7
 
   integration-macos:

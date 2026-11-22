@@ -94,6 +94,30 @@ The generated library `build.yml` sets `ENABLE_COVERAGE: ${{ matrix.configuratio
 
 The integration tests generate repositories without git, so their CI builds keep local paths. The `MyCoolLib` and `MyCoolApp` cases commit the repository before their coverage check (`Effect.``commit the repository```). See [../tests/integration-tests.md](../tests/integration-tests.md).
 
+### Instrumented assembly symbols
+
+AltCover 9 writes each instrumented assembly with `Mono.Cecil.Cil.EmbeddedPortablePdbWriterProvider` (`writeAssembly` in `AltCover.Engine/Instrument.fs`), a managed writer. AltCover 8.2.825, which the template used until 9.0.189, chose `Mono.Cecil.Pdb.PdbWriterProvider` for a module with symbols and a `.pdb` on Windows. That provider selects the native COM PDB writer unless the module was read with the portable PDB reader. Both recorded crashes took the native branch. AltCover commit `0edadc43c` (2021-12-09, "Embed the written symbols for all instrumented assemblies") replaced it, after the 8.2.825 release (2021-10-22).
+
+The native writer crashed the MSBuild worker node of the AltCover `Prepare` task in the generated console `dotnet test` on `windows-latest` ([issue #365](https://github.com/TheAngryByrd/MiniScaffold/issues/365)). The node printed this stack to stderr, and the parent build reported `MSB4166`:
+
+```text
+Fatal error.
+0xC0000005
+   at Mono.Cecil.Pdb.ISymUnmanagedWriter2.Close()
+   at Mono.Cecil.Pdb.SymWriter.Close()
+   at Mono.Cecil.Pdb.NativePdbWriter.Dispose()
+   ...
+   at AltCover.Instrument+I.writeAssembly(Mono.Cecil.AssemblyDefinition, System.String)
+   ...
+   at AltCover.Prepare.Execute()
+```
+
+- The stack is in the `test-diagnostics-*` artifact of run 44855679941 (`TestResults/generated-builds/<id>/stderr.txt`). The integration tests keep stdout and stderr of each generated build there (see [../tests/process-capture.md](../tests/process-capture.md)).
+- Both recorded crashes (2026-10-24 and 2026-11-21) ran AltCover 8.2.825. AltCover 9.0.189 does not call the native PDB writer, so this crash path is gone.
+- A new crash of a worker node shows in the same `stderr.txt` whatever frames the node wrote before it ended. A crash in native code with no managed frames would need a process dump, which the CI does not collect.
+- Neither recorded crash wrote an MSBuild failure file. The access violation ended the node through the runtime `Fatal error.` path, so no managed handler ran, and the `MSB4166` line carries no failure-file text. The CI collection of MSBuild failure files (see [../ci/workflows.md](../ci/workflows.md)) is for other node failures.
+- A console repository generated before #367 still pins AltCover 8.2.825 and can reach the native writer on Windows until it updates the package.
+
 ## Analyzers
 
 FSharp.Analyzers.Build runs the `fsharp-analyzers` tool after each `src` build that compiles (see [library-output.md](library-output.md)). It passes the compiler arguments in `obj/<configuration>/<tfm>/fsc-analyzers.rsp` with `--fsc-args-file`. When `CoreCompile` skips, the analyzers do not run unless `FSharpAnalyzersAlwaysRunAfterBuild` is `true`.

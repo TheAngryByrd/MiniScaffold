@@ -21,6 +21,9 @@ flowchart TD
 
 - `integration-tests` runs `./build.sh IntegrationTests` or `./build.cmd IntegrationTests` with `CI: true`, `MINISCAFFOLD_TEST_PARTITION`, and `MINISCAFFOLD_TEST_OS`.
   It uploads `TestResults/partitions/<partition>/` as partition evidence and `TestResults/generated-builds/**` as diagnostics.
+  Its build steps set `MSBUILDDEBUGPATH` to `$RUNNER_TEMP/msbuild-debug`, and a failed job uploads that folder as `msbuild-failures-<os>-<configuration>-<partition>-<run_id>-<run_attempt>` (`if-no-files-found: ignore`).
+  MSBuild writes `MSBuild_pid-<pid>_<guid>.failure.txt` there when a node fails with an exception that MSBuild handles (`DebugUtils.cs` in dotnet/msbuild). Without `MSBuildDebugEngine`, the variable only sets this folder. Without it, each MSBuild process writes to its own random `MSBuildTemp*` folder, which it deletes at exit (`FileUtilities_TempFiles.cs`), so the files of a worker node are lost. The `MSB4166` message names the folder and points to the variable.
+  The generated builds inherit the variable, because `Builds.executeBuild` removes only `MSBuildSDKsPath` and `MSBuildExtensionsPath`. The macOS workload does not set it.
 - `integration-macos` runs up to three workloads in sequence through `.github/actions/integration-workload`, with a clean checkout between workloads.
   The action sets `MINISCAFFOLD_TEST_OS: macOS-latest`.
   The four recipes together run each macOS partition once in Debug and once in Release.
