@@ -6,6 +6,7 @@
         <GenerateProgramFile>false</GenerateProgramFile>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="FSharp.Core" />
         <PackageReference Include="Fake.DotNet.Cli" />
         <PackageReference Include="MSBuild.StructuredLogger" />
         <PackageReference Include="Fake.Tools.Git" />

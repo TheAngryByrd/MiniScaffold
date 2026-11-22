@@ -14,10 +14,10 @@
     <FakeVersion>6.2.0</FakeVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="FSharp.Core" Version="8.0.403" />
-    <PackageVersion Include="Expecto" Version="10.2.2" />
-    <PackageVersion Include="YoloDev.Expecto.TestSdk" Version="0.15.3" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageVersion Include="FSharp.Core" Version="11.0.101" />
+    <PackageVersion Include="Expecto" Version="11.1.1" />
+    <PackageVersion Include="YoloDev.Expecto.TestSdk" Version="0.16.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
     <PackageVersion Include="Fake.IO.FileSystem" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.Core.Target" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.Core.ReleaseNotes" Version="$(FakeVersion)" />
@@ -28,8 +28,8 @@
     <PackageVersion Include="Fake.Tools.Git" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.Api.GitHub" Version="$(FakeVersion)" />
     <PackageVersion Include="Fake.BuildServer.GitHubActions" Version="$(FakeVersion)" />
-    <PackageVersion Include="MSBuild.StructuredLogger" Version="2.2.441" />
-    <PackageVersion Include="Argu" Version="6.0" />
+    <PackageVersion Include="MSBuild.StructuredLogger" Version="2.3.269" />
+    <PackageVersion Include="Argu" Version="6.2.5" />
     <PackageVersion Include="Sayedha.Templates.Tasks" Version="0.0.2-beta" />
   </ItemGroup>
 </Project>

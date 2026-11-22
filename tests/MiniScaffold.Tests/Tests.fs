@@ -416,7 +416,7 @@ if (actual != expected)
                     "msbuild"
                     project
                     "-nologo"
-                    "-getProperty:TargetFrameworks,TestTfmsInParallel"
+                    "-getProperty:TargetFrameworks"
                 ]
                 @ properties do
                 startInfo.ArgumentList.Add argument
@@ -425,8 +425,6 @@ if (actual != expected)
                 [
                     "MSBuildSDKsPath"
                     "MSBuildExtensionsPath"
-                    "TestTfmsInParallel"
-                    "AltCover"
                     "LibraryTargetFrameworks"
                 ] do
                 startInfo.Environment.Remove name
@@ -443,11 +441,7 @@ if (actual != expected)
                     result.StandardOutput
                     result.StandardError)
 
-            use document = JsonDocument.Parse result.StandardOutput
-            let evaluated = document.RootElement.GetProperty "Properties"
-
-            evaluated.GetProperty("TargetFrameworks").GetString(),
-            evaluated.GetProperty("TestTfmsInParallel").GetString()
+            result.StandardOutput.Trim()
 
         for project in
             [
@@ -456,18 +450,162 @@ if (actual != expected)
             ] do
             Expect.equal
                 (evaluate project [])
-                ("net10.0;net11.0", "")
-                $"{project} should target the library frameworks and keep the SDK test parallelism"
+                "net10.0;net11.0"
+                $"{project} should target the library frameworks"
 
             Expect.equal
-                (fst (evaluate project [ "-p:LibraryTargetFrameworks=net11.0" ]))
+                (evaluate project [ "-p:LibraryTargetFrameworks=net11.0" ])
                 "net11.0"
                 $"{project} should read its frameworks from LibraryTargetFrameworks"
 
-        Expect.equal
-            (evaluate tests [ "-p:AltCover=true" ])
-            ("net10.0;net11.0", "false")
-            "AltCover 8 runs must not run the test frameworks in parallel"
+    let private libraryRestoreLocksOnlyInCI _ =
+        use generated = Disposables.DisposableDirectory.Create()
+        copyGlobalJson generated.DirectoryInfo
+        runTemplate generated.Directory "-n LockLib --githubUsername TestUser"
+        let projectDirectory = IO.Path.Combine(generated.Directory, "LockLib")
+
+        let lockFile project =
+            IO.Path.Combine(projectDirectory, project, "packages.lock.json")
+
+        let lockFiles =
+            [
+                "src/LockLib"
+                "tests/LockLib.Tests"
+                "build"
+            ]
+            |> List.map lockFile
+
+        let restore ci =
+            let startInfo =
+                ProcessStartInfo(
+                    "dotnet",
+                    WorkingDirectory = projectDirectory,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                )
+
+            for argument in
+                [
+                    "restore"
+                    "LockLib.slnx"
+                    "-nologo"
+                    "-p:NuGetAudit=false"
+                ] do
+                startInfo.ArgumentList.Add argument
+
+            for name in
+                [
+                    "MSBuildSDKsPath"
+                    "MSBuildExtensionsPath"
+                    "RestoreLockedMode"
+                    "CI"
+                ] do
+                startInfo.Environment.Remove name
+                |> ignore
+
+            ci
+            |> Option.iter (fun value -> startInfo.Environment["CI"] <- value)
+
+            startInfo.Environment["MSBUILDDISABLENODEREUSE"] <- "1"
+            ProcessCapture.run (TimeSpan.FromSeconds 30.) startInfo
+
+        let describe ci (result: ProcessCapture.ProcessOutput) =
+            sprintf
+                "CI=%A
+stdout:
+%s
+stderr:
+%s"
+                ci
+                result.StandardOutput
+                result.StandardError
+
+        let expectRestore ci message =
+            let result = restore ci
+
+            Expect.equal
+                result.ExitCode
+                0
+                $"{message}
+{describe ci result}"
+
+        let expectStale ci =
+            let result = restore ci
+
+            Expect.notEqual
+                result.ExitCode
+                0
+                $"A locked restore must reject stale lock files.
+{describe ci result}"
+
+            Expect.stringContains
+                result.StandardOutput
+                "NU1004"
+                $"A locked restore must report the stale lock file.
+{describe ci result}"
+
+        let packagesProps = IO.Path.Combine(projectDirectory, "Directory.Packages.props")
+
+        let updateExpectoVersion (update: string -> string) =
+            let document = XDocument.Load packagesProps
+
+            let expecto =
+                document.Descendants(XName.Get "PackageVersion")
+                |> Seq.filter (fun element ->
+                    element.Attribute(XName.Get "Include").Value = "Expecto"
+                )
+                |> Seq.exactlyOne
+
+            let previous = expecto.Attribute(XName.Get "Version").Value
+            expecto.SetAttributeValue(XName.Get "Version", update previous)
+            document.Save packagesProps
+            previous
+
+        let requestedExpecto () =
+            use lock = JsonDocument.Parse(IO.File.ReadAllText(lockFile "tests/LockLib.Tests"))
+
+            [
+                for framework in lock.RootElement.GetProperty("dependencies").EnumerateObject() do
+                    framework.Value.GetProperty("Expecto").GetProperty("requested").GetString()
+            ]
+
+        let expectRequested range message =
+            let requested = requestedExpecto ()
+            Expect.isNonEmpty requested "The test lock file must list each target framework"
+            Expect.allEqual requested range message
+
+        for file in lockFiles do
+            Expect.isFalse (IO.File.Exists file) $"The template must not ship {file}"
+
+        expectRestore (Some "true") "The first CI restore must create the lock files."
+
+        for file in lockFiles do
+            Expect.isTrue (IO.File.Exists file) $"The first restore must create {file}"
+
+        expectRestore (Some "true") "A CI restore must accept current lock files."
+
+        let version = updateExpectoVersion (fun version -> $"[{version}]")
+        expectStale (Some "true")
+        expectRestore (Some "false") "A restore with CI=false must update stale lock files."
+
+        expectRequested
+            $"[{version}, {version}]"
+            "A restore with CI=false must write the changed dependency to the lock file"
+
+        expectRestore (Some "true") "A CI restore must accept updated lock files."
+
+        updateExpectoVersion (fun _ -> version)
+        |> ignore
+
+        expectStale (Some "true")
+        expectRestore None "A restore without CI must update stale lock files."
+
+        expectRequested
+            $"[{version}, )"
+            "A restore without CI must write the changed dependency to the lock file"
+
+        expectRestore (Some "true") "A CI restore must accept updated lock files."
 
     let private consoleCommandsPreserveOptionalMetadata _ =
         use generated = Disposables.DisposableDirectory.Create()
@@ -850,7 +988,9 @@ if (actual != expected)
                            offset
                            + 20
                        )
-                   ) = bytes.Length
+                   )
+                    =
+                    bytes.Length
             )
 
         let count =
@@ -1736,6 +1876,9 @@ if (actual != expected)
                     "library projects share their target frameworks"
                     libraryProjectsShareFrameworks
                 testCase
+                    "library restore creates lock files and locks them only in CI"
+                    libraryRestoreLocksOnlyInCI
+                testCase
                     "console commands preserve optional release metadata"
                     consoleCommandsPreserveOptionalMetadata
                 testCase
@@ -1761,6 +1904,12 @@ if (actual != expected)
                         ]
                         Assert.``assembly info values are set after pack`` "MyCoolLib"
                         Assert.``project can build target`` "BuildDocs"
+                        Assert.``docs have no unresolved substitutions``
+                        Assert.``docs use the fsdocs search contract``
+                        Assert.``coverage report covers each target framework`` "MyCoolLib.Tests" [
+                            "net10.0"
+                            "net11.0"
+                        ]
                     ]
 
 

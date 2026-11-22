@@ -577,7 +577,7 @@ module ProcessCaptureTests =
         let report = {|
             Verified = verified
             DeadlineRecovery = deadlineRecovery
-            Phase = string (enum<WorkerPhase> (Volatile.Read(&phase)))
+            Phase = string (enum<WorkerPhase>(Volatile.Read(&phase)))
             Observation =
                 observation
                 |> Option.map (fun frozen -> {|

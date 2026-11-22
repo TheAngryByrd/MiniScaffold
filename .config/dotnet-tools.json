@@ -3,14 +3,14 @@
   "isRoot": true,
   "tools": {
     "fantomas": {
-      "version": "7.0.3",
+      "version": "8.1.3",
       "commands": [
         "fantomas"
       ],
       "rollForward": false
     },
     "fsdocs-tool": {
-      "version": "18.1.0",
+      "version": "22.2.0",
       "commands": [
         "fsdocs"
       ],

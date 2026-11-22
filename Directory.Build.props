@@ -8,6 +8,10 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
     <PropertyGroup>
+        <!-- On Linux and macOS, the SDK library-packs FSharp.Core 11.0.101 has a different content hash than the nuget.org package that the lock files record. -->
+        <DisableImplicitLibraryPacksFolder>true</DisableImplicitLibraryPacksFolder>
+    </PropertyGroup>
+    <PropertyGroup>
         <NuGetAudit>true</NuGetAudit>
         <NuGetAuditMode>all</NuGetAuditMode>
         <NuGetAuditLevel>low</NuGetAuditLevel>

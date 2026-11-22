@@ -172,6 +172,117 @@ module Assert =
         let filepath = Path.Combine(d.FullName, file)
         Expect.isFalse (File.Exists filepath) (sprintf "%s should not exist" filepath)
 
+    let ``docs have no unresolved substitutions`` (d: DirectoryInfo) =
+        let docs = Path.Combine(d.FullName, "docs")
+
+        // fsdocs leaves the edit link key unresolved on API pages (issue #366).
+        let isKnownGap (page: string) placeholder =
+            placeholder = "{{fsdocs-source-filename}}"
+            && page.StartsWith "reference/"
+
+        let pages =
+            Directory.EnumerateFiles(docs, "*.html", SearchOption.AllDirectories)
+            |> Seq.toList
+
+        Expect.isNonEmpty pages $"{docs} should contain the generated documentation pages"
+
+        let unresolved = [
+            for file in pages do
+                let page =
+                    Path.GetRelativePath(docs, file).Replace(Path.DirectorySeparatorChar, '/')
+
+                for placeholder in
+                    System.Text.RegularExpressions.Regex.Matches(
+                        File.ReadAllText file,
+                        @"\{\{[a-z0-9-]+\}\}"
+                    ) do
+                    if not (isKnownGap page placeholder.Value) then
+                        page, placeholder.Value
+        ]
+
+        Expect.isEmpty
+            unresolved
+            $"fsdocs should replace each template substitution: %A{unresolved}"
+
+    let ``docs use the fsdocs search contract`` (d: DirectoryInfo) =
+        let index = File.ReadAllText(Path.Combine(d.FullName, "docs", "index.html"))
+
+        let matches (pattern: string) =
+            System.Text.RegularExpressions.Regex.IsMatch(index, pattern)
+
+        Expect.isTrue
+            (matches """<html[^>]* data-root="[^"]+["]""")
+            "fsdocs-search.js reads the site root from a non-empty data-root on <html>"
+
+        Expect.isTrue
+            (matches """<[a-z]+ id="search-btn["]""")
+            "fsdocs-search.js opens the dialog from #search-btn"
+
+        Expect.isTrue
+            (matches """<script type="module" src="[^"]*content/fsdocs-search\.js["]""")
+            "fsdocs-search.js is an ES module, so the page must load it with type=\"module\""
+
+        let searchDialog = index.IndexOf "<dialog id=\"fsdocs-search\""
+        Expect.isGreaterThanOrEqual searchDialog 0 "The page must contain the search dialog"
+
+        Expect.equal
+            (index.IndexOf "<dialog")
+            searchDialog
+            "fsdocs-search.js uses the first <dialog> of the page, so the search dialog must come first"
+
+        let dialog =
+            index.Substring(
+                searchDialog,
+                index.IndexOf("</dialog>", searchDialog)
+                - searchDialog
+            )
+
+        for required in
+            [
+                "<input type=\"search\""
+                "<ul"
+                "class=\"empty\""
+            ] do
+            Expect.stringContains
+                dialog
+                required
+                "fsdocs-search.js needs this element in the dialog"
+
+    let ``coverage report covers each target framework``
+        testProjectName
+        frameworks
+        (d: DirectoryInfo)
+        =
+        // CI=true gives AltCover 0 visits in generated repositories (issue #360).
+        Builds.executeBuildWithEnvironment
+            [
+                "CI", None
+                "ENABLE_COVERAGE", None
+            ]
+            d.FullName
+            "GenerateCoverageReport"
+
+        for framework in frameworks do
+            let report =
+                Path.Combine(d.FullName, "tests", testProjectName, $"coverage.{framework}.xml")
+
+            Expect.isTrue (File.Exists report) $"AltCover should write {report}"
+
+            let summary = XDocument.Load(report).Root.Element(XName.Get "Summary")
+
+            let visited =
+                summary.Attribute(XName.Get "visitedSequencePoints").Value
+                |> int
+
+            Expect.isGreaterThan
+                visited
+                0
+                $"The {framework} tests should visit library code ({report})"
+
+        Expect.isTrue
+            (File.Exists(Path.Combine(d.FullName, "docs", "coverage", "index.html")))
+            "reportgenerator should write docs/coverage/index.html"
+
     let ``tests ran on each target framework`` testProjectName frameworks (d: DirectoryInfo) =
         let resultsDirectory =
             Path.Combine(d.FullName, "tests", testProjectName, "TestResults")

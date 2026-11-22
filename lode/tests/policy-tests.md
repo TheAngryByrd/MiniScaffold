@@ -20,6 +20,7 @@ flowchart LR
 
 - Covers the root and build projects, and the library and console source, build, and test projects, each with CI on and off.
 - A local advisory feed returns transitive advisories.
+- Each scenario needs one transitive package that is neither direct nor centrally managed. The generated library `src` project has none, so the test adds `Argu` to it. `Argu` brings `System.Configuration.ConfigurationManager`.
 - NU1903 and NU1904 must be errors only for CI or source projects, and warnings otherwise.
 - Required properties: `NuGetAudit=true`, `NuGetAuditMode=all`, `NuGetAuditLevel=low`.
 

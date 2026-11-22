@@ -70,7 +70,9 @@ To check formatting without changing source files, run `build.cmd CheckFormatCod
 If you delete the local tool cache, run `dotnet tool restore` before the next build.
 
 The library and its tests read their target frameworks from the `LibraryTargetFrameworks` property in `Directory.Build.props` (`net10.0;net11.0`).
-To change the target frameworks, change that property, delete the `packages.lock.json` files, and restore again.
+To change the target frameworks, change that property and restore again.
+
+The first restore writes a `packages.lock.json` file for each project. Commit these files. A local restore updates them when a dependency changes. With `CI=true`, restore runs in locked mode and fails with `NU1004` when a lock file does not match the project.
 
 The bin of your library should look similar to:
 

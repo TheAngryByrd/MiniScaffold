@@ -13,3 +13,28 @@ body .navbar .dropdown-menu .active .bi {
 nav.navbar .dropdown-item img.fsharp-icon-logo {
     margin-right: 0px;
 }
+
+#fsdocs-search {
+    width: min(40rem, 90vw);
+    padding: 1rem;
+    color: var(--bs-body-color);
+    background-color: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+}
+
+#fsdocs-search input {
+    width: 100%;
+}
+
+#fsdocs-search .results ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+div.fsdocs-tip:popover-open {
+    display: block;
+    position: fixed;
+    inset: unset;
+    margin: 0;
+    border: 0;
+}

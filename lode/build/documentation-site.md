@@ -40,6 +40,32 @@ The guides and references use Simplified Technical English: short sentences, act
 `build.fs` passes `fsdocs-collection-name`, `fsdocs-repository-branch`, `fsdocs-repository-link`, `fsdocs-package-version`, and links to `README.md`, `CHANGELOG.md`, and `LICENSE.md`.
 The site URL is `https://www.jimmybyrd.me/MiniScaffold/` (`documentationRootUrl` in `build.fs`).
 
+## Page template
+
+`docsSrc/_template.html` and `Content/Library/docsSrc/_template.html` keep the Bootstrap layout of fsdocs 18 and follow the fsdocs-tool 22 script contracts:
+
+```html
+<html lang="en" data-bs-theme="auto" data-root="{{root}}">
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<body>
+<dialog id="fsdocs-search" aria-label="Search documentation"><input type="search" /> <div class="results"><ul></ul><p class="empty"></p></div></dialog>
+<button id="search-btn" ...>Search</button>
+{{fsdocs-content}}
+<script>document.documentElement.setAttribute("data-root", new URL(..., location.href).href.replace(/\/$/, ""));</script>
+<script type="module" src="{{root}}content/fsdocs-search.js"></script>
+```
+
+- `fsdocs-search.js` is an ES module. It reads `data-root`, loads `${root}/index.json`, opens the first `<dialog>` of the page from `#search-btn`, `/`, or `Ctrl+K`, and hides `#search-btn` when `index.json` does not load. The search dialog is the first element of `<body>`, so a `<dialog>` in page content cannot take its place.
+- The script imports Fuse.js from `esm.sh`. If a network blocks that host, the module stops before it adds its handlers, and the Search button does nothing. The fsdocs 22 default template has the same dependency.
+- `data-root` takes `{{root}}`. An inline script before the module resolves it against the page URL and removes the trailing slash, because the module requests `${root}/index.json`. Without it, the root `https://<owner>.github.io/<repo>/` gives `//index.json`, and `fsdocs watch --root /` gives a request to the host `index.json`.
+- Each search result has an `iconify-icon` element, so the templates load the Iconify component, as the fsdocs 22 default template does.
+- `fsdocs-tips.js` opens each API tooltip with the popover API. `fsdocs-main.css` hides `div.fsdocs-tip`, so `fsdocs-custom.css` shows `div.fsdocs-tip:popover-open` with `position: fixed`, because the script sets `left` and `top` from viewport coordinates.
+- fsdocs 20 removed `FsDocsNavbarPosition`, so the templates link `content/navbar-fixed-left.css` directly.
+- fsdocs 20 removed `<FsDocsCollectionNameLink>`. The generated library `build.fs` passes `fsdocs-collection-name-link` (the GitHub repository URL) as a parameter. The root template does not use the key.
+- `{{fsdocs-source-filename}}` stays unresolved in the "Edit this page" link of API reference pages. The base template with fsdocs 18 had the same gap. [Issue #366](https://github.com/TheAngryByrd/MiniScaffold/issues/366) tracks the fix.
+- The `MyCoolLib` generated build case checks the generated site with ``docs have no unresolved substitutions`` and ``docs use the fsdocs search contract`` (`Asserts.fs`).
+- The ReleasePolicy test "root and library docs templates share the fsdocs script markup" requires the same search, dialog, and Iconify lines in both templates, the dialog before `{{fsdocs-content}}`, and identical `fsdocs-custom.css` files.
+
 ## Invariants
 
 - `.gitignore` ignores `docs/`, `temp/`, `tmp/`, and `.fsdocs`. Do not put tracked files in a directory named `docs`.
