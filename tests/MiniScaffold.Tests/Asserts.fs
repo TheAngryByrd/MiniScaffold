@@ -176,34 +176,53 @@ module Assert =
     let ``docs have no unresolved substitutions`` (d: DirectoryInfo) =
         let docs = Path.Combine(d.FullName, "docs")
 
-        // fsdocs leaves the edit link key unresolved on API pages (issue #366).
-        let isKnownGap (page: string) placeholder =
-            placeholder = "{{fsdocs-source-filename}}"
-            && page.StartsWith "reference/"
-
         let pages =
             Directory.EnumerateFiles(docs, "*.html", SearchOption.AllDirectories)
+            |> Seq.map (fun file ->
+                Path.GetRelativePath(docs, file).Replace(Path.DirectorySeparatorChar, '/'), file
+            )
             |> Seq.toList
 
-        Expect.isNonEmpty pages $"{docs} should contain the generated documentation pages"
+        Expect.exists
+            pages
+            (fun (page, _) -> page.StartsWith "reference/")
+            $"{docs} should contain the API reference pages"
 
         let unresolved = [
-            for file in pages do
-                let page =
-                    Path.GetRelativePath(docs, file).Replace(Path.DirectorySeparatorChar, '/')
-
+            for page, file in pages do
                 for placeholder in
                     System.Text.RegularExpressions.Regex.Matches(
                         File.ReadAllText file,
                         @"\{\{[a-z0-9-]+\}\}"
                     ) do
-                    if not (isKnownGap page placeholder.Value) then
-                        page, placeholder.Value
+                    page, placeholder.Value
         ]
 
         Expect.isEmpty
             unresolved
             $"fsdocs should replace each template substitution: %A{unresolved}"
+
+    let ``API page template is the page template without the edit link`` (d: DirectoryInfo) =
+        let read path =
+            File.ReadAllText(Path.Combine(d.FullName, "docsSrc", path)).ReplaceLineEndings("\n")
+
+        let pageTemplate = read "_template.html"
+
+        let editLink =
+            System.Text.RegularExpressions.Regex(
+                """ *<div class="float-right" id="edit-this-page">.*?</div>\n""",
+                System.Text.RegularExpressions.RegexOptions.Singleline
+            )
+
+        Expect.equal
+            (editLink.Matches(pageTemplate).Count)
+            1
+            "docsSrc/_template.html should have one edit link"
+
+        Expect.equal
+            (read "reference/_template.html")
+            (editLink.Replace(pageTemplate, ""))
+            "docsSrc/reference/_template.html should equal docsSrc/_template.html without the edit link"
 
     let ``docs use the fsdocs search contract`` (d: DirectoryInfo) =
         let index = File.ReadAllText(Path.Combine(d.FullName, "docs", "index.html"))

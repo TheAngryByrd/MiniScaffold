@@ -1905,6 +1905,7 @@ stderr:
                         Assert.``assembly info values are set after pack`` "MyCoolLib"
                         Assert.``project can build target`` "BuildDocs"
                         Assert.``docs have no unresolved substitutions``
+                        Assert.``API page template is the page template without the edit link``
                         Assert.``docs use the fsdocs search contract``
                         Assert.``CI workflow collects coverage only in Debug``
                         Effect.``commit the repository``
