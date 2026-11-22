@@ -43,23 +43,6 @@ jobs:
         shell: pwsh
         run: New-Item -ItemType Directory -Force (Join-Path $env:RUNNER_TEMP 'crash-dumps') | Out-Null
 
-      - name: Probe crash dump (temporary)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          Set-Content probe.fsx 'System.Runtime.InteropServices.Marshal.ReadInt32(nativeint 0x1234567890L) |> printfn "%d"'
-          dotnet fsi probe.fsx
-          "dotnet fsi exit code: $LASTEXITCODE"
-          Remove-Item probe.fsx
-          $dumps = Join-Path $env:RUNNER_TEMP 'crash-dumps'
-          Get-ChildItem $dumps | Format-Table Name, Length
-          if (-not (Get-ChildItem $dumps -Filter 'dotnet.exe.*.dmp')) { throw "no crash dump in $dumps" }
-          Remove-Item (Join-Path $dumps '*.dmp')
-        env:
-          DOTNET_DbgEnableMiniDump: 1
-          DOTNET_DbgMiniDumpType: 1
-          DOTNET_DbgMiniDumpName: ${{ runner.temp }}\crash-dumps\%e.%p.dmp
-
       - name: Build via Bash
         if: runner.os != 'Windows'
         run: |

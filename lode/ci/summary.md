@@ -28,6 +28,7 @@ chmod +x ./build.sh
 
 - [workflows.md](workflows.md) - the jobs, matrices, and gate of `build.yml`.
 - [action-versions.md](action-versions.md) - the action major versions, the artifact contracts, and the devcontainer features.
+- [crash-evidence.md](crash-evidence.md) - MSBuild failure files and crash dumps from failed integration jobs.
 
 ## Other `.github` files
 

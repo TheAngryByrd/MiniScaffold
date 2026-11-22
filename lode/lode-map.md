@@ -45,6 +45,7 @@ read lode/lode-map.md, lode/terminology.md, lode/summary.md
 - [ci/summary.md](ci/summary.md)
 - [ci/workflows.md](ci/workflows.md)
 - [ci/action-versions.md](ci/action-versions.md)
+- [ci/crash-evidence.md](ci/crash-evidence.md)
 
 ## tests/ (`tests/`, `build/TestPartitions*.ps1`)
 
