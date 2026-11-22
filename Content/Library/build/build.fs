@@ -401,9 +401,11 @@ let dotnetBuild ctx =
         sprintf "/p:PackageVersion=%s" latestEntry.NuGetVersion
         "--no-restore"
         yield! buildAssemblyInfoMsBuildArgs ctx
-        // AltCoverLocalSource needs the local source paths that ContinuousIntegrationBuild maps to /_/
-        if coverageEnabled ctx then
-            "/p:ContinuousIntegrationBuild=false"
+        if
+            isCI.Value
+            && coverageEnabled ctx
+        then
+            "/p:UseLocalSourcePaths=true"
     ]
 
     DotNet.build

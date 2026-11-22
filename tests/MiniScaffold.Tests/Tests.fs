@@ -1896,7 +1896,6 @@ stderr:
                     "-n MyCoolLib --githubUsername CoolPersonNo2",
                     [
                         yield! projectStructureAsserts
-                        Effect.``commit the repository``
                         Assert.``File does not exist`` "src/MyCoolLib/AssemblyInfo.fs"
                         Assert.``project can build target`` "DotnetPack"
                         Assert.``tests ran on each target framework`` "MyCoolLib.Tests" [
@@ -1907,6 +1906,8 @@ stderr:
                         Assert.``project can build target`` "BuildDocs"
                         Assert.``docs have no unresolved substitutions``
                         Assert.``docs use the fsdocs search contract``
+                        Assert.``CI workflow collects coverage only in Debug``
+                        Effect.``commit the repository``
                         Assert.``coverage report covers each target framework`` "MyCoolLib.Tests" [
                             "net10.0"
                             "net11.0"
@@ -1981,8 +1982,8 @@ stderr:
                     "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console",
                     [
                         yield! projectStructureAsserts
-                        Effect.``commit the repository``
                         Assert.``project can build target`` "CreatePackages"
+                        Effect.``commit the repository``
                         Assert.``CI coverage report has visits`` "MyCoolApp.Tests"
                     ]
                     // Test that CHANGELOG.md is not modified during build failures,

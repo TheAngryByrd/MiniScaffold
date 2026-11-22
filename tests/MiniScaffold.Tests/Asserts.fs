@@ -4,6 +4,7 @@ open System.IO
 open System.IO.Compression
 open System.Diagnostics
 open System.Reflection
+open System.Reflection.Metadata
 open System.Runtime.Loader
 open System.Xml.Linq
 open Expecto
@@ -248,51 +249,138 @@ module Assert =
                 required
                 "fsdocs-search.js needs this element in the dialog"
 
-    let private ``report has visits`` (report: string) =
+    let private ``product module has visits`` (moduleName: string) (report: string) =
         Expect.isTrue (File.Exists report) $"AltCover should write {report}"
 
-        let summary = XDocument.Load(report).Root.Element(XName.Get "Summary")
+        let productModule =
+            XDocument.Load(report).Descendants(XName.Get "Module")
+            |> Seq.tryFind (fun m -> m.Element(XName.Get "ModuleName").Value = moduleName)
 
-        let visited =
-            summary.Attribute(XName.Get "visitedSequencePoints").Value
-            |> int
+        match productModule with
+        | None -> failtestf "%s has no module %s" report moduleName
+        | Some m ->
+            let visited =
+                m.Element(XName.Get "Summary").Attribute(XName.Get "visitedSequencePoints").Value
+                |> int
 
-        Expect.isGreaterThan visited 0 $"The tests should visit project code ({report})"
+            Expect.isGreaterThan visited 0 $"The tests should visit {moduleName} ({report})"
+
+    let private ``first source path`` (pdb: string) =
+        use stream = File.OpenRead pdb
+        use provider = MetadataReaderProvider.FromPortablePdbStream stream
+        let reader = provider.GetMetadataReader()
+
+        reader.Documents
+        |> Seq.map (fun handle -> reader.GetString(reader.GetDocument(handle).Name))
+        |> Seq.find _.EndsWith(".fs")
+
+    // An incremental coverage build after a CI build without coverage kept the /_/ PDB paths that AltCoverLocalSource skips
+    let private ``CI coverage after a CI build``
+        projectName
+        coverageEnvironment
+        coverageTarget
+        reports
+        (d: DirectoryInfo)
+        =
+        let ci = [
+            "CI", Some "true"
+            "CONFIGURATION", Some "Debug"
+        ]
+
+        Builds.executeBuildWithEnvironment ci d.FullName "Clean"
+
+        Builds.executeBuildWithEnvironment
+            (ci
+             @ [
+                 "ENABLE_COVERAGE", None
+                 "DISABLE_COVERAGE", Some "true"
+             ])
+            d.FullName
+            "DotnetBuild"
+
+        let pdb =
+            Path.Combine(
+                d.FullName,
+                "src",
+                projectName,
+                "bin",
+                "Debug",
+                "net10.0",
+                $"{projectName}.pdb"
+            )
+
+        Expect.stringStarts
+            (``first source path`` pdb)
+            "/_/"
+            "A CI build without coverage should map the PDB source paths"
+
+        for report in reports do
+            File.Delete report
+
+        Builds.executeBuildWithEnvironment
+            (ci
+             @ coverageEnvironment)
+            d.FullName
+            coverageTarget
+
+        for report in reports do
+            ``product module has visits`` projectName report
 
     let ``coverage report covers each target framework``
         testProjectName
         frameworks
         (d: DirectoryInfo)
         =
-        let environment = [
-            "CI", Some "true"
+        let projectName = (testProjectName: string).Replace(".Tests", "")
+
+        let reports = [
+            for framework in frameworks ->
+                Path.Combine(d.FullName, "tests", testProjectName, $"coverage.{framework}.xml")
+        ]
+
+        let coverage = [
             "ENABLE_COVERAGE", Some "true"
             "DISABLE_COVERAGE", None
         ]
 
-        // An incremental build keeps PDB source paths from an earlier build with another CI value
-        Builds.executeBuildWithEnvironment environment d.FullName "Clean"
-        Builds.executeBuildWithEnvironment environment d.FullName "GenerateCoverageReport"
+        ``CI coverage after a CI build`` projectName coverage "DotnetTest" reports d
 
-        for framework in frameworks do
-            ``report has visits`` (
-                Path.Combine(d.FullName, "tests", testProjectName, $"coverage.{framework}.xml")
-            )
+        Builds.executeBuildWithEnvironment
+            ([
+                "CI", Some "true"
+                "CONFIGURATION", Some "Debug"
+             ]
+             @ coverage)
+            d.FullName
+            "GenerateCoverageReport"
 
         Expect.isTrue
             (File.Exists(Path.Combine(d.FullName, "docs", "coverage", "index.html")))
             "reportgenerator should write docs/coverage/index.html"
 
     let ``CI coverage report has visits`` testProjectName (d: DirectoryInfo) =
-        let environment = [
-            "CI", Some "true"
-            "DISABLE_COVERAGE", None
-        ]
+        let projectName = (testProjectName: string).Replace(".Tests", "")
 
-        Builds.executeBuildWithEnvironment environment d.FullName "Clean"
-        Builds.executeBuildWithEnvironment environment d.FullName "DotnetTest"
+        ``CI coverage after a CI build``
+            projectName
+            [ "DISABLE_COVERAGE", None ]
+            "DotnetTest"
+            [ Path.Combine(d.FullName, "tests", testProjectName, "coverage.xml") ]
+            d
 
-        ``report has visits`` (Path.Combine(d.FullName, "tests", testProjectName, "coverage.xml"))
+    let ``CI workflow collects coverage only in Debug`` (d: DirectoryInfo) =
+        let values =
+            File.ReadAllLines(Path.Combine(d.FullName, ".github", "workflows", "build.yml"))
+            |> Array.map _.Trim()
+            |> Array.filter _.StartsWith("ENABLE_COVERAGE:")
+
+        Expect.isNonEmpty values "build.yml should set ENABLE_COVERAGE"
+
+        for value in values do
+            Expect.equal
+                value
+                "ENABLE_COVERAGE: ${{ matrix.configuration == 'Debug' }}"
+                "Release builds lower the measured coverage below the threshold"
 
     let ``tests ran on each target framework`` testProjectName frameworks (d: DirectoryInfo) =
         let resultsDirectory =
@@ -843,10 +931,20 @@ module Effect =
         Git.Staging.stageAll d.FullName
         Git.Commit.exec d.FullName message
 
-    // SourceLink maps source paths to /_/ in a ContinuousIntegrationBuild only inside a git repository
+    // The SDK maps PDB source paths to /_/ in a CI build only when the project has a source root, which git provides
     let ``commit the repository`` (d: DirectoryInfo) =
         ``git init`` d "main"
         ``git commit all`` "Initial commit" d
+
+        let ok, lines, error =
+            Git.CommandHelper.runGitCommand d.FullName "rev-parse --show-toplevel"
+
+        Expect.isTrue ok $"git rev-parse failed in {d.FullName}: {error}"
+
+        Expect.equal
+            (Path.GetFullPath(List.head lines).TrimEnd('/', '\\'))
+            (d.FullName.TrimEnd('/', '\\'))
+            "The fixture should be its own git repository"
 
     let ``make build function fail`` (failureFunction: string) (d: DirectoryInfo) =
         let buildScript = ``get build.fs`` d

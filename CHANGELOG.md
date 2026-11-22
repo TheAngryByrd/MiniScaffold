@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#355 Update packages and .NET tools to current stable versions](https://github.com/TheAngryByrd/MiniScaffold/pull/367) from @TheAngryByrd
 
 ### Fixed
-- #360 Generated builds collect coverage again when `CI=true` in a git repository from @TheAngryByrd
+- #360 Generated builds collect coverage again when `CI=true` in a git repository, and the generated library CI checks coverage in the Debug leg only, from @TheAngryByrd
 
 ## [0.40.0-beta001] - 2026-03-09
 
