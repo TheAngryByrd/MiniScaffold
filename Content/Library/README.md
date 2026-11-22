@@ -23,7 +23,8 @@ MyLib.1 | [![NuGet Badge](https://buildstats.info/nuget/MyLib.1)](https://www.nu
 
 Make sure the following **requirements** are installed on your system:
 
-- [dotnet SDK](https://www.microsoft.com/net/download/core) 10.0 or higher
+- [.NET SDK](https://dotnet.microsoft.com/download/dotnet/11.0) 11.0.100 or a later 11.0 SDK, as `global.json` specifies
+- [.NET runtime](https://dotnet.microsoft.com/download/dotnet/10.0) 10.0 for the build project and the `net10.0` tests
 - [Git LFS](https://git-lfs.com/) for handling binary assets
 
 or
@@ -68,23 +69,21 @@ Design-time builds do not restore tools or format source files.
 To check formatting without changing source files, run `build.cmd CheckFormatCode` on Windows or `./build.sh CheckFormatCode` on Unix.
 If you delete the local tool cache, run `dotnet tool restore` before the next build.
 
+The library and its tests read their target frameworks from the `LibraryTargetFrameworks` property in `Directory.Build.props` (`net10.0;net11.0`).
+To change the target frameworks, change that property, delete the `packages.lock.json` files, and restore again.
+
 The bin of your library should look similar to:
 
 ```
 $ tree src/MyLib.1/bin/
 src/MyLib.1/bin/
 └── Debug
-    ├── net8.0
+    ├── net10.0
     │   ├── MyLib.1.deps.json
     │   ├── MyLib.1.dll
     │   ├── MyLib.1.pdb
     │   └── MyLib.1.xml
-    ├── net9.0
-    │   ├── MyLib.1.deps.json
-    │   ├── MyLib.1.dll
-    │   ├── MyLib.1.pdb
-    │   └── MyLib.1.xml
-    └── net10.0
+    └── net11.0
         ├── MyLib.1.deps.json
         ├── MyLib.1.dll
         ├── MyLib.1.pdb

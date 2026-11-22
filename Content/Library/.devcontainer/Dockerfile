@@ -1,5 +1,5 @@
-# [Choice] Debian version (use bullseye on local arm64/Apple Silicon): bookworm, bullseye, buster
-ARG VARIANT="bookworm"
+# .NET 11 supports Debian 13 (trixie) and not Debian 12 (bookworm).
+ARG VARIANT="trixie"
 FROM buildpack-deps:${VARIANT}-curl
 
 

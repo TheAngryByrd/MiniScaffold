@@ -1,7 +1,9 @@
 # Build workflow
 
 `.github/workflows/build.yml` runs the integration tests in partitions and then verifies that the partitions cover all tests.
-Each test job installs SDKs 8.x, 9.x, and 10.x.
+Each test job installs SDKs 10.x and 11.x.
+SDK 11 builds every project, because `global.json` pins `11.0.100`.
+The 10.x install supplies the .NET 10 runtime for `build/build.fsproj`, `tests/MiniScaffold.Tests`, and the generated `net10.0` projects.
 
 ```mermaid
 flowchart TD
@@ -44,7 +46,7 @@ See [action-versions.md](action-versions.md) for the action versions and the art
 
 - A change to the partition plan must change `build/build.fs`, `build/TestPartitions.ps1`, `build.yml`, and `build/TestPartitions.Tests.ps1` together.
 - Evidence artifact names include `run_id` and `run_attempt`. A failed partition needs "Re-run all jobs", because `Verify` requires bundles from one run attempt.
-- `publish.yml` and `fsdocs-gh-pages.yml` install SDKs from `global.json` plus `8.x`, the runtime of `build/build.fsproj`.
+- `publish.yml` and `fsdocs-gh-pages.yml` install the SDK from `global.json` plus `10.x`, the runtime of `build/build.fsproj`.
 
 ## Related
 

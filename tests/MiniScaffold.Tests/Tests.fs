@@ -236,24 +236,12 @@ if (actual != expected)
     throw new Exception($"Expected '{expected}', but got '{actual}'.");
 """
 
+        let frameworks = [
+            "net10.0"
+            "net11.0"
+        ]
+
         for projectName in packageNames do
-            let project =
-                XDocument.Load(
-                    IO.Path.Combine(
-                        projectDir.FullName,
-                        "src",
-                        projectName,
-                        $"{projectName}.fsproj"
-                    )
-                )
-
-            let frameworks =
-                project.Descendants(XName.Get "TargetFrameworks")
-                |> Seq.exactlyOne
-                |> fun value ->
-                    value.Value.Split(';')
-                    |> Array.toList
-
             let packagePath =
                 IO.Path.Combine(projectDir.FullName, "dist", $"{projectName}.0.1.0.nupkg")
 
@@ -343,7 +331,7 @@ if (actual != expected)
                     XAttribute(XName.Get "Sdk", "Microsoft.NET.Sdk")
                     element "PropertyGroup" [|
                         element "OutputType" [| "Exe" |]
-                        element "TargetFramework" [| "net8.0" |]
+                        element "TargetFramework" [| "net10.0" |]
                     |]
                     element "ItemGroup" [|
                         element "PackageReference" [|
@@ -404,6 +392,82 @@ if (actual != expected)
                 "--no-build"
                 "--no-restore"
             ]
+
+    let private libraryProjectsShareFrameworks _ =
+        use generated = Disposables.DisposableDirectory.Create()
+        copyGlobalJson generated.DirectoryInfo
+        runTemplate generated.Directory "-n FrameworkLib --githubUsername TestUser"
+        let projectDirectory = IO.Path.Combine(generated.Directory, "FrameworkLib")
+        let source = "src/FrameworkLib/FrameworkLib.fsproj"
+        let tests = "tests/FrameworkLib.Tests/FrameworkLib.Tests.fsproj"
+
+        let evaluate project properties =
+            let startInfo =
+                ProcessStartInfo(
+                    "dotnet",
+                    WorkingDirectory = projectDirectory,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                )
+
+            for argument in
+                [
+                    "msbuild"
+                    project
+                    "-nologo"
+                    "-getProperty:TargetFrameworks,TestTfmsInParallel"
+                ]
+                @ properties do
+                startInfo.ArgumentList.Add argument
+
+            for name in
+                [
+                    "MSBuildSDKsPath"
+                    "MSBuildExtensionsPath"
+                    "TestTfmsInParallel"
+                    "AltCover"
+                    "LibraryTargetFrameworks"
+                ] do
+                startInfo.Environment.Remove name
+                |> ignore
+
+            let result = ProcessCapture.run (TimeSpan.FromSeconds 30.) startInfo
+
+            Expect.equal
+                result.ExitCode
+                0
+                (sprintf
+                    "dotnet msbuild %s failed.\nstdout:\n%s\nstderr:\n%s"
+                    project
+                    result.StandardOutput
+                    result.StandardError)
+
+            use document = JsonDocument.Parse result.StandardOutput
+            let evaluated = document.RootElement.GetProperty "Properties"
+
+            evaluated.GetProperty("TargetFrameworks").GetString(),
+            evaluated.GetProperty("TestTfmsInParallel").GetString()
+
+        for project in
+            [
+                source
+                tests
+            ] do
+            Expect.equal
+                (evaluate project [])
+                ("net10.0;net11.0", "")
+                $"{project} should target the library frameworks and keep the SDK test parallelism"
+
+            Expect.equal
+                (fst (evaluate project [ "-p:LibraryTargetFrameworks=net11.0" ]))
+                "net11.0"
+                $"{project} should read its frameworks from LibraryTargetFrameworks"
+
+        Expect.equal
+            (evaluate tests [ "-p:AltCover=true" ])
+            ("net10.0;net11.0", "false")
+            "AltCover 8 runs must not run the test frameworks in parallel"
 
     let private consoleCommandsPreserveOptionalMetadata _ =
         use generated = Disposables.DisposableDirectory.Create()
@@ -1461,16 +1525,23 @@ if (actual != expected)
                 use generated = Disposables.DisposableDirectory.Create()
                 let directory = generateArchiveProject generated.Directory
 
-                let projectPath =
-                    IO.Path.Combine(directory, "src", "ArchiveApp", "ArchiveApp.fsproj")
+                for projectPath in
+                    [
+                        IO.Path.Combine(directory, "src", "ArchiveApp", "ArchiveApp.fsproj")
+                        IO.Path.Combine(
+                            directory,
+                            "tests",
+                            "ArchiveApp.Tests",
+                            "ArchiveApp.Tests.fsproj"
+                        )
+                    ] do
+                    let project = XDocument.Load projectPath
 
-                let project = XDocument.Load projectPath
+                    project.Descendants(XName.Get "TargetFramework")
+                    |> Seq.exactlyOne
+                    |> fun element -> element.Value <- "net11.0"
 
-                project.Descendants(XName.Get "TargetFramework")
-                |> Seq.exactlyOne
-                |> fun element -> element.Value <- "net9.0"
-
-                project.Save projectPath
+                    project.Save projectPath
 
                 IO.File.WriteAllText(
                     IO.Path.Combine(directory, "CHANGELOG.md"),
@@ -1662,6 +1733,9 @@ if (actual != expected)
             do setup ()
             testList "contracts" [
                 testCase
+                    "library projects share their target frameworks"
+                    libraryProjectsShareFrameworks
+                testCase
                     "console commands preserve optional release metadata"
                     consoleCommandsPreserveOptionalMetadata
                 testCase
@@ -1681,6 +1755,10 @@ if (actual != expected)
                         yield! projectStructureAsserts
                         Assert.``File does not exist`` "src/MyCoolLib/AssemblyInfo.fs"
                         Assert.``project can build target`` "DotnetPack"
+                        Assert.``tests ran on each target framework`` "MyCoolLib.Tests" [
+                            "net10.0"
+                            "net11.0"
+                        ]
                         Assert.``assembly info values are set after pack`` "MyCoolLib"
                         Assert.``project can build target`` "BuildDocs"
                     ]

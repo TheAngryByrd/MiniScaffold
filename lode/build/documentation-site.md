@@ -43,7 +43,7 @@ The site URL is `https://www.jimmybyrd.me/MiniScaffold/` (`documentationRootUrl`
 ## Invariants
 
 - `.gitignore` ignores `docs/`, `temp/`, `tmp/`, and `.fsdocs`. Do not put tracked files in a directory named `docs`.
-- The build project targets net8.0, so the docs build needs the .NET 8 runtime (`build-and-preview-docs.md`).
+- The build project targets net10.0, so the docs build needs the .NET 10 runtime in addition to SDK 11 (`build-and-preview-docs.md`).
 
 ## Related
 

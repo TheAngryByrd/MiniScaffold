@@ -57,7 +57,7 @@ For the root, library, and console builds:
 
 ## PackageDocuments (`PackageDocumentTests.fs`)
 
-A `projLib` package in a library or console host must declare README.md and LICENSE.md once each, and contain one DLL for each of net8.0, net9.0, and net10.0.
+A `projLib` package in a library or console host must declare README.md and LICENSE.md once each, and contain one DLL for each of net10.0 and net11.0.
 
 Run one group with an Expecto filter, as `.github/workflows/build.yml` does for `console archives`:
 

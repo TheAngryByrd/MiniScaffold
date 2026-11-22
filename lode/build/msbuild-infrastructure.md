@@ -10,7 +10,7 @@ The root `Directory.*` files apply to every project in `MiniScaffold.slnx` (`tes
 | `Directory.Solution.targets` | Incremental `dotnet tool restore` before restore |
 | `Directory.Packages.props` | Central package management and lock files |
 | `NuGet.config` | Clears sources and maps all packages to nuget.org |
-| `global.json` | SDK `10.0.100`, `rollForward: latestMinor` |
+| `global.json` | SDK `11.0.100`, `rollForward: latestMinor` |
 | `.config/dotnet-tools.json` | `fantomas` 7.0.3 and `fsdocs-tool` 18.1.0 |
 
 ```mermaid

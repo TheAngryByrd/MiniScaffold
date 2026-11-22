@@ -5,6 +5,7 @@
 - output type - the value of `--outputType`: `library`, `console`, `projLib`, `projConsole`, or `projTest`.
 - generated repository - the repository that the `library` or `console` output type creates.
 - project output - the single project that `projLib`, `projConsole`, or `projTest` creates for an existing solution.
+- `LibraryTargetFrameworks` - the MSBuild property in the generated library `Directory.Build.props` that sets the TFMs of the library and its tests.
 - placeholder token - text in the template content that a parameter replaces: `MyLib.1`, `MyGithubUsername`, `MyReleaseBranch`.
 - source name - `MyLib.1`, the token that `-n` replaces in file names, directory names, and text.
 - custom hive - the temporary `dotnet new` template store that the tests pass with `--debug:custom-hive`.

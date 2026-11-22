@@ -9,4 +9,8 @@
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(AltCover)' == 'true'">
+        <!-- AltCover 8 deletes every $(TEMP)/*.altcover.runsettings after each test run, including the file of a parallel target framework run. AltCover 9 deletes only its own file. -->
+        <TestTfmsInParallel>false</TestTfmsInParallel>
+    </PropertyGroup>
 </Project>

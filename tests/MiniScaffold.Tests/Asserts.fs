@@ -5,6 +5,7 @@ open System.IO.Compression
 open System.Diagnostics
 open System.Reflection
 open System.Runtime.Loader
+open System.Xml.Linq
 open Expecto
 open Infrastructure
 open Fake.IO.FileSystemOperators
@@ -171,6 +172,55 @@ module Assert =
         let filepath = Path.Combine(d.FullName, file)
         Expect.isFalse (File.Exists filepath) (sprintf "%s should not exist" filepath)
 
+    let ``tests ran on each target framework`` testProjectName frameworks (d: DirectoryInfo) =
+        let resultsDirectory =
+            Path.Combine(d.FullName, "tests", testProjectName, "TestResults")
+
+        let trxNamespace =
+            XNamespace.Get "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"
+
+        let requiredAttribute trx name (element: XElement) =
+            match element.Attribute(XName.Get name) with
+            | null -> failtestf "%s has a %s without a %s attribute" trx element.Name.LocalName name
+            | attribute -> attribute.Value
+
+        let passedFrameworks trx =
+            let document = XDocument.Load(trx: string)
+
+            let frameworkByTest =
+                document.Descendants(
+                    trxNamespace
+                    + "UnitTest"
+                )
+                |> Seq.map (fun test ->
+                    requiredAttribute trx "id" test,
+                    Path.GetFileName(Path.GetDirectoryName(requiredAttribute trx "storage" test))
+                )
+                |> Map.ofSeq
+
+            document.Descendants(
+                trxNamespace
+                + "UnitTestResult"
+            )
+            |> Seq.filter (fun result -> requiredAttribute trx "outcome" result = "Passed")
+            |> Seq.map (fun result ->
+                let testId = requiredAttribute trx "testId" result
+
+                match Map.tryFind testId frameworkByTest with
+                | Some framework -> framework
+                | None -> failtestf "%s has a result for unknown test %s" trx testId
+            )
+
+        let testedFrameworks =
+            Directory.GetFiles(resultsDirectory, "*.trx")
+            |> Seq.collect passedFrameworks
+            |> Set.ofSeq
+
+        Expect.equal
+            testedFrameworks
+            (Set.ofList frameworks)
+            $"{resultsDirectory} should hold passed test results for each library target framework"
+
     let ``assembly info values are set after pack`` projectName (d: DirectoryInfo) =
         let mutable extractedDllDir: string option = None
 
@@ -183,7 +233,7 @@ module Assert =
         let entry =
             archive.Entries
             |> Seq.tryFind (fun x ->
-                x.FullName.StartsWith("lib/net8.0/")
+                x.FullName.StartsWith("lib/net10.0/")
                 && x.FullName.EndsWith($"/{projectName}.dll")
             )
 
@@ -201,7 +251,7 @@ module Assert =
                 extractedDllDir <- Some tempDir
 
                 tempPath
-            | None -> failtestf "Could not find lib/net8.0/%s.dll in %s" projectName nupkgPath
+            | None -> failtestf "Could not find lib/net10.0/%s.dll in %s" projectName nupkgPath
 
         let assemblyName = AssemblyName.GetAssemblyName(dllPath)
         Expect.equal assemblyName.Version (Version "0.1.0.0") "AssemblyVersion should be 0.1.0.0"

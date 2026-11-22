@@ -56,6 +56,17 @@ Before the run, it removes `MSBuildSDKsPath` and `MSBuildExtensionsPath` and set
 - Library cases alternate between `Library.A` and `Library.B` by index. Console cases go into `Console`.
 - These group names are part of the partition plan. See [test-partitions.md](test-partitions.md).
 
+## Target framework cases
+
+- The `MyCoolLib` library case runs `DotnetPack`, then ``tests ran on each target framework`` (`Asserts.fs`). It reads each TRX file in `tests/MyCoolLib.Tests/TestResults`, joins `UnitTestResult/@testId` to `UnitTest/@id`, and takes the TFM from the `UnitTest/@storage` path. Each of `net10.0` and `net11.0` must have a `Passed` result.
+- `packed libraries supply FSharp.Core ...` compares the nuspec dependency groups with the literal list `net10.0; net11.0`, and requires one FSharp.Core dependency in each group.
+- `library projects share their target frameworks` (`samples.contracts`) runs `dotnet msbuild -getProperty:TargetFrameworks,TestTfmsInParallel` on the generated library and test projects. Both must give `net10.0;net11.0`, both must follow `-p:LibraryTargetFrameworks=net11.0`, and the test project must give `TestTfmsInParallel=false` with `-p:AltCover=true`.
+- The assertion reads VSTest TRX files. A change of test runner must keep TRX output with `UnitTest/@storage`, or change the assertion.
+
+```fsharp
+Assert.``tests ran on each target framework`` "MyCoolLib.Tests" [ "net10.0"; "net11.0" ]
+```
+
 ## Release and publish cases
 
 - `setup for release tests` and `setup for publish tests` (`Asserts.fs`) run `git init` and patch the generated `build/build.fs`.

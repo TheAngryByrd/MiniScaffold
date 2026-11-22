@@ -314,7 +314,7 @@ module Builds =
     let internal diagnosticsRoot =
         Path.GetFullPath(Path.Combine(__SOURCE_DIRECTORY__, "../../TestResults/generated-builds"))
 
-    let private retainFailure destination workingDir diagnostics =
+    let private retainFailure destination workingDir (diagnostics: string) =
         try
             Directory.CreateDirectory destination
             |> ignore
