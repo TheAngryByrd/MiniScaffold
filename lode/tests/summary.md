@@ -24,7 +24,7 @@ Without a partition, this runs every test. The last unpartitioned CI run took 11
 
 ## Files
 
-The compile order in `MiniScaffold.Tests.fsproj` is fixed: Infrastructure, ProcessCaptureTests, Asserts, Tests, ReleasePolicyTests, PackageDocumentTests, AuditPolicyTests, GeneratedReleasePolicyTests, FormattingTests, TrustedPublishingTests, Main.
+The compile order in `MiniScaffold.Tests.fsproj` is fixed: Infrastructure, ProcessCaptureTests, Asserts, Tests, ReleasePolicyTests, PackageDocumentTests, AuditPolicyTests, GeneratedReleasePolicyTests, FormattingTests, DevcontainerPolicyTests, TrustedPublishingTests, ReleaseToChangelogTests, Main.
 
 | File | Role |
 | --- | --- |
@@ -40,7 +40,7 @@ The compile order in `MiniScaffold.Tests.fsproj` is fixed: Infrastructure, Proce
 - [integration-tests.md](integration-tests.md) - the end-to-end flow of one `samples` case.
 - [test-partitions.md](test-partitions.md) - how CI splits and verifies the tests.
 - [process-capture.md](process-capture.md) - process execution, drain timeouts, and diagnostics.
-- [policy-tests.md](policy-tests.md) - audit, release, trusted publishing, formatting, and package document contracts.
+- [policy-tests.md](policy-tests.md) - audit, release, trusted publishing, formatting, devcontainer, and package document contracts.
 - [test-platform.md](test-platform.md) - VSTest, the Expecto adapter, and why the tests do not use MTP.
 
 ## Related

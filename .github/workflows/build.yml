@@ -333,3 +333,4 @@ jobs:
             set -e
             dotnet --info
             starship --version
+            test "$(command -v starship)" = "/usr/local/bin/starship"

@@ -31,7 +31,7 @@ flowchart TD
 - `build-arm64` and `build-arm64-macos` run `./build.sh DotnetPack` and then only the `console archives` tests.
 - `build` is the gate. It has `needs` on all jobs above and `if: always()`. Each matrix cell downloads the evidence for one OS and configuration and runs `Verify`.
 - `build-devcontainer` runs `./build.sh` in the dev container.
-- `build-template-devcontainer` builds the `Content/Library` and `Content/Console` dev containers and runs `dotnet --info` and `starship --version` in each.
+- `build-template-devcontainer` builds the `Content/Library` and `Content/Console` dev containers and runs `dotnet --info` and `starship --version` in each. Starship comes from the official install script, and the job checks that it is `/usr/local/bin/starship` (see [action-versions.md](action-versions.md#starship-in-the-devcontainers)).
 
 ## Gate command
 

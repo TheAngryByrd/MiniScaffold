@@ -9,11 +9,13 @@ flowchart LR
     Root --> Release["ReleasePolicy"]
     Root --> Trusted["TrustedPublishing"]
     Root --> Format["Formatting"]
+    Root --> Devcontainer["DevcontainerPolicy"]
     Gen["Generated Library / Console"] --> Audit
     Gen --> GenRelease["GeneratedReleasePolicy"]
     Gen --> Trusted
     Gen --> Format
     Gen --> PkgDocs["PackageDocuments"]
+    Gen --> Devcontainer
 ```
 
 ## AuditPolicy (`AuditPolicyTests.fs`)
@@ -55,6 +57,10 @@ For the root, library, and console builds:
 - Tool restore runs before project dispatch and reuses its stamp.
 - A multi-target build formats once. `Clean` removes the stamps.
 - `CheckFormatCode` is read-only and reports "Some files need formatting". Parser failures propagate.
+
+## DevcontainerPolicy (`DevcontainerPolicyTests.fs`)
+
+- For the root, `Content/Library`, and `Content/Console`, no non-comment line of `.devcontainer/devcontainer.json` names a starship feature, and `.devcontainer/Dockerfile` has the active line `RUN curl -sS https://starship.rs/install.sh | sh -s -- --yes && starship --version`. See [../ci/action-versions.md](../ci/action-versions.md#starship-in-the-devcontainers).
 
 ## PackageDocuments (`PackageDocumentTests.fs`)
 

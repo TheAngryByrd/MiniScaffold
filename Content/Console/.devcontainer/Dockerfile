@@ -15,3 +15,7 @@ ENV \
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 #     && apt-get -y install --no-install-recommends <your-package-list-here>
+
+# The install script downloads the latest release from github.com/starship/starship/releases and makes no GitHub API call.
+# The pipe exits 0 when curl gets no script, so starship --version fails the build instead.
+RUN curl -sS https://starship.rs/install.sh | sh -s -- --yes && starship --version
