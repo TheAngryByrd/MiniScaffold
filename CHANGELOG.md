@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#354 Target net10.0 and net11.0 in generated libraries and pin SDK 11](https://github.com/TheAngryByrd/MiniScaffold/pull/363) from @TheAngryByrd
 - [#355 Update packages and .NET tools to current stable versions](https://github.com/TheAngryByrd/MiniScaffold/pull/367) from @TheAngryByrd
 
+### Added
+- [#358 Keep actions, packages, tools, and devcontainer features current with Dependabot](https://github.com/TheAngryByrd/MiniScaffold/pull/372) from @TheAngryByrd
+
 ### Fixed
 - [#360 Collect coverage in generated CI builds in a git repository](https://github.com/TheAngryByrd/MiniScaffold/pull/369) from @TheAngryByrd
 - [#366 Give generated API reference pages a template without the edit link](https://github.com/TheAngryByrd/MiniScaffold/pull/370) from @TheAngryByrd

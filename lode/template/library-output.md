@@ -10,6 +10,7 @@
 - `build/` - `build.fs`, `Changelog.fs`, `FsDocs.fs`, and `build.fsproj` (net10.0).
 - `docsSrc/` - fsdocs source for the generated documentation site.
 - `.github/workflows/` - `build.yml`, `publish.yml`, and `fsdocs-gh-pages.yml`.
+- `.github/dependabot.yml` - weekly updates of actions, NuGet packages and tools, devcontainer features, and the `global.json` SDK. FSharp.Core is ignored. See [../ci/dependency-updates.md](../ci/dependency-updates.md#generated-repositories).
 - `MyLib.1.slnx`, `Directory.Packages.props` (central package management), and `global.json` (SDK `11.0.100`).
 
 ## FAKE target graph

@@ -28,6 +28,7 @@ chmod +x ./build.sh
 
 - [workflows.md](workflows.md) - the jobs, matrices, and gate of `build.yml`.
 - [action-versions.md](action-versions.md) - the action major versions, the artifact contracts, and the devcontainer features.
+- [dependency-updates.md](dependency-updates.md) - the Dependabot configurations of MiniScaffold and of the generated repositories.
 
 ## Other `.github` files
 

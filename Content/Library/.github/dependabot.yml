@@ -1,0 +1,34 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  # Updates Directory.Packages.props, .config/dotnet-tools.json, and the committed packages.lock.json files
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: weekly
+    ignore:
+      # The packed library keeps a low FSharp.Core dependency for its consumers
+      - dependency-name: FSharp.Core
+    groups:
+      nuget:
+        patterns: ["*"]
+
+  - package-ecosystem: devcontainers
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      devcontainer-features:
+        patterns: ["*"]
+
+  - package-ecosystem: dotnet-sdk
+    directory: "/"
+    schedule:
+      interval: weekly
