@@ -37,18 +37,11 @@ jobs:
             10.x
             11.x
 
-      # MSBuild worker nodes run as dotnet.exe. The FAKE build runs as build.exe, so its expected failures write no dump.
-      - name: Keep crash dumps of dotnet.exe
+      # createdump writes no dump into a missing folder
+      - name: Create crash dump folder
         if: runner.os == 'Windows'
         shell: pwsh
-        run: |
-          $dumps = Join-Path $env:RUNNER_TEMP 'crash-dumps'
-          New-Item -ItemType Directory -Force $dumps | Out-Null
-          $key = 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\dotnet.exe'
-          New-Item -Force $key | Out-Null
-          New-ItemProperty -Force -Path $key -Name DumpFolder -PropertyType ExpandString -Value $dumps | Out-Null
-          New-ItemProperty -Force -Path $key -Name DumpCount -PropertyType DWord -Value 10 | Out-Null
-          New-ItemProperty -Force -Path $key -Name DumpType -PropertyType DWord -Value 1 | Out-Null
+        run: New-Item -ItemType Directory -Force (Join-Path $env:RUNNER_TEMP 'crash-dumps') | Out-Null
 
       - name: Probe crash dump (temporary)
         if: runner.os == 'Windows'
@@ -59,10 +52,13 @@ jobs:
           "dotnet fsi exit code: $LASTEXITCODE"
           Remove-Item probe.fsx
           $dumps = Join-Path $env:RUNNER_TEMP 'crash-dumps'
-          for ($i = 0; $i -lt 30 -and -not (Get-ChildItem $dumps -Filter *.dmp); $i++) { Start-Sleep -Seconds 1 }
           Get-ChildItem $dumps | Format-Table Name, Length
-          if (-not (Get-ChildItem $dumps -Filter *.dmp)) { throw "no crash dump in $dumps" }
+          if (-not (Get-ChildItem $dumps -Filter 'dotnet.exe.*.dmp')) { throw "no crash dump in $dumps" }
           Remove-Item (Join-Path $dumps '*.dmp')
+        env:
+          DOTNET_DbgEnableMiniDump: 1
+          DOTNET_DbgMiniDumpType: 1
+          DOTNET_DbgMiniDumpName: ${{ runner.temp }}\crash-dumps\%e.%p.dmp
 
       - name: Build via Bash
         if: runner.os != 'Windows'
@@ -80,6 +76,10 @@ jobs:
           CONFIGURATION: ${{ matrix.configuration }}
           CI: true
           MSBUILDDEBUGPATH: ${{ runner.temp }}/msbuild-debug
+          # Every .NET process that crashes or ends with an unhandled exception writes a mini dump. Only dotnet.exe dumps (MSBuild nodes) are uploaded.
+          DOTNET_DbgEnableMiniDump: 1
+          DOTNET_DbgMiniDumpType: 1
+          DOTNET_DbgMiniDumpName: ${{ runner.temp }}\crash-dumps\%e.%p.dmp
       - name: Upload partition evidence
         if: always()
         uses: actions/upload-artifact@v7
@@ -105,7 +105,7 @@ jobs:
           name: crash-evidence-${{ matrix.target.os }}-${{ matrix.configuration }}-${{ matrix.target.partition }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             ${{ runner.temp }}/msbuild-debug/
-            ${{ runner.temp }}/crash-dumps/
+            ${{ runner.temp }}/crash-dumps/dotnet.exe.*.dmp
           if-no-files-found: ignore
           retention-days: 7
 
