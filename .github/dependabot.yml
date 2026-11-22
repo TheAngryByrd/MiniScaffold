@@ -1,0 +1,40 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    # "/" scans /.github/workflows and a root action.yml or action.yaml. Any other entry scans the YAML files in that directory itself.
+    directories:
+      - "/"
+      - "/.github/actions/*"
+      - "/Content/Library/.github/workflows"
+      - "/Content/Console/.github/workflows"
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        group-by: dependency-name
+
+  # Updates Directory.Packages.props, .config/dotnet-tools.json, and the committed packages.lock.json files
+  - package-ecosystem: nuget
+    directories:
+      - "/"
+      - "/Content/Library"
+      - "/Content/Console"
+    schedule:
+      interval: weekly
+    ignore:
+      # The generated library keeps a low FSharp.Core dependency (#353). An ignore applies to every directory of this block.
+      - dependency-name: FSharp.Core
+    groups:
+      nuget:
+        group-by: dependency-name
+
+  - package-ecosystem: devcontainers
+    directories:
+      - "/"
+      - "/Content/Library"
+      - "/Content/Console"
+    schedule:
+      interval: weekly
+    groups:
+      devcontainer-features:
+        group-by: dependency-name

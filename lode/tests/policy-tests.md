@@ -10,6 +10,7 @@ flowchart LR
     Root --> Trusted["TrustedPublishing"]
     Root --> Format["Formatting"]
     Root --> Devcontainer["DevcontainerPolicy"]
+    Root --> Dependabot["DependabotPolicy"]
     Gen["Generated Library / Console"] --> Audit
     Gen --> GenRelease["GeneratedReleasePolicy"]
     Gen --> Trusted
@@ -45,7 +46,7 @@ It checks that the generated files equal the template files after parameter subs
 Checks the root, packed, and generated `publish.yml`:
 
 - The publishing job owns `id-token: write` and `contents: write` and uses the `nuget` environment.
-- One `NuGet/login@v1` step uses `vars.NUGET_USER` and comes directly before publication.
+- One `NuGet/login@v<major>` step uses `vars.NUGET_USER` and comes directly before publication. The test accepts any major, so a Dependabot update passes it.
 - Publication uses only the login output and keeps the tag guard.
 - The READMEs and docs describe the policy with the owner and repository substituted.
 
@@ -61,6 +62,14 @@ For the root, library, and console builds:
 ## DevcontainerPolicy (`DevcontainerPolicyTests.fs`)
 
 - For the root, `Content/Library`, and `Content/Console`, no non-comment line of `.devcontainer/devcontainer.json` names a starship feature, and `.devcontainer/Dockerfile` has the active line `RUN curl -sS https://starship.rs/install.sh | sh -s -- --yes && starship --version`. See [../ci/action-versions.md](../ci/action-versions.md#starship-in-the-devcontainers).
+
+## DependabotPolicy (`DependabotPolicyTests.fs`)
+
+- For `github-actions`, `devcontainers`, and `nuget`, every tracked manifest (`git ls-files -z`, with a one-minute deadline) must be read by an entry of the `directories` sequence in `.github/dependabot.yml`, by the dependabot-core fetcher rules, and every entry must read a manifest.
+- Each `nuget` entry must hold a top-level solution or project file and its own `.config/dotnet-tools.json`.
+- The `nuget` block must ignore all FSharp.Core versions and nothing else. Each block must update weekly and have one group with `group-by: dependency-name`.
+- `DependabotConfig.fs` parses a Dependabot file into records (`Update`, `Group`, `IgnoreRule`). This policy test and the generated-repository assertion share it.
+- The tests read files and run `git ls-files` only. They run in the `other` partition. See [../ci/dependency-updates.md](../ci/dependency-updates.md).
 
 ## PackageDocuments (`PackageDocumentTests.fs`)
 

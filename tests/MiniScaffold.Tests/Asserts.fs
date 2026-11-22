@@ -447,6 +447,74 @@ module Assert =
             ]
             "The Bash and Windows build steps should each collect coverage in the Debug leg only"
 
+    let ``dependabot config covers the generated repository``
+        (ignoredNuGet: string list)
+        (d: DirectoryInfo)
+        =
+        let config =
+            DependabotConfig.read (Path.Combine(d.FullName, ".github", "dependabot.yml"))
+
+        Expect.equal config.Version "2" "dependabot.yml should use version 2"
+
+        let manifests =
+            Map [
+                "github-actions", ".github/workflows"
+                "nuget", "Directory.Packages.props"
+                "devcontainers", ".devcontainer/devcontainer.json"
+                "dotnet-sdk", "global.json"
+            ]
+
+        Expect.equal
+            (config.Updates
+             |> List.map _.Ecosystem
+             |> List.sort)
+            (manifests
+             |> Map.keys
+             |> List.ofSeq)
+            "dependabot.yml should cover each ecosystem of the generated repository once"
+
+        for update in config.Updates do
+            Expect.equal
+                update.Directories
+                [ "/" ]
+                $"{update.Ecosystem} should scan the repository root"
+
+            Expect.equal update.Interval "weekly" $"{update.Ecosystem} should update weekly"
+
+            let manifest = Path.Combine(d.FullName, manifests[update.Ecosystem])
+
+            Expect.isTrue
+                (File.Exists manifest
+                 || Directory.Exists manifest)
+                $"{update.Ecosystem} needs {manifest}"
+
+            let expectedGroups =
+                if update.Ecosystem = "dotnet-sdk" then
+                    []
+                else
+                    [ set [ "patterns" ], [ "*" ] ]
+
+            Expect.equal
+                (update.Groups
+                 |> List.map (fun group -> group.Keys, group.Patterns))
+                expectedGroups
+                $"{update.Ecosystem} should group all its version updates into one pull request"
+
+        let nuget =
+            config.Updates
+            |> List.find (fun update -> update.Ecosystem = "nuget")
+
+        Expect.equal
+            nuget.Ignore
+            [
+                for name in ignoredNuGet ->
+                    {
+                        DependabotConfig.DependencyName = name
+                        DependabotConfig.Keys = set [ "dependency-name" ]
+                    }
+            ]
+            "dependabot.yml should ignore all versions of the expected NuGet packages and nothing else"
+
     let ``tests ran on each target framework`` testProjectName frameworks (d: DirectoryInfo) =
         let resultsDirectory =
             Path.Combine(d.FullName, "tests", testProjectName, "TestResults")

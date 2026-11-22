@@ -80,8 +80,12 @@ module TrustedPublishingTests =
         |> List.rev
         |> List.map List.rev
 
+    // Dependabot moves the major tag of NuGet/login
     let private loginStep step =
-        List.contains "        uses: NuGet/login@v1" step
+        step
+        |> List.exists (fun (line: string) ->
+            Regex.IsMatch(line, @"^        uses: NuGet/login@v\d+$")
+        )
 
     let private publishStep step =
         List.tryHead step = Some "      - name: publish"
@@ -270,7 +274,12 @@ module TrustedPublishingTests =
             Change =
                 fun text ->
                     let login =
-                        "      - name: NuGet login\n        id: nuget_login\n        uses: NuGet/login@v1\n        with:\n          user: ${{ vars.NUGET_USER }}\n"
+                        Regex
+                            .Match(
+                                text,
+                                @"      - name: NuGet login\n        id: nuget_login\n        uses: NuGet/login@v\d+\n        with:\n          user: \$\{\{ vars\.NUGET_USER \}\}\n"
+                            )
+                            .Value
 
                     text
                         .Replace(login, "")

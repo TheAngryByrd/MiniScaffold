@@ -1908,6 +1908,9 @@ stderr:
                         Assert.``API page template is the page template without the edit link``
                         Assert.``docs use the fsdocs search contract``
                         Assert.``CI workflow collects coverage only in Debug``
+                        Assert.``dependabot config covers the generated repository`` [
+                            "FSharp.Core"
+                        ]
                         Effect.``commit the repository``
                         Assert.``coverage report covers each target framework`` "MyCoolLib.Tests" [
                             "net10.0"
@@ -1983,6 +1986,7 @@ stderr:
                     "-n MyCoolApp --githubUsername CoolPersonNo2 --outputType Console",
                     [
                         yield! projectStructureAsserts
+                        Assert.``dependabot config covers the generated repository`` []
                         Assert.``project can build target`` "CreatePackages"
                         Effect.``commit the repository``
                         Assert.``CI coverage report has visits`` "MyCoolApp.Tests"

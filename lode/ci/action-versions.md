@@ -2,7 +2,7 @@
 
 The root workflows and the generated workflows use the same major version of each action.
 The generated workflows are under `Content/Library/.github/workflows/` and `Content/Console/.github/workflows/`.
-No check compares the two sets. [Issue #358](https://github.com/TheAngryByrd/MiniScaffold/issues/358) adds Dependabot for them.
+No check compares the two sets. Dependabot opens one version-update pull request for each action across all copies, unless the copies have incompatible versions (see [dependency-updates.md](dependency-updates.md)).
 
 | Action | Major | Root files | Generated files |
 | --- | --- | --- | --- |
